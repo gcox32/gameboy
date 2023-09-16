@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: gameboy;
-  src: url('/staticfiles/genone/fonts/PokemonGb.ttf');
+  src: url('/static/fonts/PokemonGb.ttf');
 }
 
 @import "@aws-amplify/ui-react/styles.css";
@@ -80,6 +80,7 @@
 .App-header {
   position: absolute;
   right: 0;
+  max-width: 300px;
 }
 
 h3.amplify-heading:hover,
