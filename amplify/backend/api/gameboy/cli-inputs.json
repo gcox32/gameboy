@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "gameboy",
+    "serviceName": "AppSync",
+    "defaultAuthType": {
+      "mode": "AMAZON_COGNITO_USER_POOLS",
+      "cognitoUserPoolId": "authgameboy6eb57d28"
+    },
+    "additionalAuthTypes": [
+      {
+        "mode": "API_KEY",
+        "expirationTime": 2,
+        "apiKeyExpirationDate": "2023-09-07T00:03:47.684Z",
+        "keyDescription": "why do i need this"
+      }
+    ]
+  }
+}

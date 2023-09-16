@@ -6,16 +6,18 @@ import { withAuthenticator, Authenticator } from '@aws-amplify/ui-react';
 import awsconfig from './aws-exports';
 // auth components
 // import { Header } from "./pages/auth/Header";
+import Console from './components/GBCEmulator';
 import { Footer } from "./pages/auth/Footer";
 import { SignInHeader } from "./pages/auth/SignInHeader";
 import { SignInFooter } from "./pages/auth/SignInFooter";
-import "./styles.css";
+import './auth.css';
 
 Amplify.configure(awsconfig);
 
 function App() {
   return (
     <div className="App">
+      <Console />
       <header className="App-header">
         <Authenticator >
           {({ signOut }) => (
@@ -41,3 +43,5 @@ export default withAuthenticator(App, {
   },
   hideSignUp: true
 });
+
+// export default App;
