@@ -17,6 +17,7 @@ var gameList = [
 	'blue.gbc', 'yellow.gbc', 'red.gbc', 'green.gb'
 ]
 
+
 function windowingInitialize() {
 	console.log("windowingInitialize() called.", 0);
 	windowStacks[0] = windowCreate("GameBoy", true);
@@ -91,18 +92,18 @@ function registerGUIEvents() {
 			loadNewGameFunc(newCart);
 		}
 	});
-	addEvent("click", document.getElementById("refresh-party"), function () {
-		var game = document.getElementById("active-cart").textContent;
-		clearInterval(updateInterval);
-		updateParty(gameboy.saveState(), 'gif', game);
-	})
-	addEvent("mousedown", document.getElementById("refresh-party"), function() {
-		document.getElementById("refresh-icon").setAttribute("src", "/staticfiles/genone/images/icons/refresh.gif");
-	})
-	addEvent("mouseup", document.getElementById("refresh-party"), function() {
-		document.getElementById("refresh-icon").setAttribute("src", "/staticfiles/genone/images/icons/refresh.png");
-	})
-	addEvent("click", document.getElementById("adjust-speed-btn"), function () {
+	// addEvent("click", document.getElementById("refresh-party"), function () {
+	// 	var game = document.getElementById("active-cart").textContent;
+	// 	clearInterval(updateInterval);
+	// 	updateParty(gameboy.saveState(), 'gif', game);
+	// })
+	// addEvent("mousedown", document.getElementById("refresh-party"), function() {
+	// 	document.getElementById("refresh-icon").setAttribute("src", "/staticfiles/genone/images/icons/refresh.gif");
+	// })
+	// addEvent("mouseup", document.getElementById("refresh-party"), function() {
+	// 	document.getElementById("refresh-icon").setAttribute("src", "/staticfiles/genone/images/icons/refresh.png");
+	// })
+	addEvent("change", document.getElementById("speed-input"), function () {
 		if (GameBoyEmulatorInitialized()) {
 			var speed = document.getElementById("speed-input").value;
 			if (speed != null && speed.length > 0) {
@@ -317,7 +318,7 @@ function keyUp(event) {
 	}
 };
 function initPlayer() {
-	document.getElementById("logo").style.display = "none";
+	// document.getElementById("logo").style.display = "none";
 	document.getElementById("fullscreenContainer").style.display = "none";
 };
 function fullscreenPlayer() {
@@ -412,24 +413,31 @@ function removeEvent(sEvent, oElement, fListener) {
 };
 
 // new stuff
-function loadNewGame(filepath, callback) {
+async function loadNewGame(filepath, callback) {
 	var xhr = new XMLHttpRequest();
 	const filename = filepath.split('/')[2];
-	xhr.open("GET", filepath, true);
-	xhr.responseType = 'blob';
-	xhr.send();
-
-	xhr.onreadystatechange = function() {
-		if (this.status==200) {
-			myBlob = new Blob([xhr.response]);
-			myFile = new File([myBlob], filename, {
-				type: myBlob.type
-			});
-			callback(myBlob, myFile);
-
-		};
-	};
-	return [myBlob, myFile]
+	// xhr.open("GET", filepath, true);
+	// xhr.responseType = 'blob';
+	// xhr.send();
+	// xhr.onreadystatechange = function() {
+	// 	if (this.status==200) {
+	// 		const myBlob = new Blob([xhr.response]);
+	// 		const myFile = new File(
+	// 			[myBlob], 
+	// 			filename, 
+	// 			{type: myBlob.type}
+	// 		);
+	// 		callback(myBlob, myFile);
+	// 	};
+	// };
+	const response = await fetch(filepath, {
+		method: 'GET',
+		responseType: 'blob'
+	})
+	const blob = await response.blob();
+	const myfile = new File([blob], filename, {type:blob});
+	callback(blob, myfile);
+	return [blob, myfile]
 };
 function loadSavedGame(filepath, callback) {
 	var xhr = new XMLHttpRequest();
@@ -498,7 +506,7 @@ function getVars(gameIdx) {
 	return [gameFile, game, clickedCode, saveFileLoc]
 };
 function loadNewGameFunc(gameFile) {
-	var cartridge = loadNewGame('/genone/roms/new-' + gameFile, function(blob, file) {
+	var cartridge = loadNewGame('/carts/' + gameFile, function(blob, file) {
 		var reader = new FileReader();
 		reader.addEventListener('load', function (e) {
 			initPlayer();
@@ -508,7 +516,7 @@ function loadNewGameFunc(gameFile) {
 	});
 };
 function loadSavedGameFunc(saveFileLoc) {
-	var savedGame = loadSavedGame('/genone/roms/' + saveFileLoc, function(saveState){
+	var savedGame = loadSavedGame('/carts/saves/' + saveFileLoc, function(saveState){
 		clearLastEmulation();
 		gameboy = new GameBoyCore(mainCanvas, "");
 		gameboy.savedStateFileName = saveFileLoc;
@@ -518,9 +526,10 @@ function loadSavedGameFunc(saveFileLoc) {
 };
 function loadSavedorNewGame(clickedCode, game, gameFile, saveFileLoc) {
 	document.getElementById("on-light").style.opacity = 1;
-	document.getElementById('speed-input').disabled = false;
-	document.getElementById('speed-input').value = 1;
-	backgroundSwitch(game);
+	var speedInput = document.getElementById('speed-input');
+	speedInput.disabled = false;
+	speedInput.value = 1;
+	// backgroundSwitch(game);
 	pullOutPartyDrawer();
 	clearParty();
 	try {
@@ -531,7 +540,7 @@ function loadSavedorNewGame(clickedCode, game, gameFile, saveFileLoc) {
 		}
 	};
 
-	if (clickedCode == game + "-new") {
+	if (clickedCode == "new") {
 		loadNewGameFunc(gameFile);
 	} else {
 		loadSavedGameFunc(saveFileLoc);
@@ -574,8 +583,8 @@ function releaseBtn(eventObj, keyCode) {
 // drawers
 function pullOutPartyDrawer() {
 	pushInDrawers();
-	partyArrow.style.transform = 'rotate(180deg)'
-	partyDrawer.style.transform = 'translateX(0)'
+	// partyArrow.style.transform = 'rotate(180deg)'
+	// partyDrawer.style.transform = 'translateX(0)'
 };
 function pushInDrawers() {
 	for(let i=0; i<drawers.length; i++) {

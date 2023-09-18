@@ -1,12 +1,12 @@
 @charset "utf-8";
 
 @font-face {
-  font-family: gameboy;
-  src: url('/static/fonts/PokemonGb.ttf');
+  font-family: gameboy !important;
+  src: url('/static/fonts/PokemonGb.ttf') !important;
 }
 
 @import "@aws-amplify/ui-react/styles.css";
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap"); */
 
 :root {
   --amplify-fonts-default-variable: "Open Sans";
@@ -59,6 +59,10 @@
 	--psychic: rgb(253, 210, 217);
 	--ice: rgb(186, 249, 249);
 	--dragon: rgb(255, 226, 171);
+}
+
+* {
+  font-family: gameboy, sans-serif !important;
 }
 
 [data-amplify-router] {
@@ -202,7 +206,7 @@ div[class~='dragon-type'] {
 html {
   margin: 0;
   padding: 0;
-  font-family: gameboy, sans-serif;
+  font-family: gameboy, sans-serif !important;
   font-size: 12px;
   margin: 0;
   padding: 0;
@@ -494,7 +498,7 @@ body>#fullscreenContainer>canvas#fullscreen.minimum {
 }
 
 #speed-input {
-  width: 25%;
+  width: 100px;
   height: 27px;
   border: 2px black solid;
   margin-right: 5px;
@@ -697,24 +701,6 @@ a.card {
   outline: 2px black solid;
   margin: 10px;
   background-repeat: no-repeat;
-}
-
-.wtp {
-  background-position: right;
-  background-size: 173%;
-  background-image: url('/static/images/wtp.jpg');
-}
-
-.gbc {
-  background-position: center;
-  background-size: 135%;
-  background-image: url('/static/images/gameboy-icon.jfif');
-}
-
-.home {
-  background-position: center;
-  background-size: 155%;
-  background-image: url('/static/images/pokeball.jfif');
 }
 
 .card:hover {

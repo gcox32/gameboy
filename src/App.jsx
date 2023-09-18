@@ -5,8 +5,12 @@ import { Amplify } from 'aws-amplify';
 import { withAuthenticator, Authenticator } from '@aws-amplify/ui-react';
 import awsconfig from './aws-exports';
 // auth components
-// import { Header } from "./pages/auth/Header";
+import Arrows from './components/Arrow';
+import PartySlots from './components/PartySlots';
+import Carts from './components/Carts';
 import Console from './components/GBCEmulator';
+import PartyModals from './components/PartyModals';
+import Settings from './components/Settings';
 import { Footer } from "./pages/auth/Footer";
 import { SignInHeader } from "./pages/auth/SignInHeader";
 import { SignInFooter } from "./pages/auth/SignInFooter";
@@ -17,12 +21,20 @@ Amplify.configure(awsconfig);
 function App() {
   return (
     <div className="App">
+      <Arrows />
+      <PartySlots />
+      <Carts />
       <Console />
-      <header className="App-header">
+      <PartyModals />
+      <Settings />
+      <header 
+        className="App-header" 
+        // style={{display:'none'}}
+        >
         <Authenticator >
           {({ signOut }) => (
             // eslint-disable-next-line
-            <a class="hover-pointer" href="#" onClick={signOut}>
+            <a className="hover-pointer" href="#" onClick={signOut}>
               <img src={logo} className="App-logo" alt="logo" />
             </a>
           )}
@@ -43,5 +55,3 @@ export default withAuthenticator(App, {
   },
   hideSignUp: true
 });
-
-// export default App;

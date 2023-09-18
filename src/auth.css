@@ -3,8 +3,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap");
 
 :root {
-  --amplify-fonts-default-variable: "Open Sans";
-  --amplify-fonts-default-static: "Open Sans";
+  /* --amplify-fonts-default-variable: "Open Sans"; */
+  /* --amplify-fonts-default-static: "Open Sans"; */
   --amplify-colors-brand-primary-10: var(--amplify-colors-blue-10);
   --amplify-colors-brand-primary-20: var(--amplify-colors-blue-20);
   --amplify-colors-brand-primary-40: var(--amplify-colors-blue-40);
@@ -39,9 +39,9 @@
   --amplify-border-widths-large: 8px;
 }
 
-* {
+/* * {
   font-family: "Public Sans", sans-serif;
-}
+} */
 
 [data-amplify-router] {
   min-height: 500px;
