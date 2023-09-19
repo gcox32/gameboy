@@ -86,6 +86,9 @@
   right: 0;
   max-width: 300px;
 }
+.App-logo {
+  width: 100px;
+}
 
 h3.amplify-heading:hover,
 label.amplify-label:hover,
@@ -407,6 +410,9 @@ body>#fullscreenContainer>canvas#fullscreen.minimum {
   transform: translateX(-280px);
   overflow-y: scroll;
 }
+.drawer#carts {
+  justify-content: space-evenly;
+}
 
 .cart-drawer::-webkit-scrollbar {
   width: 0;
@@ -487,6 +493,10 @@ body>#fullscreenContainer>canvas#fullscreen.minimum {
   display: flex;
   align-items: center;
   flex-direction: column;
+}
+
+#pause-btn img:not([name="resume-btn-img"]) {
+  height: 28px;
 }
 
 .input-row {

@@ -30,11 +30,6 @@ function start(canvas, ROM) {
 function run() {
 	if (GameBoyEmulatorInitialized()) {
 		if (!GameBoyEmulatorPlaying()) {
-
-			var pauser = document.getElementById("pause-btn");
-			pauser.style.background = 'None';
-			pauser.innerText = 'pause';
-
 			gameboy.stopEmulator &= 1;
 			console.log("Starting the iterator.", 0);
 			var dateObj = new Date();
@@ -59,9 +54,6 @@ function pause() {
 		if (GameBoyEmulatorPlaying()) {
 			autoSave();
 			clearLastEmulation();
-			var pauser = document.getElementById("pause-btn");
-			pauser.style.background = 'rgba(153, 153, 153, 1)';
-			pauser.innerText = 'paused';
 			intervalPaused = true;
 		}
 		else {

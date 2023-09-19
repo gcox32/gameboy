@@ -4,8 +4,9 @@ function Settings() {
     return (
         <div className="drawer" id="settings">
             <div className="btn gray-border" id="saver" value="blue" title="save file">save game</div>
-            <div className="btn gray-border" id="pause-btn" title="pause game">pause</div>
-            <div className="btn gray-border" id="resume-btn" title="resume game">resume</div>
+            <div className="btn gray-border" id="pause-btn" title="pause game" data-paused="pause" >
+                <img src='/static/images/pause_icon.png' alt="" />
+            </div>
             <div className="btn gray-border" id="reset-btn" title="start from last save">reset</div>
             <div className="btn gray-border" id="newgame-btn" title="start new game">new game</div>
             <div className="btn gray-border" id="enable-sound" title="disable sound" value="true">sound on</div>

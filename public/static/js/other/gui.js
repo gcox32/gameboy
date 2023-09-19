@@ -62,8 +62,18 @@ function registerGUIEvents() {
 		save(id=id, game=game);
 	});
 
-	addEvent("click", document.getElementById("pause-btn"), pause);
-	addEvent("click", document.getElementById("resume-btn"), run);
+	addEvent("click", document.getElementById("pause-btn"), function () {
+		pauseBtn = document.getElementById("pause-btn");
+		if(pauseBtn.dataset.paused === 'pause') {
+			pause();
+			pauseBtn.dataset.paused = 'resume';
+			pauseBtn.innerHTML = "<img src='/static/images/play_icon.png' height='48' name='resume-btn-img' />";
+		} else {
+			run();
+			pauseBtn.dataset.paused = 'pause';
+			pauseBtn.innerHTML = "<img src='/static/images/pause_icon.png' />";
+		}
+	});
 
 	addEvent("click", document.getElementById("reset-btn"), function () {
 		var activeCart = document.getElementById('active-cart').textContent;
