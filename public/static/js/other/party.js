@@ -80,6 +80,13 @@ class Pokemon {
     }
 }
 
+function addLeadingZeroes(num) {
+    while (num.length < 3) {
+        num = "0" + num;
+    }
+    return num;
+}
+
 function getImgSrc(idx, style) {
 	// var gifBase = 'https://projectpokemon.org/images/normal-sprite/bulbasaur.gif';
 	// var greenBase = 'https://projectpokemon.org/images/sprites-models/gb-sprites/red-jp-001.png';
@@ -87,9 +94,10 @@ function getImgSrc(idx, style) {
 	// var yellowBase = 'https://projectpokemon.org/images/sprites-models/gb-sprites/yellow-en-001.png';
 
 	var nameNo = [dexDict[idx]['name'], dexDict[idx]['pokedexNo']];
+    var num = addLeadingZeroes(nameNo[1]);
 	var link;
 	switch (style) {
-		case "gif": link = `https://projectpokemon.org/images/normal-sprite/${nameNo[0]}.gif`; break;
+		case "gif": link = `https://assets.letmedemo.com/gameboy/images/gifs/${nameNo[0]}.gif`; break;
 		case "green": link = `https://projectpokemon.org/images/sprites-models/gb-sprites/red-jp-${nameNo[1]}.png`; break;
 		case "blue": link = `https://projectpokemon.org/images/sprites-models/gb-sprites/blue-jp-${nameNo[1]}.png`; break;
 		case "red": link = `https://projectpokemon.org/images/sprites-models/gb-sprites/blue-jp-${nameNo[1]}.png`; break;

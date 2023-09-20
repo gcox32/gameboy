@@ -6,7 +6,7 @@ function PokeModal({ idx }) {
             <div className="modal_overlay" id={`modal-overlay-${idx}`} name={`modal-overlay-${idx}`}></div>
             <div className="modal_content pb-0" id={`modal-content-${idx}`} style={{width:'auto'}}>
                 <button title="close" className="close_modal" id={`close-modal-${idx}`} style={{right:0, top:0}}>
-                    x
+                    &times;
                 </button>
                 <div className="modal-title" id={`modal-title-${idx}`}></div>
                 <div className="row">

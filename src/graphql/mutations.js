@@ -10,7 +10,23 @@ export const createGame = /* GraphQL */ `
       id
       title
       description
+      img
       filePath
+      saveStates {
+        items {
+          id
+          data
+          title
+          description
+          createdAt
+          updatedAt
+          gameSaveStatesId
+          owner
+          __typename
+        }
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -26,7 +42,23 @@ export const updateGame = /* GraphQL */ `
       id
       title
       description
+      img
       filePath
+      saveStates {
+        items {
+          id
+          data
+          title
+          description
+          createdAt
+          updatedAt
+          gameSaveStatesId
+          owner
+          __typename
+        }
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
@@ -42,81 +74,121 @@ export const deleteGame = /* GraphQL */ `
       id
       title
       description
+      img
       filePath
+      saveStates {
+        items {
+          id
+          data
+          title
+          description
+          createdAt
+          updatedAt
+          gameSaveStatesId
+          owner
+          __typename
+        }
+        nextToken
+        __typename
+      }
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const createSaveFile = /* GraphQL */ `
-  mutation CreateSaveFile(
-    $input: CreateSaveFileInput!
-    $condition: ModelSaveFileConditionInput
+export const createSaveState = /* GraphQL */ `
+  mutation CreateSaveState(
+    $input: CreateSaveStateInput!
+    $condition: ModelSaveStateConditionInput
   ) {
-    createSaveFile(input: $input, condition: $condition) {
+    createSaveState(input: $input, condition: $condition) {
       id
-      userId
       game {
         id
         title
         description
+        img
         filePath
+        saveStates {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         __typename
       }
       data
+      title
+      description
       createdAt
       updatedAt
+      gameSaveStatesId
+      owner
       __typename
     }
   }
 `;
-export const updateSaveFile = /* GraphQL */ `
-  mutation UpdateSaveFile(
-    $input: UpdateSaveFileInput!
-    $condition: ModelSaveFileConditionInput
+export const updateSaveState = /* GraphQL */ `
+  mutation UpdateSaveState(
+    $input: UpdateSaveStateInput!
+    $condition: ModelSaveStateConditionInput
   ) {
-    updateSaveFile(input: $input, condition: $condition) {
+    updateSaveState(input: $input, condition: $condition) {
       id
-      userId
       game {
         id
         title
         description
+        img
         filePath
+        saveStates {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         __typename
       }
       data
+      title
+      description
       createdAt
       updatedAt
+      gameSaveStatesId
+      owner
       __typename
     }
   }
 `;
-export const deleteSaveFile = /* GraphQL */ `
-  mutation DeleteSaveFile(
-    $input: DeleteSaveFileInput!
-    $condition: ModelSaveFileConditionInput
+export const deleteSaveState = /* GraphQL */ `
+  mutation DeleteSaveState(
+    $input: DeleteSaveStateInput!
+    $condition: ModelSaveStateConditionInput
   ) {
-    deleteSaveFile(input: $input, condition: $condition) {
+    deleteSaveState(input: $input, condition: $condition) {
       id
-      userId
       game {
         id
         title
         description
+        img
         filePath
+        saveStates {
+          nextToken
+          __typename
+        }
         createdAt
         updatedAt
         __typename
       }
       data
+      title
+      description
       createdAt
       updatedAt
+      gameSaveStatesId
+      owner
       __typename
     }
   }

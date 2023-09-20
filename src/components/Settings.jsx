@@ -9,6 +9,7 @@ function Settings() {
             </div>
             <div className="btn gray-border" id="reset-btn" title="start from last save">reset</div>
             <div className="btn gray-border" id="newgame-btn" title="start new game">new game</div>
+            <div className="btn gray-border" id="loadgame-btn" title="load saved game">load game</div>
             <div className="btn gray-border" id="enable-sound" title="disable sound" value="true">sound on</div>
             <div className="game-setting" id="game-speed">
                 <label>Adjust Speed</label>
