@@ -29,4 +29,5 @@ type SaveState
   data: AWSJSON!
   title: String
   description: String
+  img: String
 }
