@@ -15,6 +15,7 @@ export const onCreateGame = /* GraphQL */ `
           data
           title
           description
+          img
           createdAt
           updatedAt
           gameSaveStatesId
@@ -44,6 +45,7 @@ export const onUpdateGame = /* GraphQL */ `
           data
           title
           description
+          img
           createdAt
           updatedAt
           gameSaveStatesId
@@ -73,6 +75,7 @@ export const onDeleteGame = /* GraphQL */ `
           data
           title
           description
+          img
           createdAt
           updatedAt
           gameSaveStatesId
@@ -112,6 +115,7 @@ export const onCreateSaveState = /* GraphQL */ `
       data
       title
       description
+      img
       createdAt
       updatedAt
       gameSaveStatesId
@@ -144,6 +148,7 @@ export const onUpdateSaveState = /* GraphQL */ `
       data
       title
       description
+      img
       createdAt
       updatedAt
       gameSaveStatesId
@@ -176,6 +181,7 @@ export const onDeleteSaveState = /* GraphQL */ `
       data
       title
       description
+      img
       createdAt
       updatedAt
       gameSaveStatesId

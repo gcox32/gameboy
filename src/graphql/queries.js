@@ -15,6 +15,7 @@ export const getGame = /* GraphQL */ `
           data
           title
           description
+          img
           createdAt
           updatedAt
           gameSaveStatesId
@@ -77,6 +78,7 @@ export const getSaveState = /* GraphQL */ `
       data
       title
       description
+      img
       createdAt
       updatedAt
       gameSaveStatesId
@@ -107,6 +109,7 @@ export const listSaveStates = /* GraphQL */ `
         data
         title
         description
+        img
         createdAt
         updatedAt
         gameSaveStatesId
