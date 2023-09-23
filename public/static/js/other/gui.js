@@ -328,7 +328,6 @@ function keyUp(event) {
 	}
 };
 function initPlayer() {
-	// document.getElementById("logo").style.display = "none";
 	document.getElementById("fullscreenContainer").style.display = "none";
 };
 function fullscreenPlayer() {
@@ -424,22 +423,7 @@ function removeEvent(sEvent, oElement, fListener) {
 
 // new stuff
 async function loadNewGame(filepath, callback) {
-	var xhr = new XMLHttpRequest();
 	const filename = filepath.split('/')[2];
-	// xhr.open("GET", filepath, true);
-	// xhr.responseType = 'blob';
-	// xhr.send();
-	// xhr.onreadystatechange = function() {
-	// 	if (this.status==200) {
-	// 		const myBlob = new Blob([xhr.response]);
-	// 		const myFile = new File(
-	// 			[myBlob], 
-	// 			filename, 
-	// 			{type: myBlob.type}
-	// 		);
-	// 		callback(myBlob, myFile);
-	// 	};
-	// };
 	const response = await fetch(filepath, {
 		method: 'GET',
 		responseType: 'blob'
@@ -452,7 +436,6 @@ async function loadNewGame(filepath, callback) {
 function loadSavedGame(filepath, callback) {
 	var xhr = new XMLHttpRequest();
 	const filename = filepath.split('/')[2];
-	// console.log(filepath);
 	xhr.open("GET", filepath, true);
 	xhr.send();
 
@@ -479,41 +462,6 @@ function loadSavedGame(filepath, callback) {
 
 		};
 	};
-};
-function uploadSaveFile(file, savename) {
-	const filename = savename + ".json";
-	const dest = "/genone/roms/" + filename;
-	var myFile;
-
-	str = JSON.stringify(file)
-	myFile = new File([str], filename, {
-		type: file.type
-	});
-
-	formData = new FormData();
-	formData.append("upload", myFile);
-
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", dest, true);
-	xhr.send(formData);
-
-	xhr.onreadystatechange = function() {
-		if (this.status==200) {
-			saver.style.background = 'rgba(153, 153, 153, 0)';
-			saver.innerText = "save game";
-		};
-	};
-};
-function getVars(gameIdx) {
-	var gameFile = gameList[gameIdx];
-	var game = gameFile.split('.')[0];
-
-	var activeCart = document.getElementById("active-cart");
-	activeCart.textContent = game;
-	var clicked = document.getElementById(game);
-	var clickedCode = clicked.getAttribute('value');
-	var saveFileLoc = clicked.getAttribute('name');
-	return [gameFile, game, clickedCode, saveFileLoc]
 };
 function loadNewGameFunc(gameFile) {
 	var cartridge = loadNewGame('/carts/' + gameFile, function(blob, file) {
@@ -556,16 +504,40 @@ function loadSavedorNewGame(clickedCode, game, gameFile, saveFileLoc) {
 		loadSavedGameFunc(saveFileLoc);
 	};
 };
-function backgroundSwitch(version) {
-	var bg = document.getElementsByTagName('body')[0];
-	bg.style.backgroundImage = 'url(\"/staticfiles/genone/images/bg-' + version + '.png\")'
-	switch(version) {
-		case "blue":bg.style.backgroundColor = "rgb(49,143,205)";break;
-		case "yellow":bg.style.backgroundColor = "rgb(249,202,24)";break;
-		case "red":bg.style.backgroundColor = "rgb(255,69,22)";break;
-		case "green":bg.style.backgroundColor = "rgb(0,166,82)";break;
-		default:bg.style.backgroundColor = "rgb(49,143,205)";
-	}
+function uploadSaveFile(file, savename) {
+	const filename = savename + ".json";
+	const dest = "/genone/roms/" + filename;
+	var myFile;
+
+	str = JSON.stringify(file)
+	myFile = new File([str], filename, {
+		type: file.type
+	});
+
+	formData = new FormData();
+	formData.append("upload", myFile);
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", dest, true);
+	xhr.send(formData);
+
+	xhr.onreadystatechange = function() {
+		if (this.status==200) {
+			saver.style.background = 'rgba(153, 153, 153, 0)';
+			saver.innerText = "save game";
+		};
+	};
+};
+function getVars(gameIdx) {
+	var gameFile = gameList[gameIdx];
+	var game = gameFile.split('.')[0];
+
+	var activeCart = document.getElementById("active-cart");
+	activeCart.textContent = game;
+	var clicked = document.getElementById(game);
+	var clickedCode = clicked.getAttribute('value');
+	var saveFileLoc = clicked.getAttribute('name');
+	return [gameFile, game, clickedCode, saveFileLoc]
 };
 
 // buttons

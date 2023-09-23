@@ -45,5 +45,5 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 
 # gameboy files
-.gb
-.gbc
+*.gb
+*.gbc
