@@ -8,28 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
 
-  <link rel="stylesheet" href="static/css/styles.css" />
-  <link rel="stylesheet" href="static/css/modal.css" />
-  <script type="text/javascript">
-    var DEBUG_MESSAGES = false;
-    var DEBUG_WINDOWING = false;
-    window.onload = function () {
-      windowingInitialize();
-    };
-  </script>
   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="text/javascript" src="static/js/other/windowStack.js"></script>
-  <script type="text/javascript" src="static/js/other/gui.js"></script>
-  <script type="text/javascript" src="static/js/other/dicts.js"></script>
-  <script type="text/javascript" src="static/js/other/party.js"></script>
-  <script type="text/javascript" src="static/js/other/base64.js"></script>
-  <script type="text/javascript" src="static/js/other/swfobject.js"></script>
-  <script type="text/javascript" src="static/js/other/resampler.js"></script>
-  <script type="text/javascript" src="static/js/other/XAudioServer.js"></script>
-  <script type="text/javascript" src="static/js/other/resize.js"></script>
-  <script type="text/javascript" src="static/js/GameBoyCore.js"></script>
-  <script type="text/javascript" src="static/js/GameBoyIO.js"></script>
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -52,14 +32,5 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
 </body>
-<script>
-  var drawers = document.getElementsByClassName('drawer');
-  var arrows = document.getElementsByClassName('arrow');
-  var partyArrow = document.getElementById('party-arrow');
-  var partyDrawer = document.getElementById('active-party');
-  var toggleSwitch = document.querySelector('.switch input[type="checkbox"]');
-  var mobileWrapper = document.getElementById('mobile-wrapper');
-  var gameboy = document.getElementById('console');
-</script>
 
 </html>

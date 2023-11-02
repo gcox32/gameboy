@@ -10,18 +10,6 @@ export const getGame = /* GraphQL */ `
       img
       filePath
       saveStates {
-        items {
-          id
-          data
-          title
-          description
-          img
-          createdAt
-          updatedAt
-          gameSaveStatesId
-          owner
-          __typename
-        }
         nextToken
         __typename
       }
@@ -44,10 +32,6 @@ export const listGames = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -67,10 +51,6 @@ export const getSaveState = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -96,16 +76,6 @@ export const listSaveStates = /* GraphQL */ `
     listSaveStates(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        game {
-          id
-          title
-          description
-          img
-          filePath
-          createdAt
-          updatedAt
-          __typename
-        }
         data
         title
         description
@@ -114,6 +84,42 @@ export const listSaveStates = /* GraphQL */ `
         updatedAt
         gameSaveStatesId
         owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getPokemon = /* GraphQL */ `
+  query GetPokemon($id: ID!) {
+    getPokemon(id: $id) {
+      id
+      name
+      index
+      pokedexNo
+      height
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listPokemon = /* GraphQL */ `
+  query ListPokemon(
+    $filter: ModelPokemonFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listPokemon(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        index
+        pokedexNo
+        height
+        createdAt
+        updatedAt
         __typename
       }
       nextToken

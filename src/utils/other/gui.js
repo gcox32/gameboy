@@ -1,0 +1,219 @@
+import { windowCreate, windowStacks } from "./windowStack";
+import { 
+	start,
+	GameBoyGyroSignalHandler,
+	initNewCanvasSize,
+	GameBoyKeyUp,
+	GameBoyKeyDown
+ } from "../GameBoyIO";
+
+export var inFullscreen = false;
+export var mainCanvas = null;
+export var fullscreenCanvas = null;
+export var showAsMinimal = false;
+export var intervalPaused = false;
+export var keyZones = [
+	["right", [39]],
+	["left", [37]],
+	["up", [38]],
+	["down", [40]],
+	["a", [88, 74]],
+	["b", [90, 81, 89]],
+	["select", [16]],
+	["start", [13]]
+];
+
+export function windowingInitialize(displayComponent) {
+	console.log("windowingInitialize() called.", 0);
+	console.log(displayComponent);
+	windowStacks[0] = windowCreate(displayComponent, true);
+	mainCanvas = document.getElementById("mainCanvas");
+	fullscreenCanvas = document.getElementById("fullscreen");
+
+}
+export function registerGUIEvents() {
+	// console.log("In registerGUIEvents() : Registering GUI Events.", -1);
+	try {
+	// ****************************************************************************
+		addEvent("MozOrientation", window, GameBoyGyroSignalHandler);
+		addEvent("deviceorientation", window, GameBoyGyroSignalHandler);
+		addEvent("mouseup", document.getElementById("gfx"), initNewCanvasSize);
+		addEvent("resize", window, initNewCanvasSize);
+	} catch (error) {
+		console.log("Fatal windowing error: \"" + error.message + "\" file:" + error.fileName + " line: " + error.lineNumber, 2);
+	}
+};
+
+//Wrapper for localStorage getItem, so that data can be retrieved in various types.
+export function findValue(key) {
+	try {
+		if (window.localStorage.getItem(key) !== null) {
+			return JSON.parse(window.localStorage.getItem(key));
+		}
+	}
+	catch (error) {
+		//An older Gecko 1.8.1/1.9.0 method of storage (Deprecated due to the obvious security hole):
+		if (window.globalStorage[window.location.hostname].getItem(key) !== null) {
+			return JSON.parse(window.globalStorage[window.location.hostname].getItem(key));
+		}
+	}
+	return null;
+}
+//Wrapper for localStorage setItem, so that data can be set in various types.
+export function setValue(key, value) {
+	try {
+		window.localStorage.setItem(key, JSON.stringify(value));
+	}
+	catch (error) {
+		//An older Gecko 1.8.1/1.9.0 method of storage (Deprecated due to the obvious security hole):
+		window.globalStorage[window.location.hostname].setItem(key, JSON.stringify(value));
+	}
+}
+//Wrapper for localStorage removeItem, so that data can be set in various types.
+export function deleteValue(key) {
+	try {
+		window.localStorage.removeItem(key);
+	}
+	catch (error) {
+		//An older Gecko 1.8.1/1.9.0 method of storage (Deprecated due to the obvious security hole):
+		window.globalStorage[window.location.hostname].removeItem(key);
+	}
+}
+
+export function keyDown(event, gameboyInstance) {
+	var keyCode = event.keyCode;
+	var keyMapLength = keyZones.length;
+	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
+		var keyCheck = keyZones[keyMapIndex];
+		var keysMapped = keyCheck[1];
+		var keysTotal = keysMapped.length;
+		for (var index = 0; index < keysTotal; ++index) {
+			if (keysMapped[index] === keyCode) {
+				GameBoyKeyDown(keyCheck[0], gameboyInstance);
+				try {
+					event.preventDefault();
+				}
+				catch (error) { }
+			}
+		}
+	}
+};
+export function keyUp(event, gameboyInstance) {
+	var keyCode = event.keyCode;
+	var keyMapLength = keyZones.length;
+	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
+		var keyCheck = keyZones[keyMapIndex];
+		var keysMapped = keyCheck[1];
+		var keysTotal = keysMapped.length;
+		for (var index = 0; index < keysTotal; ++index) {
+			if (keysMapped[index] === keyCode) {
+				GameBoyKeyUp(keyCheck[0], gameboyInstance);
+				try {
+					event.preventDefault();
+				}
+				catch (error) { }
+			}
+		}
+	}
+};
+export function initPlayer() {
+	document.getElementById("fullscreenContainer").style.display = "none";
+};
+
+//Some wrappers and extensions for non-DOM3 browsers:
+export function isDescendantOf(ParentElement, toCheck) {
+	if (!ParentElement || !toCheck) {
+		return false;
+	}
+	//Verify an object as either a direct or indirect child to another object.
+	function traverseTree(domElement) {
+		while (domElement !== null) {
+			if (domElement.nodeType === 1) {
+				if (isSameNode(domElement, toCheck)) {
+					return true;
+				}
+				if (hasChildNodes(domElement)) {
+					if (traverseTree(domElement.firstChild)) {
+						return true;
+					}
+				}
+			}
+			domElement = domElement.nextSibling;
+		}
+		return false;
+	}
+	return traverseTree(ParentElement.firstChild);
+};
+export function hasChildNodes(oElement) {
+	return (typeof oElement.hasChildNodes === "function") ? oElement.hasChildNodes() : ((oElement.firstChild !== null) ? true : false);
+};
+export function isSameNode(oCheck1, oCheck2) {
+	return (typeof oCheck1.isSameNode === "function") ? oCheck1.isSameNode(oCheck2) : (oCheck1 === oCheck2);
+};
+export function addEvent(sEvent, oElement, fListener) {
+	try {	
+		oElement.addEventListener(sEvent, fListener, false);
+		// console.log("In addEvent() : Standard addEventListener() called to add a(n) \"" + sEvent + "\" event.", -1);
+	}
+	catch (error) {
+		oElement.attachEvent("on" + sEvent, fListener);	//Pity for IE.
+		// console.log("In addEvent() : Nonstandard attachEvent() called to add an \"on" + sEvent + "\" event.", -1);
+	}
+};
+export function removeEvent(sEvent, oElement, fListener) {
+	try {	
+		oElement.removeEventListener(sEvent, fListener, false);
+		// console.log("In removeEvent() : Standard removeEventListener() called to remove a(n) \"" + sEvent + "\" event.", -1);
+	}
+	catch (error) {
+		oElement.detachEvent("on" + sEvent, fListener);	//Pity for IE.
+		// console.log("In removeEvent() : Nonstandard detachEvent() called to remove an \"on" + sEvent + "\" event.", -1);
+	}
+};
+
+// new stuff
+async function loadNewGame(filepath, callback) {
+	const filename = filepath.split('/')[2];
+	const response = await fetch(filepath, {
+		method: 'GET',
+		responseType: 'blob'
+	})
+	const blob = await response.blob();
+	const myfile = new File([blob], filename, {type:blob});
+	callback(blob, myfile);
+	return [blob, myfile]
+};
+function loadNewGameFunc(gameFile) {
+	var cartridge = loadNewGame('/carts/' + gameFile, function(blob, file) {
+		var reader = new FileReader();
+		reader.addEventListener('load', function (e) {
+			initPlayer();
+			start(mainCanvas, e.target.result);
+		});
+		reader.readAsBinaryString(file);
+	});
+};
+export function uploadSaveFile(file, savename) {
+	const filename = savename + ".json";
+	const dest = "/genone/roms/" + filename;
+	var myFile;
+
+	const str = JSON.stringify(file)
+	myFile = new File([str], filename, {
+		type: file.type
+	});
+
+	const formData = new FormData();
+	formData.append("upload", myFile);
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", dest, true);
+	xhr.send(formData);
+
+	xhr.onreadystatechange = function() {
+		if (this.status==200) {
+			document.getElementById('save-btn').style.background = 'rgba(153, 153, 153, 0)';
+			document.getElementById('save-btn').innerText = "save game";
+		};
+	};
+};

@@ -6,4 +6,6 @@
 
 export { default as GameCreateForm } from "./GameCreateForm";
 export { default as GameUpdateForm } from "./GameUpdateForm";
+export { default as PokemonCreateForm } from "./PokemonCreateForm";
+export { default as PokemonUpdateForm } from "./PokemonUpdateForm";
 export { default as studioTheme } from "./studioTheme";

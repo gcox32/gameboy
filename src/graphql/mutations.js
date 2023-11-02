@@ -13,18 +13,6 @@ export const createGame = /* GraphQL */ `
       img
       filePath
       saveStates {
-        items {
-          id
-          data
-          title
-          description
-          img
-          createdAt
-          updatedAt
-          gameSaveStatesId
-          owner
-          __typename
-        }
         nextToken
         __typename
       }
@@ -46,18 +34,6 @@ export const updateGame = /* GraphQL */ `
       img
       filePath
       saveStates {
-        items {
-          id
-          data
-          title
-          description
-          img
-          createdAt
-          updatedAt
-          gameSaveStatesId
-          owner
-          __typename
-        }
         nextToken
         __typename
       }
@@ -79,18 +55,6 @@ export const deleteGame = /* GraphQL */ `
       img
       filePath
       saveStates {
-        items {
-          id
-          data
-          title
-          description
-          img
-          createdAt
-          updatedAt
-          gameSaveStatesId
-          owner
-          __typename
-        }
         nextToken
         __typename
       }
@@ -113,10 +77,6 @@ export const createSaveState = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -146,10 +106,6 @@ export const updateSaveState = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -179,10 +135,6 @@ export const deleteSaveState = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -195,6 +147,57 @@ export const deleteSaveState = /* GraphQL */ `
       updatedAt
       gameSaveStatesId
       owner
+      __typename
+    }
+  }
+`;
+export const createPokemon = /* GraphQL */ `
+  mutation CreatePokemon(
+    $input: CreatePokemonInput!
+    $condition: ModelPokemonConditionInput
+  ) {
+    createPokemon(input: $input, condition: $condition) {
+      id
+      name
+      index
+      pokedexNo
+      height
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updatePokemon = /* GraphQL */ `
+  mutation UpdatePokemon(
+    $input: UpdatePokemonInput!
+    $condition: ModelPokemonConditionInput
+  ) {
+    updatePokemon(input: $input, condition: $condition) {
+      id
+      name
+      index
+      pokedexNo
+      height
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deletePokemon = /* GraphQL */ `
+  mutation DeletePokemon(
+    $input: DeletePokemonInput!
+    $condition: ModelPokemonConditionInput
+  ) {
+    deletePokemon(input: $input, condition: $condition) {
+      id
+      name
+      index
+      pokedexNo
+      height
+      createdAt
+      updatedAt
       __typename
     }
   }

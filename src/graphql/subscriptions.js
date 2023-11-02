@@ -10,18 +10,6 @@ export const onCreateGame = /* GraphQL */ `
       img
       filePath
       saveStates {
-        items {
-          id
-          data
-          title
-          description
-          img
-          createdAt
-          updatedAt
-          gameSaveStatesId
-          owner
-          __typename
-        }
         nextToken
         __typename
       }
@@ -40,18 +28,6 @@ export const onUpdateGame = /* GraphQL */ `
       img
       filePath
       saveStates {
-        items {
-          id
-          data
-          title
-          description
-          img
-          createdAt
-          updatedAt
-          gameSaveStatesId
-          owner
-          __typename
-        }
         nextToken
         __typename
       }
@@ -70,18 +46,6 @@ export const onDeleteGame = /* GraphQL */ `
       img
       filePath
       saveStates {
-        items {
-          id
-          data
-          title
-          description
-          img
-          createdAt
-          updatedAt
-          gameSaveStatesId
-          owner
-          __typename
-        }
         nextToken
         __typename
       }
@@ -104,10 +68,6 @@ export const onCreateSaveState = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -137,10 +97,6 @@ export const onUpdateSaveState = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -170,10 +126,6 @@ export const onDeleteSaveState = /* GraphQL */ `
         description
         img
         filePath
-        saveStates {
-          nextToken
-          __typename
-        }
         createdAt
         updatedAt
         __typename
@@ -186,6 +138,48 @@ export const onDeleteSaveState = /* GraphQL */ `
       updatedAt
       gameSaveStatesId
       owner
+      __typename
+    }
+  }
+`;
+export const onCreatePokemon = /* GraphQL */ `
+  subscription OnCreatePokemon($filter: ModelSubscriptionPokemonFilterInput) {
+    onCreatePokemon(filter: $filter) {
+      id
+      name
+      index
+      pokedexNo
+      height
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdatePokemon = /* GraphQL */ `
+  subscription OnUpdatePokemon($filter: ModelSubscriptionPokemonFilterInput) {
+    onUpdatePokemon(filter: $filter) {
+      id
+      name
+      index
+      pokedexNo
+      height
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeletePokemon = /* GraphQL */ `
+  subscription OnDeletePokemon($filter: ModelSubscriptionPokemonFilterInput) {
+    onDeletePokemon(filter: $filter) {
+      id
+      name
+      index
+      pokedexNo
+      height
+      createdAt
+      updatedAt
       __typename
     }
   }

@@ -31,3 +31,17 @@ type SaveState
   description: String
   img: String
 }
+
+type Pokemon
+ @model
+ @auth(
+  rules: [
+    { allow: private, operations: [read] }
+ ]
+ ) {
+  id: ID!
+  name: String!
+  index: String!
+  pokedexNo: String!
+  height: Float!
+ }
