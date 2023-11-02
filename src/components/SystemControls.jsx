@@ -1,12 +1,12 @@
 import React from 'react';
-import { pause } from '../utils/GameBoyIO.js';
 
-function SystemControls({ gameBoy, speed, initSound, onSpeedChange, isSoundOn }) {
+function SystemControls({ intervalPaused, onPauseResume, onReset, initSound, isSoundOn, speed, onSpeedChange }) {
     return (
         <div>
-            <button onClick={() => gameBoy.run()}>Run</button>
-            <button id="pause-btn" onClick={() => pause()}>Pause</button>
-            <button onClick={() => gameBoy.reset()}>Reset</button>
+            <button id="pause-resume-btn" onClick={onPauseResume}>
+                {intervalPaused ? "Resume" : "Pause"}
+            </button>
+            <button onClick={onReset}>Reset</button>
             <button id="enable-sound" onClick={initSound}>
                 {isSoundOn ? '🔊' : '🔇'} {/* Display different icons based on sound status */}
             </button>

@@ -3,16 +3,13 @@ import Console from './components/console/GameConsole';
 import Cartridges from './components/Cartridges';
 import SystemControls from './components/SystemControls';
 import FullScreenContainer from './components/FullScreenContainer';
-import GameDisplay from './components/console/GameDisplay';
 import GameBoyCore from './utils/GameBoyCore';
-import { DEBUG_MESSAGES, DEBUG_WINDOWING } from './utils/config';
 import { windowStacks } from './utils/other/windowStack';
 import {
 	inFullscreen,
 	mainCanvas,
 	fullscreenCanvas,
 	showAsMinimal,
-	intervalPaused,
 	registerGUIEvents,
 	keyDown,
 	keyUp
@@ -44,9 +41,11 @@ function App() {
 	const gameBoyInstance = useRef(null);
 	const runInterval = useRef(null);
 	const [isSoundOn, setIsSoundOn] = useState(settings[0]); // Initialize the state based on settings
+	const [intervalPaused, setIntervalPaused] = useState(false);
 
 	// Modified run function to use the runInterval ref
 	const run = (gameboyInstance) => {
+		setIntervalPaused(false);
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
 			if (!GameBoyEmulatorPlaying(gameboyInstance)) {
 				gameboyInstance.stopEmulator &= 1;
@@ -54,6 +53,7 @@ function App() {
 				var dateObj = new Date();
 				gameboyInstance.firstIteration = dateObj.getTime();
 				gameboyInstance.iterations = 0;
+				gameBoyInstance.current.setSpeed(speed);
 				runInterval.current = setInterval(function () {
 					if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
 						gameboyInstance.run();
@@ -66,7 +66,6 @@ function App() {
 			console.log("GameBoy core cannot run while it has not been initialized.");
 		}
 	};
-
 	// Initialize gameBoyInstance with the first ROMImage on component mount
 	useEffect(() => {
 		if (ROMImage) {
@@ -97,7 +96,6 @@ function App() {
 			}
 		};
 	}, [ROMImage]);
-
 	// Handler for ROM selection
 	const handleROMSelected = (selectedROM) => {
 		const splitFilename = selectedROM.split('/');
@@ -121,7 +119,6 @@ function App() {
 				reader.readAsBinaryString(myFile);
 			});
 	};
-
 	const keyDownHandler = (event) => {
 		//   console.log("Current GameBoy instance:", gameBoyInstance.current);
 		if (gameBoyInstance.current) {
@@ -140,7 +137,6 @@ function App() {
 			// console.error("GameBoy instance is not initialized.");
 		}
 	}
-
 	useEffect(() => {
 		registerGUIEvents();
 		//   console.log("Adding keydown event listener");
@@ -152,7 +148,6 @@ function App() {
 			window.removeEventListener('keyup', keyUpHandler);
 		};
 	}, []);
-
 	const handleSpeedChange = (e) => {
 		const newSpeed = e.target.value;
 		if (GameBoyEmulatorInitialized(gameBoyInstance.current)) {
@@ -161,6 +156,35 @@ function App() {
 				gameBoyInstance.current.setSpeed(parsedSpeed);
 				setSpeed(parsedSpeed); // Update the speed state
 			}
+		}
+	};
+	const handleReset = () => {
+		if (ROMImage) {
+			clearInterval(runInterval.current);
+			console.log("Resetting GameBoy with the same ROM...");
+			clearLastEmulation(gameBoyInstance.current, runInterval);
+			gameBoyInstance.current = new GameBoyCore(ROMImage);
+			gameBoyInstance.current.start();
+			run(gameBoyInstance.current);
+		}
+	};
+	const handlePauseResume = () => {
+		if (GameBoyEmulatorInitialized(gameBoyInstance.current)) {
+			if (GameBoyEmulatorPlaying(gameBoyInstance.current)) {
+				console.log("Pausing GameBoy...");
+				clearLastEmulation(gameBoyInstance.current, runInterval);
+				setIntervalPaused(true);  // Pause the game
+			} else {
+				console.log("Resuming GameBoy...");
+				// Ensure to clear any previous intervals before starting a new one
+				if (runInterval.current) {
+					clearInterval(runInterval.current);
+				}
+				run(gameBoyInstance.current);  // Start the run loop again
+				setIntervalPaused(false);  // Update state to indicate the game is no longer paused
+			}
+		} else {
+			console.log("GameBoy core cannot be paused/resumed while it has not been initialized.", 1);
 		}
 	};
 	const fullscreenPlayer = () => {
@@ -193,8 +217,8 @@ function App() {
 			settings[0] = true;
 			setIsSoundOn(true); // Update state
 		}
-		if (GameBoyEmulatorInitialized() && gameBoyInstance.current) {
-			gameBoyInstance.current.initSound(); // Call initSound on the gameBoyInstance
+		if (GameBoyEmulatorInitialized(gameBoyInstance.current) && gameBoyInstance.current) {
+			gameBoyInstance.current.initSound();
 		}
 	};
 
@@ -202,11 +226,13 @@ function App() {
 		<div className="App">
 			<Cartridges onROMSelected={handleROMSelected} />
 			<SystemControls
-				gameBoy={gameBoyInstance}
-				speed={speed}
+				intervalPaused={intervalPaused}
+				onPauseResume={handlePauseResume}
+				onReset={handleReset}
+				isSoundOn={isSoundOn}
 				initSound={initSound}
+				speed={speed}
 				onSpeedChange={handleSpeedChange}
-				isSoundOn={isSoundOn} // Pass the state to SystemControls
 			/>
 			<Console ROMImage={ROMImage} />
 			<FullScreenContainer />

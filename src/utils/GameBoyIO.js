@@ -80,7 +80,7 @@ export function pause() {
 	}
 }
 export function clearLastEmulation(gameboyInstance, gbRunInterval) {
-	if (GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
+	if (GameBoyEmulatorInitialized(gameboyInstance) && GameBoyEmulatorPlaying(gameboyInstance)) {
 		clearInterval(gbRunInterval);
 		gameboyInstance.stopEmulator |= 2;
 		console.log("The previous emulation has been cleared.", 0);
