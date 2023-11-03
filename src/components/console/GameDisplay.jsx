@@ -1,21 +1,14 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 
-function GameDisplay({ gameBoyInstance, ROMImage }) {
-    const canvasRef = useRef(null);
-
-    useEffect(() => {
-        if (canvasRef.current && ROMImage) {
-            gameBoyInstance.current.run(canvasRef.current, ROMImage);
-        }
-    }, [ROMImage, gameBoyInstance]);
-
+function GameDisplay({ mainCanvasRef }) {
     return (
         <div id="GameBoy" className="window">
             <div id="gfx">
-                <canvas id="mainCanvas" ref={canvasRef}></canvas>
+                <canvas id="mainCanvas" ref={mainCanvasRef}></canvas>
             </div>
         </div>
     );
 }
+
 
 export default GameDisplay;

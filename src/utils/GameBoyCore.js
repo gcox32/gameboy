@@ -7,10 +7,9 @@ import {
  import { Resize } from './other/resize';
 
 class GameBoyCore {
-	constructor(ROMImage) {
+	constructor(ROMImage, canvas) {
 		//Params, etc...
-		// this.canvas = canvas; //Canvas DOM object for drawing out the graphics to.
-		this.canvas = document.getElementById('mainCanvas');
+		this.canvas = canvas; //Canvas DOM object for drawing out the graphics to.
 		this.drawContext = null; // LCD Context
 		this.ROMImage = ROMImage; //The game's ROM.
 

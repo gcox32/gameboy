@@ -1,6 +1,17 @@
 import React from 'react';
 
-function SystemControls({ intervalPaused, onPauseResume, onReset, initSound, isSoundOn, speed, onSpeedChange }) {
+function SystemControls({ 
+    intervalPaused, 
+    onPauseResume, 
+    onReset, 
+    initSound, 
+    isSoundOn, 
+    speed, 
+    onSpeedChange, 
+    isEmulatorPlaying, 
+    onPowerToggle, 
+    onFullscreenToggle 
+}) {
     return (
         <div>
             <button id="pause-resume-btn" onClick={onPauseResume}>
@@ -11,6 +22,10 @@ function SystemControls({ intervalPaused, onPauseResume, onReset, initSound, isS
                 {isSoundOn ? '🔊' : '🔇'} {/* Display different icons based on sound status */}
             </button>
             <input type="number" step="0.1" value={speed} onChange={onSpeedChange} />
+            <button onClick={onPowerToggle}>
+                {isEmulatorPlaying ? "Off" : "On"}
+            </button>
+            <button onClick={onFullscreenToggle}>Fullscreen</button>
         </div>
     );
 }

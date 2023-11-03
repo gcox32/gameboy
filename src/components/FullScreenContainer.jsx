@@ -1,8 +1,8 @@
 import React from 'react';
 
-function FullScreenContainer() {
+function FullScreenContainer({ background }) {
     return (
-        <div id="fullscreenContainer">
+        <div id="fullscreenContainer" style={{ backgroundImage: `url(${background})` }}>
             <canvas id="fullscreen" className="maximum"></canvas>
         </div>
     );
