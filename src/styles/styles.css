@@ -285,10 +285,10 @@ body {
 .console-container {
   position: absolute;
   width: 526px;
-  height: calc(526px * 1.76425);
+  height: calc(526px * (928/526));
   background-image: url('../assets/images/gameboy-bg.png');
   background-size: cover;
-  left: calc(50% - 263px); /* 50% - half console width */
+  left: calc(50% - (526px/2)); /* 50% - half console width */
   /* top: -20px; */
   top: 70px;
   border: 4px rgba(255, 255, 255, .5) solid;
@@ -301,13 +301,6 @@ body {
   -ms-user-zoom: none;
   -webkit-user-zoom: none;
   touch-action: manipulation;
-}
-
-@media screen and (max-width: 700px) {
-  .console-container {
-    left: 0;
-    top: 0;
-  }
 }
 
 .menubar,
@@ -323,7 +316,6 @@ body {
 
 .window {
   visibility: visible;
-  /* display: none; */
   position: absolute;
   overflow: hidden;
   margin: 0;
@@ -344,6 +336,7 @@ body {
 #GameBoy {
   height: 286px;
   width: 321px;
+  height: calc(321px * (286 / 321));
   top: 78px !important;
   left: 104px !important;
 }
@@ -383,9 +376,9 @@ body {
 }
 
 #fullscreen {
-  width: 66vmin; /* You can adjust this value */
-  height: calc(66vmin * (286 / 321)); /* This calculates the height based on the width */
-  box-sizing: border-box; /* This makes sure the border is included in the width/height calculations */
+  width: 64vmin;
+  height: calc(64vmin * (286 / 321));
+  box-sizing: border-box;
   border-radius: 8px;
   border: 3px solid;
   margin-right: 2px;
@@ -584,95 +577,84 @@ input:hover {
   opacity: 0;
   transition: 1s ease-out;
 }
-
 .gb-btn {
   position: absolute;
   opacity: 0.7;
 }
-
 .gb-btn:hover {
   cursor: pointer;
 }
-
 .gb-btn:active {
   opacity: 1;
 }
-
-.a-b {
+#a-btn, #b-btn {
   border-radius: 50%;
   height: 61px;
   width: 61px;
   background-color: rgba(255, 255, 255, .1);
 }
-
-.a-b:active {
+#a-btn, #b-btn:active {
   opacity: 0;
 }
-
 #a-btn {
-  left: 426px;
-  top: 560px;
+  left: 423px;
+  top: 558px;
 }
-
 #b-btn {
-  left: 327px;
-  top: 592px;
+  left: 326px;
+  top: 589px;
 }
-
-.st-sel {
+#start-btn, #select-btn {
   width: 46px;
   height: 17px;
   border-radius: 40%;
-  top: 754px;
+  top: 747px;
+  margin: 3px;
   background-color: rgba(255, 255, 255, .1);
 }
-
-.st-sel:active {
+#start-btn, #select-btn:active {
   opacity: 0;
 }
-
 #select-btn {
-  left: 200px;
+  left: 197px;
 }
-
 #start-btn {
-  left: 281px;
+  left: 277px;
 }
-
 .joypad {
+  position: absolute;
+  top: 536px;
+  left: 38px;
+}
+.joypad div:active {
+  opacity: 0;
+}
+.joypad div {
   height: 45px;
-  width: 48px;
+  width: 49px;
   border-radius: 8px;
 }
-
 #up-btn {
   background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-  top: 542px;
-  left: 83px;
+  top: 0;
+  left: 44px;
 }
-
 #down-btn {
   background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-  top: 630px;
-  left: 83px;
+  top: 90px;
+  left: 44px;
 }
-
 #left-btn {
   background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-  top: 585px;
-  left: 38px;
+  top: 44px;
+  left: 0;
   transform: rotate(90deg)
 }
-
 #right-btn {
   background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-  top: 585px;
-  left: 126px;
+  top: 44px;
+  left: 90px;
   transform: rotate(90deg)
-}
-
-.joypad:active {
-  opacity: 0;
 }
 
 /*slider switch css */
@@ -952,4 +934,70 @@ a.card {
 
 .show {
   display: flex;
+}
+
+@media screen and (max-width: 400px) {
+  .console-container {
+    width: 420px;
+    height: calc(420px * (928/526));
+    left: calc(50% - (428px/2));
+  }
+  #GameBoy {
+    left: 82px !important;
+    top: 55px !important;
+    width: 260px;
+    height: calc(260px * (286 / 321));
+  }
+  #on-light {
+    height: 10px;
+    width: 10px;
+    top: 128px;
+    left: 34px;
+  }
+  .gb-btn {
+    z-index: 6;
+  }
+  .a-b {
+    height: calc(61px * 0.93);
+    width: calc(61px * 0.93);
+  }
+  #a-btn {
+    left: 334px;
+    top: 440px;
+  }
+  #b-btn {
+    left: 256px;
+    top: 464px;
+  }
+  .st-sel {
+    width: calc(46px * 0.93);
+    height: calc(17px * 0.93);
+    top: 595px;
+  }
+  #select-btn {
+    left: 156px;
+  }
+  #start-btn {
+    left: 219px;
+  }
+  .joypad {
+    top: 420px;
+    left: 18px;
+  }
+  .joypad div {
+    height: 42px;
+    width: 45px;
+  }
+  #down-btn {
+    top: 80px;
+  }
+  #left-btn, #right-btn {
+    top: 40px;
+  }
+  #left-btn {
+    left: 5px;
+  }
+  #right-btn {
+    left: 85px;
+  }
 }

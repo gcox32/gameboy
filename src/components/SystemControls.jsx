@@ -10,7 +10,8 @@ function SystemControls({
     onSpeedChange, 
     isEmulatorPlaying, 
     onPowerToggle, 
-    onFullscreenToggle 
+    onFullscreenToggle,
+    isRomLoaded
 }) {
     return (
         <div>
@@ -22,7 +23,7 @@ function SystemControls({
                 {isSoundOn ? '🔊' : '🔇'} {/* Display different icons based on sound status */}
             </button>
             <input type="number" step="0.1" value={speed} onChange={onSpeedChange} />
-            <button onClick={onPowerToggle}>
+            <button onClick={onPowerToggle} disabled={!isRomLoaded}>
                 {isEmulatorPlaying ? "Off" : "On"}
             </button>
             <button onClick={onFullscreenToggle}>Fullscreen</button>

@@ -31,22 +31,24 @@ import { SignInFooter } from "./components/auth/SignInFooter";
 Amplify.configure(awsconfig);
 
 function App() {
-	const mainCanvas = document.getElementById('mainCanvas');
-	const fullscreenContainer = document.getElementById('fullscreenContainer');
-	const fullscreenCanvas = document.getElementById('fullscreen');
-
-	const [ROMImage, setROMImage] = useState(null);
-	const [speed, setSpeed] = useState(1);
+	// Refs to access the DOM elements
 	const gameBoyInstance = useRef(null);
 	const runInterval = useRef(null);
-	const [isSoundOn, setIsSoundOn] = useState(settings[0]); // Initialize the state based on settings
+	const mainCanvasRef = useRef(null);
+	const fullscreenCanvasRef = useRef(null);
+	const fullscreenContainerRef = useRef(null);
+
+	// Maintain states
+	const [ROMImage, setROMImage] = useState(null);
+	const [isRomLoaded, setIsRomLoaded] = useState(false);
+	const [speed, setSpeed] = useState(1);
+	const [isSoundOn, setIsSoundOn] = useState(settings[0]);
 	const [intervalPaused, setIntervalPaused] = useState(false);
 	const [isEmulatorPlaying, setIsEmulatorPlaying] = useState(false);
 	const [isEmulatorOn, setIsEmulatorOn] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [fullscreenBackground, setFullscreenBackground] = useState('');
 
-	// Modified run function to use the runInterval ref
 	const run = (gameboyInstance) => {
 		setIntervalPaused(false);
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
@@ -69,35 +71,38 @@ function App() {
 			console.log("GameBoy core cannot run while it has not been initialized.");
 		}
 	};
-	const handleROMSelected = (selectedROM) => {
-		// Find the option element that matches the selected ROM
-		const romOption = document.querySelector(`option[value='${selectedROM}']`);
+	const handleROMSelected = async (selectedROM) => {
+		if (selectedROM) {
+			setIsRomLoaded(false);
+			updateBackgroundForFullscreen(selectedROM.background);
+			const romUrl = `https://assets.letmedemo.com/gameboy/games/carts/${selectedROM.value}`;
 
-		// Get the data-background attribute from the option element and update the background
-		const background = romOption.getAttribute('data-background');
-		updateBackgroundForFullscreen(background);
-
-		// Remaining logic to handle ROM file fetching and setting up FileReader
-		const splitFilename = selectedROM.split('/');
-		const filename = splitFilename[splitFilename.length - 1];
-		fetch(selectedROM)
-			.then(res => res.blob()) // Get the blob from the response
-			.then(blob => {
-				// Create a File object from the Blob
-				const myFile = new File([blob], filename, {
-					type: blob.type
-				});
-
-				// Instantiate FileReader and set up its event listener
-				var reader = new FileReader();
-				reader.addEventListener('load', function (p) {
-					// Update ROMImage state and let useEffect handle the rest
-					setROMImage(p.target.result);
-				});
-
-				// Read the binary data from the file
-				reader.readAsBinaryString(myFile);
-			});
+			try {
+				const response = await fetch(romUrl);
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				const blob = await response.blob();
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					// Assuming setROMImage expects a binary string
+					setROMImage(reader.result);
+					setIsRomLoaded(true); // Set the flag indicating the ROM is loaded
+				};
+				reader.onerror = (error) => {
+					console.error("Failed to read ROM:", error);
+					setIsRomLoaded(false);
+				};
+				reader.readAsBinaryString(blob);
+			} catch (error) {
+				console.error("Failed to load ROM:", error);
+				setIsRomLoaded(false);
+			}
+		} else {
+			// Handle the scenario when no ROM is selected or the selectedROM is not provided
+			setROMImage(null);
+			setIsRomLoaded(false);
+		}
 	};
 	const updateBackgroundForFullscreen = (backgroundData) => {
 		// Update the fullscreen background state
@@ -112,26 +117,25 @@ function App() {
 		if (gameBoyInstance.current && (isEmulatorPlaying || intervalPaused)) {
 			console.log("Turning off the emulator...");
 			// clearLastEmulation(gameBoyInstance.current, runInterval);
-			mainCanvas.style.opacity = 0;
-			fullscreenCanvas.style.opacity = 0;
+			mainCanvasRef.current.style.opacity = 0;
+			fullscreenCanvasRef.current.style.opacity = 0;
 			clearInterval(runInterval.current);
 			setIsEmulatorPlaying(false);
 			setIntervalPaused(false);
 		} else {
 			// Logic to initialize and start the emulator using the ROMImage from state
-			if (gameBoyInstance.current) {
-				mainCanvas.style.opacity = 1;
-				fullscreenCanvas.style.opacity = 1;
+			if (gameBoyInstance.current && ROMImage) {
 				console.log("Starting GameBoyCore instance...");
-				if (isFullscreen) {
-					gameBoyInstance.current = new GameBoyCore(ROMImage, fullscreenCanvas);
-				} else {
-					gameBoyInstance.current = new GameBoyCore(ROMImage, mainCanvas);
+				const canvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
+				if (canvas) {
+					mainCanvasRef.current.style.opacity = 1;
+					fullscreenCanvasRef.current.style.opacity = 1;
+					gameBoyInstance.current = new GameBoyCore(ROMImage, canvas);
+					gameBoyInstance.current.start();
+					console.log("Calling run() function...");
+					run(gameBoyInstance.current);
+					setIsEmulatorPlaying(true);
 				}
-				gameBoyInstance.current.start();
-				console.log("Calling run() function...");
-				run(gameBoyInstance.current);
-				setIsEmulatorPlaying(true);
 			} else {
 				console.log("Game not selected. Cannot start.");
 			}
@@ -163,16 +167,21 @@ function App() {
 	};
 	const handleReset = () => {
 		if (ROMImage) {
-			clearInterval(runInterval.current);
 			console.log("Resetting GameBoy with the same ROM...");
-			clearLastEmulation(gameBoyInstance.current, runInterval);
-			if (isFullscreen) {
-				gameBoyInstance.current = new GameBoyCore(ROMImage, fullscreenCanvas);
-			} else {
-				gameBoyInstance.current = new GameBoyCore(ROMImage, mainCanvas);
+			clearInterval(runInterval.current);
+			setIsEmulatorPlaying(false);
+			setIntervalPaused(false);
+
+			// The canvas to use is now decided by the state, and not by direct DOM access.
+			const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
+
+			if (currentCanvas) {
+				gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
+				gameBoyInstance.current.start();
+				console.log("Calling run() function...");
+				run(gameBoyInstance.current);
+				setIsEmulatorPlaying(true);
 			}
-			gameBoyInstance.current.start();
-			run(gameBoyInstance.current);
 		}
 	};
 	const handlePauseResume = () => {
@@ -198,36 +207,29 @@ function App() {
 		// Only allow fullscreen if the emulator is on and the screen width is greater than its height
 		if (window.innerWidth > window.innerHeight) {
 			if (!isFullscreen) {
-				fullscreenContainer.style.display = "flex";
-				try {
-					gameBoyInstance.current.canvas = fullscreenCanvas;
-				} catch {
-
+				fullscreenContainerRef.current.style.display = "flex";
+				if (gameBoyInstance.current && fullscreenCanvasRef.current) {
+					gameBoyInstance.current.canvas = fullscreenCanvasRef.current;
 				}
 			} else {
-				fullscreenContainer.style.display = "none";
-				try {
-					gameBoyInstance.current.canvas = mainCanvas;
-				} catch {
-
+				fullscreenContainerRef.current.style.display = "none";
+				if (gameBoyInstance.current && mainCanvasRef.current) {
+					gameBoyInstance.current.canvas = mainCanvasRef.current;
 				}
 			}
 		} else {
-			fullscreenContainer.style.display = "none";
-			try {
-				gameBoyInstance.current.canvas = mainCanvas;
-			} catch {
-
+			fullscreenContainerRef.current.style.display = "none";
+			if (gameBoyInstance.current && mainCanvasRef.current) {
+				gameBoyInstance.current.canvas = mainCanvasRef.current;
 			}
 		}
-		try {
+		if (gameBoyInstance.current) {
+			console.log('initLCD');
 			gameBoyInstance.current.initLCD();
-		} catch {
-
 		}
 		setIsFullscreen(!isFullscreen);
 	},
-		[isFullscreen, gameBoyInstance, fullscreenCanvas, mainCanvas]
+		[isFullscreen, gameBoyInstance]
 	);
 	const initSound = () => {
 		if (isSoundOn) {
@@ -266,17 +268,16 @@ function App() {
 				clearLastEmulation(gameBoyInstance.current, runInterval);
 
 				console.log("Creating new GameBoyCore instance...");
-				if (isFullscreen) {
-					gameBoyInstance.current = new GameBoyCore(ROMImage, fullscreenCanvas);
-				} else {
-					gameBoyInstance.current = new GameBoyCore(ROMImage, mainCanvas);
+				const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
+
+				if (currentCanvas) {
+					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
+					console.log("GameBoyCore instance created. Waiting for start command.");
 				}
-				console.log("GameBoyCore instance created. Waiting for start command.");
 			} catch (error) {
 				console.error("Error during GameBoy instance initialization:", error);
 			}
 		}
-
 		// Clear the interval when the component unmounts
 		return () => {
 			if (runInterval.current) {
@@ -285,7 +286,8 @@ function App() {
 			}
 		};
 	},
-		[ROMImage, isFullscreen, fullscreenCanvas, mainCanvas]
+		// Dependencies list should include the state that triggers re-creation of the instance
+		[ROMImage]
 	);
 	// Maintain emulator-on awareness
 	useEffect(() => {
@@ -297,23 +299,20 @@ function App() {
 	// Keep canvases clear when emulator off
 	useEffect(() => {
 		if (!isEmulatorOn) {
-			try {
-				const context = mainCanvas.getContext('2d');
-				context.clearRect(0, 0, mainCanvas.width, mainCanvas.height); // Clear the canvas
-				mainCanvas.style.visibility = 'hidden';
-			} catch (err) {
-
+			if (mainCanvasRef.current) {
+				const context = mainCanvasRef.current.getContext('2d');
+				context.clearRect(0, 0, mainCanvasRef.current.width, mainCanvasRef.current.height); // Clear the canvas
+				mainCanvasRef.current.style.visibility = 'hidden';
 			}
-			try {
-				const fsContext = fullscreenCanvas.getContext('2d');
-				fsContext.clearRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
-				fullscreenCanvas.style.visibility = 'hidden';
-			} catch (err) {
 
+			if (fullscreenCanvasRef.current) {
+				const fsContext = fullscreenCanvasRef.current.getContext('2d');
+				fsContext.clearRect(0, 0, fullscreenCanvasRef.current.width, fullscreenCanvasRef.current.height);
+				fullscreenCanvasRef.current.style.visibility = 'hidden';
 			}
 		}
 	},
-		[isEmulatorOn, fullscreenCanvas, mainCanvas]
+		[isEmulatorOn] // Removed the refs from the dependency array
 	);
 	// Listen for window resize or escape key to exit fullscreen mode
 	useEffect(() => {
@@ -358,12 +357,18 @@ function App() {
 					isEmulatorPlaying={isEmulatorPlaying}
 					onPowerToggle={handlePowerToggle}
 					onFullscreenToggle={toggleFullscreenMode}
+					isRomLoaded={isRomLoaded}
 				/>
 			</div>
 			<Console
 				isEmulatorOn={isEmulatorOn}
+				mainCanvasRef={mainCanvasRef}
 			/>
-			<FullScreenContainer background={fullscreenBackground} />
+			<FullScreenContainer
+				background={fullscreenBackground}
+				fullscreenCanvasRef={fullscreenCanvasRef}
+				fullscreenContainerRef={fullscreenContainerRef}
+			/>
 			<header
 				className="App-header"
 			// style={{display:'none'}}
