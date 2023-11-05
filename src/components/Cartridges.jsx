@@ -2,10 +2,11 @@ import React from 'react';
 
 const romOptions = [
   { value: "true_blue.gbc", background: "blue.png", label: "True Blue" },
-  { value: "blue.gbc", background: "blue.png", label: "Blue" },
-  { value: "red.gbc", background: "red.png", label: "Red" },
-  { value: "green.gb", background: "green.png", label: "Green" },
-  { value: "yellow.gbc", background: "yellow.png", label: "Yellow" },
+  { value: "blue.gbc", background: "blue.png", label: "Pokemon Blue" },
+  { value: "red.gbc", background: "red.png", label: "Pokemon Red" },
+  { value: "green.gb", background: "green.png", label: "Pocket Monsters Green" },
+  { value: "yellow.gbc", background: "yellow.png", label: "Pokemon Yellow" },
+  { value: "super_mario_deluxe.gbc", background: "", label: "Super Mario"}
 ];
 
 function Cartridges({ onROMSelected, isDisabled }) {

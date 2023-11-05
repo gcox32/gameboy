@@ -799,11 +799,6 @@ a.card {
   border: 4px solid rgba(0, 0, 0, 0.5);
 }
 
-/* modal elements */
-.modal_content {
-  padding-bottom: 0 !important;
-}
-
 .row {
   display: flex;
   flex-direction: row;
@@ -814,18 +809,6 @@ a.card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-}
-
-.modal-section-title {
-  width: 80%;
-  text-align: center;
-  padding-bottom: 1em;
-}
-
-.modal-title {
-  font-size: 16px;
-  padding-bottom: 2em;
-  text-align: center;
 }
 
 .stat {

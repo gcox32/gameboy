@@ -19,6 +19,7 @@ import {
 // styles
 import logo from './logo.svg';
 import './styles/styles.css';
+import './styles/modal.css';
 // Amplify auth
 import { Amplify } from 'aws-amplify';
 import { withAuthenticator, Authenticator } from '@aws-amplify/ui-react';

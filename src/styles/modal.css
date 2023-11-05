@@ -7,8 +7,8 @@
   height: 100%;
   z-index: 3;
 }
-  
-.modal_overlay {
+
+.modal-overlay {
   position: absolute;
   left: 0;
   top: 0;
@@ -16,15 +16,11 @@
   height: 100%;
   z-index: 4;
   opacity: 0.6;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
 }
-  
 
 .modal-content {
   border-radius: 16px;
-}
-
-.modal .modal_content {
   z-index: 999;
   position: absolute;
   top: 50%;
@@ -34,114 +30,60 @@
   overflow: hidden;
   background: #fff;
   box-sizing: border-box;
-  padding: 20px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.7);
-  border-radius: 4px;
+  padding: 40px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
   display: inline-flex;
   flex-direction: column;
-  width: 320px; /* This just a default width */
+  text-align: center;
+  min-width: 320px;
+  max-width: 90%;
 }
 
-.modal .login-card {
-  z-index: 999;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-height: 90%;
-  overflow: hidden;
-  background: #fff;
-  box-sizing: border-box;
-  padding: 20px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.7);
-  border-radius: 4px;
-  display: inline-flex;
-  flex-direction: column;
-  width: 320px; /* This just a default width */
-}
-
-.modal .modal_content > h2 {
-  font-size: 28px;
+.modal-content>h2 {
+  font-size: 36px;
   font-weight: 200;
-  margin: 20px 0 40px;
+  margin-top: 1em;
   text-align: center;
 }
 
-.modal .modal_content .buttons_wrapper {
-  padding: 20px;
+.modal-content>h3 {
+  font-size: 28px;
+  font-weight: 200;
+  margin-bottom: 2em;
 }
 
-.modal .close_modal {
+.modal .close-modal {
   position: absolute;
-  right: -15px;
-  top: -14px;
+  right: 8px;
+  top: 0;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 28px;
   opacity: 0.5;
   background: none;
   border: none;
   transition: opacity 0.2s ease;
 }
 
-.modal .close_modal:hover {
+.modal .close-modal:hover {
   opacity: 0.9;
 }
 
-.modal .modal_content select {
-  padding: 5px 5px 3px 5px;
-  width: 75%;
-  font-size: 14px;
-  height: 30px;
-}
-.modal .modal_content label {
+.modal .modal-content label {
   padding: 5px;
 }
 
-.modal .modal_content .return-info {
-  width: 85%;
-  background-color: rgb(202, 205, 248);
-  border-radius: 4px;
-  padding: 5px;
+.modal-options-buttons {
+  display: flex;
+  justify-content: space-between;
 }
 
-.modal .modal_content .tooltip {
-  float: right;
+.modal-options-buttons button {
+  font-size: 20px;
+  width: 160px;
+  height: 40px;
+  border-radius: 8px;
 }
 
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 100px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px;
-  position: absolute;
-  z-index: 1;
-  bottom: 150%;
-  left: 50%;
-  margin-left: -55px;
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
+.modal-options-buttons button:hover {
+  cursor: pointer;
 }
