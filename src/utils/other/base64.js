@@ -38,7 +38,7 @@ export function base64(data) {
 	}
 	return base64;
 }
-function base64_decode(data) {
+export function base64_decode(data) {
 	try {
 		var decode64 = window.atob(data);	//Use this native function when it's available, as it's a magnitude faster than the non-native code below.
 	}

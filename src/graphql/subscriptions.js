@@ -6,6 +6,7 @@ export const onCreateGame = /* GraphQL */ `
     onCreateGame(filter: $filter) {
       id
       title
+      releaseDate
       description
       img
       filePath
@@ -13,6 +14,9 @@ export const onCreateGame = /* GraphQL */ `
         nextToken
         __typename
       }
+      backgroundImg
+      series
+      generation
       createdAt
       updatedAt
       __typename
@@ -24,6 +28,7 @@ export const onUpdateGame = /* GraphQL */ `
     onUpdateGame(filter: $filter) {
       id
       title
+      releaseDate
       description
       img
       filePath
@@ -31,6 +36,9 @@ export const onUpdateGame = /* GraphQL */ `
         nextToken
         __typename
       }
+      backgroundImg
+      series
+      generation
       createdAt
       updatedAt
       __typename
@@ -42,6 +50,7 @@ export const onDeleteGame = /* GraphQL */ `
     onDeleteGame(filter: $filter) {
       id
       title
+      releaseDate
       description
       img
       filePath
@@ -49,6 +58,9 @@ export const onDeleteGame = /* GraphQL */ `
         nextToken
         __typename
       }
+      backgroundImg
+      series
+      generation
       createdAt
       updatedAt
       __typename
@@ -58,28 +70,31 @@ export const onDeleteGame = /* GraphQL */ `
 export const onCreateSaveState = /* GraphQL */ `
   subscription OnCreateSaveState(
     $filter: ModelSubscriptionSaveStateFilterInput
-    $owner: String
   ) {
-    onCreateSaveState(filter: $filter, owner: $owner) {
+    onCreateSaveState(filter: $filter) {
       id
+      owner
       game {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
       }
-      data
+      filePath
       title
       description
       img
       createdAt
       updatedAt
       gameSaveStatesId
-      owner
       __typename
     }
   }
@@ -87,28 +102,31 @@ export const onCreateSaveState = /* GraphQL */ `
 export const onUpdateSaveState = /* GraphQL */ `
   subscription OnUpdateSaveState(
     $filter: ModelSubscriptionSaveStateFilterInput
-    $owner: String
   ) {
-    onUpdateSaveState(filter: $filter, owner: $owner) {
+    onUpdateSaveState(filter: $filter) {
       id
+      owner
       game {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
       }
-      data
+      filePath
       title
       description
       img
       createdAt
       updatedAt
       gameSaveStatesId
-      owner
       __typename
     }
   }
@@ -116,28 +134,31 @@ export const onUpdateSaveState = /* GraphQL */ `
 export const onDeleteSaveState = /* GraphQL */ `
   subscription OnDeleteSaveState(
     $filter: ModelSubscriptionSaveStateFilterInput
-    $owner: String
   ) {
-    onDeleteSaveState(filter: $filter, owner: $owner) {
+    onDeleteSaveState(filter: $filter) {
       id
+      owner
       game {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
       }
-      data
+      filePath
       title
       description
       img
       createdAt
       updatedAt
       gameSaveStatesId
-      owner
       __typename
     }
   }

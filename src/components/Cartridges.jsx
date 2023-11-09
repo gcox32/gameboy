@@ -1,28 +1,45 @@
-import React from 'react';
-
-const romOptions = [
-  { value: "true_blue.gbc", background: "blue.png", label: "True Blue" },
-  { value: "blue.gbc", background: "blue.png", label: "Pokemon Blue" },
-  { value: "red.gbc", background: "red.png", label: "Pokemon Red" },
-  { value: "green.gb", background: "green.png", label: "Pocket Monsters Green" },
-  { value: "yellow.gbc", background: "yellow.png", label: "Pokemon Yellow" },
-  { value: "super_mario_deluxe.gbc", background: "", label: "Super Mario"}
-];
+import React, { useState, useEffect } from 'react';
+import { API, graphqlOperation } from 'aws-amplify';
+import { listGames } from '../graphql/queries';
 
 function Cartridges({ onROMSelected, isDisabled }) {
+    const [games, setGames] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchGames = async () => {
+            try {
+                const gameData = await API.graphql(graphqlOperation(listGames));
+                const gamesList = gameData.data.listGames.items;
+                setGames(gamesList);
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchGames();
+    }, []);
+
     const handleROMChange = (e) => {
         const selectedValue = e.target.value;
-        const selectedROM = romOptions.find(option => option.value === selectedValue);
+        const selectedROM = games.find(game => game.filePath === selectedValue);
         // Pass the selected ROM object to the callback
-        onROMSelected(selectedROM); 
+        onROMSelected(selectedROM);
     };
+
+    // Handling loading and error states in the component's return statement
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
 
     return (
         <select onChange={handleROMChange} disabled={isDisabled}>
             <option value="">--Select a ROM--</option>
-            {romOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                    {option.label}
+            {games.map(game => (
+                <option key={game.id} value={game.filePath}>
+                    {game.title}
                 </option>
             ))}
         </select>

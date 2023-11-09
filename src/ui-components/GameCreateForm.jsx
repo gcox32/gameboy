@@ -7,8 +7,7 @@
 /* eslint-disable */
 import * as React from "react";
 import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
-import { getOverrideProps } from "@aws-amplify/ui-react/internal";
-import { fetchByPath, validateField } from "./utils";
+import { fetchByPath, getOverrideProps, validateField } from "./utils";
 import { API } from "aws-amplify";
 import { createGame } from "../graphql/mutations";
 export default function GameCreateForm(props) {
@@ -24,29 +23,49 @@ export default function GameCreateForm(props) {
   } = props;
   const initialValues = {
     title: "",
+    releaseDate: "",
     description: "",
     img: "",
     filePath: "",
+    backgroundImg: "",
+    series: "",
+    generation: "",
   };
   const [title, setTitle] = React.useState(initialValues.title);
+  const [releaseDate, setReleaseDate] = React.useState(
+    initialValues.releaseDate
+  );
   const [description, setDescription] = React.useState(
     initialValues.description
   );
   const [img, setImg] = React.useState(initialValues.img);
   const [filePath, setFilePath] = React.useState(initialValues.filePath);
+  const [backgroundImg, setBackgroundImg] = React.useState(
+    initialValues.backgroundImg
+  );
+  const [series, setSeries] = React.useState(initialValues.series);
+  const [generation, setGeneration] = React.useState(initialValues.generation);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     setTitle(initialValues.title);
+    setReleaseDate(initialValues.releaseDate);
     setDescription(initialValues.description);
     setImg(initialValues.img);
     setFilePath(initialValues.filePath);
+    setBackgroundImg(initialValues.backgroundImg);
+    setSeries(initialValues.series);
+    setGeneration(initialValues.generation);
     setErrors({});
   };
   const validations = {
     title: [{ type: "Required" }],
+    releaseDate: [],
     description: [],
     img: [],
     filePath: [],
+    backgroundImg: [],
+    series: [],
+    generation: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -75,9 +94,13 @@ export default function GameCreateForm(props) {
         event.preventDefault();
         let modelFields = {
           title,
+          releaseDate,
           description,
           img,
           filePath,
+          backgroundImg,
+          series,
+          generation,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -108,7 +131,7 @@ export default function GameCreateForm(props) {
             }
           });
           await API.graphql({
-            query: createGame,
+            query: createGame.replaceAll("__typename", ""),
             variables: {
               input: {
                 ...modelFields,
@@ -141,9 +164,13 @@ export default function GameCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title: value,
+              releaseDate,
               description,
               img,
               filePath,
+              backgroundImg,
+              series,
+              generation,
             };
             const result = onChange(modelFields);
             value = result?.title ?? value;
@@ -159,6 +186,37 @@ export default function GameCreateForm(props) {
         {...getOverrideProps(overrides, "title")}
       ></TextField>
       <TextField
+        label="Release date"
+        isRequired={false}
+        isReadOnly={false}
+        value={releaseDate}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              releaseDate: value,
+              description,
+              img,
+              filePath,
+              backgroundImg,
+              series,
+              generation,
+            };
+            const result = onChange(modelFields);
+            value = result?.releaseDate ?? value;
+          }
+          if (errors.releaseDate?.hasError) {
+            runValidationTasks("releaseDate", value);
+          }
+          setReleaseDate(value);
+        }}
+        onBlur={() => runValidationTasks("releaseDate", releaseDate)}
+        errorMessage={errors.releaseDate?.errorMessage}
+        hasError={errors.releaseDate?.hasError}
+        {...getOverrideProps(overrides, "releaseDate")}
+      ></TextField>
+      <TextField
         label="Description"
         isRequired={false}
         isReadOnly={false}
@@ -168,9 +226,13 @@ export default function GameCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              releaseDate,
               description: value,
               img,
               filePath,
+              backgroundImg,
+              series,
+              generation,
             };
             const result = onChange(modelFields);
             value = result?.description ?? value;
@@ -195,9 +257,13 @@ export default function GameCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              releaseDate,
               description,
               img: value,
               filePath,
+              backgroundImg,
+              series,
+              generation,
             };
             const result = onChange(modelFields);
             value = result?.img ?? value;
@@ -222,9 +288,13 @@ export default function GameCreateForm(props) {
           if (onChange) {
             const modelFields = {
               title,
+              releaseDate,
               description,
               img,
               filePath: value,
+              backgroundImg,
+              series,
+              generation,
             };
             const result = onChange(modelFields);
             value = result?.filePath ?? value;
@@ -238,6 +308,99 @@ export default function GameCreateForm(props) {
         errorMessage={errors.filePath?.errorMessage}
         hasError={errors.filePath?.hasError}
         {...getOverrideProps(overrides, "filePath")}
+      ></TextField>
+      <TextField
+        label="Background img"
+        isRequired={false}
+        isReadOnly={false}
+        value={backgroundImg}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              releaseDate,
+              description,
+              img,
+              filePath,
+              backgroundImg: value,
+              series,
+              generation,
+            };
+            const result = onChange(modelFields);
+            value = result?.backgroundImg ?? value;
+          }
+          if (errors.backgroundImg?.hasError) {
+            runValidationTasks("backgroundImg", value);
+          }
+          setBackgroundImg(value);
+        }}
+        onBlur={() => runValidationTasks("backgroundImg", backgroundImg)}
+        errorMessage={errors.backgroundImg?.errorMessage}
+        hasError={errors.backgroundImg?.hasError}
+        {...getOverrideProps(overrides, "backgroundImg")}
+      ></TextField>
+      <TextField
+        label="Series"
+        isRequired={false}
+        isReadOnly={false}
+        value={series}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              releaseDate,
+              description,
+              img,
+              filePath,
+              backgroundImg,
+              series: value,
+              generation,
+            };
+            const result = onChange(modelFields);
+            value = result?.series ?? value;
+          }
+          if (errors.series?.hasError) {
+            runValidationTasks("series", value);
+          }
+          setSeries(value);
+        }}
+        onBlur={() => runValidationTasks("series", series)}
+        errorMessage={errors.series?.errorMessage}
+        hasError={errors.series?.hasError}
+        {...getOverrideProps(overrides, "series")}
+      ></TextField>
+      <TextField
+        label="Generation"
+        isRequired={false}
+        isReadOnly={false}
+        value={generation}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              title,
+              releaseDate,
+              description,
+              img,
+              filePath,
+              backgroundImg,
+              series,
+              generation: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.generation ?? value;
+          }
+          if (errors.generation?.hasError) {
+            runValidationTasks("generation", value);
+          }
+          setGeneration(value);
+        }}
+        onBlur={() => runValidationTasks("generation", generation)}
+        errorMessage={errors.generation?.errorMessage}
+        hasError={errors.generation?.hasError}
+        {...getOverrideProps(overrides, "generation")}
       ></TextField>
       <Flex
         justifyContent="space-between"

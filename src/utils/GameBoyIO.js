@@ -3,8 +3,7 @@ import {
 	intervalPaused,
 	findValue,
 	setValue,
-	deleteValue,
-	uploadSaveFile
+	deleteValue
 } from './other/gui.js';
 import {
 	arrayToBase64,
@@ -33,38 +32,6 @@ export var settings = [						//Some settings.
 	true,								//Use image smoothing based scaling?
 	[true, true, true, true]            //User controlled channel enables.
 ];
-export function start(ROM) {
-	clearLastEmulation();
-	const gameboy = new GameBoyCore(ROM);
-	gameboy.openMBC = openSRAM;
-	gameboy.openRTC = openRTC;
-	gameboy.start();
-	run(gameboy);
-}
-export function run(gameboyInstance) {
-	if (GameBoyEmulatorInitialized(gameboyInstance)) {
-		if (!GameBoyEmulatorPlaying(gameboyInstance)) {
-			// console.log(gameboyInstance.stopEmulator);
-			gameboyInstance.stopEmulator &= 1;
-			// console.log(gameboyInstance.stopEmulator);
-			console.log("Starting the iterator.", 0);
-			var dateObj = new Date();
-			gameboyInstance.firstIteration = dateObj.getTime();
-			gameboyInstance.iterations = 0;
-			gbRunInterval = setInterval(function () {
-				if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
-					gameboyInstance.run();
-				}
-			}, settings[6]);
-		}
-		else {
-			console.log("The GameBoy core is already running.", 1);
-		}
-	}
-	else {
-		console.log("GameBoy core cannot run while it has not been initialized.", 1);
-	}
-}
 export function pause() {
 	if (GameBoyEmulatorInitialized()) {
 		if (GameBoyEmulatorPlaying()) {
@@ -87,63 +54,6 @@ export function clearLastEmulation(gameboyInstance, gbRunInterval) {
 	}
 	else {
 		console.log("No previous emulation was found to be cleared.", 0);
-	}
-}
-export function save(id, game) {
-	var savename;
-	if (GameBoyEmulatorInitialized()) {
-		savename = id + "_" + game;
-		saveState(savename);
-	}
-	else {
-		console.log("GameBoy core cannot be saved while it has not been initialized.", 1);
-	}
-}
-function saveSRAM() {
-	if (GameBoyEmulatorInitialized()) {
-		if (gameboy.cBATT) {
-			try {
-				var sram = gameboy.saveSRAMState();
-				if (sram.length > 0) {
-					console.log("Saving the SRAM...", 0);
-					if (findValue("SRAM_" + gameboy.name) !== null) {
-						//Remove the outdated storage format save:
-						console.log("Deleting the old SRAM save due to outdated format.", 0);
-						deleteValue("SRAM_" + gameboy.name);
-					}
-					setValue("B64_SRAM_" + gameboy.name, arrayToBase64(sram));
-				}
-				else {
-					console.log("SRAM could not be saved because it was empty.", 1);
-				}
-			}
-			catch (error) {
-				console.log("Could not save the current emulation state(\"" + error.message + "\").", 2);
-			}
-		}
-		else {
-			// console.log("Cannot save a game that does not have battery backed SRAM specified.", 1);
-		}
-		saveRTC();
-	}
-	else {
-		console.log("GameBoy core cannot be saved while it has not been initialized.", 1);
-	}
-}
-function saveRTC() {	//Execute this when SRAM is being saved as well.
-	if (GameBoyEmulatorInitialized()) {
-		if (gameboy.cTIMER) {
-			try {
-				console.log("Saving the RTC...", 0);
-				setValue("RTC_" + gameboy.name, gameboy.saveRTCState());
-			}
-			catch (error) {
-				console.log("Could not save the RTC of the current emulation state(\"" + error.message + "\").", 2);
-			}
-		}
-	}
-	else {
-		console.log("GameBoy core cannot be saved while it has not been initialized.", 1);
 	}
 }
 export function openSRAM(filename) {
@@ -181,20 +91,6 @@ export function openRTC(filename) {
 	}
 	return [];
 }
-export function saveState(savename) {
-	if (GameBoyEmulatorInitialized()) {
-		try {
-			uploadSaveFile(gameboy.saveState(), savename = savename);
-			console.log("Saved the current state as: " + savename + ".json", 0);
-		}
-		catch (error) {
-			console.log("Could not save the current emulation state(\"" + error.message + "\").", 2);
-		}
-	}
-	else {
-		console.log("GameBoy core cannot be saved while it has not been initialized.", 1);
-	}
-}
 export function openState(filename, canvas) {
 	try {
 		if (findValue(filename) !== null) {
@@ -205,7 +101,7 @@ export function openState(filename, canvas) {
 				gameboy = new GameBoyCore(canvas, "");
 				gameboy.savedStateFileName = filename;
 				gameboy.returnFromState(findValue(filename));
-				run();
+				// run();
 			}
 			catch (error) {
 				alert(error.message + " file: " + error.fileName + " line: " + error.lineNumber);
@@ -251,7 +147,6 @@ export function import_save(blobData) {
 		console.log("Could not decode the imported file.", 2);
 	}
 }
-
 export function generateBlob(keyName, encodedData) {
 	//Append the file format prefix:
 	var saveString = "EMULATOR_DATA";

@@ -6,6 +6,7 @@ export const getGame = /* GraphQL */ `
     getGame(id: $id) {
       id
       title
+      releaseDate
       description
       img
       filePath
@@ -13,6 +14,9 @@ export const getGame = /* GraphQL */ `
         nextToken
         __typename
       }
+      backgroundImg
+      series
+      generation
       createdAt
       updatedAt
       __typename
@@ -29,9 +33,13 @@ export const listGames = /* GraphQL */ `
       items {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
@@ -45,24 +53,28 @@ export const getSaveState = /* GraphQL */ `
   query GetSaveState($id: ID!) {
     getSaveState(id: $id) {
       id
+      owner
       game {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
       }
-      data
+      filePath
       title
       description
       img
       createdAt
       updatedAt
       gameSaveStatesId
-      owner
       __typename
     }
   }
@@ -76,14 +88,14 @@ export const listSaveStates = /* GraphQL */ `
     listSaveStates(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        data
+        owner
+        filePath
         title
         description
         img
         createdAt
         updatedAt
         gameSaveStatesId
-        owner
         __typename
       }
       nextToken

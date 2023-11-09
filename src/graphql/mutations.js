@@ -9,6 +9,7 @@ export const createGame = /* GraphQL */ `
     createGame(input: $input, condition: $condition) {
       id
       title
+      releaseDate
       description
       img
       filePath
@@ -16,6 +17,9 @@ export const createGame = /* GraphQL */ `
         nextToken
         __typename
       }
+      backgroundImg
+      series
+      generation
       createdAt
       updatedAt
       __typename
@@ -30,6 +34,7 @@ export const updateGame = /* GraphQL */ `
     updateGame(input: $input, condition: $condition) {
       id
       title
+      releaseDate
       description
       img
       filePath
@@ -37,6 +42,9 @@ export const updateGame = /* GraphQL */ `
         nextToken
         __typename
       }
+      backgroundImg
+      series
+      generation
       createdAt
       updatedAt
       __typename
@@ -51,6 +59,7 @@ export const deleteGame = /* GraphQL */ `
     deleteGame(input: $input, condition: $condition) {
       id
       title
+      releaseDate
       description
       img
       filePath
@@ -58,6 +67,9 @@ export const deleteGame = /* GraphQL */ `
         nextToken
         __typename
       }
+      backgroundImg
+      series
+      generation
       createdAt
       updatedAt
       __typename
@@ -71,24 +83,28 @@ export const createSaveState = /* GraphQL */ `
   ) {
     createSaveState(input: $input, condition: $condition) {
       id
+      owner
       game {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
       }
-      data
+      filePath
       title
       description
       img
       createdAt
       updatedAt
       gameSaveStatesId
-      owner
       __typename
     }
   }
@@ -100,24 +116,28 @@ export const updateSaveState = /* GraphQL */ `
   ) {
     updateSaveState(input: $input, condition: $condition) {
       id
+      owner
       game {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
       }
-      data
+      filePath
       title
       description
       img
       createdAt
       updatedAt
       gameSaveStatesId
-      owner
       __typename
     }
   }
@@ -129,24 +149,28 @@ export const deleteSaveState = /* GraphQL */ `
   ) {
     deleteSaveState(input: $input, condition: $condition) {
       id
+      owner
       game {
         id
         title
+        releaseDate
         description
         img
         filePath
+        backgroundImg
+        series
+        generation
         createdAt
         updatedAt
         __typename
       }
-      data
+      filePath
       title
       description
       img
       createdAt
       updatedAt
       gameSaveStatesId
-      owner
       __typename
     }
   }

@@ -17,6 +17,9 @@
       },
       "api": {
         "gameboy": {}
+      },
+      "storage": {
+        "gameboyc0b4c218": {}
       }
     }
   }

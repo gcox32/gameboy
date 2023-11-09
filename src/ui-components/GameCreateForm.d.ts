@@ -6,7 +6,16 @@
 
 import * as React from "react";
 import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
-import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
+export declare type EscapeHatchProps = {
+    [elementHierarchy: string]: Record<string, unknown>;
+} | null;
+export declare type VariantValues = {
+    [key: string]: string;
+};
+export declare type Variant = {
+    variantValues: VariantValues;
+    overrides: EscapeHatchProps;
+};
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
@@ -14,23 +23,35 @@ export declare type ValidationResponse = {
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type GameCreateFormInputValues = {
     title?: string;
+    releaseDate?: string;
     description?: string;
     img?: string;
     filePath?: string;
+    backgroundImg?: string;
+    series?: string;
+    generation?: string;
 };
 export declare type GameCreateFormValidationValues = {
     title?: ValidationFunction<string>;
+    releaseDate?: ValidationFunction<string>;
     description?: ValidationFunction<string>;
     img?: ValidationFunction<string>;
     filePath?: ValidationFunction<string>;
+    backgroundImg?: ValidationFunction<string>;
+    series?: ValidationFunction<string>;
+    generation?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type GameCreateFormOverridesProps = {
     GameCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
     title?: PrimitiveOverrideProps<TextFieldProps>;
+    releaseDate?: PrimitiveOverrideProps<TextFieldProps>;
     description?: PrimitiveOverrideProps<TextFieldProps>;
     img?: PrimitiveOverrideProps<TextFieldProps>;
     filePath?: PrimitiveOverrideProps<TextFieldProps>;
+    backgroundImg?: PrimitiveOverrideProps<TextFieldProps>;
+    series?: PrimitiveOverrideProps<TextFieldProps>;
+    generation?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type GameCreateFormProps = React.PropsWithChildren<{
     overrides?: GameCreateFormOverridesProps | undefined | null;

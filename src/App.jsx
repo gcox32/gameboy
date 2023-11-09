@@ -15,13 +15,14 @@ import {
 	settings,
 	clearLastEmulation
 } from './utils/GameBoyIO';
+import { saveSRAM, fetchUserSaveStates } from './utils/saveLoad';
 
 // styles
 import logo from './logo.svg';
 import './styles/styles.css';
 import './styles/modal.css';
 // Amplify auth
-import { Amplify } from 'aws-amplify';
+import { Amplify, Auth } from 'aws-amplify';
 import { withAuthenticator, Authenticator } from '@aws-amplify/ui-react';
 import awsconfig from './aws-exports';
 // auth components
@@ -40,7 +41,11 @@ function App() {
 	const fullscreenContainerRef = useRef(null);
 
 	// Maintain states
+	const [currentUser, setUser] = useState([]);
 	const [ROMImage, setROMImage] = useState(null);
+	const [activeROM, setActiveROM] = useState(null);
+	const [userSaveStates, setUserSaveStates] = useState([])
+	const [activeState, setActiveState] = useState(null);
 	const [isRomLoaded, setIsRomLoaded] = useState(false);
 	const [speed, setSpeed] = useState(1);
 	const [isSoundOn, setIsSoundOn] = useState(settings[0]);
@@ -49,16 +54,18 @@ function App() {
 	const [isEmulatorOn, setIsEmulatorOn] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [fullscreenBackground, setFullscreenBackground] = useState('');
-
+	
 	const run = (gameboyInstance) => {
 		setIntervalPaused(false);
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
 			if (!GameBoyEmulatorPlaying(gameboyInstance)) {
 				gameboyInstance.stopEmulator &= 1;
 				console.log("Starting the iterator.");
+				console.log(gameboyInstance);
 				var dateObj = new Date();
 				gameboyInstance.firstIteration = dateObj.getTime();
 				gameboyInstance.iterations = 0;
+				console.log(gameboyInstance.numRAMBanks);
 				gameBoyInstance.current.setSpeed(speed);
 				runInterval.current = setInterval(function () {
 					if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
@@ -74,10 +81,11 @@ function App() {
 	};
 	const handleROMSelected = async (selectedROM) => {
 		if (selectedROM) {
-			setIsRomLoaded(false);
-			updateBackgroundForFullscreen(selectedROM.background);
-			const romUrl = `https://assets.letmedemo.com/gameboy/games/carts/${selectedROM.value}`;
-
+			setActiveROM(selectedROM);
+			setUserSaveStates(await fetchUserSaveStates(currentUser.sub, selectedROM.id))
+			updateBackgroundForFullscreen(selectedROM.backgroundImg);
+			const romUrl = `https://assets.letmedemo.com/public/gameboy/games/${selectedROM.filePath}`;
+			console.log('Current user:', currentUser);
 			try {
 				const response = await fetch(romUrl);
 				if (!response.ok) {
@@ -108,7 +116,7 @@ function App() {
 	const updateBackgroundForFullscreen = (backgroundData) => {
 		// Update the fullscreen background state
 		if (backgroundData) {
-			const backgroundUrl = `https://assets.letmedemo.com/gameboy/images/fullscreen/${backgroundData}`;
+			const backgroundUrl = `https://assets.letmedemo.com/public/gameboy/images/fullscreen/${backgroundData}`;
 			setFullscreenBackground(backgroundUrl);
 		} else {
 			setFullscreenBackground(''); // Reset to default if no ROM is selected or if it doesn't have a background
@@ -123,15 +131,17 @@ function App() {
 			clearInterval(runInterval.current);
 			setIsEmulatorPlaying(false);
 			setIntervalPaused(false);
+			setIsRomLoaded(true);
 		} else {
 			// Logic to initialize and start the emulator using the ROMImage from state
 			if (gameBoyInstance.current && ROMImage) {
 				console.log("Starting GameBoyCore instance...");
-				const canvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
-				if (canvas) {
+				console.log(gameBoyInstance.current);
+				const currentCanvas = gameBoyInstance.current.canvas;
+				if (currentCanvas) {
 					mainCanvasRef.current.style.opacity = 1;
 					fullscreenCanvasRef.current.style.opacity = 1;
-					gameBoyInstance.current = new GameBoyCore(ROMImage, canvas);
+					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
 					gameBoyInstance.current.start();
 					console.log("Calling run() function...");
 					run(gameBoyInstance.current);
@@ -143,14 +153,14 @@ function App() {
 		}
 	};
 	const keyDownHandler = (event) => {
-		if (gameBoyInstance.current) {
+		if (gameBoyInstance.current && !intervalPaused) {
 			keyDown(event, gameBoyInstance.current);
 		} else {
 			// console.error("GameBoy instance is not initialized.");
 		}
 	};
 	const keyUpHandler = (event) => {
-		if (gameBoyInstance.current) {
+		if (gameBoyInstance.current && !intervalPaused) {
 			keyUp(event, gameBoyInstance.current);
 		} else {
 			// console.error("GameBoy instance is not initialized.");
@@ -188,11 +198,12 @@ function App() {
 	const handlePauseResume = () => {
 		if (GameBoyEmulatorInitialized(gameBoyInstance.current)) {
 			if (GameBoyEmulatorPlaying(gameBoyInstance.current)) {
-				console.log("Pausing GameBoy...");
+				console.log("Pausing...");
+				// console.log(gameBoyInstance.current.MBCRam);
 				clearLastEmulation(gameBoyInstance.current, runInterval);
 				setIntervalPaused(true);  // Pause the game
 			} else {
-				console.log("Resuming GameBoy...");
+				console.log("Resuming...");
 				// Ensure to clear any previous intervals before starting a new one
 				if (runInterval.current) {
 					clearInterval(runInterval.current);
@@ -225,7 +236,6 @@ function App() {
 			}
 		}
 		if (gameBoyInstance.current) {
-			console.log('initLCD');
 			gameBoyInstance.current.initLCD();
 		}
 		setIsFullscreen(!isFullscreen);
@@ -235,6 +245,7 @@ function App() {
 	const initSound = () => {
 		if (isSoundOn) {
 			// Code to turn off sound
+			console.log(gameBoyInstance.current.saveRTCState());
 			settings[0] = false;
 			setIsSoundOn(false); // Update state
 		} else {
@@ -246,7 +257,51 @@ function App() {
 			gameBoyInstance.current.initSound();
 		}
 	};
+	const onSaveConfirmed = async (saveModalData, previous = false) => {
+		saveModalData.owner = currentUser.sub;
+		if (previous && activeState) {
+			saveModalData.id = activeState.id;
+			saveModalData.filePath = activeState.filePath;
+		}
+		if (gameBoyInstance.current && activeROM && isEmulatorPlaying) {
+			saveSRAM(gameBoyInstance.current, activeROM, saveModalData, previous)
+				.then((savedState) => {
+					setActiveState(savedState) // ddb id of active game state
+					console.log('saved successfully')
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		}
+	};
+	const runFromSaveState = (sramArray) => {
+		console.log('Initiating state from load...');
+		const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
+		mainCanvasRef.current.style.opacity = 1;
+		fullscreenCanvasRef.current.style.opacity = 1;
+		gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas, sramArray);
+		gameBoyInstance.current.start();
+		run(gameBoyInstance.current);
+		setIsEmulatorPlaying(true);
+	};
 
+	// Maintain authenticated user information
+	useEffect(() => {
+		const loadUser = () => {
+			return Auth.currentAuthenticatedUser({ bypassCache: true });
+		}
+		const onLoad = async () => {
+			try {
+				const user = await loadUser();
+				setUser(user.attributes);
+			} catch (err) {
+				console.error(err);
+			}
+		}
+		onLoad();
+	},
+		[]
+	);
 	// Register GUI events on load
 	useEffect(() => {
 		registerGUIEvents();
@@ -259,11 +314,12 @@ function App() {
 			window.removeEventListener('keyup', keyUpHandler);
 		};
 	},
-		[]
+		[intervalPaused]
 	);
 	// Initialize gameBoyInstance with the first ROMImage on component mount
 	useEffect(() => {
 		if (ROMImage) {
+			console.log('effect triggered');
 			try {
 				console.log("Clearing previous emulation...");
 				clearLastEmulation(gameBoyInstance.current, runInterval);
@@ -287,8 +343,7 @@ function App() {
 			}
 		};
 	},
-		// Dependencies list should include the state that triggers re-creation of the instance
-		[ROMImage]
+		[ROMImage, isRomLoaded]
 	);
 	// Maintain emulator-on awareness
 	useEffect(() => {
@@ -359,6 +414,9 @@ function App() {
 					onPowerToggle={handlePowerToggle}
 					onFullscreenToggle={toggleFullscreenMode}
 					isRomLoaded={isRomLoaded}
+					onSaveConfirmed={onSaveConfirmed}
+					userSaveStates={userSaveStates}
+					runFromSaveState={runFromSaveState}
 				/>
 			</div>
 			<Console
