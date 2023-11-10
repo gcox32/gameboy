@@ -19,7 +19,10 @@
         "gameboy": {}
       },
       "storage": {
-        "gameboyc0b4c218": {}
+        "gameboyc0b4c218": {
+          "bucketName": "letmedemo-assets",
+          "region": "us-east-1"
+        }
       }
     }
   }

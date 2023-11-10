@@ -60,6 +60,24 @@
       "service": "Cognito"
     }
   },
+  "parameters": {
+    "AMPLIFY_storage_gameboyc0b4c218_bucketName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "gameboyc0b4c218"
+        }
+      ]
+    },
+    "AMPLIFY_storage_gameboyc0b4c218_region": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "gameboyc0b4c218"
+        }
+      ]
+    }
+  },
   "storage": {
     "gameboyc0b4c218": {
       "dependsOn": [],
