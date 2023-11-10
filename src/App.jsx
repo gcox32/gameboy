@@ -278,7 +278,6 @@ function App() {
 			}
 		}
 	};
-
 	const runFromSaveState = (sramArray) => {
 		console.log('Initiating state from load...');
 		const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
