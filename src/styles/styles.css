@@ -44,21 +44,8 @@
   --amplify-border-widths-medium: 4px;
   --amplify-border-widths-large: 8px;
 
-	--normal: rgb(218, 207, 192);
-	--fighting: rgb(198, 169, 130);
-	--flying: rgb(214, 187, 187);
-	--poison: rgb(162, 137, 162);
-	--ground: rgb(205, 168, 120);
-	--rock: rgb(157, 139, 139);
-	--bug: rgb(180, 233, 180);
-	--ghost: rgb(159, 158, 158);
-	--fire: rgb(255, 181, 181);
-	--water: rgb(164, 164, 253);
-	--grass: rgb(131, 152, 131);
-	--electric: rgb(255, 255, 188);
-	--psychic: rgb(253, 210, 217);
-	--ice: rgb(186, 249, 249);
-	--dragon: rgb(255, 226, 171);
+  --btn-width: 320px;
+  --btn-height: 60px;
 }
 
 * {
@@ -80,10 +67,6 @@
   text-align: center;
   font-weight: 100;
 }
-
-/* .App {
-  text-align: center;
-} */
 
 .App-logo {
   height: 40vmin;
@@ -108,6 +91,7 @@
   color: white;
   position: absolute;
   right: 0;
+  top: 0;
   max-width: 300px;
   z-index: 5;
 }
@@ -179,66 +163,6 @@ p.amplify-text:hover {
   cursor: default;
 }
 
-div[class~='normal-type'] {
-  background-color: var(--normal);
-}
-
-div[class~='fighting-type'] {
-  background-color: var(--fighting);
-}
-
-div[class~='flying-type'] {
-  background-color: var(--flying);
-}
-
-div[class~='poison-type'] {
-  background-color: var(--poison);
-}
-
-div[class~='ground-type'] {
-  background-color: var(--ground);
-}
-
-div[class~='rock-type'] {
-  background-color: var(--rock);
-}
-
-div[class~='bug-type'] {
-  background-color: var(--bug);
-}
-
-div[class~='ghost-type'] {
-  background-color: var(--ghost);
-}
-
-div[class~='fire-type'] {
-  background-color: var(--fire);
-}
-
-div[class~='water-type'] {
-  background-color: var(--water);
-}
-
-div[class~='grass-type'] {
-  background-color: var(--grass);
-}
-
-div[class~='electric-type'] {
-  background-color: var(--electric);
-}
-
-div[class~='psychic-type'] {
-  background-color: var(--psychic);
-}
-
-div[class~='ice-type'] {
-  background-color: var(--ice);
-}
-
-div[class~='dragon-type'] {
-  background-color: var(--dragon);
-}
-
 /* Gameboy specific styling */
 
 html {
@@ -275,13 +199,107 @@ body {
   background-color: #282c34;
 }
 
-.mobile-wrapper {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
+/* full screen */
+#fullscreenContainer {
+  display: none; /* Hidden by default */
+  position: fixed; /* Or absolute, depending on layout */
+  background-color: #282c34;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3; /* To ensure it's above other content */
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
+#fullscreen {
+  width: 64vmin;
+  height: calc(64vmin * (286 / 321));
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 3px solid;
+  margin-right: 2px;
+}
+
+/* controls */
+#control-panel {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  padding: 2em;
+  align-items: center;
+  padding-top: 5em;
+  position: relative;
+  z-index: 5;
+  height: 100vh;
+  justify-content: space-evenly;
+}
+
+.rom-selector {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 2px black solid;
+  background-color: white;
+  margin-bottom: 10px;
+  cursor: pointer;
+  width: var(--btn-width);
+  height: var(--btn-height);
+  text-align: center;
+  font-size: 16px;
+}
+
+.rom-selector:disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
+.control-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+
+.control-buttons button {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 2px black solid;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  width: var(--btn-width);
+  height: var(--btn-height);
+  margin: auto 1em;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.control-buttons button:disabled,.speed-control:disabled {
+  background-color: #ccc;
+  cursor: initial;
+}
+
+.control-buttons button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.speed-control {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 2px black solid;
+  width: var(--btn-width);
+  height: var(--btn-height);
+  font-size: 20px;
+  margin: auto 1em;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* console */
 .console-container {
   position: absolute;
   width: 526px;
@@ -289,8 +307,8 @@ body {
   background-image: url('../assets/images/gameboy-bg.png');
   background-size: cover;
   left: calc(50% - (526px/2)); /* 50% - half console width */
-  /* top: -20px; */
-  top: 70px;
+  top: 0px;
+  /* top: 70px; */
   border: 4px rgba(255, 255, 255, .5) solid;
   border-radius: 20px 20px 50% 50% / 48px 48px;
   transition: 500ms ease-in-out;
@@ -359,41 +377,6 @@ body {
   background-attachment: scroll;
 }
 
-#fullscreenContainer {
-  display: none; /* Hidden by default */
-  position: fixed; /* Or absolute, depending on layout */
-  background-color: #282c34;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 3; /* To ensure it's above other content */
-  align-items: center;
-  justify-content: center;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-#fullscreen {
-  width: 64vmin;
-  height: calc(64vmin * (286 / 321));
-  box-sizing: border-box;
-  border-radius: 8px;
-  border: 3px solid;
-  margin-right: 2px;
-}
-
-
-#system-controls {
-  z-index: 4;
-  position: relative;
-  margin: 0 auto;
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-}
-
 #GameBoy>#gfx>canvas {
   position: absolute;
   z-index: 5;
@@ -412,160 +395,6 @@ body {
   padding: 0;
 }
 
-/* revamp */
-.arrows {
-  z-index: 20;
-  position: absolute;
-  height: 100%;
-  width: 40px;
-  left: 0;
-  top: 0;
-}
-
-.drawer {
-  z-index: 3;
-  position: absolute;
-  width: 300px;
-  height: 100%;
-  padding-top: 10px;
-  padding-bottom: 30px;
-  padding-right: 30px;
-  left: 0;
-  top: 0;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: 250ms ease-in-out;
-  background: rgba(255, 255, 255, .1);
-  transform: translateX(-280px);
-  overflow-y: scroll;
-}
-.drawer#carts {
-  justify-content: space-evenly;
-}
-
-.cart-drawer::-webkit-scrollbar {
-  width: 0;
-}
-
-.arrow {
-  position: absolute;
-  top: 300px;
-  left: 0;
-  height: 50px;
-  width: 50px;
-  transition: 300ms ease-in-out;
-  background-image: url('../assets/images/arrow.png');
-  background-size: cover;
-}
-
-#settings-arrow {
-  top: 375px;
-}
-
-#party-arrow {
-  top: 450px;
-}
-
-.arrow:hover {
-  cursor: pointer;
-}
-
-.arrow:active {
-  transform: rotate(180deg);
-}
-
-.cartridge {
-  border-radius: 4px;
-  transition: 100ms ease-in-out
-}
-
-.cartridge:hover {
-  cursor: pointer;
-  outline: 4px black solid;
-  transform: scale(1.01);
-}
-
-.hidden-info {
-  display: none;
-}
-
-.btn {
-  border-radius: 16px;
-  width: 120px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-transform: uppercase;
-  margin-top: 10px;
-  background: rgba(153, 153, 153, 0);
-  transition: 250ms ease-in-out;
-}
-
-.btn:hover {
-  cursor: pointer;
-  background: rgb(153, 153, 153);
-}
-
-.sm-btn {
-  width: 60px;
-  height: 25px;
-  border: 2px black solid;
-  margin-top: 0;
-  border-radius: 4px;
-  margin-left: 5px;
-  font-size: 9px;
-}
-
-.game-setting {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-#pause-btn img:not([name="resume-btn-img"]) {
-  height: 28px;
-}
-
-.input-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  margin-bottom: 25px;
-}
-
-#speed-input {
-  width: 100px;
-  height: 27px;
-  border: 2px black solid;
-  margin-right: 5px;
-  display: flex;
-  text-align: center;
-}
-
-label {
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-input {
-  font-family: gameboy, sans-serif;
-}
-
-input:hover {
-  cursor: pointer;
-}
-
-#enable-sound {
-  background: rgb(153, 153, 153);
-  transition: 300ms ease-in-out;
-}
-
-/* console */
 #on-light {
   position: absolute;
   background-color: red;
@@ -657,87 +486,6 @@ input:hover {
   transform: rotate(90deg)
 }
 
-/*slider switch css */
-.switch-wrapper {
-  position: absolute;
-  top: 41px;
-  left: 101px;
-  display: flex;
-  align-items: center;
-}
-
-.switch {
-  display: inline-block;
-  height: 34px;
-  position: relative;
-  width: 60px;
-}
-
-.switch input {
-  display: none;
-}
-
-.slider {
-  background-color: #ccc;
-  bottom: 0;
-  cursor: pointer;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transition: .4s;
-}
-
-.slider:before {
-  background-color: #fff;
-  bottom: 4px;
-  content: "";
-  height: 26px;
-  left: 4px;
-  position: absolute;
-  transition: .4s;
-  width: 26px;
-}
-
-input:checked+.slider {
-  background-color: #66bb6a;
-}
-
-input:checked+.slider:before {
-  transform: translateX(26px);
-}
-
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-.icon-row {
-  align-items: center;
-  width: 100%;
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-}
-
-a.card {
-  height: 100px;
-  width: 100px;
-  border-radius: 16px;
-  outline: 2px black solid;
-  margin: 10px;
-  background-repeat: no-repeat;
-}
-
-.card:hover {
-  outline: 4px white solid;
-  cursor: pointer;
-}
-
 .party-slot {
   height: 190px;
   width: 155px;
@@ -797,18 +545,6 @@ a.card {
 
 .gray-border {
   border: 4px solid rgba(0, 0, 0, 0.5);
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-}
-
-.col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
 }
 
 .stat {

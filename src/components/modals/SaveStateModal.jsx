@@ -1,29 +1,38 @@
 import React, { useState } from 'react';
+import { uploadImageToS3 } from '../../utils/saveLoad';
 
-function SaveStateModal({ isOpen, onClose, onConfirm, initialData }) {
+function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM }) {
     const [title, setTitle] = useState(initialData?.title || '');
     const [description, setDescription] = useState(initialData?.description || '');
-    const [img, setImg] = useState(initialData?.img || '');
+    const [imageFile, setImageFile] = useState(initialData?.img || '');
 
-    // This will be called when the user clicks the Save button
-    const handleSubmit = () => {
-        // Construct the save state object
+    const handleSubmit = async () => {
+        let imageS3Key = initialData?.img || '';
+
+        if (imageFile) {
+            // Handle file upload to S3 and get the key
+            if (imageFile.type.startsWith('image/')) {
+                const fileType = imageFile.name.split('.').pop();
+                const imagePath = `${currentROM.title}/saves/${title}.${fileType}`;
+                imageS3Key = await uploadImageToS3(imageFile, imagePath);
+            }
+        }
+
         const saveStateData = {
             title,
             description,
-            img
+            img: imageS3Key
         };
-        
-        // Pass the save state data object to the onConfirm function provided by the parent
+
         onConfirm(saveStateData);
-        
-        // Close the modal
         onClose();
-        
-        // Optionally reset the modal's form fields
         setTitle('');
         setDescription('');
-        setImg('');
+        setImageFile(null);
+    };
+
+    const handleFileChange = (e) => {
+        setImageFile(e.target.files[0]);
     };
 
     if (!isOpen) return null;
@@ -46,10 +55,9 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }) {
                     placeholder="Enter description"
                 />
                 <input
-                    type="text"
-                    value={img}
-                    onChange={(e) => setImg(e.target.value)}
-                    placeholder="Enter image URL or base64"
+                    type="file"
+                    onChange={handleFileChange}
+                    accept="image/*"
                 />
                 <div className="modal-options-buttons">
                     <button onClick={onClose}>Cancel</button>

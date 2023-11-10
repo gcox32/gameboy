@@ -35,14 +35,15 @@ function Cartridges({ onROMSelected, isDisabled }) {
     if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <select onChange={handleROMChange} disabled={isDisabled}>
-            <option value="">--Select a ROM--</option>
+        <select onChange={handleROMChange} disabled={isDisabled} className="rom-selector">
+            <option value="">--Select a Game--</option>
             {games.map(game => (
                 <option key={game.id} value={game.filePath}>
                     {game.title}
                 </option>
             ))}
         </select>
+
     );
 }
 

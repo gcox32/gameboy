@@ -3,6 +3,7 @@ import { Storage } from 'aws-amplify';
 import ConfirmModal from './modals/ConfirmModal';
 import SaveStateModal from './modals/SaveStateModal';
 import LoadStateModal from './modals/LoadStateModal';
+import { Authenticator } from '@aws-amplify/ui-react';
 
 function SystemControls({
     intervalPaused,
@@ -18,7 +19,8 @@ function SystemControls({
     isRomLoaded,
     onSaveConfirmed,
     userSaveStates,
-    runFromSaveState
+    runFromSaveState,
+    currentROM
 }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSaveStateModal, setShowSaveStateModal] = useState(false);
@@ -97,43 +99,48 @@ function SystemControls({
     };
     const handleSelectSaveState = async (selectedSaveState) => {
         try {
-            // Fetch the save data from S3 using the key from the selected save state
-            const signedUrl = await Storage.get(selectedSaveState.filePath, {
-                contentType: 'blob',
-                level: 'private'
-            });
+            const signedUrl = await Storage.get(selectedSaveState.filePath, { level: 'private' });
             const response = await fetch(signedUrl);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            const blob = await response.blob();
-            const arrayBuffer = await blob.arrayBuffer();
-            const sramArray = new Uint8Array(arrayBuffer);
+            // Retrieve the text (JSON string) from the response
+            const jsonString = await response.text();
+            // Parse the JSON string to an object
+            const saveDataObject = JSON.parse(jsonString);
+            console.log(saveDataObject);
+            // Extract and use the MBCRam array
+            const sramArray = saveDataObject.MBCRam;
+            if (!sramArray || !Array.isArray(sramArray) || sramArray.length !== 32768) {
+                throw new Error('Invalid or corrupted MBCRam data in the save state.');
+            }
 
+            console.log('SRAM Array Length:', sramArray.length);
             runFromSaveState(sramArray);
             setShowLoadStateModal(false);
+            setActiveROMData(selectedSaveState);
         } catch (error) {
             console.error('Error loading save state:', error);
         }
     };
 
+
     return (
-        <div>
-            <button id="pause-resume-btn" onClick={onPauseResume} disabled={!isEmulatorPlaying}>
-                {intervalPaused ? "Resume" : "Pause"}
-            </button>
-            <button onClick={handleResetConfirm} disabled={!isEmulatorPlaying}>Reset</button>
-            <button id="enable-sound" onClick={initSound}>
-                {isSoundOn ? '🔊' : '🔇'}
-            </button>
-            <input type="number" step="0.1" value={speed} onChange={onSpeedChange} disabled={!isRomLoaded} />
-            <button onClick={handlePowerToggleConfirm} disabled={!isRomLoaded}>
-                {isEmulatorPlaying ? "Off" : "On"}
-            </button>
-            <button onClick={onFullscreenToggle} disabled={!isRomLoaded}>Fullscreen</button>
-            <button onClick={handleLoadSaveState} disabled={!isRomLoaded && !isEmulatorPlaying} id="load-btn">Load State</button>
-            <button onClick={handleSave} disabled={!isEmulatorPlaying} >Save</button>
-            <button onClick={handleSaveAs} disabled={!isEmulatorPlaying} >Save As</button>
+        <>
+            <div className="control-buttons">
+                <button onClick={handlePowerToggleConfirm} disabled={!isRomLoaded}>{isEmulatorPlaying ? "Off" : "On"}</button>
+                <input className="speed-control" type="number" step="0.1" value={speed} onChange={onSpeedChange} disabled={!isRomLoaded} placeholder="Game Speed Multiple"/>
+                <button id="enable-sound" onClick={initSound} disabled={!isRomLoaded}>{isSoundOn ? '🔊' : '🔇'}</button>
+                <button id="pause-resume-btn" onClick={onPauseResume} disabled={!isEmulatorPlaying}>{intervalPaused ? "Resume" : "Pause"}</button>
+                <button onClick={handleResetConfirm} disabled={!isEmulatorPlaying}>Reset</button>
+                <button onClick={handleLoadSaveState} disabled={!isRomLoaded || isEmulatorPlaying || userSaveStates.length === 0} id="load-btn">Load State</button>
+                <button onClick={handleSave} disabled={!isEmulatorPlaying} >Save</button>
+                <button onClick={handleSaveAs} disabled={!isEmulatorPlaying} >Save As</button>
+                <button onClick={onFullscreenToggle} disabled={!isRomLoaded}>Fullscreen</button>
+                <Authenticator >
+                    {({ signOut }) => (<button onClick={signOut}>Logout</button>)}
+                </Authenticator>
+            </div>
             <ConfirmModal
                 isOpen={showConfirmModal}
                 onClose={closeConfirmModal}
@@ -148,6 +155,7 @@ function SystemControls({
                 onClose={closeSaveStateModal}
                 onConfirm={saveStateModalAction}
                 initialData={activeROMData}
+                currentROM={currentROM}
             >
             </SaveStateModal>
             <LoadStateModal
@@ -157,7 +165,7 @@ function SystemControls({
                 onConfirm={handleSelectSaveState}
             >
             </LoadStateModal>
-        </div>
+        </ >
     );
 }
 

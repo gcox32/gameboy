@@ -1,21 +1,25 @@
 import { Storage, API, graphqlOperation } from 'aws-amplify';
 import { createSaveState, updateSaveState } from '../graphql/mutations';
 import { listSaveStates } from '../graphql/queries';
-import { arrayToBase64 } from './other/base64';
 
 // saving functions
 
-export async function saveGameToS3(sramData, game, saveModalData, previous = false) {
+export async function saveGameToS3(savePackage, game, saveModalData, previous = false) {
     try {
-        console.log(saveModalData);
-        const sramBase64 = arrayToBase64(sramData);
-        const blob = new Blob([Uint8Array.from(atob(sramBase64), c => c.charCodeAt(0))], { type: 'application/octet-stream' });
+        // Serialize the entire savePackage object into JSON
+        const jsonStr = JSON.stringify(savePackage);
+
+        // Convert the JSON string to a Blob
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+
         const s3ID = crypto.randomUUID();
         const key = previous ? saveModalData.filePath : `${game.title}/saves/${s3ID}.sav`;
+
         const s3Response = await Storage.put(key, blob, {
-            contentType: 'application/octet-stream',
+            contentType: 'application/json',
             level: 'private',
         });
+
         return s3Response.key;
     } catch (error) {
         console.error('Error saving to S3', error);
@@ -51,10 +55,11 @@ export async function saveGameStateToDDB(s3Key, game, saveModalData, previous = 
     }
 }
 export async function saveSRAM(gameboyInstance, game, saveModalData, previous = false) {
-    const sramData = gameboyInstance.saveSRAMState();
-    if (sramData.length > 0) {
+    const MBCRam = gameboyInstance.saveSRAMState();
+    const savePackage = { 'MBCRam': MBCRam }
+    if (MBCRam.length > 0) {
         console.log("Saving the SRAM...");
-        const s3Key = await saveGameToS3(sramData, game, saveModalData, previous);
+        const s3Key = await saveGameToS3(savePackage, game, saveModalData, previous);
         const saveState = await saveGameStateToDDB(s3Key, game, saveModalData, previous);
         console.log('Save state saved!', saveState);
         return saveState;
@@ -81,3 +86,16 @@ export async function fetchUserSaveStates(userId, gameId) {
         throw error;
     }
 };
+export async function uploadImageToS3(file, filePath) {
+    try {
+        const s3Response = await Storage.put(filePath, file, {
+            contentType: file.type,
+            level: 'private',
+        });
+        return s3Response.key;
+    } catch (error) {
+        console.error('Error uploading image to S3', error);
+        throw error;
+    }
+}
+// download and run

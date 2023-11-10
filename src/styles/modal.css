@@ -78,14 +78,26 @@
 }
 
 .modal-options-buttons button {
-  font-size: 20px;
-  width: 160px;
-  height: 40px;
-  border-radius: 8px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  min-width: var(--btn-width);
+  height: var(--btn-height);
+  margin: 1em;
+  font-size: 16px;
+  transition: background-color 0.2s;
 }
 
-.modal-options-buttons button:hover {
-  cursor: pointer;
+.modal-options-buttons button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.modal-options-buttons button:hover:not(:disabled) {
+  background-color: #0056b3;
 }
 
 .remove-confirm {
@@ -107,4 +119,41 @@
 
 .modal-content#save-modal {
   min-width: 400px;
+}
+
+/* load state modal */
+.modal-content#load-state-content {
+  width: 800px;
+}
+.modal-content img {
+  width: 300px;
+  border-radius: 4px;
+  outline: 2px gray solid;
+  transition: 100ms ease-in-out;
+}
+.modal-content img:hover {
+  cursor: pointer;
+  outline: 5px gray solid;
+}
+.save-state-list {
+  overflow-x: scroll;
+  padding: 4px;
+  display: flex;
+  justify-content: flex-start;
+}
+.save-state-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 2em;
+}
+h3.save-state-title {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+.last-update-text {
+  font-size: 16px;
+  font-weight: 500;
 }

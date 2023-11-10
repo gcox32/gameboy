@@ -18,12 +18,11 @@ import {
 import { saveSRAM, fetchUserSaveStates } from './utils/saveLoad';
 
 // styles
-import logo from './logo.svg';
 import './styles/styles.css';
 import './styles/modal.css';
 // Amplify auth
 import { Amplify, Auth } from 'aws-amplify';
-import { withAuthenticator, Authenticator } from '@aws-amplify/ui-react';
+import { withAuthenticator } from '@aws-amplify/ui-react';
 import awsconfig from './aws-exports';
 // auth components
 import { Footer } from "./components/auth/Footer";
@@ -54,7 +53,7 @@ function App() {
 	const [isEmulatorOn, setIsEmulatorOn] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [fullscreenBackground, setFullscreenBackground] = useState('');
-	
+
 	const run = (gameboyInstance) => {
 		setIntervalPaused(false);
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
@@ -187,7 +186,11 @@ function App() {
 			const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
 
 			if (currentCanvas) {
-				gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
+				if (activeState) {
+					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas, activeState);
+				} else {
+					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
+				}
 				gameBoyInstance.current.start();
 				console.log("Calling run() function...");
 				run(gameBoyInstance.current);
@@ -264,16 +267,18 @@ function App() {
 			saveModalData.filePath = activeState.filePath;
 		}
 		if (gameBoyInstance.current && activeROM && isEmulatorPlaying) {
-			saveSRAM(gameBoyInstance.current, activeROM, saveModalData, previous)
-				.then((savedState) => {
-					setActiveState(savedState) // ddb id of active game state
-					console.log('saved successfully')
-				})
-				.catch((error) => {
-					console.log(error);
-				});
+			try {
+				const savedState = await saveSRAM(gameBoyInstance.current, activeROM, saveModalData, previous);
+				setActiveState(savedState); // ddb id of active game state
+				console.log('saved successfully');
+				const userSaves = await fetchUserSaveStates(currentUser.sub, activeROM.id);
+				setUserSaveStates(userSaves);
+			} catch (error) {
+				console.log(error);
+			}
 		}
 	};
+
 	const runFromSaveState = (sramArray) => {
 		console.log('Initiating state from load...');
 		const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
@@ -283,6 +288,7 @@ function App() {
 		gameBoyInstance.current.start();
 		run(gameBoyInstance.current);
 		setIsEmulatorPlaying(true);
+		setActiveState(sramArray);
 	};
 
 	// Maintain authenticated user information
@@ -397,7 +403,7 @@ function App() {
 
 	return (
 		<div className="App">
-			<div id="system-controls">
+			<div id="control-panel">
 				<Cartridges
 					onROMSelected={handleROMSelected}
 					isDisabled={isEmulatorPlaying}
@@ -417,6 +423,7 @@ function App() {
 					onSaveConfirmed={onSaveConfirmed}
 					userSaveStates={userSaveStates}
 					runFromSaveState={runFromSaveState}
+					currentROM={activeROM}
 				/>
 			</div>
 			<Console
@@ -428,19 +435,6 @@ function App() {
 				fullscreenCanvasRef={fullscreenCanvasRef}
 				fullscreenContainerRef={fullscreenContainerRef}
 			/>
-			<header
-				className="App-header"
-			// style={{display:'none'}}
-			>
-				<Authenticator >
-					{({ signOut }) => (
-						// eslint-disable-next-line
-						<a className="hover-pointer" href="#" onClick={signOut}>
-							<img src={logo} className="App-logo" alt="logo" />
-						</a>
-					)}
-				</Authenticator>
-			</header>
 		</div>
 	);
 }
