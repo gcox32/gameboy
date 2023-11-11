@@ -116,7 +116,7 @@ function SystemControls({
             }
 
             console.log('SRAM Array Length:', sramArray.length);
-            runFromSaveState(sramArray);
+            runFromSaveState(sramArray, selectedSaveState);
             setShowLoadStateModal(false);
             setActiveROMData(selectedSaveState);
         } catch (error) {

@@ -3,12 +3,13 @@ var toBase64 = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
 	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+" , "/", "="];
 var fromBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 export function base64(data) {
+	let base64;
 	try {
-		var base64 = window.btoa(data);	//Use this native function when it's available, as it's a magnitude faster than the non-native code below.
+		base64 = window.btoa(data);	//Use this native function when it's available, as it's a magnitude faster than the non-native code below.
 	}
 	catch (error) {
 		//Defaulting to non-native base64 encoding...
-		var base64 = "";
+		base64 = "";
 		var dataLength = data.length;
 		if (dataLength > 0) {
 			var bytes = [0, 0, 0];
@@ -39,12 +40,13 @@ export function base64(data) {
 	return base64;
 }
 export function base64_decode(data) {
+	let decode64;
 	try {
-		var decode64 = window.atob(data);	//Use this native function when it's available, as it's a magnitude faster than the non-native code below.
+		decode64 = window.atob(data);	//Use this native function when it's available, as it's a magnitude faster than the non-native code below.
 	}
 	catch (error) {
 		//Defaulting to non-native base64 decoding...
-		var decode64 = "";
+		decode64 = "";
 		var dataLength = data.length;
 		if (dataLength > 3 && dataLength % 4 === 0) {
 			var sixbits = [0, 0, 0, 0];	//Declare this out of the loop, to speed up the ops.

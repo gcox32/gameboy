@@ -278,7 +278,7 @@ function App() {
 			}
 		}
 	};
-	const runFromSaveState = (sramArray) => {
+	const runFromSaveState = (sramArray, selectedSaveState) => {
 		console.log('Initiating state from load...');
 		const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
 		mainCanvasRef.current.style.opacity = 1;
@@ -287,7 +287,7 @@ function App() {
 		gameBoyInstance.current.start();
 		run(gameBoyInstance.current);
 		setIsEmulatorPlaying(true);
-		setActiveState(sramArray);
+		setActiveState(selectedSaveState);
 	};
 
 	// Maintain authenticated user information
@@ -319,6 +319,7 @@ function App() {
 			window.removeEventListener('keyup', keyUpHandler);
 		};
 	},
+		// eslint-disable-next-line
 		[intervalPaused]
 	);
 	// Initialize gameBoyInstance with the first ROMImage on component mount
@@ -348,6 +349,7 @@ function App() {
 			}
 		};
 	},
+		// eslint-disable-next-line
 		[ROMImage, isRomLoaded]
 	);
 	// Maintain emulator-on awareness

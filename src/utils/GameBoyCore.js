@@ -1,4 +1,3 @@
-import { createIndexSignature } from 'typescript';
 import {
 	settings,
 	pause,
@@ -1312,7 +1311,6 @@ class GameBoyCore {
 		else if (this.cSRAM) {
 			this.numRAMBanks = 1;
 		}
-		console.log('RAM Banks:', this.numRAMBanks);
 		if (this.numRAMBanks > 0) {
 			if (!this.MBCRAMUtilized()) {
 				//For ROM and unknown MBC cartridges using the external RAM:
@@ -1322,8 +1320,6 @@ class GameBoyCore {
 			var saveStateArray = this.saveStateArray;
 			if (saveStateArray.length > 0) {
 				//Flash the SRAM into memory:
-				console.log('MBCRam.length > 0');
-				// Copy the SRAM data back into the emulator's MBC RAM
 				for (let i = 0; i < saveStateArray.length; i++) {
 					this.MBCRam[i] = saveStateArray[i];
 				}
@@ -1333,11 +1329,9 @@ class GameBoyCore {
 				// this.currMBCRAMBankPosition = -0xA000;
 			}
 			else {
-				console.log('MBCRam.length === 0');
 				this.MBCRam = this.getTypedArray(this.numRAMBanks * 0x2000, 0, "uint8");
 			}
 		}
-		console.log(this.MBCRAMBanksEnabled);
 		console.log("Actual bytes of MBC RAM allocated: " + (this.numRAMBanks * 0x2000), 0);
 		this.returnFromRTCState();
 		//Setup the RAM for GBC mode.
@@ -1354,7 +1348,6 @@ class GameBoyCore {
 	recomputeDimension() {
 		initNewCanvas();
 		//Cache some dimension info:
-		// console.log(this.canvas);
 		this.onscreenWidth = this.canvas.width;
 		this.onscreenHeight = this.canvas.height;
 		if (window && window.mozRequestAnimationFrame || (navigator.userAgent.toLowerCase().indexOf("gecko") !== -1 && navigator.userAgent.toLowerCase().indexOf("like gecko") === -1)) {
@@ -3897,11 +3890,6 @@ class GameBoyCore {
 				this.memoryReader[index] = (this.cGBC) ? this.VRAMCHRReadCGBCPU : this.VRAMCHRReadDMGCPU;
 			}
 			else if (index >= 0xA000 && index < 0xC000) {
-				if(index === 0xA001) {
-					console.log('is cMBC7:',this.cMBC7)
-					console.log('is cMBC3:',this.cMBC3)
-					console.log(this.MBCRam);
-				}
 				if ((this.numRAMBanks === 1 / 16 && index < 0xA200) || this.numRAMBanks >= 1) {
 					if (this.cMBC7) {
 						this.memoryReader[index] = this.memoryReadMBC7;
