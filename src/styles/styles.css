@@ -155,6 +155,10 @@ body {
   margin-right: 2px;
 }
 
+.mobile-only {
+  display: none;
+}
+
 /* controls */
 #control-panel {
   display: flex;
@@ -239,7 +243,7 @@ body {
 .toggle-handle {
   position: absolute;
   right: -50px; /* Adjust as needed */
-  top: 80%;
+  top: 90%;
   transform: translateY(-50%);
   width: 50px; /* Adjust width and height as needed */
   height: 50px;
@@ -440,7 +444,10 @@ body {
     height: calc(420px * (928/526));
     overflow: hidden;
   }
-  #full-screen-toggle {
+  .mobile-only {
+    display: block;
+  }
+  .desktop-only {
     display: none;
   }
   

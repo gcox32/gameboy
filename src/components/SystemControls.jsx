@@ -20,7 +20,9 @@ function SystemControls({
     onSaveConfirmed,
     userSaveStates,
     runFromSaveState,
-    currentROM
+    currentROM,
+    togglePanel,
+    isPanelVisible
 }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSaveStateModal, setShowSaveStateModal] = useState(false);
@@ -129,17 +131,16 @@ function SystemControls({
         <>
             <div className="control-buttons">
                 <button onClick={handlePowerToggleConfirm} disabled={!isRomLoaded}>{isEmulatorPlaying ? "Off" : "On"}</button>
-                <input className="speed-control" type="number" step="0.1" value={speed} onChange={onSpeedChange} disabled={!isRomLoaded} placeholder="Game Speed Multiple"/>
+                <input className="speed-control" type="number" step="0.1" value={speed} onChange={onSpeedChange} disabled={!isRomLoaded} placeholder="Game Speed Multiple" />
                 <button id="enable-sound" onClick={initSound} disabled={!isRomLoaded}>{isSoundOn ? '🔊' : '🔇'}</button>
                 <button id="pause-resume-btn" onClick={onPauseResume} disabled={!isEmulatorPlaying}>{intervalPaused ? "Resume" : "Pause"}</button>
                 <button onClick={handleResetConfirm} disabled={!isEmulatorPlaying}>Reset</button>
                 <button onClick={handleLoadSaveState} disabled={!isRomLoaded || isEmulatorPlaying || userSaveStates.length === 0} id="load-btn">Load State</button>
                 <button onClick={handleSave} disabled={!isEmulatorPlaying} >Save</button>
                 <button onClick={handleSaveAs} disabled={!isEmulatorPlaying} >Save As</button>
-                <button onClick={onFullscreenToggle} disabled={!isRomLoaded} id="full-screen-toggle">Fullscreen</button>
-                <Authenticator >
-                    {({ signOut }) => (<button onClick={signOut}>Logout</button>)}
-                </Authenticator>
+                <button onClick={onFullscreenToggle} disabled={!isRomLoaded} class="desktop-only">Fullscreen</button>
+                <button onClick={togglePanel} class="mobile-only">Hide</button>
+                <Authenticator >{({ signOut }) => (<button onClick={signOut}>Logout</button>)}</Authenticator>
             </div>
             <ConfirmModal
                 isOpen={showConfirmModal}

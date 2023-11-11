@@ -48,10 +48,13 @@ function ControlPanel({
                 userSaveStates={userSaveStates}
                 runFromSaveState={runFromSaveState}
                 currentROM={activeROM}
+                togglePanel={togglePanel}
+                isPanelVisible={isPanelVisible}
             />
             <ToggleButton
                 onClick={togglePanel}
                 isPanelVisible={isPanelVisible}
+                mobile={false}
             />
         </div>
     )
