@@ -52,6 +52,12 @@
   font-family: gameboy, sans-serif !important;
 }
 
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 [data-amplify-router] {
   min-height: 500px;
   border-radius: 16px;
@@ -66,38 +72,6 @@
 [data-amplify-router] div div h3 {
   text-align: center;
   font-weight: 100;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-  width: 100px;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: rgba(0,0,0,0);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  font-size: calc(10px + 2vmin);
-  color: white;
-  position: absolute;
-  right: 0;
-  top: 0;
-  max-width: 300px;
-  z-index: 5;
-}
-
-.App-link {
-  color: #61dafb;
 }
 
 @keyframes App-logo-spin {
@@ -117,50 +91,6 @@ p.amplify-text:hover {
 
 .amplify-flex input {
   border-radius: 8px;
-}
-
-.card-carousel {
-  width: 100%;
-  height: 500px;
-  perspective: 1200px;
-}
-
-.card {
-  align-items: center;
-  border-radius: 25px;
-  box-sizing: border-box;
-  display: flex;
-  height: 500px;
-  justify-content: flex-end;
-  margin-bottom: 10px;
-  margin-right: 0;
-  margin-left: 0;
-  padding: 30px 20px;
-  position: relative;
-  width: 300px;
-  flex-direction: column;
-  overflow: hidden;
-  border: 3px solid #0000001a;
-  transition: box-shadow 0.3s ease;
-}
-
-.card:hover {
-  cursor: pointer;
-  -webkit-box-shadow: 0 16px 48px #E3E7EB;
-  -moz-box-shadow: 0 16px 48px #E3E7EB;
-  box-shadow: 0 16px 48px #E3E7EB;
-}
-
-.card:active {
-  cursor: grabbing;
-}
-
-.hover-pointer:hover {
-  cursor: pointer;
-}
-
-.hover-default:hover {
-  cursor: default;
 }
 
 /* Gameboy specific styling */
@@ -229,14 +159,17 @@ body {
 #control-panel {
   display: flex;
   flex-direction: column;
-  max-width: 500px;
+  max-width: 400px;
   padding: 2em;
   align-items: center;
   padding-top: 5em;
-  position: relative;
+  position: absolute;
   z-index: 5;
+  left: 0;
+  top: 0;
   height: 100vh;
   justify-content: space-evenly;
+  transition: left 200ms ease-in-out;
 }
 
 .rom-selector {
@@ -262,6 +195,7 @@ body {
   flex-direction: column;
   gap: 5px;
   align-items: center;
+  overflow-y: scroll;
 }
 
 .control-buttons button {
@@ -298,17 +232,31 @@ body {
   text-align: center;
   cursor: pointer;
 }
+#control-panel.hidden {
+  left: -400px; /* Same as the width of the control panel */
+}
+
+.toggle-handle {
+  position: absolute;
+  right: -50px; /* Adjust as needed */
+  top: 80%;
+  transform: translateY(-50%);
+  width: 50px; /* Adjust width and height as needed */
+  height: 50px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
 
 /* console */
 .console-container {
-  position: absolute;
+  position: relative;
   width: 526px;
   height: calc(526px * (928/526));
   background-image: url('../assets/images/gameboy-bg.png');
   background-size: cover;
-  left: calc(50% - (526px/2)); /* 50% - half console width */
-  top: 0px;
-  /* top: 70px; */
   border: 4px rgba(255, 255, 255, .5) solid;
   border-radius: 20px 20px 50% 50% / 48px 48px;
   transition: 500ms ease-in-out;
@@ -486,181 +434,16 @@ body {
   transform: rotate(90deg)
 }
 
-.party-slot {
-  height: 190px;
-  width: 155px;
-  padding: 5px;
-  margin: 5px;
-  border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-}
-
-.img-wrap {
-  height: 100%;
-  width: 90%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 0;
-}
-
-.party-slot-img {
-  opacity: 0;
-  transition: opacity 1000ms ease-in-out;
-  height: 100%;
-}
-
-.lvl {
-  position: relative;
-  left: -5px;
-  top: 90%;
-  font-size: 10px;
-  height: fit-content;
-}
-
-.lvl:hover {
-  cursor: default;
-}
-
-#refresh-party {
-  width: 60%;
-  border-radius: 16px;
-  padding: 2px;
-  margin-top: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 200ms ease-in-out;
-}
-
-#refresh-party:hover {
-  cursor: pointer;
-}
-
-#refresh-party:active {
-  background-color: rgb(153, 153, 153);
-}
-
-.gray-border {
-  border: 4px solid rgba(0, 0, 0, 0.5);
-}
-
-.stat {
-  height: 10px;
-  width: 120px;
-  padding-bottom: 5px;
-}
-
-.moveslot {
-  padding: 1em;
-  text-align: center;
-  width: -webkit-fill-available;
-}
-
-.moveslot:hover {
-  cursor: pointer;
-}
-
-.moveslot {
-  border-right: 1px black solid;
-}
-
-.moveslot.no-border-r {
-  border-right: none;
-}
-
-.stat-card {
-  width: 160px;
-  perspective: 1000px;
-  position: relative;
-  transition: transform 100ms ease-in-out;
-  margin-bottom: 1em;
-}
-
-.stat-card:active {
-  transform: scale(0.99);
-}
-
-.stat-card:hover:hover {
-  cursor: pointer;
-}
-
-.front,
-.back {
-  backface-visibility: hidden;
-  transition: transform 300ms;
-}
-
-.front {
-  transform: rotateY(0deg);
-}
-
-.back {
-  transform: rotateY(180deg);
-  position: absolute;
-  top: -50px;
-}
-
-.back canvas {
-  height: 160px !important;
-  width: 160px !important;
-}
-
-.flipped .front {
-  transform: rotateY(180deg);
-}
-
-.flipped .back {
-  transform: rotateY(0deg);
-}
-
-.m-0 {
-  margin: 0 !important;
-}
-
-.right-0 {
-  right: 0;
-}
-
-.pos-abs {
-  position: absolute;
-}
-
-.move-content {
-  /* max-height: 0; */
-  overflow: hidden;
-  transition: all 0.3s ease-out;
-}
-
-.move-summary {
-  display: none;
-  padding: 1em;
-  margin-bottom: 1em;
-  width: -webkit-fill-available;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.move-summary-component {
-  line-height: 1.5em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  text-align: center;
-  min-width: 120px;
-}
-
-.show {
-  display: flex;
-}
-
 @media screen and (max-width: 400px) {
   .console-container {
     width: 420px;
     height: calc(420px * (928/526));
-    left: calc(50% - (428px/2));
+    overflow: hidden;
   }
+  #full-screen-toggle {
+    display: none;
+  }
+  
   #GameBoy {
     left: 82px !important;
     top: 55px !important;
@@ -695,9 +478,11 @@ body {
   }
   #select-btn {
     left: 156px;
+    top: 592px;
   }
   #start-btn {
     left: 219px;
+    top: 592px;
   }
   .joypad {
     top: 420px;

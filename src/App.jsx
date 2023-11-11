@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Console from './components/console/GameConsole';
-import Cartridges from './components/Cartridges';
-import SystemControls from './components/SystemControls';
+import ControlPanel from './components/ControlPanel';
 import FullScreenContainer from './components/FullScreenContainer';
 import GameBoyCore from './utils/GameBoyCore';
 import {
@@ -290,6 +289,7 @@ function App() {
 		setActiveState(selectedSaveState);
 	};
 
+
 	// Maintain authenticated user information
 	useEffect(() => {
 		const loadUser = () => {
@@ -404,29 +404,24 @@ function App() {
 
 	return (
 		<div className="App">
-			<div id="control-panel">
-				<Cartridges
-					onROMSelected={handleROMSelected}
-					isDisabled={isEmulatorPlaying}
-				/>
-				<SystemControls
-					intervalPaused={intervalPaused}
-					onPauseResume={handlePauseResume}
-					onReset={handleReset}
-					isSoundOn={isSoundOn}
-					initSound={initSound}
-					speed={speed}
-					onSpeedChange={handleSpeedChange}
-					isEmulatorPlaying={isEmulatorPlaying}
-					onPowerToggle={handlePowerToggle}
-					onFullscreenToggle={toggleFullscreenMode}
-					isRomLoaded={isRomLoaded}
-					onSaveConfirmed={onSaveConfirmed}
-					userSaveStates={userSaveStates}
-					runFromSaveState={runFromSaveState}
-					currentROM={activeROM}
-				/>
-			</div>
+			<ControlPanel
+				handleROMSelected={handleROMSelected}
+				isEmulatorPlaying={isEmulatorPlaying}
+				intervalPaused={intervalPaused}
+				handlePauseResume={handlePauseResume}
+				handleReset={handleReset}
+				isSoundOn={isSoundOn}
+				initSound={initSound}
+				speed={speed}
+				handleSpeedChange={handleSpeedChange}
+				handlePowerToggle={handlePowerToggle}
+				toggleFullscreenMode={toggleFullscreenMode}
+				isRomLoaded={isRomLoaded}
+				onSaveConfirmed={onSaveConfirmed}
+				userSaveStates={userSaveStates}
+				runFromSaveState={runFromSaveState}
+				activeROM={activeROM}
+			/>
 			<Console
 				isEmulatorOn={isEmulatorOn}
 				mainCanvasRef={mainCanvasRef}

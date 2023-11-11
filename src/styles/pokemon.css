@@ -1,77 +1,290 @@
 :root {
-    --normal: rgb(218, 207, 192);
-	--fighting: rgb(198, 169, 130);
-	--flying: rgb(214, 187, 187);
-	--poison: rgb(162, 137, 162);
-	--ground: rgb(205, 168, 120);
-	--rock: rgb(157, 139, 139);
-	--bug: rgb(180, 233, 180);
-	--ghost: rgb(159, 158, 158);
-	--fire: rgb(255, 181, 181);
-	--water: rgb(164, 164, 253);
-	--grass: rgb(131, 152, 131);
-	--electric: rgb(255, 255, 188);
-	--psychic: rgb(253, 210, 217);
-	--ice: rgb(186, 249, 249);
-	--dragon: rgb(255, 226, 171);
+  --normal: rgb(218, 207, 192);
+  --fighting: rgb(198, 169, 130);
+  --flying: rgb(214, 187, 187);
+  --poison: rgb(162, 137, 162);
+  --ground: rgb(205, 168, 120);
+  --rock: rgb(157, 139, 139);
+  --bug: rgb(180, 233, 180);
+  --ghost: rgb(159, 158, 158);
+  --fire: rgb(255, 181, 181);
+  --water: rgb(164, 164, 253);
+  --grass: rgb(131, 152, 131);
+  --electric: rgb(255, 255, 188);
+  --psychic: rgb(253, 210, 217);
+  --ice: rgb(186, 249, 249);
+  --dragon: rgb(255, 226, 171);
 }
 
 div[class~='normal-type'] {
-    background-color: var(--normal);
-  }
-  
-  div[class~='fighting-type'] {
-    background-color: var(--fighting);
-  }
-  
-  div[class~='flying-type'] {
-    background-color: var(--flying);
-  }
-  
-  div[class~='poison-type'] {
-    background-color: var(--poison);
-  }
-  
-  div[class~='ground-type'] {
-    background-color: var(--ground);
-  }
-  
-  div[class~='rock-type'] {
-    background-color: var(--rock);
-  }
-  
-  div[class~='bug-type'] {
-    background-color: var(--bug);
-  }
-  
-  div[class~='ghost-type'] {
-    background-color: var(--ghost);
-  }
-  
-  div[class~='fire-type'] {
-    background-color: var(--fire);
-  }
-  
-  div[class~='water-type'] {
-    background-color: var(--water);
-  }
-  
-  div[class~='grass-type'] {
-    background-color: var(--grass);
-  }
-  
-  div[class~='electric-type'] {
-    background-color: var(--electric);
-  }
-  
-  div[class~='psychic-type'] {
-    background-color: var(--psychic);
-  }
-  
-  div[class~='ice-type'] {
-    background-color: var(--ice);
-  }
-  
-  div[class~='dragon-type'] {
-    background-color: var(--dragon);
-  }
+  background-color: var(--normal);
+}
+
+div[class~='fighting-type'] {
+  background-color: var(--fighting);
+}
+
+div[class~='flying-type'] {
+  background-color: var(--flying);
+}
+
+div[class~='poison-type'] {
+  background-color: var(--poison);
+}
+
+div[class~='ground-type'] {
+  background-color: var(--ground);
+}
+
+div[class~='rock-type'] {
+  background-color: var(--rock);
+}
+
+div[class~='bug-type'] {
+  background-color: var(--bug);
+}
+
+div[class~='ghost-type'] {
+  background-color: var(--ghost);
+}
+
+div[class~='fire-type'] {
+  background-color: var(--fire);
+}
+
+div[class~='water-type'] {
+  background-color: var(--water);
+}
+
+div[class~='grass-type'] {
+  background-color: var(--grass);
+}
+
+div[class~='electric-type'] {
+  background-color: var(--electric);
+}
+
+div[class~='psychic-type'] {
+  background-color: var(--psychic);
+}
+
+div[class~='ice-type'] {
+  background-color: var(--ice);
+}
+
+div[class~='dragon-type'] {
+  background-color: var(--dragon);
+}
+
+.card-carousel {
+  width: 100%;
+  height: 500px;
+  perspective: 1200px;
+}
+
+.card {
+  align-items: center;
+  border-radius: 25px;
+  box-sizing: border-box;
+  display: flex;
+  height: 500px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  margin-right: 0;
+  margin-left: 0;
+  padding: 30px 20px;
+  position: relative;
+  width: 300px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 3px solid #0000001a;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  cursor: pointer;
+  -webkit-box-shadow: 0 16px 48px #E3E7EB;
+  -moz-box-shadow: 0 16px 48px #E3E7EB;
+  box-shadow: 0 16px 48px #E3E7EB;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.hover-pointer:hover {
+  cursor: pointer;
+}
+
+.hover-default:hover {
+  cursor: default;
+}
+
+.party-slot {
+  height: 190px;
+  width: 155px;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.img-wrap {
+  height: 100%;
+  width: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 0;
+}
+
+.party-slot-img {
+  opacity: 0;
+  transition: opacity 1000ms ease-in-out;
+  height: 100%;
+}
+
+.lvl {
+  position: relative;
+  left: -5px;
+  top: 90%;
+  font-size: 10px;
+  height: fit-content;
+}
+
+.lvl:hover {
+  cursor: default;
+}
+
+#refresh-party {
+  width: 60%;
+  border-radius: 16px;
+  padding: 2px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms ease-in-out;
+}
+
+#refresh-party:hover {
+  cursor: pointer;
+}
+
+#refresh-party:active {
+  background-color: rgb(153, 153, 153);
+}
+
+.gray-border {
+  border: 4px solid rgba(0, 0, 0, 0.5);
+}
+
+.stat {
+  height: 10px;
+  width: 120px;
+  padding-bottom: 5px;
+}
+
+.moveslot {
+  padding: 1em;
+  text-align: center;
+  width: -webkit-fill-available;
+}
+
+.moveslot:hover {
+  cursor: pointer;
+}
+
+.moveslot {
+  border-right: 1px black solid;
+}
+
+.moveslot.no-border-r {
+  border-right: none;
+}
+
+.stat-card {
+  width: 160px;
+  perspective: 1000px;
+  position: relative;
+  transition: transform 100ms ease-in-out;
+  margin-bottom: 1em;
+}
+
+.stat-card:active {
+  transform: scale(0.99);
+}
+
+.stat-card:hover:hover {
+  cursor: pointer;
+}
+
+.front,
+.back {
+  backface-visibility: hidden;
+  transition: transform 300ms;
+}
+
+.front {
+  transform: rotateY(0deg);
+}
+
+.back {
+  transform: rotateY(180deg);
+  position: absolute;
+  top: -50px;
+}
+
+.back canvas {
+  height: 160px !important;
+  width: 160px !important;
+}
+
+.flipped .front {
+  transform: rotateY(180deg);
+}
+
+.flipped .back {
+  transform: rotateY(0deg);
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.right-0 {
+  right: 0;
+}
+
+.pos-abs {
+  position: absolute;
+}
+
+.move-content {
+  /* max-height: 0; */
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+}
+
+.move-summary {
+  display: none;
+  padding: 1em;
+  margin-bottom: 1em;
+  width: -webkit-fill-available;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.move-summary-component {
+  line-height: 1.5em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  text-align: center;
+  min-width: 120px;
+}
+
+.show {
+  display: flex;
+}

@@ -136,7 +136,7 @@ function SystemControls({
                 <button onClick={handleLoadSaveState} disabled={!isRomLoaded || isEmulatorPlaying || userSaveStates.length === 0} id="load-btn">Load State</button>
                 <button onClick={handleSave} disabled={!isEmulatorPlaying} >Save</button>
                 <button onClick={handleSaveAs} disabled={!isEmulatorPlaying} >Save As</button>
-                <button onClick={onFullscreenToggle} disabled={!isRomLoaded}>Fullscreen</button>
+                <button onClick={onFullscreenToggle} disabled={!isRomLoaded} id="full-screen-toggle">Fullscreen</button>
                 <Authenticator >
                     {({ signOut }) => (<button onClick={signOut}>Logout</button>)}
                 </Authenticator>
