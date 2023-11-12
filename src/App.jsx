@@ -59,11 +59,9 @@ function App() {
 			if (!GameBoyEmulatorPlaying(gameboyInstance)) {
 				gameboyInstance.stopEmulator &= 1;
 				console.log("Starting the iterator.");
-				console.log(gameboyInstance);
 				var dateObj = new Date();
 				gameboyInstance.firstIteration = dateObj.getTime();
 				gameboyInstance.iterations = 0;
-				console.log(gameboyInstance.numRAMBanks);
 				gameBoyInstance.current.setSpeed(speed);
 				runInterval.current = setInterval(function () {
 					if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
@@ -83,7 +81,7 @@ function App() {
 			setUserSaveStates(await fetchUserSaveStates(currentUser.sub, selectedROM.id))
 			updateBackgroundForFullscreen(selectedROM.backgroundImg);
 			const romUrl = `https://assets.letmedemo.com/public/gameboy/games/${selectedROM.filePath}`;
-			console.log('Current user:', currentUser);
+			// console.log('Current user:', currentUser);
 			try {
 				const response = await fetch(romUrl);
 				if (!response.ok) {
@@ -325,7 +323,6 @@ function App() {
 	// Initialize gameBoyInstance with the first ROMImage on component mount
 	useEffect(() => {
 		if (ROMImage) {
-			console.log('effect triggered');
 			try {
 				console.log("Clearing previous emulation...");
 				clearLastEmulation(gameBoyInstance.current, runInterval);

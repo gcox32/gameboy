@@ -155,7 +155,7 @@ body {
   margin-right: 2px;
 }
 
-.mobile-only {
+.mobile {
   display: none;
 }
 
@@ -168,7 +168,7 @@ body {
   align-items: center;
   padding-top: 5em;
   position: absolute;
-  z-index: 5;
+  z-index: 7;
   left: 0;
   top: 0;
   height: 100vh;
@@ -271,6 +271,7 @@ body {
   -ms-user-zoom: none;
   -webkit-user-zoom: none;
   touch-action: manipulation;
+  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
 }
 
 .menubar,
@@ -444,11 +445,22 @@ body {
     height: calc(420px * (928/526));
     overflow: hidden;
   }
-  .mobile-only {
+  .mobile {
     display: block;
   }
-  .desktop-only {
+
+  .desktop {
     display: none;
+  }
+  .toggle-handle.opened {
+    display: none;
+  }
+  .toggle-handle.collapsed {
+    display: block;
+  }
+  .toggle-handle {
+    right: -60px;
+    top: 100%;
   }
   
   #GameBoy {

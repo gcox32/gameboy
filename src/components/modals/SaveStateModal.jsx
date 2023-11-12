@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { uploadImageToS3 } from '../../utils/saveLoad';
+import OptionButton from './OptionButton';
 
 function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM }) {
     const [title, setTitle] = useState(initialData?.title || '');
@@ -60,8 +61,8 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM })
                     accept="image/*"
                 />
                 <div className="modal-options-buttons">
-                    <button onClick={onClose}>Cancel</button>
-                    <button onClick={handleSubmit}>Save</button>
+                    <OptionButton onClick={onClose} confirm={false} />
+                    <OptionButton onClick={handleSubmit} confirm={true} />
                 </div>
             </div>
         </div>

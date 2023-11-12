@@ -3,7 +3,6 @@ import { createSaveState, updateSaveState } from '../graphql/mutations';
 import { listSaveStates } from '../graphql/queries';
 
 // saving functions
-
 export async function saveGameToS3(savePackage, game, saveModalData, previous = false) {
     try {
         // Serialize the entire savePackage object into JSON
@@ -61,7 +60,6 @@ export async function saveSRAM(gameboyInstance, game, saveModalData, previous = 
         console.log("Saving the SRAM...");
         const s3Key = await saveGameToS3(savePackage, game, saveModalData, previous);
         const saveState = await saveGameStateToDDB(s3Key, game, saveModalData, previous);
-        console.log('Save state saved!', saveState);
         return saveState;
     }
 }
