@@ -129,7 +129,7 @@ function SystemControls({
     return (
         <>
             <div className="control-buttons">
-                <button onClick={handlePowerToggleConfirm} disabled={!isRomLoaded}>{isEmulatorPlaying ? "Off" : "On"}</button>
+                <button onClick={handlePowerToggleConfirm} disabled={!isRomLoaded}>{isEmulatorPlaying ? "Off" : "New Game"}</button>
                 <input className="speed-control" type="number" step="0.1" value={speed} onChange={onSpeedChange} disabled={!isRomLoaded} title="game speed multiple" />
                 <button id="enable-sound" onClick={initSound} disabled={!isRomLoaded}>{isSoundOn ? '🔊' : '🔇'}</button>
                 <button id="pause-resume-btn" onClick={onPauseResume} disabled={!isEmulatorPlaying}>{intervalPaused ? "Resume" : "Pause"}</button>

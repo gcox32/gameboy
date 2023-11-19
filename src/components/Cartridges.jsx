@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API, graphqlOperation } from 'aws-amplify';
 import { listGames } from '../graphql/queries';
 
-function Cartridges({ onROMSelected, isDisabled }) {
+function Cartridges({ onROMSelected, isDisabled, activeSaveState }) {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -35,14 +35,19 @@ function Cartridges({ onROMSelected, isDisabled }) {
     if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <select onChange={handleROMChange} disabled={isDisabled} className="rom-selector">
-            <option value="">--Select a Game--</option>
-            {games.map(game => (
-                <option key={game.id} value={game.filePath}>
-                    {game.title}
-                </option>
-            ))}
-        </select>
+        <>
+            <select onChange={handleROMChange} disabled={isDisabled} className="rom-selector">
+                <option value="">--Select a Game--</option>
+                {games.map(game => (
+                    <option key={game.id} value={game.filePath}>
+                        {game.title}
+                    </option>
+                ))}
+            </select>
+            <div id="active-game-title" className={activeSaveState ? "" : 'null'}>
+                { activeSaveState ? activeSaveState.title : '' }
+            </div>
+        </>
 
     );
 }

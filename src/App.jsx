@@ -15,6 +15,7 @@ import {
 	clearLastEmulation
 } from './utils/GameBoyIO';
 import { saveSRAM, fetchUserSaveStates } from './utils/saveLoad';
+import { useMBCRamWatcher, translateIntegerArray } from './utils/MBCRamWatcher';
 
 // styles
 import './styles/styles.css';
@@ -37,6 +38,7 @@ function App() {
 	const mainCanvasRef = useRef(null);
 	const fullscreenCanvasRef = useRef(null);
 	const fullscreenContainerRef = useRef(null);
+	const mbcRamRef = useRef([null]);
 
 	// Maintain states
 	const [currentUser, setUser] = useState([]);
@@ -44,6 +46,7 @@ function App() {
 	const [activeROM, setActiveROM] = useState(null);
 	const [userSaveStates, setUserSaveStates] = useState([])
 	const [activeState, setActiveState] = useState(null);
+	const [activeSaveArray, setActiveSaveArray] = useState([]);
 	const [isRomLoaded, setIsRomLoaded] = useState(false);
 	const [speed, setSpeed] = useState(1);
 	const [isSoundOn, setIsSoundOn] = useState(settings[0]);
@@ -57,6 +60,7 @@ function App() {
 		setIntervalPaused(false);
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
 			if (!GameBoyEmulatorPlaying(gameboyInstance)) {
+				mbcRamRef.current = gameboyInstance.MBCRam;
 				gameboyInstance.stopEmulator &= 1;
 				console.log("Starting the iterator.");
 				var dateObj = new Date();
@@ -90,9 +94,8 @@ function App() {
 				const blob = await response.blob();
 				const reader = new FileReader();
 				reader.onloadend = () => {
-					// Assuming setROMImage expects a binary string
 					setROMImage(reader.result);
-					setIsRomLoaded(true); // Set the flag indicating the ROM is loaded
+					setIsRomLoaded(true);
 				};
 				reader.onerror = (error) => {
 					console.error("Failed to read ROM:", error);
@@ -104,13 +107,11 @@ function App() {
 				setIsRomLoaded(false);
 			}
 		} else {
-			// Handle the scenario when no ROM is selected or the selectedROM is not provided
 			setROMImage(null);
 			setIsRomLoaded(false);
 		}
 	};
 	const updateBackgroundForFullscreen = (backgroundData) => {
-		// Update the fullscreen background state
 		if (backgroundData) {
 			const backgroundUrl = `https://assets.letmedemo.com/public/gameboy/images/fullscreen/${backgroundData}`;
 			setFullscreenBackground(backgroundUrl);
@@ -121,18 +122,17 @@ function App() {
 	const handlePowerToggle = () => {
 		if (gameBoyInstance.current && (isEmulatorPlaying || intervalPaused)) {
 			console.log("Turning off the emulator...");
-			// clearLastEmulation(gameBoyInstance.current, runInterval);
 			mainCanvasRef.current.style.opacity = 0;
 			fullscreenCanvasRef.current.style.opacity = 0;
 			clearInterval(runInterval.current);
 			setIsEmulatorPlaying(false);
 			setIntervalPaused(false);
 			setIsRomLoaded(true);
+			setActiveState(null);
 		} else {
 			// Logic to initialize and start the emulator using the ROMImage from state
 			if (gameBoyInstance.current && ROMImage) {
 				console.log("Starting GameBoyCore instance...");
-				console.log(gameBoyInstance.current);
 				const currentCanvas = gameBoyInstance.current.canvas;
 				if (currentCanvas) {
 					mainCanvasRef.current.style.opacity = 1;
@@ -168,7 +168,7 @@ function App() {
 			if (newSpeed !== null && newSpeed.length > 0) {
 				const parsedSpeed = Math.max(parseFloat(newSpeed), 0.001);
 				gameBoyInstance.current.setSpeed(parsedSpeed);
-				setSpeed(parsedSpeed); // Update the speed state
+				setSpeed(parsedSpeed);
 			}
 		}
 	};
@@ -178,13 +178,10 @@ function App() {
 			clearInterval(runInterval.current);
 			setIsEmulatorPlaying(false);
 			setIntervalPaused(false);
-
-			// The canvas to use is now decided by the state, and not by direct DOM access.
 			const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
-
 			if (currentCanvas) {
 				if (activeState) {
-					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas, activeState);
+					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas, activeSaveArray);
 				} else {
 					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
 				}
@@ -199,24 +196,21 @@ function App() {
 		if (GameBoyEmulatorInitialized(gameBoyInstance.current)) {
 			if (GameBoyEmulatorPlaying(gameBoyInstance.current)) {
 				console.log("Pausing...");
-				// console.log(gameBoyInstance.current.MBCRam);
 				clearLastEmulation(gameBoyInstance.current, runInterval);
-				setIntervalPaused(true);  // Pause the game
+				setIntervalPaused(true); 
 			} else {
 				console.log("Resuming...");
-				// Ensure to clear any previous intervals before starting a new one
 				if (runInterval.current) {
 					clearInterval(runInterval.current);
 				}
-				run(gameBoyInstance.current);  // Start the run loop again
-				setIntervalPaused(false);  // Update state to indicate the game is no longer paused
+				run(gameBoyInstance.current);
+				setIntervalPaused(false);
 			}
 		} else {
 			console.log("GameBoy core cannot be paused/resumed while it has not been initialized.", 1);
 		}
 	};
 	const toggleFullscreenMode = useCallback(() => {
-		// Only allow fullscreen if the emulator is on and the screen width is greater than its height
 		if (window.innerWidth > window.innerHeight) {
 			if (!isFullscreen) {
 				fullscreenContainerRef.current.style.display = "flex";
@@ -244,14 +238,12 @@ function App() {
 	);
 	const initSound = () => {
 		if (isSoundOn) {
-			// Code to turn off sound
 			console.log(gameBoyInstance.current.saveRTCState());
 			settings[0] = false;
-			setIsSoundOn(false); // Update state
+			setIsSoundOn(false);
 		} else {
-			// Code to turn on sound
 			settings[0] = true;
-			setIsSoundOn(true); // Update state
+			setIsSoundOn(true);
 		}
 		if (GameBoyEmulatorInitialized(gameBoyInstance.current) && gameBoyInstance.current) {
 			gameBoyInstance.current.initSound();
@@ -266,10 +258,11 @@ function App() {
 		if (gameBoyInstance.current && activeROM && isEmulatorPlaying) {
 			try {
 				const savedState = await saveSRAM(gameBoyInstance.current, activeROM, saveModalData, previous);
-				setActiveState(savedState); // ddb id of active game state
+				setActiveState(savedState);
 				console.log('saved successfully');
 				const userSaves = await fetchUserSaveStates(currentUser.sub, activeROM.id);
 				setUserSaveStates(userSaves);
+				setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
 			} catch (error) {
 				console.log(error);
 			}
@@ -277,6 +270,7 @@ function App() {
 	};
 	const runFromSaveState = (sramArray, selectedSaveState) => {
 		console.log('Initiating state from load...');
+		console.log(selectedSaveState);
 		const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
 		mainCanvasRef.current.style.opacity = 1;
 		fullscreenCanvasRef.current.style.opacity = 1;
@@ -285,8 +279,13 @@ function App() {
 		run(gameBoyInstance.current);
 		setIsEmulatorPlaying(true);
 		setActiveState(selectedSaveState);
+		setActiveSaveArray(sramArray);
 	};
 
+    // Use the custom hook to watch for changes at index 0
+    const playerName = useMBCRamWatcher(mbcRamRef, '0x2598', '0xB', (array) => {
+        console.log('Player name:', translateIntegerArray(array));
+    });
 
 	// Maintain authenticated user information
 	useEffect(() => {
@@ -404,6 +403,7 @@ function App() {
 			<ControlPanel
 				handleROMSelected={handleROMSelected}
 				isEmulatorPlaying={isEmulatorPlaying}
+				activeSaveState={activeState}
 				intervalPaused={intervalPaused}
 				handlePauseResume={handlePauseResume}
 				handleReset={handleReset}

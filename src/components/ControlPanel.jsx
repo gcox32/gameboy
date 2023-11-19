@@ -6,6 +6,7 @@ import ToggleButton from "./ToggleButton";
 function ControlPanel({
     handleROMSelected,
     isEmulatorPlaying,
+    activeSaveState,
     intervalPaused,
     handlePauseResume,
     handleReset,
@@ -31,6 +32,7 @@ function ControlPanel({
             <Cartridges
                 onROMSelected={handleROMSelected}
                 isDisabled={isEmulatorPlaying}
+                activeSaveState={activeSaveState}
             />
             <SystemControls
                 intervalPaused={intervalPaused}
