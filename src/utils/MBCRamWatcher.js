@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { charMap } from './pokemon/dicts';
 
 export const useMBCRamWatcher = (mbcRamRef, offsetHex, sizeHex, onChange) => {
-    const [watchedValue, setWatchedValue] = useState(null);
-
     useEffect(() => {
-        // Check if mbcRamRef.current is initialized
         if (!mbcRamRef.current) {
             console.warn('mbcRamRef.current is not initialized.');
             return;
@@ -13,24 +10,22 @@ export const useMBCRamWatcher = (mbcRamRef, offsetHex, sizeHex, onChange) => {
 
         const offset = parseInt(offsetHex, 16);
         const size = parseInt(sizeHex, 16);
+        let previousSlice = null;
 
         const checkForChanges = () => {
             const currentSlice = mbcRamRef.current.slice(offset, offset + size);
-            if (JSON.stringify(watchedValue) !== JSON.stringify(currentSlice)) {
-                setWatchedValue(currentSlice);
-                if (onChange) {
-                    onChange(currentSlice);
-                }
+            if (JSON.stringify(previousSlice) !== JSON.stringify(currentSlice)) {
+                previousSlice = currentSlice;
+                onChange(currentSlice);
             }
         };
 
         const intervalId = setInterval(checkForChanges, 1000); // check every second
 
         return () => clearInterval(intervalId); // cleanup interval on unmount
-    }, [mbcRamRef, offsetHex, sizeHex, watchedValue, onChange]);
-
-    return watchedValue;
+    }, [mbcRamRef, offsetHex, sizeHex, onChange]);
 };
+
 
 export function translateInteger(integerValue) {
     const hexValue = integerValue.toString(16).toUpperCase();

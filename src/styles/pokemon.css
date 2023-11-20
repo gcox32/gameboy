@@ -120,12 +120,24 @@ div[class~='dragon-type'] {
   cursor: default;
 }
 
+.active-party {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  min-width: 1000px;
+  position: absolute;
+  bottom: 10px;
+  z-index: 4;
+  margin-top: 20px;
+}
+
 .party-slot {
-  height: 190px;
-  width: 155px;
+  height: 175px;
+  width: 150px;
   padding: 5px;
   margin: 5px;
-  border-radius: 4px;
+  border-radius: 2px;
+  border: 20px rgba(255, 255, 255, 0.5) solid;
   display: flex;
   justify-content: center;
   align-items: stretch;

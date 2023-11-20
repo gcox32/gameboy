@@ -15,7 +15,6 @@ import {
 	clearLastEmulation
 } from './utils/GameBoyIO';
 import { saveSRAM, fetchUserSaveStates } from './utils/saveLoad';
-import { useMBCRamWatcher, translateIntegerArray } from './utils/MBCRamWatcher';
 
 // styles
 import './styles/styles.css';
@@ -259,6 +258,7 @@ function App() {
 			try {
 				const savedState = await saveSRAM(gameBoyInstance.current, activeROM, saveModalData, previous);
 				setActiveState(savedState);
+				mbcRamRef.current = gameBoyInstance.current.MBCRam;
 				console.log('saved successfully');
 				const userSaves = await fetchUserSaveStates(currentUser.sub, activeROM.id);
 				setUserSaveStates(userSaves);
@@ -281,11 +281,6 @@ function App() {
 		setActiveState(selectedSaveState);
 		setActiveSaveArray(sramArray);
 	};
-
-    // Use the custom hook to watch for changes at index 0
-    const playerName = useMBCRamWatcher(mbcRamRef, '0x2598', '0xB', (array) => {
-        console.log('Player name:', translateIntegerArray(array));
-    });
 
 	// Maintain authenticated user information
 	useEffect(() => {
@@ -397,6 +392,14 @@ function App() {
 	},
 		[isFullscreen, toggleFullscreenMode]
 	);
+	// Listen for update to MBCRam
+	useEffect(() => {
+		if (gameBoyInstance.current && isEmulatorPlaying) {
+			mbcRamRef.current = gameBoyInstance.current.MBCRam;
+		}
+	},
+		[isEmulatorPlaying]
+	);
 
 	return (
 		<div className="App">
@@ -427,6 +430,9 @@ function App() {
 				background={fullscreenBackground}
 				fullscreenCanvasRef={fullscreenCanvasRef}
 				fullscreenContainerRef={fullscreenContainerRef}
+				activeROM={activeROM}
+				activeState={activeState}
+				MBCRam={mbcRamRef}
 			/>
 		</div>
 	);
