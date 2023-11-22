@@ -433,6 +433,8 @@ function App() {
 				activeROM={activeROM}
 				activeState={activeState}
 				MBCRam={mbcRamRef}
+				onPauseResume={handlePauseResume}
+				intervalPaused={intervalPaused}
 			/>
 		</div>
 	);

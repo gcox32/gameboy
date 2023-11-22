@@ -3,6 +3,7 @@ import { Storage } from 'aws-amplify';
 import { deleteSaveState } from '../../graphql/mutations';
 import { API, graphqlOperation } from 'aws-amplify';
 import ConfirmModal from './ConfirmModal';
+import BaseModal from './BaseModal';
 
 function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 	const [updatedSaveStates, setUpdatedSaveStates] = useState([]);
@@ -63,24 +64,20 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 	if (!isOpen) return null;
 
 	return (
-		<div className="modal">
-			<div onClick={onClose} className="modal-overlay"></div>
-			<div id="load-state-content" className="modal-content">
-				<button onClick={onClose} className="close-modal">&times;</button>
-				<h2>Select a Save State</h2>
-				<div className="save-state-list">
-					{updatedSaveStates.map((state) => (
-						<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
-							{state.imageUrl && <img src={state.imageUrl} alt="Save State Screenshot" />}
-							<h3 className="save-state-title">{state.title}</h3>
-							<p className="last-update-text">{formatDate(state.updatedAt)}</p>
-							<button className="delete-btn" onClick={(e) => {
-								e.stopPropagation();
-								handleDeleteClick(state);
-							}}>Delete</button>
-						</div>
-					))}
-				</div>
+		<BaseModal isOpen={isOpen} onClose={onClose}>
+			<h2>Select a Save State</h2>
+			<div className="save-state-list">
+				{updatedSaveStates.map((state) => (
+					<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
+						{state.imageUrl && <img src={state.imageUrl} alt="Save State Screenshot" />}
+						<h3 className="save-state-title">{state.title}</h3>
+						<p className="last-update-text">{formatDate(state.updatedAt)}</p>
+						<button className="delete-btn" onClick={(e) => {
+							e.stopPropagation();
+							handleDeleteClick(state);
+						}}>Delete</button>
+					</div>
+				))}
 			</div>
 			<ConfirmModal
 				isOpen={showConfirmModal}
@@ -89,7 +86,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 			>
 				Are you sure you want to delete this save state?
 			</ConfirmModal>
-		</div>
+		</BaseModal>
 	);
 }
 

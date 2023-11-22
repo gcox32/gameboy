@@ -10,15 +10,15 @@ export function parseParty(dataArray) {
     // Loop to process each Pokémon's data
     for (let i = 0; i < numberOfPokemon; i++) {
         const baseOffset = 0x08 + i * 44; // Calculate base offset for each Pokémon
-        const otNameOffset = 0x110 + i * 10;
-        const nicknameOffset = 0x152 + i * 10;
+        const otNameOffset = 0x110 + i * 11;
+        const nicknameOffset = 0x152 + i * 11;
 
         const pokemonData = {
             speciesIndex: dataArray[0x01 + i],
             pokedexNo: dexDict[dataArray[0x01 + i]].pokedexNo,
             structure: parsePokemonStructure(dataArray.slice(baseOffset, baseOffset + 44)),
-            otName: translateIntegerArray(dataArray.slice(otNameOffset, otNameOffset + 10)),
-            nickname: translateIntegerArray(dataArray.slice(nicknameOffset, nicknameOffset + 10))
+            otName: translateIntegerArray(dataArray.slice(otNameOffset, otNameOffset + 11)),
+            nickname: translateIntegerArray(dataArray.slice(nicknameOffset, nicknameOffset + 11))
         };
 
         partyData.pokemonList.push(pokemonData);
