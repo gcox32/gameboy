@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import GameElementsBar from './pokemon/GameElementsBar';
 import ActiveParty from './pokemon/ActiveParty';
 import GymBadgeCase from './pokemon/BadgeCase';
 
@@ -12,18 +13,20 @@ function FullScreenContainer({
   onPauseResume,
   intervalPaused
 }) {
+  const [showActiveParty, setShowActiveParty] = useState(false);
+  const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
 
   return (
     <div id="fullscreenContainer" ref={fullscreenContainerRef} style={{ backgroundImage: `url(${background})` }}>
       <canvas id="fullscreen" ref={fullscreenCanvasRef}></canvas>
       {activeROM && activeState && activeROM.series === 'Pokemon' ?
         <>
-          <ActiveParty
-            MBCRam={MBCRam}
-            onPauseResume={onPauseResume}
-            intervalPaused={intervalPaused}
+          <GameElementsBar
+            onActivePartyClick={() => setShowActiveParty(!showActiveParty)}
+            onGymBadgeCaseClick={() => setShowGymBadgeCase(!showGymBadgeCase)}
           />
-          <GymBadgeCase MBCRamRef={MBCRam.current} />
+          {showActiveParty && <ActiveParty MBCRam={MBCRam} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
+          {showGymBadgeCase && <GymBadgeCase MBCRamRef={MBCRam.current} />}
         </> : <></>
       }
     </div>
