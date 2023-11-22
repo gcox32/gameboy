@@ -1,10 +1,7 @@
 import React from "react";
-import TeamIcon from './icons/TeamIcon';
-import BadgesIcon from './icons/BadgesIcon';
-import MapIcon from './icons/MapIcon';
-import PokedexIcon from './icons/PokedexIcon';
+import { BadgesIcon, CameraIcon, MapIcon, PokedexIcon, TeamIcon } from "./GameElementsIcons";
 
-function GameElementsBar({ onActivePartyClick, onGymBadgeCaseClick /*, ... other handlers */ }) {
+function GameElementsBar({ onActivePartyClick, onGymBadgeCaseClick, onMapClick, onPokedexClick, onCameraClick }) {
     return (
       <div className="game-elements-bar">
         <div className="icon" onClick={onActivePartyClick}>
@@ -13,12 +10,15 @@ function GameElementsBar({ onActivePartyClick, onGymBadgeCaseClick /*, ... other
         <div className="icon" onClick={onGymBadgeCaseClick}>
           <BadgesIcon width={'60px'}/>
         </div>
-        <div className="icon">
+        <div className="icon" onClick={onMapClick}>
           <MapIcon width={'60px'}/>
         </div>
-        <div className="icon">
+        <div className="icon" onClick={onPokedexClick}>
           <PokedexIcon width={'60px'}/>
         </div>
+        <div className="icon" onClick={onCameraClick}>
+          <CameraIcon width={'60px'}/>
+        </div>  
       </div>
     );
   }
