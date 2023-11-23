@@ -17,8 +17,8 @@ function FullScreenContainer({
   intervalPaused
 }) {
   const [showActiveParty, setShowActiveParty] = useState(true);
-  const [showGymBadgeCase, setShowGymBadgeCase] = useState(true);
-  const [showMap, setShowMap] = useState(true);
+  const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [showPokedex, setShowPokedex] = useState(true);
   const [showTeamPhoto, setShowTeamPhoto] = useState(false);
 
@@ -35,7 +35,7 @@ function FullScreenContainer({
             onCameraClick={() => setShowTeamPhoto(!showTeamPhoto)}
           />
           {showActiveParty && <ActiveParty MBCRam={MBCRam} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
-          {showGymBadgeCase && <GymBadgeCase MBCRamRef={MBCRam.current} />}
+          {showGymBadgeCase && <GymBadgeCase MBCRam={MBCRam} />}
           {showMap && <TownMap />}
           {showPokedex && <Pokedex />}
           {showTeamPhoto && <TeamPhoto />}

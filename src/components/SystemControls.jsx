@@ -93,10 +93,16 @@ function SystemControls({
         try {
             const saveModalData = { title, description, img };
             setIsSaving(true);
-            onSaveConfirmed(saveModalData);
-            setActiveROMData(saveModalData);
-            setShowSaveStateModal(false);
-            if (intervalPaused) onPauseResume();
+            onSaveConfirmed(saveModalData)
+                .then(() => {
+                    setActiveROMData(saveModalData);
+                    setShowSaveStateModal(false);
+                    if (intervalPaused) onPauseResume();
+                })
+                .catch((error) => {
+                    console.error('Error during save:', error);
+                    setIsSaving(false); 
+                });
         } catch (error) {
             console.error('Failed to save game state:', error);
             setIsSaving(false);

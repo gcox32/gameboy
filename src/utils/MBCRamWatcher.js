@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { charMap } from './pokemon/dicts';
 
-export const useMBCRamWatcher = (mbcRamRef, offsetHex, sizeHex, onChange) => {
+export const useMBCRamWatcher = (mbcRamRef, offsetHex, sizeHex, onChange, interval=1000) => {
     useEffect(() => {
         if (!mbcRamRef.current) {
             console.warn('mbcRamRef.current is not initialized.');
@@ -20,10 +20,10 @@ export const useMBCRamWatcher = (mbcRamRef, offsetHex, sizeHex, onChange) => {
             }
         };
 
-        const intervalId = setInterval(checkForChanges, 1000); // check every second
+        const intervalId = setInterval(checkForChanges, interval); // check every second
 
         return () => clearInterval(intervalId); // cleanup interval on unmount
-    }, [mbcRamRef, offsetHex, sizeHex, onChange]);
+    }, [mbcRamRef, offsetHex, sizeHex, onChange, interval]);
 };
 
 

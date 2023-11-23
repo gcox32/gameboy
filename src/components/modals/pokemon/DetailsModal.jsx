@@ -14,18 +14,18 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
             {/* First Row */}
             <div className="pokemon-details-row">
                 {/* Section A */}
-                <div className="pokemon-details-section">
+                <div className="pokemon-details-section top">
                     <h2>{pokemon.nickname || pokemon.speciesName}</h2>
                     <p>#{pokemon.pokedexNo}</p>
                     <p>{structure.type1}{structure.type2 !== structure.type1 ? `/${structure.type2}` : ""}</p>
                     <p>OT: {pokemon.otName}</p>
                 </div>
                 {/* Section B - Picture */}
-                <div className="pokemon-details-section centered">
+                <div className="pokemon-details-section centered top">
                     <img src={`https://assets.letmedemo.com/public/gameboy/images/pokemon/sugimori/rg/${pokemon.pokedexNo}.png`} alt={pokemon.speciesName} />
                 </div>
                 {/* Moves */}
-                <div className="pokemon-details-section">
+                <div className="pokemon-details-section top">
                     <h3>Moveset</h3>
                     {structure.moves.map((move, index) => (
                         <div key={index} className="pokemon-move">

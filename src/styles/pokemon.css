@@ -111,11 +111,19 @@ div[class~='dragon-type'] {
 }
 
 .pokemon-details-section {
-  flex: 1;
-  padding: 5px;
-  text-align: center;
   width: 330px;
   height: 320px;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.pokemon-details-section p {
+  margin: 0;
+}
+
+.pokemon-details-section.top {
+  height: 200px;
 }
 
 .modal-content .pokemon-details-section img {
@@ -198,3 +206,67 @@ div[class~='dragon-type'] {
 .icon.active {
   border: 4px black solid;
 }
+
+@keyframes badgeEarned {
+  0% {
+      transform: scale(3);
+      opacity: 0;
+  }
+  95% {
+    transform: scale(0.95);
+  }
+  100% {
+      opacity: 1;
+      transform: scale(1);
+  }
+}
+
+
+.badge.earned.animate {
+    animation: badgeEarned 1.8s forwards cubic-bezier(.55,.23,.97,.09);
+}
+
+.badge img.silhouette {
+  filter: brightness(0) invert(1);
+}
+
+.badge img {
+  transition: filter 0.8s;
+}
+
+.badge-image-wrapper {
+    position: relative;
+    overflow: hidden; /* Keeps the pseudo-element within the badge boundaries */
+}
+
+.badge.earned:hover {
+  cursor: pointer;
+}
+
+.badge-image-wrapper::after {
+    content: '';
+    position: absolute;
+    top: -50%; 
+    left: -50%;
+    width: 200%; 
+    height: 200%; 
+    background: linear-gradient(to right, transparent, white, transparent);
+    transform: rotate(45deg) translateX(-100%);
+    opacity: 0; 
+}
+
+.badge-image-wrapper.gleam::after {
+    animation: gleamEffect 1s forwards; /* Play the animation */
+}
+
+@keyframes gleamEffect {
+    0% {
+        transform: rotate(45deg) translateX(-100%);
+        opacity: 1;
+    }
+    100% {
+        transform: rotate(45deg) translateX(100%);
+        opacity: 0;
+    }
+}
+
