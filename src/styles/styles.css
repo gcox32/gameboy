@@ -44,8 +44,8 @@
   --amplify-border-widths-medium: 4px;
   --amplify-border-widths-large: 8px;
 
-  --btn-width: 320px;
-  --btn-height: 60px;
+  --btn-width: 220px;
+  --btn-height: 48px;
 }
 
 * {
@@ -138,8 +138,8 @@ body {
 }
 
 #fullscreen {
-  width: 660px;
-  height: calc(660px * (286 / 321));
+  width: 525px;
+  height: calc(525px * (286 / 321));
   box-sizing: border-box;
   border-radius: 8px;
   border: 3px solid;
@@ -246,7 +246,7 @@ body {
   cursor: pointer;
 }
 #control-panel.hidden {
-  left: -400px; /* Same as the width of the control panel */
+  left: -264px; /* Same as the width of the control panel */
 }
 
 .toggle-handle {

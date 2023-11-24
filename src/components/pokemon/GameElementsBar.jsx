@@ -5,19 +5,19 @@ function GameElementsBar({ onActivePartyClick, onGymBadgeCaseClick, onMapClick, 
     return (
       <div className="game-elements-bar">
         <div className="icon" onClick={onActivePartyClick}>
-          <TeamIcon width={'60px'}/>
+          <TeamIcon width={'40px'}/>
         </div>
         <div className="icon" onClick={onGymBadgeCaseClick}>
-          <BadgesIcon width={'60px'}/>
+          <BadgesIcon width={'40px'}/>
         </div>
         <div className="icon" onClick={onMapClick}>
-          <MapIcon width={'60px'}/>
+          <MapIcon width={'40px'}/>
         </div>
         <div className="icon" onClick={onPokedexClick}>
-          <PokedexIcon width={'60px'}/>
+          <PokedexIcon width={'40px'}/>
         </div>
         <div className="icon" onClick={onCameraClick}>
-          <CameraIcon width={'60px'}/>
+          <CameraIcon width={'40px'}/>
         </div>  
       </div>
     );

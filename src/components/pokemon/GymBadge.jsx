@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
+import { badgeImgPath } from '../../config';
 
 function GymBadge({ badge, earned }) {
     const [gleam, setGleam] = useState(false);
-    const badgeImgPath = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/badges/';
     const badgeClass = earned ? 'earned' : 'unearned';
 
     const handleGleam = () => {
         setGleam(true);
-        // Optional: Remove the gleam effect after animation
-        setTimeout(() => setGleam(false), 1000); // 1000 ms should match the CSS animation duration
+        setTimeout(() => setGleam(false), 1000);
     };
 
     return (
@@ -17,7 +16,11 @@ function GymBadge({ badge, earned }) {
                 <img
                     src={`${badgeImgPath}${badge.image}`}
                     alt={badge.name}
+                    title={badge.name}
                     className={earned ? '' : 'silhouette'}
+                    loading="lazy"
+                    draggable="false"
+                    style={earned ? {} : { userSelect: 'none', pointerEvents: 'none' }}
                 />
             </div>
         </div>

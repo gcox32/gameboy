@@ -15,6 +15,7 @@ import {
 	clearLastEmulation
 } from './utils/GameBoyIO';
 import { saveSRAM, fetchUserSaveStates } from './utils/saveLoad';
+import { publicGamesEndpoint, backgroundEndpoint } from './config';
 
 // styles
 import './styles/styles.css';
@@ -83,7 +84,7 @@ function App() {
 			setActiveROM(selectedROM);
 			setUserSaveStates(await fetchUserSaveStates(currentUser.sub, selectedROM.id))
 			updateBackgroundForFullscreen(selectedROM.backgroundImg);
-			const romUrl = `https://assets.letmedemo.com/public/gameboy/games/${selectedROM.filePath}`;
+			const romUrl = `${publicGamesEndpoint}${selectedROM.filePath}`;
 			// console.log('Current user:', currentUser);
 			try {
 				const response = await fetch(romUrl);
@@ -112,10 +113,10 @@ function App() {
 	};
 	const updateBackgroundForFullscreen = (backgroundData) => {
 		if (backgroundData) {
-			const backgroundUrl = `https://assets.letmedemo.com/public/gameboy/images/fullscreen/${backgroundData}`;
+			const backgroundUrl = `${backgroundEndpoint}${backgroundData}`;
 			setFullscreenBackground(backgroundUrl);
 		} else {
-			setFullscreenBackground(''); // Reset to default if no ROM is selected or if it doesn't have a background
+			setFullscreenBackground('');
 		}
 	};
 	const handlePowerToggle = () => {

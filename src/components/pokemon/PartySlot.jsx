@@ -1,9 +1,10 @@
 import React from "react";
+import { pokemonGifEndpoint } from "../../config";
 
 function PartySlot({ pokemon, onClick }) {
     return (
         <div className="party-slot" onClick={() => onClick(pokemon)}>
-            <img src={ `https://assets.letmedemo.com/public/gameboy/images/pokemon/gifs/${pokemon.pokedexNo}.gif` } alt="" />
+            <img src={ `${pokemonGifEndpoint}${pokemon.pokedexNo}.gif` } alt={pokemon.speciesName} />
         </div>
     );
 };

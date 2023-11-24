@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import BaseModal from "../BaseModal";
 import RadarChart from "./RadarChart";
+import { sugimoriRb } from "../../../config";
 
 function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
     const [isStatsFlipped, setIsStatsFlipped] = useState(false);
@@ -22,7 +23,7 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
                 </div>
                 {/* Section B - Picture */}
                 <div className="pokemon-details-section centered top">
-                    <img src={`https://assets.letmedemo.com/public/gameboy/images/pokemon/sugimori/rg/${pokemon.pokedexNo}.png`} alt={pokemon.speciesName} />
+                    <img src={`${sugimoriRb}${pokemon.pokedexNo}.png`} alt={pokemon.speciesName} />
                 </div>
                 {/* Moves */}
                 <div className="pokemon-details-section top">

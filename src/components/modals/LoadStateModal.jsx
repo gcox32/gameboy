@@ -36,7 +36,6 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 		setSelectedStateForDeletion(saveState);
 		setShowConfirmModal(true);
 	}
-
 	const handleDeleteConfirmed = async () => {
 		if (selectedStateForDeletion) {
 			try {
@@ -69,7 +68,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 			<div className="save-state-list">
 				{updatedSaveStates.map((state) => (
 					<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
-						{state.imageUrl && <img src={state.imageUrl} alt="Save State Screenshot" />}
+						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" />}
 						<h3 className="save-state-title">{state.title}</h3>
 						<p className="last-update-text">{formatDate(state.updatedAt)}</p>
 						<button className="delete-btn" onClick={(e) => {

@@ -79,7 +79,7 @@ div[class~='dragon-type'] {
 .active-party {
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: center;
   min-width: 1000px;
   position: absolute;
   bottom: 10px;
@@ -88,8 +88,8 @@ div[class~='dragon-type'] {
 }
 
 .party-slot {
-  height: 175px;
-  width: 150px;
+  height: 144px;
+  width: 120px;
   padding: 5px;
   margin: 5px;
   border-radius: 2px;
@@ -159,9 +159,9 @@ div[class~='dragon-type'] {
   justify-content: center;
   flex-wrap: wrap;
   position: absolute;
-  top: 220px;
-  right: 40px;
-  width: 456px;
+  top: 180px;
+  right: 24px;
+  width: 400px;
   border: 4px goldenrod solid;
   background-color: darkblue;
   border-radius: 16px;
@@ -171,6 +171,10 @@ div[class~='dragon-type'] {
 .badge {
   padding: 5px;
   margin: 5px;
+}
+
+.badge img {
+  height: 64px;
 }
 
 .badge img.silhouette {
@@ -194,8 +198,8 @@ div[class~='dragon-type'] {
 
 .icon {
   cursor: pointer;
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   background-color: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
   display: flex;
@@ -234,7 +238,7 @@ div[class~='dragon-type'] {
   transition: filter 0.8s;
 }
 
-.badge-image-wrapper {
+.badge.earned .badge-image-wrapper {
     position: relative;
     overflow: hidden; /* Keeps the pseudo-element within the badge boundaries */
 }
@@ -243,7 +247,7 @@ div[class~='dragon-type'] {
   cursor: pointer;
 }
 
-.badge-image-wrapper::after {
+.badge.earned .badge-image-wrapper::after {
     content: '';
     position: absolute;
     top: -50%; 
@@ -255,7 +259,7 @@ div[class~='dragon-type'] {
     opacity: 0; 
 }
 
-.badge-image-wrapper.gleam::after {
+.badge.earned .badge-image-wrapper.gleam::after {
     animation: gleamEffect 1s forwards; /* Play the animation */
 }
 
