@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import GymBadge from './GymBadge';
-import { useMBCRamWatcher } from '../../utils/MBCRamWatcher';
+import { useMBCRamWatcher } from '../../utils/MemoryWatcher';
 
 const badgesInfo = [
     { name: "Boulder Badge", image: "boulder.png" },

@@ -1,18 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PartySlot from "./PartySlot";
 import '../../styles/pokemon.css';
-import { useMBCRamWatcher } from "../../utils/MBCRamWatcher";
+import { useInGameMemoryWatcher } from "../../utils/MemoryWatcher";
 import { parseParty } from "../../utils/pokemon/parse";
 import PokemonDetailsModal from "../modals/pokemon/DetailsModal";
 
-function ActiveParty({ MBCRam, onPauseResume, intervalPaused }) {
+function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }) {
+    const partyArray = useRef([])
     const [partyData, setPartyData] = useState([]);
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    useMBCRamWatcher(MBCRam, '0x2F2C', '0x194', (array) => {
-        setPartyData(parseParty(array).pokemonList);
-    });
+    useInGameMemoryWatcher(inGameMemory, '0xD162', '0x00', '0x194', (array) => {
+        if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
+            setPartyData(parseParty(array).pokemonList);
+            partyArray.current = array;
+            console.log(array);
+        }
+    })
 
     const handlePokemonClick = (index) => {
         setSelectedPokemonIndex(index);
@@ -41,6 +46,8 @@ function ActiveParty({ MBCRam, onPauseResume, intervalPaused }) {
                     cyclePokemon(-1);
                 } else if (e.key === 'ArrowRight') {
                     cyclePokemon(1);
+                } else if (e.key === 'Escape' && isModalOpen) {
+                    handlePokemonModalClose();
                 }
             }
         };
@@ -50,7 +57,7 @@ function ActiveParty({ MBCRam, onPauseResume, intervalPaused }) {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isModalOpen, selectedPokemonIndex, partyData.length]);
+    });
 
     return (
         <div className="active-party">

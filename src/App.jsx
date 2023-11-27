@@ -39,6 +39,7 @@ function App() {
 	const fullscreenCanvasRef = useRef(null);
 	const fullscreenContainerRef = useRef(null);
 	const mbcRamRef = useRef([null]);
+	const inGameMemory = useRef([null])
 
 	// Maintain states
 	const [currentUser, setUser] = useState([]);
@@ -67,6 +68,7 @@ function App() {
 				gameboyInstance.firstIteration = dateObj.getTime();
 				gameboyInstance.iterations = 0;
 				gameBoyInstance.current.setSpeed(speed);
+				inGameMemory.current = gameBoyInstance.current.memory;
 				runInterval.current = setInterval(function () {
 					if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
 						gameboyInstance.run();
@@ -433,6 +435,7 @@ function App() {
 				fullscreenContainerRef={fullscreenContainerRef}
 				activeROM={activeROM}
 				activeState={activeState}
+				inGameMemory={inGameMemory}
 				MBCRam={mbcRamRef}
 				onPauseResume={handlePauseResume}
 				intervalPaused={intervalPaused}

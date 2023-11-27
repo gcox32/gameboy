@@ -1,12 +1,21 @@
 import React, { useState } from "react";
 import BaseModal from "../BaseModal";
 import RadarChart from "./RadarChart";
-import { sugimoriRb } from "../../../config";
+import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "../../../config";
 
 function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
     const [isStatsFlipped, setIsStatsFlipped] = useState(false);
     const [isEVsFlipped, setIsEVsFlipped] = useState(false);
     const [isIVsFlipped, setIsIVsFlipped] = useState(false);
+    const [currentImageUrl, setCurrentImageUrl] = useState(sugimoriRb);
+
+    const imageUrls = [sugimoriRb, sugimoriRg, sugimoriFrlg];
+
+    const handleImageClick = () => {
+        const currentIndex = imageUrls.indexOf(currentImageUrl);
+        const nextIndex = (currentIndex + 1) % imageUrls.length;
+        setCurrentImageUrl(imageUrls[nextIndex]);
+    };
 
     if (!isOpen) return null;
     const structure = pokemon.structure;
@@ -22,8 +31,8 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
                     <p>OT: {pokemon.otName}</p>
                 </div>
                 {/* Section B - Picture */}
-                <div className="pokemon-details-section centered top">
-                    <img src={`${sugimoriRb}${pokemon.pokedexNo}.png`} alt={pokemon.speciesName} />
+                <div className="pokemon-details-section centered top hover-pointer" onClick={handleImageClick}>
+                    <img src={`${currentImageUrl}${pokemon.pokedexNo}.png`} alt={pokemon.speciesName} className="hover-pointer"/>
                 </div>
                 {/* Moves */}
                 <div className="pokemon-details-section top">

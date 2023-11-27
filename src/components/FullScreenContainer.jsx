@@ -12,6 +12,7 @@ function FullScreenContainer({
   fullscreenContainerRef,
   activeROM,
   activeState,
+  inGameMemory,
   MBCRam,
   onPauseResume,
   intervalPaused
@@ -34,7 +35,7 @@ function FullScreenContainer({
             onPokedexClick={() => setShowPokedex(!showPokedex)}
             onCameraClick={() => setShowTeamPhoto(!showTeamPhoto)}
           />
-          {showActiveParty && <ActiveParty MBCRam={MBCRam} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
+          {showActiveParty && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
           {showGymBadgeCase && <GymBadgeCase MBCRam={MBCRam} />}
           {showMap && <TownMap />}
           {showPokedex && <Pokedex />}

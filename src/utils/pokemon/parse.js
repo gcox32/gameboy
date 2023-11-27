@@ -1,4 +1,4 @@
-import { translateInteger, translateIntegerArray } from "../MBCRamWatcher";
+import { translateIntegerArray } from "../MemoryWatcher";
 import { typeDict, statusDict, dexDict } from "./dicts";
 export function parseParty(dataArray) {
     const numberOfPokemon = dataArray[0]; // Number of Pokémon in party

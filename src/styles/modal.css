@@ -37,7 +37,7 @@
 }
 
 .modal-content>h2 {
-  font-size: 36px;
+  font-size: 20px;
   font-weight: 200;
   margin: 1em;
   text-align: center;
@@ -130,7 +130,7 @@
   width: 800px;
 }
 .modal-content img {
-  width: 300px;
+  width: 220px;
   border-radius: 4px;
   outline: 2px gray solid;
   transition: 100ms ease-in-out;
@@ -152,13 +152,16 @@
   align-items: center;
   margin: 2em;
 }
+.save-state-block button {
+  font-size: 10px;
+}
 h3.save-state-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
   margin-bottom: 0;
 }
 .last-update-text {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 500;
 }
 .top {

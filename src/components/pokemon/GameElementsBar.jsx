@@ -4,19 +4,19 @@ import { BadgesIcon, CameraIcon, MapIcon, PokedexIcon, TeamIcon } from "./GameEl
 function GameElementsBar({ onActivePartyClick, onGymBadgeCaseClick, onMapClick, onPokedexClick, onCameraClick }) {
     return (
       <div className="game-elements-bar">
-        <div className="icon" onClick={onActivePartyClick}>
+        <div title="Active Party" className="icon" onClick={onActivePartyClick}>
           <TeamIcon width={'40px'}/>
         </div>
-        <div className="icon" onClick={onGymBadgeCaseClick}>
+        <div title="Badges" className="icon" onClick={onGymBadgeCaseClick}>
           <BadgesIcon width={'40px'}/>
         </div>
-        <div className="icon" onClick={onMapClick}>
+        <div title="Town Map" className="icon" onClick={onMapClick}>
           <MapIcon width={'40px'}/>
         </div>
-        <div className="icon" onClick={onPokedexClick}>
+        <div title="Pokedex" className="icon" onClick={onPokedexClick}>
           <PokedexIcon width={'40px'}/>
         </div>
-        <div className="icon" onClick={onCameraClick}>
+        <div title="Photoshoot" className="icon" onClick={onCameraClick}>
           <CameraIcon width={'40px'}/>
         </div>  
       </div>
