@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import GymBadge from './GymBadge';
-import { useMBCRamWatcher } from '../../utils/MemoryWatcher';
+import { useInGameMemoryWatcher } from '../../utils/MemoryWatcher';
 
 const badgesInfo = [
     { name: "Boulder Badge", image: "boulder.png" },
@@ -13,11 +13,11 @@ const badgesInfo = [
     { name: "Earth Badge",   image: "earth.png" },    
 ];
 
-function GymBadgeCase({ MBCRam }) {
+function GymBadgeCase({ inGameMem }) {
     const [badges, setBadges] = useState([0,0,0,0,0,0,0,0]);
     const [prevBadges, setPrevBadges] = useState([0,0,0,0,0,0,0,0]);
 
-    useMBCRamWatcher(MBCRam, '0x2602', '0x1', (array) => {
+    useInGameMemoryWatcher(inGameMem, '0xD2F6', '0x5F', '0x1', (array) => {
         const badgesBinary = array.toString(2).padStart(8, '0');
         const newBadges = badgesBinary.split('').reverse().map((bit, index) => ({
             ...badgesInfo[index],

@@ -13,9 +13,16 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }) {
 
     useInGameMemoryWatcher(inGameMemory, '0xD162', '0x00', '0x194', (array) => {
         if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
-            setPartyData(parseParty(array).pokemonList);
-            partyArray.current = array;
-            console.log(array);
+            try {
+                const parsedParty = parseParty(array);
+                setPartyData(parsedParty.pokemonList);
+                partyArray.current = array;
+            } catch {
+                console.log('Full party not interpretable.')
+                setPartyData([])
+                partyArray.current = []
+                handlePokemonModalClose();
+            }
         }
     })
 

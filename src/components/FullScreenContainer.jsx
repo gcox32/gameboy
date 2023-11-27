@@ -36,7 +36,7 @@ function FullScreenContainer({
             onCameraClick={() => setShowTeamPhoto(!showTeamPhoto)}
           />
           {showActiveParty && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
-          {showGymBadgeCase && <GymBadgeCase MBCRam={MBCRam} />}
+          {showGymBadgeCase && <GymBadgeCase inGameMem={inGameMemory} />}
           {showMap && <TownMap />}
           {showPokedex && <Pokedex />}
           {showTeamPhoto && <TeamPhoto />}
