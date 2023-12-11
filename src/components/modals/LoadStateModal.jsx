@@ -10,10 +10,10 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [selectedStateForDeletion, setSelectedStateForDeletion] = useState(null);
 
-	const formatDate = (dateString) => {
+	const formatDate = (dateString, update=true) => {
 		const date = new Date(dateString);
 		const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-		return `Last Save: ${date.toLocaleString('en-US', options)}`;
+		return `${update ? 'Last Saved':'Created'}: ${date.toLocaleString('en-US', options)}`;
 	};
 	useEffect(() => {
 		const fetchImageUrls = async () => {
@@ -70,6 +70,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 					<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
 						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" />}
 						<h3 className="save-state-title">{state.title}</h3>
+						<p className="last-update-text">{formatDate(state.createdAt, false)}</p>
 						<p className="last-update-text">{formatDate(state.updatedAt)}</p>
 						<button className="delete-btn" onClick={(e) => {
 							e.stopPropagation();

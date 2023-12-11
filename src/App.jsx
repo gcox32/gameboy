@@ -240,7 +240,6 @@ function App() {
 	);
 	const initSound = () => {
 		if (isSoundOn) {
-			console.log(gameBoyInstance.current.saveRTCState());
 			settings[0] = false;
 			setIsSoundOn(false);
 		} else {

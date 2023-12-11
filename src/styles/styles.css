@@ -262,6 +262,7 @@ body {
   border-radius: 50%;
   cursor: pointer;
   font-size: smaller;
+  outline: 1px white solid;
 }
 
 /* console */

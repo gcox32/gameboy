@@ -20,7 +20,7 @@ function FullScreenContainer({
   const [showActiveParty, setShowActiveParty] = useState(true);
   const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const [showPokedex, setShowPokedex] = useState(true);
+  const [showPokedex, setShowPokedex] = useState(false);
   const [showTeamPhoto, setShowTeamPhoto] = useState(false);
 
   return (
@@ -34,10 +34,15 @@ function FullScreenContainer({
             onMapClick={() => setShowMap(!showMap)}
             onPokedexClick={() => setShowPokedex(!showPokedex)}
             onCameraClick={() => setShowTeamPhoto(!showTeamPhoto)}
+            showActiveParty={showActiveParty}
+            showGymBadgeCase={showGymBadgeCase}
+            showMap={showMap}
+            showPokedex={showPokedex}
+            showTeamPhoto={showTeamPhoto}
           />
           {showActiveParty && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
           {showGymBadgeCase && <GymBadgeCase inGameMem={inGameMemory} />}
-          {showMap && <TownMap />}
+          {showMap && <TownMap inGameMem={inGameMemory}/>}
           {showPokedex && <Pokedex />}
           {showTeamPhoto && <TeamPhoto />}
         </> : <></>

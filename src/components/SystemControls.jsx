@@ -82,7 +82,6 @@ function SystemControls({
             }
         }
     };
-    
     const handleSaveAs = () => {
         if (isRomLoaded && isEmulatorPlaying) {
             if (!intervalPaused) onPauseResume();
@@ -95,9 +94,9 @@ function SystemControls({
             setIsSaving(true);
             onSaveConfirmed(saveModalData)
                 .then(() => {
+                    setIsSaving(false);
                     setActiveROMData(saveModalData);
                     setShowSaveStateModal(false);
-                    if (intervalPaused) onPauseResume();
                 })
                 .catch((error) => {
                     console.error('Error during save:', error);
