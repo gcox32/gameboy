@@ -153,6 +153,25 @@ div[class~='dragon-type'] {
   backface-visibility: hidden;
 }
 
+/* location modal */
+.modal-content.location-modal {
+  max-width: 800px;
+  overflow-y: scroll;
+}
+
+.modal-content.location-modal img:hover {
+  cursor: default;
+  outline: 2px gray solid;
+}
+
+.map-loc-details {
+  width: 600px;
+}
+
+.map-loc-details p {
+  text-align: justify;
+}
+
 /* badges */
 .badges-case {
   display: flex;
@@ -288,14 +307,22 @@ div[class~='dragon-type'] {
   height: 300px;
 }
 
+.map-loc-hero {
+  width: 600px !important;
+}
+
 .town-map-loc {
   position: absolute;
   transition: 100ms ease-in-out;
-  border: 1px black solid;
+  opacity: 0.5;
 }
 
 .town-map-loc.city, .town-map-loc.town {
   border: 1px black solid;
+}
+
+.town-map-loc:hover {
+  background-color: yellow;
 }
 
 .town-map-loc:active {
