@@ -29,6 +29,7 @@ function TownMap(inGameMem) {
                     isOpen={modalOpen}
                     onClose={() => setModalOpen(false)}
                     title={selectedLocation.title}
+                    slogan={selectedLocation.slogan}
                     img={selectedLocation.img}
                     desc={selectedLocation.desc}
                     persons={selectedLocation.persons}
