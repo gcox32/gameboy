@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API, graphqlOperation } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import { listGames } from '../graphql/queries';
 
 function Cartridges({ onROMSelected, isDisabled, activeSaveState }) {
@@ -9,8 +9,9 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState }) {
 
     useEffect(() => {
         const fetchGames = async () => {
+            const client = generateClient();
             try {
-                const gameData = await API.graphql(graphqlOperation(listGames));
+                const gameData = await client.graphql({query: listGames});
                 const gamesList = gameData.data.listGames.items;
                 setGames(gamesList);
             } catch (err) {

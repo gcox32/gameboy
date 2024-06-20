@@ -1,5 +1,5 @@
 import React from "react";
-import { pokemonGifEndpoint } from "../../config";
+import { pokemonGifEndpoint } from "../../../config";
 
 function PartySlot({ pokemon, onClick }) {
     return (

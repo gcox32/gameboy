@@ -1,9 +1,15 @@
+// Check if document is available (browser environment)
+if (typeof document !== 'undefined') {
+    var XAudioJSscriptsHandle = document.getElementsByTagName("script");
+    var XAudioJSsourceHandle = XAudioJSscriptsHandle[XAudioJSscriptsHandle.length - 1].src;
+} else {
+    var XAudioJSsourceHandle = ''; // Fallback or mock value for non-browser environment
+}
+
 // import swfobject from "./swfobject";
 import Resampler from "./resampler";
 import ProcessedMediaStream from "./mediaStream";
 
-var XAudioJSscriptsHandle = document.getElementsByTagName("script");
-var XAudioJSsourceHandle = XAudioJSscriptsHandle[XAudioJSscriptsHandle.length-1].src;
 export class XAudioServer {
 	constructor(channels, sampleRate, minBufferSize, maxBufferSize, underRunCallback, volume, failureCallback) {
 		XAudioJSChannelsAllocated = Math.max(channels, 1);

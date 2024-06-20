@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import BaseModal from "../BaseModal";
 import RadarChart from "./RadarChart";
-import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "../../../config";
+import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "../../../../config";
 
 function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
     const [isStatsFlipped, setIsStatsFlipped] = useState(false);

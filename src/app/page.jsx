@@ -1,33 +1,37 @@
+"use client";
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import Console from './components/console/GameConsole';
-import ControlPanel from './components/ControlPanel';
-import FullScreenContainer from './components/FullScreenContainer';
-import GameBoyCore from './utils/GameBoyCore';
+import Console from '../components/console/GameConsole';
+import ControlPanel from '../components/ControlPanel';
+import FullScreenContainer from '../components/FullScreenContainer';
+import GameBoyCore from '../utils/GameBoyCore';
 import {
 	registerGUIEvents,
 	keyDown,
 	keyUp
-} from './utils/other/gui';
+} from '../utils/other/gui';
 import {
 	GameBoyEmulatorInitialized,
 	GameBoyEmulatorPlaying,
 	settings,
 	clearLastEmulation
-} from './utils/GameBoyIO';
-import { saveSRAM, fetchUserSaveStates } from './utils/saveLoad';
-import { publicGamesEndpoint, backgroundEndpoint } from './config';
+} from '../utils/GameBoyIO';
+import { saveSRAM, fetchUserSaveStates } from '../utils/saveLoad';
+import { publicGamesEndpoint, backgroundEndpoint } from '../../config';
 
 // styles
-import './styles/styles.css';
-import './styles/modal.css';
+import '../styles/styles.css';
+import '../styles/modal.css';
+
 // Amplify auth
-import { Amplify, Auth } from 'aws-amplify';
+import { Amplify } from 'aws-amplify';
+import { getCurrentUser } from 'aws-amplify/auth'
 import { withAuthenticator } from '@aws-amplify/ui-react';
-import awsconfig from './aws-exports';
+import awsconfig from '../aws-exports';
 // auth components
-import { Footer } from "./components/auth/Footer";
-import { SignInHeader } from "./components/auth/SignInHeader";
-import { SignInFooter } from "./components/auth/SignInFooter";
+import { Footer } from "../components/auth/Footer";
+import { SignInHeader } from "../components/auth/SignInHeader";
+import { SignInFooter } from "../components/auth/SignInFooter";
 
 Amplify.configure(awsconfig);
 
@@ -40,6 +44,7 @@ function App() {
 	const fullscreenContainerRef = useRef(null);
 	const mbcRamRef = useRef([null]);
 	const inGameMemory = useRef([null])
+	const s3ID = useRef(null);
 
 	// Maintain states
 	const [currentUser, setUser] = useState([]);
@@ -59,6 +64,7 @@ function App() {
 
 	const run = (gameboyInstance) => {
 		setIntervalPaused(false);
+		s3ID.current = crypto.randomUUID();
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
 			if (!GameBoyEmulatorPlaying(gameboyInstance)) {
 				mbcRamRef.current = gameboyInstance.MBCRam;
@@ -84,10 +90,10 @@ function App() {
 	const handleROMSelected = async (selectedROM) => {
 		if (selectedROM) {
 			setActiveROM(selectedROM);
-			setUserSaveStates(await fetchUserSaveStates(currentUser.sub, selectedROM.id))
+			setUserSaveStates(await fetchUserSaveStates(currentUser.userId, selectedROM.id))
 			updateBackgroundForFullscreen(selectedROM.backgroundImg);
 			const romUrl = `${publicGamesEndpoint}${selectedROM.filePath}`;
-			// console.log('Current user:', currentUser);
+			console.log('Current user:', currentUser);
 			try {
 				const response = await fetch(romUrl);
 				if (!response.ok) {
@@ -251,18 +257,18 @@ function App() {
 		}
 	};
 	const onSaveConfirmed = async (saveModalData, previous = false) => {
-		saveModalData.owner = currentUser.sub;
+		saveModalData.owner = currentUser.userId;
 		if (previous && activeState) {
 			saveModalData.id = activeState.id;
 			saveModalData.filePath = activeState.filePath;
 		}
 		if (gameBoyInstance.current && activeROM && isEmulatorPlaying) {
 			try {
-				const savedState = await saveSRAM(gameBoyInstance.current, activeROM, saveModalData, previous);
+				const savedState = await saveSRAM(gameBoyInstance.current, activeROM, saveModalData, s3ID.current, previous);
 				setActiveState(savedState);
 				mbcRamRef.current = gameBoyInstance.current.MBCRam;
 				console.log('saved successfully');
-				const userSaves = await fetchUserSaveStates(currentUser.sub, activeROM.id);
+				const userSaves = await fetchUserSaveStates(currentUser.userId, activeROM.id);
 				setUserSaveStates(userSaves);
 				setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
 			} catch (error) {
@@ -272,7 +278,7 @@ function App() {
 	};
 	const runFromSaveState = (sramArray, selectedSaveState) => {
 		console.log('Initiating state from load...');
-		console.log(selectedSaveState);
+
 		const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
 		mainCanvasRef.current.style.opacity = 1;
 		fullscreenCanvasRef.current.style.opacity = 1;
@@ -287,12 +293,13 @@ function App() {
 	// Maintain authenticated user information
 	useEffect(() => {
 		const loadUser = () => {
-			return Auth.currentAuthenticatedUser({ bypassCache: true });
+			return getCurrentUser();
 		}
 		const onLoad = async () => {
 			try {
 				const user = await loadUser();
-				setUser(user.attributes);
+				setUser(user);
+
 			} catch (err) {
 				console.error(err);
 			}
@@ -423,6 +430,8 @@ function App() {
 				userSaveStates={userSaveStates}
 				runFromSaveState={runFromSaveState}
 				activeROM={activeROM}
+				currentUser={currentUser}
+				s3ID={s3ID.current}
 			/>
 			<Console
 				isEmulatorOn={isEmulatorOn}

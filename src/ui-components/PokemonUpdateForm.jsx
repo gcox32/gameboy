@@ -8,9 +8,10 @@
 import * as React from "react";
 import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
-import { API } from "aws-amplify";
+import { generateClient } from "aws-amplify/api";
 import { getPokemon } from "../graphql/queries";
 import { updatePokemon } from "../graphql/mutations";
+const client = generateClient();
 export default function PokemonUpdateForm(props) {
   const {
     id: idProp,
@@ -49,7 +50,7 @@ export default function PokemonUpdateForm(props) {
     const queryData = async () => {
       const record = idProp
         ? (
-            await API.graphql({
+            await client.graphql({
               query: getPokemon.replaceAll("__typename", ""),
               variables: { id: idProp },
             })
@@ -125,7 +126,7 @@ export default function PokemonUpdateForm(props) {
               modelFields[key] = null;
             }
           });
-          await API.graphql({
+          await client.graphql({
             query: updatePokemon.replaceAll("__typename", ""),
             variables: {
               input: {

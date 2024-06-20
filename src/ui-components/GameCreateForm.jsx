@@ -8,8 +8,9 @@
 import * as React from "react";
 import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
-import { API } from "aws-amplify";
+import { generateClient } from "aws-amplify/api";
 import { createGame } from "../graphql/mutations";
+const client = generateClient();
 export default function GameCreateForm(props) {
   const {
     clearOnSuccess = true,
@@ -130,7 +131,7 @@ export default function GameCreateForm(props) {
               modelFields[key] = null;
             }
           });
-          await API.graphql({
+          await client.graphql({
             query: createGame.replaceAll("__typename", ""),
             variables: {
               input: {

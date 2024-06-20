@@ -158,7 +158,10 @@
 h3.save-state-title {
   font-size: 16px;
   font-weight: 500;
+  margin-top: 10px;
   margin-bottom: 0;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
 }
 .last-update-text {
   font-size: 12px;
@@ -167,7 +170,9 @@ h3.save-state-title {
 .top {
   z-index: 20;
 }
-
+.delete-btn {
+  margin: 10px;
+}
 @media screen and (max-width: 400px) {
   .modal-options-buttons {
     justify-content: space-around !important;

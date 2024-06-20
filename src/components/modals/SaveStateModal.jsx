@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { uploadImageToS3 } from '../../utils/saveLoad';
 import OptionButton from './OptionButton';
+import { assetsEndpointPrivate, userPoolRegion } from '../../../config';
 
-function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM }) {
+function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, userId, s3ID }) {
     const [title, setTitle] = useState(initialData?.title || '');
     const [description, setDescription] = useState(initialData?.description || '');
     const [imageFile, setImageFile] = useState(initialData?.img || '');
@@ -14,7 +15,7 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM })
             // Handle file upload to S3 and get the key
             if (imageFile.type.startsWith('image/')) {
                 const fileType = imageFile.name.split('.').pop();
-                const imagePath = `${currentROM.title}/saves/${title}.${fileType}`;
+                const imagePath = `private/${userPoolRegion}:${userId}/${currentROM.title}/${s3ID}/${title}.${fileType}`;
                 imageS3Key = await uploadImageToS3(imageFile, imagePath);
             }
         }

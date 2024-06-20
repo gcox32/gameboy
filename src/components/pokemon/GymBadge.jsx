@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { badgeImgPath } from '../../config';
+import { badgeImgPath } from '../../../config';
 
 function GymBadge({ badge, earned }) {
     const [gleam, setGleam] = useState(false);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Storage } from 'aws-amplify';
+import { getUrl } from 'aws-amplify/storage';
 import ConfirmModal from './modals/ConfirmModal';
 import SaveStateModal from './modals/SaveStateModal';
 import LoadStateModal from './modals/LoadStateModal';
@@ -22,7 +22,9 @@ function SystemControls({
     userSaveStates,
     runFromSaveState,
     currentROM,
-    togglePanel
+    togglePanel,
+    currentUser,
+    s3ID
 }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSaveStateModal, setShowSaveStateModal] = useState(false);
@@ -67,6 +69,7 @@ function SystemControls({
             setIsSaving(true);
     
             if (activeROMData) {
+                console.log(activeROMData);
                 onSaveConfirmed(activeROMData, true)
                     .then(() => {
                         setIsSaving(false);
@@ -120,8 +123,8 @@ function SystemControls({
     };
     const handleSelectSaveState = async (selectedSaveState) => {
         try {
-            const signedUrl = await Storage.get(selectedSaveState.filePath, { level: 'private' });
-            const response = await fetch(signedUrl);
+            const signedUrl = await getUrl({ path: selectedSaveState.filePath });
+            const response = await fetch(signedUrl.url);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -144,7 +147,6 @@ function SystemControls({
             console.error('Error loading save state:', error);
         }
     };
-
 
     return (
         <>
@@ -176,6 +178,8 @@ function SystemControls({
                 onConfirm={saveStateModalAction}
                 initialData={activeROMData}
                 currentROM={currentROM}
+                userId={currentUser.userId}
+                s3ID={s3ID}
             >
             </SaveStateModal>
             <LoadStateModal
@@ -183,6 +187,8 @@ function SystemControls({
                 onClose={() => setShowLoadStateModal(false)}
                 saveStates={userSaveStates}
                 onConfirm={handleSelectSaveState}
+                userId={currentUser.userId}
+                s3ID={s3ID}
             >
             </LoadStateModal>
         </ >

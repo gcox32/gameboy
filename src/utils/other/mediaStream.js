@@ -1,3 +1,12 @@
+// Check if MediaStream is available, if not, define a mock class
+if (typeof MediaStream === 'undefined') {
+    global.MediaStream = class {
+        constructor() {
+            // Mock implementation or empty constructor
+        }
+    };
+}
+
 class ProcessedMediaStream extends MediaStream {
     constructor(worker, audioSampleRate = undefined, audioChannels = undefined) {
         super(); // Initialize the MediaStream

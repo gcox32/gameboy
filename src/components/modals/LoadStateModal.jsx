@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Storage } from 'aws-amplify';
+import { downloadData, remove } from 'aws-amplify/storage';
 import { deleteSaveState } from '../../graphql/mutations';
-import { API, graphqlOperation } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import ConfirmModal from './ConfirmModal';
 import BaseModal from './BaseModal';
+import { assetsEndpoint, assetsEndpointPublic, userPoolRegion } from '../../../config';
 
-function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
+function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 	const [updatedSaveStates, setUpdatedSaveStates] = useState([]);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [selectedStateForDeletion, setSelectedStateForDeletion] = useState(null);
@@ -17,20 +18,34 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 	};
 	useEffect(() => {
 		const fetchImageUrls = async () => {
-			const statesWithImages = await Promise.all(saveStates.map(async (state) => {
-				if (state.img) {
-					const url = await Storage.get(state.img, { level: 'private' });
-					return { ...state, imageUrl: url };
-				}
-				return state;
-			}));
-			setUpdatedSaveStates(statesWithImages);
-		};
+			try {
+				const statesWithImages = await Promise.all(saveStates.map(async (state) => {
+					if (state.img) {
+						try {
+							const path = `private/${userPoolRegion}:${userId}/${state.img}`;
+							const result = downloadData({ path: path });
+							const eTag = await result.result; // Ensure the correct way to access the result
+							const imgPath = `${assetsEndpoint}${eTag.path}`;
 
+							return { ...state, imageUrl: imgPath };
+						} catch (error) {
+							console.error(`Error downloading image for state ${state.img}:`, error);
+							return state; // Return state without imageUrl if download fails
+						}
+					}
+					return state;
+				}));
+				setUpdatedSaveStates(statesWithImages);
+			} catch (error) {
+				console.error('Error fetching image URLs:', error);
+			}
+		};
+	
 		if (isOpen) {
 			fetchImageUrls();
 		}
 	}, [isOpen, saveStates]);
+	
 
 	const handleDeleteClick = (saveState) => {
 		setSelectedStateForDeletion(saveState);
@@ -38,16 +53,17 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 	}
 	const handleDeleteConfirmed = async () => {
 		if (selectedStateForDeletion) {
+			const client = generateClient();
 			try {
 				// Call API to delete save state from DynamoDB
-				await API.graphql(graphqlOperation(deleteSaveState, { input: { id: selectedStateForDeletion.id } }));
+				await client.graphql({ query: deleteSaveState, variables: { input: { id: selectedStateForDeletion.id } }});
 
 				// Delete associated data from S3 if it exists
 				console.log('deleting S3 save file...')
-				await Storage.remove(selectedStateForDeletion.filePath)
+				await remove(selectedStateForDeletion.filePath)
 				if (selectedStateForDeletion.img) {
 					console.log('deleting S3 saved associated image...')
-					await Storage.remove(selectedStateForDeletion.img, { level: 'private' });
+					await remove(selectedStateForDeletion.img, { level: 'private' });
 				}
 
 				// Update local state to reflect the deletion
@@ -68,6 +84,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm }) {
 			<div className="save-state-list">
 				{updatedSaveStates.map((state) => (
 					<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
+						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/loading-gif.gif`} />}
 						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" />}
 						<h3 className="save-state-title">{state.title}</h3>
 						<p className="last-update-text">{formatDate(state.createdAt, false)}</p>

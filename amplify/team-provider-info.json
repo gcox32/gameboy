@@ -12,17 +12,14 @@
       "AmplifyAppId": "d1b43zt319108"
     },
     "categories": {
-      "auth": {
-        "gameboy6eb57d28": {}
-      },
-      "api": {
-        "gameboy": {}
-      },
       "storage": {
         "gameboyc0b4c218": {
           "bucketName": "letmedemo-assets",
           "region": "us-east-1"
         }
+      },
+      "auth": {
+        "gameboy6eb57d28": {}
       }
     }
   }
