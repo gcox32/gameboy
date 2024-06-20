@@ -17,11 +17,10 @@ function GymBadgeCase({ inGameMem }) {
     const [badges, setBadges] = useState([0,0,0,0,0,0,0,0]);
     const [prevBadges, setPrevBadges] = useState([0,0,0,0,0,0,0,0]);
 
-    useInGameMemoryWatcher(inGameMem, '0xD2F6', '0x5F', '0x1', (array) => {
+    useInGameMemoryWatcher(inGameMem, '0xD2F7', '0x5F', '0x1', (array) => {
         // Ensure the byte is correctly interpreted
         const badgesByte = array[0];
         const badgesBinary = badgesByte.toString(2).padStart(8, '0');
-
         // Parse the binary string to an array of badge objects
         const newBadges = badgesBinary.split('').reverse().map((bit, index) => ({
             ...badgesInfo[index],

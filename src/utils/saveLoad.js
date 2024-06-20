@@ -86,7 +86,7 @@ export async function fetchUserSaveStates(userId, gameId) {
             });
 
         return saveStateData.data.listSaveStates.items;
-        
+
     } catch (error) {
         console.error('Error fetching save states:', error);
         throw error;
@@ -94,7 +94,7 @@ export async function fetchUserSaveStates(userId, gameId) {
 };
 export async function uploadImageToS3(file, filePath) {
     try {
-        const s3Response = uploadData({ filePath, file });
+        const s3Response = uploadData({ path: filePath, data: file });
         return await s3Response.result;
     } catch (error) {
         console.error('Error uploading image to S3', error);

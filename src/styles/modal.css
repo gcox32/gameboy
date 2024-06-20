@@ -172,6 +172,7 @@ h3.save-state-title {
 }
 .delete-btn {
   margin: 10px;
+  cursor: pointer;
 }
 @media screen and (max-width: 400px) {
   .modal-options-buttons {

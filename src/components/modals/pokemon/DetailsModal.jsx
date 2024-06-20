@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import BaseModal from "../BaseModal";
 import RadarChart from "./RadarChart";
+import Image from "next/image";
 import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "../../../../config";
 
 function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
@@ -31,8 +32,14 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
                     <p>OT: {pokemon.otName}</p>
                 </div>
                 {/* Section B - Picture */}
-                <div className="pokemon-details-section centered top hover-pointer" onClick={handleImageClick}>
-                    <img src={`${currentImageUrl}${pokemon.pokedexNo}.png`} alt={pokemon.speciesName} className="hover-pointer"/>
+                <div className="pokemon-details-section centered top" onClick={handleImageClick}>
+                    <Image 
+                        src={`${currentImageUrl}${pokemon.pokedexNo}.png`} 
+                        style={{cursor: "pointer"}}
+                        alt={pokemon.speciesName} 
+                        layout="fill"   
+                        objectFit="contain" 
+                    />
                 </div>
                 {/* Moves */}
                 <div className="pokemon-details-section top">

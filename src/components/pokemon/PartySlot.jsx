@@ -1,10 +1,18 @@
 import React from "react";
 import { pokemonGifEndpoint } from "../../../config";
+import Image from "next/image";
 
 function PartySlot({ pokemon, onClick }) {
     return (
         <div className="party-slot" onClick={() => onClick(pokemon)}>
-            <img src={ `${pokemonGifEndpoint}${pokemon.pokedexNo}.gif` } alt={pokemon.speciesName} />
+            {/* <div> */}
+                <Image 
+                    src={ `${pokemonGifEndpoint}${pokemon.pokedexNo}.gif` } 
+                    alt={pokemon.speciesName} 
+                    layout="fill"
+                    objectFit="contain"
+                />
+            {/* </div> */}
         </div>
     );
 };

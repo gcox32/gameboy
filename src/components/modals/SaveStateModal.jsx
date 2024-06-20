@@ -9,21 +9,21 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
     const [imageFile, setImageFile] = useState(initialData?.img || '');
 
     const handleSubmit = async () => {
-        let imageS3Key = initialData?.img || '';
+        let imagePath = initialData?.img || '';
 
         if (imageFile) {
             // Handle file upload to S3 and get the key
             if (imageFile.type.startsWith('image/')) {
                 const fileType = imageFile.name.split('.').pop();
-                const imagePath = `private/${userPoolRegion}:${userId}/${currentROM.title}/${s3ID}/${title}.${fileType}`;
-                imageS3Key = await uploadImageToS3(imageFile, imagePath);
+                imagePath = `private/${userPoolRegion}:${userId}/${currentROM.title}/${s3ID}/${title}.${fileType}`;
+                await uploadImageToS3(imageFile, imagePath);
             }
         }
 
         const saveStateData = {
-            title,
-            description,
-            img: imageS3Key
+            title: title,
+            description: description,
+            img: imagePath
         };
 
         onConfirm(saveStateData);

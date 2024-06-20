@@ -11,7 +11,7 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }) {
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    useInGameMemoryWatcher(inGameMemory, '0xD162', '0x00', '0x194', (array) => {
+    useInGameMemoryWatcher(inGameMemory, '0xD162', '0x00', '0x195', (array) => { // start is 0xD163 in Blue but 0xD162 in True Blue
         if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
             try {
                 const parsedParty = parseParty(array);

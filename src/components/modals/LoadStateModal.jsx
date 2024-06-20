@@ -22,7 +22,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 				const statesWithImages = await Promise.all(saveStates.map(async (state) => {
 					if (state.img) {
 						try {
-							const path = `private/${userPoolRegion}:${userId}/${state.img}`;
+							const path = state.img;
 							const result = downloadData({ path: path });
 							const eTag = await result.result; // Ensure the correct way to access the result
 							const imgPath = `${assetsEndpoint}${eTag.path}`;
@@ -35,6 +35,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 					}
 					return state;
 				}));
+				console.log(statesWithImages);
 				setUpdatedSaveStates(statesWithImages);
 			} catch (error) {
 				console.error('Error fetching image URLs:', error);
@@ -84,7 +85,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 			<div className="save-state-list">
 				{updatedSaveStates.map((state) => (
 					<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
-						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/loading-gif.gif`} />}
+						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/beta-sprite.png`} />}
 						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" />}
 						<h3 className="save-state-title">{state.title}</h3>
 						<p className="last-update-text">{formatDate(state.createdAt, false)}</p>

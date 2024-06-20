@@ -97,7 +97,7 @@ export const locations = [
         x: 176,
         y: 61,
         locType: 'city',
-        img: imgUrl + 'fuschia-city.png',
+        img: imgUrl + 'fuchsia-city.png',
         width: 17,
         height: 17,
         desc: "Fuchsia City (Japanese: セキチクシティ Sekichiku City) is a city located in southwest Kanto. Its most distinguishing features are the Safari Zone in the Generation I and III games and the Poison-type Gym. Koga is the Fuchsia City Gym Leader until his daughter Janine takes over in the Generation II and IV games. Route 15 leads into the city from the east, Route 18 from the west, and the beach of Route 19 is in the south. In Generation II, the Safari Zone is closed down. In Pokémon HeartGold and SoulSilver, Pal Park replaces the closed-down Safari Zone. In Pokémon: Let's Go, Pikachu! and Let's Go, Eevee!, the zoo in the city is referred to as the Safari Zone, while the former Safari Zone's location is now occupied by GO Park.",

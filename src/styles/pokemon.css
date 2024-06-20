@@ -98,6 +98,14 @@ div[class~='dragon-type'] {
   justify-content: center;
   align-items: stretch;
 }
+.party-slot div {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  border: 2px black solid;
+  overflow: hidden;
+}
 
 .party-slot:hover {
   cursor: pointer;
@@ -192,11 +200,7 @@ div[class~='dragon-type'] {
   margin: 5px;
 }
 
-.badge img {
-  height: 64px;
-}
-
-.badge img.silhouette {
+.badge .silhouette {
   filter: brightness(0);
   opacity: 0.5;
 }
@@ -250,11 +254,11 @@ div[class~='dragon-type'] {
     animation: badgeEarned 1.8s forwards cubic-bezier(.55,.23,.97,.09);
 }
 
-.badge img.silhouette {
+.badge .silhouette {
   filter: brightness(0) invert(1);
 }
 
-.badge img {
+.badge .badge-image-wrapper {
   transition: filter 0.8s;
 }
 
@@ -302,9 +306,12 @@ div[class~='dragon-type'] {
 }
 
 .town-map img {
+  position: relative;
+  width: 100%;
+  height: 300px;
   border-radius: 8px;
   border: 2px black solid;
-  height: 300px;
+  overflow: hidden;
 }
 
 .map-loc-hero {

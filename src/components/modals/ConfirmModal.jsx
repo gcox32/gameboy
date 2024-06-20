@@ -17,7 +17,7 @@ function ConfirmModal({ isOpen, onClose, onConfirm, children, skipConfirmation, 
                     checked={skipConfirmation}
                     onChange={toggleSkipConfirmation}
                 />
-                <p>Don't ask me again</p>
+                <p>Don&apos;t ask me again</p>
             </div>
         </BaseModal>
     );
