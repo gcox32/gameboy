@@ -246,7 +246,7 @@ body {
   cursor: pointer;
 }
 #control-panel.hidden {
-  left: -264px; /* Same as the width of the control panel */
+  left: -302px; /* Same as the width of the control panel */
 }
 
 .toggle-handle {
@@ -300,7 +300,7 @@ body {
   visibility: visible;
   position: absolute;
   overflow: hidden;
-  margin: 0;
+  margin: 0 auto;
   padding: 10px 0px 0px 0px;
   top: 0;
   left: 0;
@@ -452,9 +452,10 @@ body {
 
 @media screen and (max-width: 400px) {
   .console-container {
-    width: 420px;
-    height: calc(420px * (928/526));
+    width: 100vw; /* 420px; */
+    height: calc(100vw * (928/526));
     overflow: hidden;
+    background-position: center;
   }
   .mobile {
     display: block;
@@ -475,10 +476,11 @@ body {
   }
   
   #GameBoy {
-    left: 82px !important;
-    top: 55px !important;
-    width: 260px;
-    height: calc(260px * (286 / 321));
+    left: 78px !important; 
+    top: 62px !important; /* -9px !important; */
+    width: 228px; /* 100vw !important; */
+    height: calc(228px * (286 / 321)); /* calc(100vw * (286 / 321)) */
+    /* margin: 0 auto; */
   }
   #on-light {
     height: 10px;
@@ -494,12 +496,12 @@ body {
     width: calc(61px * 0.93);
   }
   #a-btn {
-    left: 334px;
-    top: 440px;
+    left: 300px;
+    top: 404px;
   }
   #b-btn {
-    left: 256px;
-    top: 464px;
+    left: 228px;
+    top: 428px;
   }
   .st-sel {
     width: calc(46px * 0.93);
@@ -507,16 +509,16 @@ body {
     top: 595px;
   }
   #select-btn {
-    left: 156px;
-    top: 592px;
+    left: 133px;
+    top: 548px;
   }
   #start-btn {
-    left: 219px;
-    top: 592px;
+    left: 192px;
+    top: 548px;
   }
   .joypad {
-    top: 420px;
-    left: 18px;
+    top: 383px;
+    left: 4px;
   }
   .joypad div {
     height: 42px;
