@@ -1,0 +1,21 @@
+{
+    "name": "Javascript Gameboy Color",
+    "short_name": "JS GBC",
+    "icons": [
+      {
+        "src": "/icons/gbc-homescreen-icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/icons/gbc-homescreen-icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff"
+  }
+  

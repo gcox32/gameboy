@@ -12,8 +12,8 @@ function GameControls() {
                 <GameButton className="gb-btn" elementId="left-btn"   keyCode="37" />
                 <GameButton className="gb-btn" elementId="right-btn"  keyCode="39" />
             </div>
-            <GameButton     className="gb-btn" elementId="start-btn"  keyCode="13" />
-            <GameButton     className="gb-btn" elementId="select-btn" keyCode="16" />
+            <GameButton     className="gb-btn st-sel" elementId="start-btn"  keyCode="13" />
+            <GameButton     className="gb-btn st-sel" elementId="select-btn" keyCode="16" />
         </>
     );
 }
