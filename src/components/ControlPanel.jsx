@@ -22,11 +22,12 @@ function ControlPanel({
     runFromSaveState,
     activeROM,
     currentUser,
-    s3ID
+    s3ID,
+    toggleMobileZoom
 }) {
     const [isPanelVisible, setIsPanelVisible] = useState(true); // Panel is visible by default
     const togglePanel = () => {
-        setIsPanelVisible(!isPanelVisible); // Toggle the visibility
+        setIsPanelVisible(!isPanelVisible);
     };
 
     return (
@@ -53,6 +54,7 @@ function ControlPanel({
                 runFromSaveState={runFromSaveState}
                 currentROM={activeROM}
                 togglePanel={togglePanel}
+                toggleMobileZoom={toggleMobileZoom}
                 isPanelVisible={isPanelVisible}
                 currentUser={currentUser}
                 s3ID={s3ID}

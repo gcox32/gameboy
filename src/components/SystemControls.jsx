@@ -23,6 +23,7 @@ function SystemControls({
     runFromSaveState,
     currentROM,
     togglePanel,
+    toggleMobileZoom,
     currentUser,
     s3ID
 }) {
@@ -161,6 +162,7 @@ function SystemControls({
                 <button onClick={handleSaveAs} disabled={!isEmulatorPlaying} >{isSaving ? (<Loader />) : 'Save As'}</button>
                 <button onClick={onFullscreenToggle} disabled={!isRomLoaded} className="desktop">Fullscreen</button>
                 <button onClick={togglePanel} className="mobile">Hide</button>
+                <button onClick={toggleMobileZoom} className="mobile">Mobile Zoom</button>
                 <Authenticator >{({ signOut }) => (<button onClick={signOut}>Logout</button>)}</Authenticator>
             </div>
             <ConfirmModal

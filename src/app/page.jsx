@@ -61,6 +61,7 @@ function App() {
 	const [isEmulatorOn, setIsEmulatorOn] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [fullscreenBackground, setFullscreenBackground] = useState('');
+	const [mobileZoom, setMobileZoom] = useState(false);
 
 	const run = (gameboyInstance) => {
 		setIntervalPaused(false);
@@ -290,6 +291,10 @@ function App() {
 		setActiveSaveArray(sramArray);
 	};
 
+	const toggleMobileZoom = () => {
+		setMobileZoom(!mobileZoom);
+	};
+
 	// Maintain authenticated user information
 	useEffect(() => {
 		const loadUser = () => {
@@ -432,10 +437,12 @@ function App() {
 				activeROM={activeROM}
 				currentUser={currentUser}
 				s3ID={s3ID.current}
+				toggleMobileZoom={toggleMobileZoom} // here!
 			/>
 			<Console
 				isEmulatorOn={isEmulatorOn}
 				mainCanvasRef={mainCanvasRef}
+				mobileZoom={mobileZoom}
 			/>
 			<FullScreenContainer
 				background={fullscreenBackground}
