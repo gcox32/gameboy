@@ -23,6 +23,7 @@ export default function GameCreateForm(props) {
     ...rest
   } = props;
   const initialValues = {
+    owner: "",
     title: "",
     releaseDate: "",
     description: "",
@@ -32,6 +33,7 @@ export default function GameCreateForm(props) {
     series: "",
     generation: "",
   };
+  const [owner, setOwner] = React.useState(initialValues.owner);
   const [title, setTitle] = React.useState(initialValues.title);
   const [releaseDate, setReleaseDate] = React.useState(
     initialValues.releaseDate
@@ -48,6 +50,7 @@ export default function GameCreateForm(props) {
   const [generation, setGeneration] = React.useState(initialValues.generation);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
+    setOwner(initialValues.owner);
     setTitle(initialValues.title);
     setReleaseDate(initialValues.releaseDate);
     setDescription(initialValues.description);
@@ -59,6 +62,7 @@ export default function GameCreateForm(props) {
     setErrors({});
   };
   const validations = {
+    owner: [{ type: "Required" }],
     title: [{ type: "Required" }],
     releaseDate: [],
     description: [],
@@ -94,6 +98,7 @@ export default function GameCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
+          owner,
           title,
           releaseDate,
           description,
@@ -156,6 +161,38 @@ export default function GameCreateForm(props) {
       {...rest}
     >
       <TextField
+        label="Owner"
+        isRequired={true}
+        isReadOnly={false}
+        value={owner}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              owner: value,
+              title,
+              releaseDate,
+              description,
+              img,
+              filePath,
+              backgroundImg,
+              series,
+              generation,
+            };
+            const result = onChange(modelFields);
+            value = result?.owner ?? value;
+          }
+          if (errors.owner?.hasError) {
+            runValidationTasks("owner", value);
+          }
+          setOwner(value);
+        }}
+        onBlur={() => runValidationTasks("owner", owner)}
+        errorMessage={errors.owner?.errorMessage}
+        hasError={errors.owner?.hasError}
+        {...getOverrideProps(overrides, "owner")}
+      ></TextField>
+      <TextField
         label="Title"
         isRequired={true}
         isReadOnly={false}
@@ -164,6 +201,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title: value,
               releaseDate,
               description,
@@ -195,6 +233,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate: value,
               description,
@@ -226,6 +265,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description: value,
@@ -257,6 +297,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -288,6 +329,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -319,6 +361,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -350,6 +393,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -381,6 +425,7 @@ export default function GameCreateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,

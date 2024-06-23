@@ -5,6 +5,7 @@ export const getGame = /* GraphQL */ `
   query GetGame($id: ID!) {
     getGame(id: $id) {
       id
+      owner
       title
       releaseDate
       description
@@ -32,6 +33,7 @@ export const listGames = /* GraphQL */ `
     listGames(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        owner
         title
         releaseDate
         description
@@ -56,6 +58,7 @@ export const getSaveState = /* GraphQL */ `
       owner
       game {
         id
+        owner
         title
         releaseDate
         description
@@ -103,33 +106,35 @@ export const listSaveStates = /* GraphQL */ `
     }
   }
 `;
-export const getPokemon = /* GraphQL */ `
-  query GetPokemon($id: ID!) {
-    getPokemon(id: $id) {
+export const getUserProfile = /* GraphQL */ `
+  query GetUserProfile($id: ID!) {
+    getUserProfile(id: $id) {
       id
-      name
-      index
-      pokedexNo
-      height
+      owner
+      username
+      email
+      avatar
+      bio
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const listPokemon = /* GraphQL */ `
-  query ListPokemon(
-    $filter: ModelPokemonFilterInput
+export const listUserProfiles = /* GraphQL */ `
+  query ListUserProfiles(
+    $filter: ModelUserProfileFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listPokemon(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listUserProfiles(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        name
-        index
-        pokedexNo
-        height
+        owner
+        username
+        email
+        avatar
+        bio
         createdAt
         updatedAt
         __typename

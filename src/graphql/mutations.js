@@ -8,6 +8,7 @@ export const createGame = /* GraphQL */ `
   ) {
     createGame(input: $input, condition: $condition) {
       id
+      owner
       title
       releaseDate
       description
@@ -33,6 +34,7 @@ export const updateGame = /* GraphQL */ `
   ) {
     updateGame(input: $input, condition: $condition) {
       id
+      owner
       title
       releaseDate
       description
@@ -58,6 +60,7 @@ export const deleteGame = /* GraphQL */ `
   ) {
     deleteGame(input: $input, condition: $condition) {
       id
+      owner
       title
       releaseDate
       description
@@ -86,6 +89,7 @@ export const createSaveState = /* GraphQL */ `
       owner
       game {
         id
+        owner
         title
         releaseDate
         description
@@ -119,6 +123,7 @@ export const updateSaveState = /* GraphQL */ `
       owner
       game {
         id
+        owner
         title
         releaseDate
         description
@@ -152,6 +157,7 @@ export const deleteSaveState = /* GraphQL */ `
       owner
       game {
         id
+        owner
         title
         releaseDate
         description
@@ -175,51 +181,54 @@ export const deleteSaveState = /* GraphQL */ `
     }
   }
 `;
-export const createPokemon = /* GraphQL */ `
-  mutation CreatePokemon(
-    $input: CreatePokemonInput!
-    $condition: ModelPokemonConditionInput
+export const createUserProfile = /* GraphQL */ `
+  mutation CreateUserProfile(
+    $input: CreateUserProfileInput!
+    $condition: ModelUserProfileConditionInput
   ) {
-    createPokemon(input: $input, condition: $condition) {
+    createUserProfile(input: $input, condition: $condition) {
       id
-      name
-      index
-      pokedexNo
-      height
+      owner
+      username
+      email
+      avatar
+      bio
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const updatePokemon = /* GraphQL */ `
-  mutation UpdatePokemon(
-    $input: UpdatePokemonInput!
-    $condition: ModelPokemonConditionInput
+export const updateUserProfile = /* GraphQL */ `
+  mutation UpdateUserProfile(
+    $input: UpdateUserProfileInput!
+    $condition: ModelUserProfileConditionInput
   ) {
-    updatePokemon(input: $input, condition: $condition) {
+    updateUserProfile(input: $input, condition: $condition) {
       id
-      name
-      index
-      pokedexNo
-      height
+      owner
+      username
+      email
+      avatar
+      bio
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const deletePokemon = /* GraphQL */ `
-  mutation DeletePokemon(
-    $input: DeletePokemonInput!
-    $condition: ModelPokemonConditionInput
+export const deleteUserProfile = /* GraphQL */ `
+  mutation DeleteUserProfile(
+    $input: DeleteUserProfileInput!
+    $condition: ModelUserProfileConditionInput
   ) {
-    deletePokemon(input: $input, condition: $condition) {
+    deleteUserProfile(input: $input, condition: $condition) {
       id
-      name
-      index
-      pokedexNo
-      height
+      owner
+      username
+      email
+      avatar
+      bio
       createdAt
       updatedAt
       __typename

@@ -25,6 +25,7 @@ export default function GameUpdateForm(props) {
     ...rest
   } = props;
   const initialValues = {
+    owner: "",
     title: "",
     releaseDate: "",
     description: "",
@@ -34,6 +35,7 @@ export default function GameUpdateForm(props) {
     series: "",
     generation: "",
   };
+  const [owner, setOwner] = React.useState(initialValues.owner);
   const [title, setTitle] = React.useState(initialValues.title);
   const [releaseDate, setReleaseDate] = React.useState(
     initialValues.releaseDate
@@ -53,6 +55,7 @@ export default function GameUpdateForm(props) {
     const cleanValues = gameRecord
       ? { ...initialValues, ...gameRecord }
       : initialValues;
+    setOwner(cleanValues.owner);
     setTitle(cleanValues.title);
     setReleaseDate(cleanValues.releaseDate);
     setDescription(cleanValues.description);
@@ -80,6 +83,7 @@ export default function GameUpdateForm(props) {
   }, [idProp, gameModelProp]);
   React.useEffect(resetStateValues, [gameRecord]);
   const validations = {
+    owner: [{ type: "Required" }],
     title: [{ type: "Required" }],
     releaseDate: [],
     description: [],
@@ -115,6 +119,7 @@ export default function GameUpdateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
+          owner,
           title,
           releaseDate: releaseDate ?? null,
           description: description ?? null,
@@ -175,6 +180,38 @@ export default function GameUpdateForm(props) {
       {...rest}
     >
       <TextField
+        label="Owner"
+        isRequired={true}
+        isReadOnly={false}
+        value={owner}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              owner: value,
+              title,
+              releaseDate,
+              description,
+              img,
+              filePath,
+              backgroundImg,
+              series,
+              generation,
+            };
+            const result = onChange(modelFields);
+            value = result?.owner ?? value;
+          }
+          if (errors.owner?.hasError) {
+            runValidationTasks("owner", value);
+          }
+          setOwner(value);
+        }}
+        onBlur={() => runValidationTasks("owner", owner)}
+        errorMessage={errors.owner?.errorMessage}
+        hasError={errors.owner?.hasError}
+        {...getOverrideProps(overrides, "owner")}
+      ></TextField>
+      <TextField
         label="Title"
         isRequired={true}
         isReadOnly={false}
@@ -183,6 +220,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title: value,
               releaseDate,
               description,
@@ -214,6 +252,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate: value,
               description,
@@ -245,6 +284,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description: value,
@@ -276,6 +316,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -307,6 +348,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -338,6 +380,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -369,6 +412,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,
@@ -400,6 +444,7 @@ export default function GameUpdateForm(props) {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
+              owner,
               title,
               releaseDate,
               description,

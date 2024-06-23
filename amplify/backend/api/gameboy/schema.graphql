@@ -1,5 +1,6 @@
-type Game @model @auth(rules: [{allow: private, operations: [read]}]) {
+type Game @model @auth(rules: [{allow: private, operations: [read, create, update, delete]}]) {
   id: ID!
+  owner: String!
   title: String!
   releaseDate: String
   description: String
@@ -21,10 +22,11 @@ type SaveState @model @auth(rules: [{allow: private, operations: [read, create, 
   img: String
 }
 
-type Pokemon @model @auth(rules: [{allow: private, operations: [read]}]) {
+type UserProfile @model @auth(rules: [{allow: private, operations: [read, create, update, delete]}]) {
   id: ID!
-  name: String!
-  index: String!
-  pokedexNo: String!
-  height: Float!
-} 
+  owner: String!
+  username: String!
+  email: String!
+  avatar: String
+  bio: String
+}

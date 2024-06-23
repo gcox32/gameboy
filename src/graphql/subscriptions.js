@@ -5,6 +5,7 @@ export const onCreateGame = /* GraphQL */ `
   subscription OnCreateGame($filter: ModelSubscriptionGameFilterInput) {
     onCreateGame(filter: $filter) {
       id
+      owner
       title
       releaseDate
       description
@@ -27,6 +28,7 @@ export const onUpdateGame = /* GraphQL */ `
   subscription OnUpdateGame($filter: ModelSubscriptionGameFilterInput) {
     onUpdateGame(filter: $filter) {
       id
+      owner
       title
       releaseDate
       description
@@ -49,6 +51,7 @@ export const onDeleteGame = /* GraphQL */ `
   subscription OnDeleteGame($filter: ModelSubscriptionGameFilterInput) {
     onDeleteGame(filter: $filter) {
       id
+      owner
       title
       releaseDate
       description
@@ -76,6 +79,7 @@ export const onCreateSaveState = /* GraphQL */ `
       owner
       game {
         id
+        owner
         title
         releaseDate
         description
@@ -108,6 +112,7 @@ export const onUpdateSaveState = /* GraphQL */ `
       owner
       game {
         id
+        owner
         title
         releaseDate
         description
@@ -140,6 +145,7 @@ export const onDeleteSaveState = /* GraphQL */ `
       owner
       game {
         id
+        owner
         title
         releaseDate
         description
@@ -163,42 +169,51 @@ export const onDeleteSaveState = /* GraphQL */ `
     }
   }
 `;
-export const onCreatePokemon = /* GraphQL */ `
-  subscription OnCreatePokemon($filter: ModelSubscriptionPokemonFilterInput) {
-    onCreatePokemon(filter: $filter) {
+export const onCreateUserProfile = /* GraphQL */ `
+  subscription OnCreateUserProfile(
+    $filter: ModelSubscriptionUserProfileFilterInput
+  ) {
+    onCreateUserProfile(filter: $filter) {
       id
-      name
-      index
-      pokedexNo
-      height
+      owner
+      username
+      email
+      avatar
+      bio
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onUpdatePokemon = /* GraphQL */ `
-  subscription OnUpdatePokemon($filter: ModelSubscriptionPokemonFilterInput) {
-    onUpdatePokemon(filter: $filter) {
+export const onUpdateUserProfile = /* GraphQL */ `
+  subscription OnUpdateUserProfile(
+    $filter: ModelSubscriptionUserProfileFilterInput
+  ) {
+    onUpdateUserProfile(filter: $filter) {
       id
-      name
-      index
-      pokedexNo
-      height
+      owner
+      username
+      email
+      avatar
+      bio
       createdAt
       updatedAt
       __typename
     }
   }
 `;
-export const onDeletePokemon = /* GraphQL */ `
-  subscription OnDeletePokemon($filter: ModelSubscriptionPokemonFilterInput) {
-    onDeletePokemon(filter: $filter) {
+export const onDeleteUserProfile = /* GraphQL */ `
+  subscription OnDeleteUserProfile(
+    $filter: ModelSubscriptionUserProfileFilterInput
+  ) {
+    onDeleteUserProfile(filter: $filter) {
       id
-      name
-      index
-      pokedexNo
-      height
+      owner
+      username
+      email
+      avatar
+      bio
       createdAt
       updatedAt
       __typename

@@ -20,6 +20,9 @@
       },
       "auth": {
         "gameboy6eb57d28": {}
+      },
+      "api": {
+        "gameboy": {}
       }
     }
   }
