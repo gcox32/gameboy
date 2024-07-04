@@ -1,11 +1,11 @@
 import { generateClient } from 'aws-amplify/api';
 import { uploadData } from 'aws-amplify/storage';
 import { createSaveState, updateSaveState } from '../graphql/mutations';
-import { listSaveStates } from '../graphql/queries';
-import { assetsEndpointPrivate, userPoolRegion } from '../../config';
+import { listGames, listSaveStates } from '../graphql/queries';
+import { userPoolRegion } from '../../config';
+import { v4 as uuidv4 } from 'uuid';
 
-// saving functions
-export async function saveGameToS3(savePackage, game, saveModalData, userId, s3ID, previous = false) {
+export async function saveGameToS3(savePackage, game, saveModalData, userId, previous = false) {
     try {
         // Serialize the entire savePackage object into JSON
         const jsonStr = JSON.stringify(savePackage);
@@ -13,25 +13,40 @@ export async function saveGameToS3(savePackage, game, saveModalData, userId, s3I
         // Convert the JSON string to a Blob
         const blob = new Blob([jsonStr], { type: 'application/json' });
 
-        const key = previous ? saveModalData.filePath : `private/${userPoolRegion}:${userId}/${game.title}/${s3ID}/${saveModalData.title}.sav`;
+        // Generate a unique saveStateId if not updating a previous save
+        const saveStateId = previous ? saveModalData.id : uuidv4();
 
-        const s3Response = await uploadData({ path: key, data: blob }).result;
+        // Construct the key based on the new directory structure
+        const key = previous
+            ? saveModalData.filePath
+            : `private/${userPoolRegion}:${userId}/games/${game.id}/saveStates/${saveStateId}/${saveModalData.title}.sav`;
 
-        return { result: s3Response, path: key };
+        const s3Response = await uploadData({ path: key, file: blob }).result;
+
+        let imagePath = saveModalData.img || '';
+        if (saveModalData.imgFile && saveModalData.imgFile.type.startsWith('image/')) {
+            const fileType = saveModalData.imgFile.name.split('.').pop();
+            imagePath = `private/${userPoolRegion}:${userId}/games/${game.id}/saveStates/${saveStateId}/${saveModalData.title}.${fileType}`;
+            await uploadData({ path: imagePath, file: saveModalData.imgFile }).result;
+        }
+
+        return { result: s3Response, path: key, imagePath, saveStateId };
     } catch (error) {
         console.error('Error saving to S3', error);
         throw error;
     }
 }
-export async function saveGameStateToDDB(s3Key, game, saveModalData, previous = false) {
+
+export async function saveGameStateToDDB(s3Key, game, saveModalData, saveStateId, imagePath, previous = false) {
     const tzoffset = (new Date()).getTimezoneOffset() * 60000; // offset in milliseconds
     const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 
     const saveStateInput = {
+        id: saveStateId,
         filePath: s3Key,
         title: saveModalData.title || `Save at ${localISOTime}`,
         description: saveModalData.description || '',
-        img: saveModalData.img || '',
+        img: imagePath || '',
         gameSaveStatesId: game.id,
         owner: saveModalData.owner,
     };
@@ -41,7 +56,6 @@ export async function saveGameStateToDDB(s3Key, game, saveModalData, previous = 
 
         if (previous) {
             // If previous, update the existing save state
-            saveStateInput.id = saveModalData.id; // Ensure that 'id' is set for updates
             ddbResponse = await client.graphql({ query: updateSaveState, variables: { input: saveStateInput } });
         } else {
             // Otherwise, create a new save state
@@ -54,18 +68,42 @@ export async function saveGameStateToDDB(s3Key, game, saveModalData, previous = 
     }
 }
 
-export async function saveSRAM(gameboyInstance, game, saveModalData, s3ID, previous = false) {
+export async function saveSRAM(gameboyInstance, game, saveModalData, previous = false) {
     const MBCRam = gameboyInstance.saveSRAMState();
-    const savePackage = { 'MBCRam': MBCRam }
+    const savePackage = { 'MBCRam': MBCRam };
+
     if (MBCRam.length > 0) {
         console.log("Saving the SRAM...");
-        const { result, path } = await saveGameToS3(savePackage, game, saveModalData, saveModalData.owner, s3ID, previous);
-        const saveState = await saveGameStateToDDB(path, game, saveModalData, previous);
+        const { result, path, imagePath, saveStateId } = await saveGameToS3(savePackage, game, saveModalData, saveModalData.owner, previous);
+        const saveState = await saveGameStateToDDB(path, game, saveModalData, saveStateId, imagePath, previous);
         return saveState;
     }
 }
 
 // loading functions
+
+export async function fetchUserGames(userId) {
+    try {
+        const client = generateClient();
+        const gameData = await client.graphql(
+            {
+                query: listGames,
+                variables: {
+                    filter: {
+                        owner: {
+                            eq: userId,
+                        }
+                    }
+                }
+            });
+
+        return gameData.data.listGames.items;
+
+    } catch (error) {
+        console.error('Error fetching save states:', error);
+        throw error;
+    }
+};
 
 export async function fetchUserSaveStates(userId, gameId) {
     try {

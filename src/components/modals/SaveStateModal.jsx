@@ -3,7 +3,7 @@ import { uploadImageToS3 } from '../../utils/saveLoad';
 import OptionButton from './OptionButton';
 import { assetsEndpointPrivate, userPoolRegion } from '../../../config';
 
-function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, userId, s3ID }) {
+function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, userId }) {
     const [title, setTitle] = useState(initialData?.title || '');
     const [description, setDescription] = useState(initialData?.description || '');
     const [imageFile, setImageFile] = useState(initialData?.img || '');
@@ -15,15 +15,15 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
             // Handle file upload to S3 and get the key
             if (imageFile.type.startsWith('image/')) {
                 const fileType = imageFile.name.split('.').pop();
-                imagePath = `private/${userPoolRegion}:${userId}/${currentROM.title}/${s3ID}/${title}.${fileType}`;
-                await uploadImageToS3(imageFile, imagePath);
+                imagePath = `private/${userPoolRegion}:${userId}/games/${currentROM.id}/saveStates/SAVE_STATE_ID/${title}.${fileType}`;
             }
         }
 
         const saveStateData = {
             title: title,
             description: description,
-            img: imagePath
+            img: imagePath,
+            imgFile: imageFile
         };
 
         onConfirm(saveStateData);

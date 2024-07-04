@@ -3,8 +3,10 @@ import { getUrl } from 'aws-amplify/storage';
 import ConfirmModal from './modals/ConfirmModal';
 import SaveStateModal from './modals/SaveStateModal';
 import LoadStateModal from './modals/LoadStateModal';
-import { Authenticator } from '@aws-amplify/ui-react';
 import { Loader } from '@aws-amplify/ui-react';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'aws-amplify/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 function SystemControls({
     intervalPaused,
@@ -24,8 +26,7 @@ function SystemControls({
     currentROM,
     togglePanel,
     toggleMobileZoom,
-    currentUser,
-    s3ID
+    currentUser
 }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSaveStateModal, setShowSaveStateModal] = useState(false);
@@ -35,6 +36,19 @@ function SystemControls({
     const [skipConfirmation, setSkipConfirmation] = useState(false);
     const [activeROMData, setActiveROMData] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+
+    const { setUser } = useAuth();
+    const router = useRouter();
+    const handleLogout = async () => {
+        try {
+            await signOut();
+            setUser(null); 
+            // Redirect to login page
+            router.push('/auth/login');
+        } catch (error) {
+            console.error('Error signing out: ', error);
+        }
+    };
 
     const handleActionWithConfirmation = (action, message) => {
         if (skipConfirmation) {
@@ -68,7 +82,7 @@ function SystemControls({
     const handleSave = async () => {
         if (isRomLoaded && isEmulatorPlaying) {
             setIsSaving(true);
-    
+
             if (activeROMData) {
                 console.log(activeROMData);
                 onSaveConfirmed(activeROMData, true)
@@ -77,7 +91,7 @@ function SystemControls({
                     })
                     .catch((error) => {
                         console.error('Error during save:', error);
-                        setIsSaving(false); 
+                        setIsSaving(false);
                     });
             } else {
                 if (!intervalPaused) onPauseResume();
@@ -104,7 +118,7 @@ function SystemControls({
                 })
                 .catch((error) => {
                     console.error('Error during save:', error);
-                    setIsSaving(false); 
+                    setIsSaving(false);
                 });
         } catch (error) {
             console.error('Failed to save game state:', error);
@@ -149,6 +163,7 @@ function SystemControls({
         }
     };
 
+
     return (
         <>
             <div className="control-buttons">
@@ -163,7 +178,7 @@ function SystemControls({
                 <button onClick={onFullscreenToggle} disabled={!isRomLoaded} className="desktop">Fullscreen</button>
                 <button onClick={togglePanel} className="mobile">Hide</button>
                 <button onClick={toggleMobileZoom} className="mobile">Mobile Zoom</button>
-                <Authenticator >{({ signOut }) => (<button onClick={signOut}>Logout</button>)}</Authenticator>
+                <button onClick={handleLogout}>Logout</button>
             </div>
             <ConfirmModal
                 isOpen={showConfirmModal}
@@ -181,7 +196,6 @@ function SystemControls({
                 initialData={activeROMData}
                 currentROM={currentROM}
                 userId={currentUser.userId}
-                s3ID={s3ID}
             >
             </SaveStateModal>
             <LoadStateModal
@@ -190,7 +204,6 @@ function SystemControls({
                 saveStates={userSaveStates}
                 onConfirm={handleSelectSaveState}
                 userId={currentUser.userId}
-                s3ID={s3ID}
             >
             </LoadStateModal>
         </ >

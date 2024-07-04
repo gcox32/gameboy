@@ -84,6 +84,11 @@ p.amplify-text:hover {
   border-radius: 8px;
 }
 
+.amplify-tabs__list--equal {
+  width: 92%;
+  margin: auto;
+}
+
 /* Gameboy specific styling */
 
 html {
@@ -114,7 +119,7 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
-  background-position: 100px 0;
+  /* background-position: 100px 0; */
   transition: 1s ease-in-out;
   /* background-color: rgb(49, 143, 205); */
   background-color: #282c34;
