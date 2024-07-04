@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { signIn, getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Amplify } from 'aws-amplify';
 import awsconfig from '../../../aws-exports';
+import { authedRoute } from '../../../../config';
 
 Amplify.configure(awsconfig);
 
@@ -16,7 +18,6 @@ export default function Login() {
     const [error, setError] = useState(null);
     const router = useRouter();
     const { user, setUser, loading } = useAuth();
-    const authedRoute = '/play';
 
     useEffect(() => {
         if (!loading && user) {
@@ -133,6 +134,11 @@ export default function Login() {
                 <button type="submit">Login</button>
             </form>
             {error && <p role="alert">{error}</p>}
+            
+            {/* Add this new section for the sign-up link */}
+            <div style={{ marginTop: '20px' }}>
+                Don't have an account? <Link href="/auth/signup">Sign up</Link>
+            </div>
         </div>
     );
 }

@@ -1,10 +1,130 @@
 'use client';
+
+import { useState, useEffect } from 'react';
+import { confirmSignUp, signIn, getCurrentUser } from 'aws-amplify/auth';
+import { generateClient } from 'aws-amplify/api';
+import { createUserProfile } from '../../../graphql/mutations';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { Amplify } from 'aws-amplify';
+import awsconfig from '../../../aws-exports';
+import { authedRoute } from '../../../../config';
+
+Amplify.configure(awsconfig);
+
+const client = generateClient();
+
 export default function ConfirmSignUp() {
-  return (
-    <div>
-      <h1>Confirm Sign Up</h1>
-      <p>Please enter the verification code sent to your email.</p>
-      {/* Add confirmation code input form here */}
-    </div>
-  );
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmationCode, setConfirmationCode] = useState('');
+    const [error, setError] = useState(null);
+    const [message, setMessage] = useState(null);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { setUser } = useAuth();
+
+    useEffect(() => {
+        const username = searchParams.get('username');
+        const email = searchParams.get('email');
+        const password = decodeURIComponent(searchParams.get('password') || '');
+
+        if (username) setUsername(username);
+        if (email) setEmail(email);
+        if (password) setPassword(password);
+    }, [searchParams]);
+
+    const handleConfirmSignUp = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setMessage(null);
+
+        try {
+            // Step 1: Confirm sign up
+            await confirmSignUp({
+                username,
+                confirmationCode
+            });
+
+            setMessage('Account confirmed. Signing in...');
+
+            // Step 2: Sign in the user
+            if (!password) {
+                throw new Error('Password is missing. Please try signing up again.');
+            }
+
+            const { isSignedIn } = await signIn({ username, password });
+
+            if (isSignedIn) {
+                setMessage('Signed in. Creating user profile...');
+
+                // Step 3: Get current user and create profile
+                const user = await getCurrentUser();
+                await createUserProfileForSignedUpUser(user.userId, username, email);
+
+                // Update the user in the AuthContext
+                setUser(user);
+
+                setMessage('Profile created. Redirecting to game...');
+                router.push(authedRoute);
+            } else {
+                setError('Sign in failed after confirmation.');
+            }
+        } catch (err) {
+            if (err.message.includes('User cannot be confirmed. Current status is CONFIRMED')) {
+                setMessage('Your account is already confirmed. Redirecting to game...');
+                // Try to sign in the user if they're already confirmed
+                try {
+                    await signIn({ username, password });
+                    const user = await getCurrentUser();
+                    setUser(user);
+                    router.push(authedRoute);
+                } catch (signInError) {
+                    setError('Failed to sign in. Please try logging in manually.');
+                    router.push('/auth/login');
+                }
+            } else {
+                setError(err.message);
+            }
+        }
+    };
+
+    const createUserProfileForSignedUpUser = async (owner, username, email) => {
+        try {
+            const newUserProfile = {
+                owner,
+                username,
+                email,
+                avatar: '',
+                bio: ''
+            };
+
+            await client.graphql({
+                query: createUserProfile,
+                variables: { input: newUserProfile }
+            });
+        } catch (err) {
+            console.error('Error creating user profile:', err);
+            throw err;
+        }
+    };
+
+    return (
+        <div>
+            <h2>Confirm Sign Up</h2>
+            <form onSubmit={handleConfirmSignUp}>
+                <input
+                    type="text"
+                    placeholder="Confirmation Code"
+                    value={confirmationCode}
+                    onChange={(e) => setConfirmationCode(e.target.value)}
+                    required
+                />
+                <button type="submit">Confirm</button>
+            </form>
+            {error && <p role="alert" style={{color: 'red'}}>{error}</p>}
+            {message && <p role="status">{message}</p>}
+        </div>
+    );
 }

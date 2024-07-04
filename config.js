@@ -1,6 +1,8 @@
 export var DEBUG_MESSAGES = false;
 export var DEBUG_WINDOWING = false;
 
+export const authedRoute = '/play';
+
 export const assetsEndpoint = 'https://assets.letmedemo.com/';
 export const userPoolRegion = 'us-east-1';
 export const assetsEndpointPublic = `${assetsEndpoint}public/`;

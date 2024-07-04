@@ -20,12 +20,12 @@ export default function SignUp() {
     const handleSignUp = async (e) => {
         e.preventDefault();
         setError(null);
-
+    
         if (!agreeToTerms) {
             setError('You must agree to the Terms and Conditions and Privacy Policy');
             return;
         }
-
+    
         try {
             const { isSignUpComplete, userId, nextStep } = await signUp({
                 username,
@@ -34,29 +34,18 @@ export default function SignUp() {
                     userAttributes: {
                         email
                     },
-                    // You can add more options here as needed
                 }
             });
-
+    
             if (isSignUpComplete) {
-                router.push('/auth/login'); // Redirect to login page after successful signup
+                router.push('/auth/login');
             } else {
-                // Handle next steps (e.g., email verification)
-                handleNextStep(nextStep.signUpStep);
+                // Encode the password to make it URL-safe
+                const encodedPassword = encodeURIComponent(password);
+                router.push(`/auth/confirm-signup?username=${username}&email=${email}&password=${encodedPassword}`);
             }
         } catch (err) {
             setError(err.message);
-        }
-    };
-
-    const handleNextStep = (step) => {
-        switch (step) {
-            case 'CONFIRM_SIGN_UP':
-                router.push('/auth/confirm-signup');
-                break;
-            // Add more cases as needed
-            default:
-                setError('Unexpected signup step');
         }
     };
 
@@ -92,7 +81,7 @@ export default function SignUp() {
                         onChange={(e) => setAgreeToTerms(e.target.checked)}
                         required
                     />
-                    I agree to the <Link href="/terms">Terms and Conditions</Link> and have read the <Link href="/privacy-policy">Privacy Policy</Link>
+                    I agree to the <Link href="/terms">Terms and Conditions</Link> and <Link href="/privacy-policy">Privacy Policy</Link>
                 </label>
                 <button type="submit">Sign Up</button>
             </form>
