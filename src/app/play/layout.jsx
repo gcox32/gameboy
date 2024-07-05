@@ -3,7 +3,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-// styles
 import '../../styles/styles.css';
 import '../../styles/modal.css';
 
@@ -27,10 +26,6 @@ export default function PlayLayout({ children }) {
 
     return (
         <div>
-            {/* Common authenticated layout element */}
-            <nav>
-                {/* Add navigation items here */}
-            </nav>
             {children}
         </div>
     );

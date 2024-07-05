@@ -3,8 +3,9 @@ import "./globals.css";
 import { AuthProvider } from '../contexts/AuthContext';
 import { Amplify } from 'aws-amplify';
 import awsconfig from '../aws-exports';
+import Nav from '@/components/Nav';
+import Footer from '@/components/Footer';
 
-// styles
 import '../styles/styles.css';
 import '../styles/modal.css';
 
@@ -27,7 +28,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
+          <Nav />
           {children}
+          <Footer />
         </AuthProvider>
       </body>
     </html>
