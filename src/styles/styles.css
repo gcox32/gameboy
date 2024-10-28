@@ -115,14 +115,10 @@ body {
   border: none;
   margin: 0;
   padding: 0;
-  /* background-image: url(''); */
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
-  /* background-position: 100px 0; */
   transition: 1s ease-in-out;
-  /* background-color: rgb(49, 143, 205); */
-  background-color: #282c34;
 }
 
 /* full screen */

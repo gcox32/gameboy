@@ -6,12 +6,16 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateClient } from 'aws-amplify/api';
 import { listUserProfiles } from '@/graphql/queries';
+import ProfileModal from '@/components/modals/ProfileModal';
 
 const client = generateClient();
 
 const Nav = () => {
-    const { user } = useAuth();
+    const { user, signOut } = useAuth();
     const [userProfile, setUserProfile] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -31,7 +35,7 @@ const Nav = () => {
                     }
                 }
             });
-            
+
             const profiles = response.data.listUserProfiles.items;
             if (profiles.length > 0) {
                 setUserProfile(profiles[0]);
@@ -41,38 +45,81 @@ const Nav = () => {
         }
     };
 
+    const handleProfileClick = () => {
+        setShowDropdown(!showDropdown);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await signOut();
+            setShowDropdown(false);
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    };
+
+    const openProfileModal = () => {
+        setIsProfileModalOpen(true);
+        setShowDropdown(false);
+    };
+
+    const closeProfileModal = () => {
+        setIsProfileModalOpen(false);
+    };
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
     return (
-        <nav className="nav-container">
-            <div className="nav-left">
-                <Link href="/play">Play</Link>
-                <Link href="/about">About</Link>
-                <Link href="/contact">Contact</Link>
-            </div>
-            <div className="nav-right">
-                {user ? (
-                    <div className="profile-container">
-                        <Link href="/profile">
-                            {userProfile && userProfile.avatar ? (
-                                <Image
-                                    src={userProfile.avatar}
-                                    alt="Profile"
-                                    title="Profile"
-                                    width={40}
-                                    height={40}
-                                    className="avatar"
-                                />
-                            ) : (
-                                <div className="avatar-placeholder">
-                                    {userProfile ? userProfile.username.charAt(0).toUpperCase() : ''}
+        <>
+            <nav className="nav-container">
+                <div className="hamburger" onClick={toggleMenu}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
+                    <Link href="/play" onClick={() => setIsMenuOpen(false)}>Play</Link>
+                    <Link href="/about" onClick={() => setIsMenuOpen(false)}>About</Link>
+                    <Link href="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+                    {user ? (
+                        <div className="profile-container">
+                            <div onClick={handleProfileClick}>
+                                {userProfile && userProfile.avatar ? (
+                                    <Image
+                                        src={userProfile.avatar}
+                                        alt={userProfile.username}
+                                        title={userProfile.username}
+                                        width={40}
+                                        height={40}
+                                        className="avatar"
+                                    />
+                                ) : (
+                                    <div className="avatar-placeholder">
+                                        {userProfile ? userProfile.username.charAt(0).toUpperCase() : ''}
+                                    </div>
+                                )}
+                            </div>
+                            {showDropdown && (
+                                <div className="profile-dropdown">
+                                    <button onClick={openProfileModal}>Profile</button>
+                                    <button>Settings</button>
+                                    <button onClick={handleLogout}>Logout</button>
                                 </div>
                             )}
-                        </Link>
-                    </div>
-                ) : (
-                    <Link href="/auth/login">Login</Link>
-                )}
-            </div>
-        </nav>
+                        </div>
+                    ) : (
+                        <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                    )}
+                </div>
+            </nav>
+            <ProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={closeProfileModal}
+                userProfile={userProfile}
+            />
+        </>
     );
 };
 
