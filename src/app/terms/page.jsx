@@ -4,7 +4,7 @@ export default function TermsAndConditions() {
         <h1>Terms and Conditions</h1>
         <p>Last updated: [Current Date]</p>
         <p>
-          Please read these Terms and Conditions ("Terms", "Terms and Conditions") carefully before using the [Your Website URL] website (the "Service") operated by JS GBC ("us", "we", or "our").
+          Please read these Terms and Conditions (&quot;Terms&quot;, &quot;Terms and Conditions&quot;) carefully before using the [Your Website URL] website (the &quot;Service&quot;) operated by JS GBC (&quot;us&quot;, &quot;we&quot;, or &quot;our&quot;).
         </p>
         <h2>1. Terms</h2>
         <p>By accessing the Service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service.</p>

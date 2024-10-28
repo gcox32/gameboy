@@ -137,7 +137,7 @@ export default function Login() {
             
             {/* Add this new section for the sign-up link */}
             <div style={{ marginTop: '20px' }}>
-                Don't have an account? <Link href="/auth/signup">Sign up</Link>
+                Don&apos;t have an account? <Link href="/auth/signup">Sign up</Link>
             </div>
         </div>
     );

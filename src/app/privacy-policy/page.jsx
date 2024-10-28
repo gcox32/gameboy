@@ -4,7 +4,7 @@ export default function PrivacyPolicy() {
         <h1>Privacy Policy</h1>
         <p>Last updated: [Current Date]</p>
         <p>
-          This Privacy Policy describes how JS GBC ("we", "us", or "our") collects, uses, and discloses your personal information when you use our website [Your Website URL] (the "Service").
+          This Privacy Policy describes how JS GBC (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and discloses your personal information when you use our website [Your Website URL] (the &quot;Service&quot;).
         </p>
         <h2>Information We Collect</h2>
         {/* Add more sections here */}
