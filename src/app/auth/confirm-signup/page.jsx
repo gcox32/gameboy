@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { confirmSignUp, signIn, getCurrentUser } from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/api';
 import { createUserProfile } from '../../../graphql/mutations';
@@ -14,7 +14,7 @@ Amplify.configure(awsconfig);
 
 const client = generateClient();
 
-export default function ConfirmSignUp() {
+function ConfirmSignUpComponent() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -126,5 +126,13 @@ export default function ConfirmSignUp() {
             {error && <p role="alert" style={{color: 'red'}}>{error}</p>}
             {message && <p role="status">{message}</p>}
         </div>
+    );
+}
+
+export default function ConfirmSignUp() {
+    return (
+        <Suspense fallback={<p>Loading...</p>}>
+            <ConfirmSignUpComponent />
+        </Suspense>
     );
 }
