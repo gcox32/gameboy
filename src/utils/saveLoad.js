@@ -12,7 +12,7 @@ export async function saveGameToS3(savePackage, game, saveModalData, userId, pre
 
         // Convert the JSON string to a Blob
         const blob = new Blob([jsonStr], { type: 'application/json' });
-
+        console.log(blob);
         // Generate a unique saveStateId if not updating a previous save
         const saveStateId = previous ? saveModalData.id : uuidv4();
 
@@ -20,8 +20,9 @@ export async function saveGameToS3(savePackage, game, saveModalData, userId, pre
         const key = previous
             ? saveModalData.filePath
             : `private/${userPoolRegion}:${userId}/games/${game.id}/saveStates/${saveStateId}/${saveModalData.title}.sav`;
-
-        const s3Response = await uploadData({ path: key, file: blob }).result;
+        console.log(key);
+        console.log(typeof blob);
+        const s3Response = await uploadData({ path: key, data: blob }).result;
 
         let imagePath = saveModalData.img || '';
         if (saveModalData.imgFile && saveModalData.imgFile.type.startsWith('image/')) {
@@ -29,7 +30,7 @@ export async function saveGameToS3(savePackage, game, saveModalData, userId, pre
             imagePath = `private/${userPoolRegion}:${userId}/games/${game.id}/saveStates/${saveStateId}/${saveModalData.title}.${fileType}`;
             await uploadData({ path: imagePath, file: saveModalData.imgFile }).result;
         }
-
+        
         return { result: s3Response, path: key, imagePath, saveStateId };
     } catch (error) {
         console.error('Error saving to S3', error);

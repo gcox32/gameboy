@@ -8,8 +8,9 @@ function PartySlot({ pokemon, onClick }) {
             <div>
                 <Image 
                     src={ `${pokemonGifEndpoint}${pokemon.pokedexNo}.gif` } 
-                    alt={pokemon.speciesName} 
+                    alt={pokemon.speciesName ? pokemon.speciesName : "species name"} 
                     layout="fill"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     objectFit="contain"
                     style={{borderRadius:"50%"}}
                 />
