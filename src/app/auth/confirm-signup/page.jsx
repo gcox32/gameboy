@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Amplify } from 'aws-amplify';
 import awsconfig from '../../../aws-exports';
 import { authedRoute } from '../../../../config';
+import '@/styles/auth.css';
 
 Amplify.configure(awsconfig);
 
@@ -111,20 +112,21 @@ function ConfirmSignUpComponent() {
     };
 
     return (
-        <div>
-            <h2>Confirm Sign Up</h2>
-            <form onSubmit={handleConfirmSignUp}>
+        <div className="container">
+            <h2 className="title">Confirm Sign Up</h2>
+            <form onSubmit={handleConfirmSignUp} className="form">
                 <input
                     type="text"
                     placeholder="Confirmation Code"
                     value={confirmationCode}
                     onChange={(e) => setConfirmationCode(e.target.value)}
                     required
+                    className="input"
                 />
-                <button type="submit">Confirm</button>
+                <button type="submit" className="button">Confirm</button>
             </form>
-            {error && <p role="alert" style={{color: 'red'}}>{error}</p>}
-            {message && <p role="status">{message}</p>}
+            {error && <p role="alert" className="error">{error}</p>}
+            {message && <p role="status" className="status-message">{message}</p>}
         </div>
     );
 }

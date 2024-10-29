@@ -1,11 +1,14 @@
+import '@/styles/public.css';
+
 const ContactPage = () => {
-    return (
-      <div>
-        <h1>Contact Page</h1>
-        <p>This is the contact page.</p>
+  return (
+      <div className="container">
+          <h1 className="title">Contact Page</h1>
+          <p className="paragraph">This is the contact page.</p>
       </div>
-    );
-  };
-  
-  export default ContactPage;
+  );
+};
+
+export default ContactPage;
+
   

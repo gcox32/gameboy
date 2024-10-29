@@ -1,27 +1,42 @@
+import '@/styles/public.css';
+
 export default function TermsAndConditions() {
-    return (
-      <div>
-        <h1>Terms and Conditions</h1>
-        <p>Last updated: [Current Date]</p>
-        <p>
-          Please read these Terms and Conditions (&quot;Terms&quot;, &quot;Terms and Conditions&quot;) carefully before using the [Your Website URL] website (the &quot;Service&quot;) operated by JS GBC (&quot;us&quot;, &quot;we&quot;, or &quot;our&quot;).
-        </p>
-        <h2>1. Terms</h2>
-        <p>By accessing the Service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service.</p>
-        <h2>2. Use License</h2>
-        {/* Add more sections here */}
-        <h2>3. Disclaimer</h2>
-        {/* Add more sections here */}
-        <h2>4. Limitations</h2>
-        {/* Add more sections here */}
-        <h2>5. Revisions and Errata</h2>
-        {/* Add more sections here */}
-        <h2>6. Links</h2>
-        {/* Add more sections here */}
-        <h2>7. Site Terms of Use Modifications</h2>
-        {/* Add more sections here */}
-        <h2>8. Governing Law</h2>
-        {/* Add more sections here */}
-      </div>
-    );
+  return (
+    <div className="container">
+        <header>
+            <h1 className="title">Privacy Policy</h1>
+            <p className="last-updated">Last updated: [Current Date]</p>
+        </header>
+        <section>
+            <p className="paragraph">
+                This Privacy Policy describes how JS GBC ("we", "us", or "our") collects, uses, and discloses your personal information when you use our website [Your Website URL] (the "Service").
+            </p>
+        </section>
+        <section>
+            <h2 className="section-title">Information We Collect</h2>
+            {/* Add more sections here */}
+        </section>
+        <section>
+            <h2 className="section-title">How We Use Your Information</h2>
+            {/* Add more sections here */}
+        </section>
+        <section>
+            <h2 className="section-title">Data Storage and Security</h2>
+            {/* Add more sections here */}
+        </section>
+        <section>
+            <h2 className="section-title">Your Rights</h2>
+            {/* Add more sections here */}
+        </section>
+        <section>
+            <h2 className="section-title">Changes to This Privacy Policy</h2>
+            {/* Add more sections here */}
+        </section>
+        <section>
+            <h2 className="section-title">Contact Us</h2>
+            <p className="paragraph">If you have any questions about this Privacy Policy, please contact us at: [Your Contact Email]</p>
+        </section>
+    </div>
+);
+
   }

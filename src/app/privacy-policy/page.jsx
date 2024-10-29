@@ -1,23 +1,41 @@
+import '@/styles/public.css';
+
 export default function PrivacyPolicy() {
-    return (
-      <div>
-        <h1>Privacy Policy</h1>
-        <p>Last updated: [Current Date]</p>
-        <p>
-          This Privacy Policy describes how JS GBC (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and discloses your personal information when you use our website [Your Website URL] (the &quot;Service&quot;).
+  return (
+    <div className="container">
+      <header>
+        <h1 className="title">Privacy Policy</h1>
+        <p className="last-updated">Last updated: [Current Date]</p>
+      </header>
+      <section>
+        <p className="paragraph">
+          This Privacy Policy describes how JS GBC ("we", "us", or "our") collects, uses, and discloses your personal information when you use our website [Your Website URL] (the "Service").
         </p>
-        <h2>Information We Collect</h2>
+      </section>
+      <section>
+        <h2 className="section-title">Information We Collect</h2>
         {/* Add more sections here */}
-        <h2>How We Use Your Information</h2>
+      </section>
+      <section>
+        <h2 className="section-title">How We Use Your Information</h2>
         {/* Add more sections here */}
-        <h2>Data Storage and Security</h2>
+      </section>
+      <section>
+        <h2 className="section-title">Data Storage and Security</h2>
         {/* Add more sections here */}
-        <h2>Your Rights</h2>
+      </section>
+      <section>
+        <h2 className="section-title">Your Rights</h2>
         {/* Add more sections here */}
-        <h2>Changes to This Privacy Policy</h2>
+      </section>
+      <section>
+        <h2 className="section-title">Changes to This Privacy Policy</h2>
         {/* Add more sections here */}
-        <h2>Contact Us</h2>
-        <p>If you have any questions about this Privacy Policy, please contact us at: [Your Contact Email]</p>
-      </div>
-    );
-  }
+      </section>
+      <section>
+        <h2 className="section-title">Contact Us</h2>
+        <p className="paragraph">If you have any questions about this Privacy Policy, please contact us at: [Your Contact Email]</p>
+      </section>
+    </div>
+  );
+}

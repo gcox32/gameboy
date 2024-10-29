@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Amplify } from 'aws-amplify';
 import awsconfig from '../../../aws-exports';
 import { authedRoute } from '../../../../config';
+import '@/styles/auth.css';
 
 Amplify.configure(awsconfig);
 
@@ -106,15 +107,16 @@ export default function Login() {
     }
 
     return (
-        <div>
-            <h1>Login</h1>
-            <form onSubmit={handleLogin}>
+        <div className="container">
+            <h1 className="title">Login</h1>
+            <form onSubmit={handleLogin} className="form">
                 <input
                     type="text"
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
+                    className="input"
                 />
                 <input
                     type="password"
@@ -122,23 +124,25 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    className="input"
                 />
-                <label>
+                <label className="checkbox-label">
                     <input
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
+                        className="checkbox"
                     />
                     Remember Me
                 </label>
-                <button type="submit">Login</button>
+                <button type="submit" className="button">Login</button>
             </form>
-            {error && <p role="alert">{error}</p>}
+            {error && <p className="error" role="alert">{error}</p>}
             
-            {/* Add this new section for the sign-up link */}
-            <div style={{ marginTop: '20px' }}>
-                Don&apos;t have an account? <Link href="/auth/signup">Sign up</Link>
+            <div className="signup-prompt">
+                Don&apos;t have an account? <Link href="/auth/signup" className="signup-link">Sign up</Link>
             </div>
         </div>
     );
+    
 }

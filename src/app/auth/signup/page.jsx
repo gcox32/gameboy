@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Amplify } from 'aws-amplify';
 import awsconfig from '../../../aws-exports';
+import '@/styles/auth.css';
 
 Amplify.configure(awsconfig);
 
@@ -50,15 +51,16 @@ export default function SignUp() {
     };
 
     return (
-        <div>
-            <h1>Sign Up</h1>
-            <form onSubmit={handleSignUp}>
+        <div className="container">
+            <h1 className="title">Sign Up</h1>
+            <form onSubmit={handleSignUp} className="form">
                 <input
                     type="text"
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
+                    className="input"
                 />
                 <input
                     type="email"
@@ -66,6 +68,7 @@ export default function SignUp() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    className="input"
                 />
                 <input
                     type="password"
@@ -73,20 +76,24 @@ export default function SignUp() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    className="input"
                 />
-                <label>
+                <label className="checkbox-label">
                     <input
                         type="checkbox"
                         checked={agreeToTerms}
                         onChange={(e) => setAgreeToTerms(e.target.checked)}
                         required
+                        className="checkbox"
                     />
-                    I agree to the <Link href="/terms">Terms and Conditions</Link> and <Link href="/privacy-policy">Privacy Policy</Link>
+                    I agree to the <Link href="/terms" className="link">Terms and Conditions</Link> and <Link href="/privacy-policy" className="link">Privacy Policy</Link>
                 </label>
-                <button type="submit">Sign Up</button>
+                <button type="submit" className="button">Sign Up</button>
             </form>
-            {error && <p role="alert">{error}</p>}
-            <p>Already have an account? <Link href="/auth/login">Log in</Link></p>
+            {error && <p className="error" role="alert">{error}</p>}
+            
+            <p className="footer-text">Already have an account? <Link href="/auth/login" className="link">Log in</Link></p>
         </div>
     );
+    
 }
