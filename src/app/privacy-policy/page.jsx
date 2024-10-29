@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
       </header>
       <section>
         <p className="paragraph">
-          This Privacy Policy describes how JS GBC ("we", "us", or "our") collects, uses, and discloses your personal information when you use our website [Your Website URL] (the "Service").
+          This Privacy Policy describes how JS GBC (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and discloses your personal information when you use our website [Your Website URL] (the &quot;Service&quot;).
         </p>
       </section>
       <section>
