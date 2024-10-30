@@ -35,7 +35,6 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 					}
 					return state;
 				}));
-				console.log(statesWithImages);
 				setUpdatedSaveStates(statesWithImages);
 			} catch (error) {
 				console.error('Error fetching image URLs:', error);

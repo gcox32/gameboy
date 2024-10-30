@@ -4,17 +4,21 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { generateClient } from 'aws-amplify/api';
 import { listUserProfiles } from '@/graphql/queries';
 import ProfileModal from '@/components/modals/ProfileModal';
+import SettingsModal from '@/components/modals/SettingsModal';
 
 const client = generateClient();
 
 const Nav = () => {
     const { user, signOut } = useAuth();
+    const { uiSettings, updateUISettings } = useSettings();
     const [userProfile, setUserProfile] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -63,8 +67,21 @@ const Nav = () => {
         setShowDropdown(false);
     };
 
+    const openSettingsModal = () => {
+        setIsSettingsModalOpen(true);
+        setShowDropdown(false);
+    }
+
     const closeProfileModal = () => {
         setIsProfileModalOpen(false);
+    };
+
+    const closeSettingsModal = () => {
+        setIsSettingsModalOpen(false);
+    }
+
+    const handleSettingsUpdate = (newSettings) => {
+        updateUISettings(newSettings);
     };
 
     const toggleMenu = () => {
@@ -104,7 +121,7 @@ const Nav = () => {
                             {showDropdown && (
                                 <div className="profile-dropdown">
                                     <button onClick={openProfileModal}>Profile</button>
-                                    <button>Settings</button>
+                                    <button onClick={openSettingsModal}>Settings</button>
                                     <button onClick={handleLogout}>Logout</button>
                                 </div>
                             )}
@@ -118,6 +135,12 @@ const Nav = () => {
                 isOpen={isProfileModalOpen}
                 onClose={closeProfileModal}
                 userProfile={userProfile}
+            />
+            <SettingsModal
+                isOpen={isSettingsModalOpen}
+                onClose={closeSettingsModal}
+                settings={uiSettings}
+                onSettingsChange={handleSettingsUpdate}
             />
         </>
     );

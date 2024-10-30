@@ -35,10 +35,9 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
                 <div className="pokemon-details-section centered top" onClick={handleImageClick}>
                     <Image 
                         src={`${currentImageUrl}${pokemon.pokedexNo}.png`} 
-                        style={{cursor: "pointer"}}
+                        style={{cursor: "pointer", objectFit: "contain"}}
                         alt={pokemon.speciesName} 
-                        layout="fill"   
-                        objectFit="contain" 
+                        fill  
                     />
                 </div>
                 {/* Moves */}

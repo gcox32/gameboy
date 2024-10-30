@@ -83,7 +83,7 @@ div[class~='dragon-type'] {
   min-width: 1000px;
   position: absolute;
   bottom: 10px;
-  z-index: 4;
+  z-index: 3;
   margin-top: 20px;
 }
 

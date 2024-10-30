@@ -12,10 +12,6 @@ function SystemControls({
     intervalPaused,
     onPauseResume,
     onReset,
-    initSound,
-    isSoundOn,
-    speed,
-    onSpeedChange,
     isEmulatorPlaying,
     onPowerToggle,
     onFullscreenToggle,
@@ -25,7 +21,6 @@ function SystemControls({
     runFromSaveState,
     currentROM,
     togglePanel,
-    toggleMobileZoom,
     currentUser
 }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -168,8 +163,6 @@ function SystemControls({
         <>
             <div className="control-buttons">
                 <button onClick={handlePowerToggleConfirm} disabled={!isRomLoaded}>{isEmulatorPlaying ? "Off" : "New Game"}</button>
-                <input className="speed-control" type="number" step="0.5" value={speed} onChange={onSpeedChange} disabled={!isRomLoaded} title="game speed multiple" />
-                <button id="enable-sound" onClick={initSound} disabled={!isRomLoaded}>{isSoundOn ? 'Sound: Off' : 'Sound: On'}</button>
                 <button id="pause-resume-btn" onClick={onPauseResume} disabled={!isEmulatorPlaying}>{intervalPaused ? "Resume" : "Pause"}</button>
                 <button onClick={handleResetConfirm} disabled={!isEmulatorPlaying}>Reset</button>
                 <button onClick={handleLoadSaveState} disabled={!isRomLoaded || isEmulatorPlaying || userSaveStates.length === 0} id="load-btn">Load State</button>
@@ -177,7 +170,6 @@ function SystemControls({
                 <button onClick={handleSaveAs} disabled={!isEmulatorPlaying} >{isSaving ? (<Loader />) : 'Save As'}</button>
                 <button onClick={onFullscreenToggle} disabled={!isRomLoaded} className="desktop">Fullscreen</button>
                 <button onClick={togglePanel} className="mobile">Hide</button>
-                <button onClick={toggleMobileZoom} className="mobile">Mobile Zoom</button>
                 <button onClick={handleLogout}>Logout</button>
             </div>
             <ConfirmModal

@@ -20,7 +20,6 @@ export function parseParty(dataArray) {
             otName: translateIntegerArray(dataArray.slice(otNameOffset, otNameOffset + 11)),
             nickname: translateIntegerArray(dataArray.slice(nicknameOffset, nicknameOffset + 11))
         };
-        console.log(pokemonData);
         partyData.pokemonList.push(pokemonData);
     }
 

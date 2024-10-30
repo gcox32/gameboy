@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 
 import '../styles/styles.css';
 import '../styles/modal.css';
+import { SettingsProvider } from "@/contexts/SettingsContext";
 
 Amplify.configure(awsconfig);
 
@@ -28,9 +29,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <Nav />
-          {children}
-          <Footer />
+          <SettingsProvider>
+            <Nav />
+            {children}
+            <Footer />
+          </SettingsProvider>
         </AuthProvider>
       </body>
     </html>

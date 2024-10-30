@@ -18,6 +18,7 @@ import {
 } from '../../utils/GameBoyIO';
 import { saveSRAM, fetchUserSaveStates } from '../../utils/saveLoad';
 import { publicGamesEndpoint, backgroundEndpoint } from '../../../config';
+import { useSettings } from '@/contexts/SettingsContext';
 
 
 // Amplify auth
@@ -28,6 +29,11 @@ import awsconfig from '../../aws-exports';
 Amplify.configure(awsconfig);
 
 export default function App() {
+
+	// Get settings from context
+	const { uiSettings, updateUISettings, emulatorSettings } = useSettings();
+	const { speed, isSoundOn, mobileZoom } = uiSettings;	
+
 	// Refs to access the DOM elements
 	const gameBoyInstance = useRef(null);
 	const runInterval = useRef(null);
@@ -45,17 +51,43 @@ export default function App() {
 	const [activeState, setActiveState] = useState(null);
 	const [activeSaveArray, setActiveSaveArray] = useState([]);
 	const [isRomLoaded, setIsRomLoaded] = useState(false);
-	const [speed, setSpeed] = useState(1);
-	const [isSoundOn, setIsSoundOn] = useState(settings[0]);
+	// const [speed, setSpeed] = useState(1);
+	// const [isSoundOn, setIsSoundOn] = useState(settings[0]);
 	const [intervalPaused, setIntervalPaused] = useState(false);
 	const [isEmulatorPlaying, setIsEmulatorPlaying] = useState(false);
 	const [isEmulatorOn, setIsEmulatorOn] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [fullscreenBackground, setFullscreenBackground] = useState('');
-	const [mobileZoom, setMobileZoom] = useState(false);
+	// const [mobileZoom, setMobileZoom] = useState(false);
 
 	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
+
+    // Add this effect to sync settings with the emulator
+    useEffect(() => {
+        if (gameBoyInstance.current && isEmulatorPlaying) {
+            // Update speed
+            gameBoyInstance.current.setSpeed(speed);
+            
+            // Update interval if running
+            if (runInterval.current) {
+                clearInterval(runInterval.current);
+                runInterval.current = setInterval(() => {
+                    if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
+                        gameBoyInstance.current.run();
+                    }
+                }, settings[6]); // settings[6] is the interval
+            }
+            
+            // Update sound
+            if (settings[0] !== isSoundOn) {
+                settings[0] = isSoundOn;
+                if (gameBoyInstance.current.audioHandle) {
+                    gameBoyInstance.current.initSound();
+                }
+            }
+        }
+    }, [speed, isSoundOn, isEmulatorPlaying]);
 
 	useEffect(() => {
 		checkAuthState();
@@ -71,8 +103,7 @@ export default function App() {
 		} finally {
 			setIsLoading(false);
 		}
-	}
-
+	};
 	const run = (gameboyInstance) => {
 		setIntervalPaused(false);
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
@@ -180,16 +211,7 @@ export default function App() {
 			// console.error("GameBoy instance is not initialized.");
 		}
 	}
-	const handleSpeedChange = (e) => {
-		const newSpeed = e.target.value;
-		if (GameBoyEmulatorInitialized(gameBoyInstance.current)) {
-			if (newSpeed !== null && newSpeed.length > 0) {
-				const parsedSpeed = Math.max(parseFloat(newSpeed), 0.001);
-				gameBoyInstance.current.setSpeed(parsedSpeed);
-				setSpeed(parsedSpeed);
-			}
-		}
-	};
+
 	const handleReset = () => {
 		if (ROMImage) {
 			console.log("Resetting GameBoy with the same ROM...");
@@ -254,17 +276,24 @@ export default function App() {
 	},
 		[isFullscreen, gameBoyInstance]
 	);
-	const initSound = () => {
-		if (isSoundOn) {
-			settings[0] = false;
-			setIsSoundOn(false);
-		} else {
-			settings[0] = true;
-			setIsSoundOn(true);
+	// Update your handlers to use the new context
+	const handleSpeedChange = (e) => {
+		const newSpeed = e.target.value;
+		if (GameBoyEmulatorInitialized(gameBoyInstance.current)) {
+			if (newSpeed !== null && newSpeed.length > 0) {
+				const parsedSpeed = Math.max(parseFloat(newSpeed), 0.001);
+				updateUISettings({ speed: parsedSpeed });
+			}
 		}
+	};
+	const initSound = () => {
+		updateUISettings({ isSoundOn: !isSoundOn });
 		if (GameBoyEmulatorInitialized(gameBoyInstance.current) && gameBoyInstance.current) {
 			gameBoyInstance.current.initSound();
 		}
+	};
+	const toggleMobileZoom = () => {
+		updateUISettings({ mobileZoom: !mobileZoom });
 	};
 	const onSaveConfirmed = async (saveModalData, previous = false) => {
 		saveModalData.owner = currentUser.userId;
@@ -298,10 +327,6 @@ export default function App() {
 		setIsEmulatorPlaying(true);
 		setActiveState(selectedSaveState);
 		setActiveSaveArray(sramArray);
-	};
-
-	const toggleMobileZoom = () => {
-		setMobileZoom(!mobileZoom);
 	};
 
 	// Maintain authenticated user information
@@ -338,34 +363,35 @@ export default function App() {
 		[intervalPaused]
 	);
 	// Initialize gameBoyInstance with the first ROMImage on component mount
-	useEffect(() => {
-		if (ROMImage) {
-			try {
-				console.log("Clearing previous emulation...");
-				clearLastEmulation(gameBoyInstance.current, runInterval);
+    useEffect(() => {
+        if (ROMImage) {
+            try {
+                console.log("Clearing previous emulation...");
+                clearLastEmulation(gameBoyInstance.current, runInterval);
 
-				console.log("Creating new GameBoyCore instance...");
-				const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
+                console.log("Creating new GameBoyCore instance...");
+                const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
 
-				if (currentCanvas) {
-					gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
-					console.log("GameBoyCore instance created. Waiting for start command.");
-				}
-			} catch (error) {
-				console.error("Error during GameBoy instance initialization:", error);
-			}
-		}
-		// Clear the interval when the component unmounts
-		return () => {
-			if (runInterval.current) {
-				console.log("Clearing interval during cleanup");
-				clearInterval(runInterval.current);
-			}
-		};
-	},
-		// eslint-disable-next-line
-		[ROMImage, isRomLoaded]
+                if (currentCanvas) {
+                    settings[0] = isSoundOn; // Set initial sound state
+                    gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
+                    gameBoyInstance.current.setSpeed(speed); // Set initial speed
+                    console.log("GameBoyCore instance created. Waiting for start command.");
+                }
+            } catch (error) {
+                console.error("Error during GameBoy instance initialization:", error);
+            }
+        }
+        // Clear the interval when the component unmounts
+        return () => {
+            if (runInterval.current) {
+                console.log("Clearing interval during cleanup");
+                clearInterval(runInterval.current);
+            }
+        };
+    }, [ROMImage, isRomLoaded, isFullscreen]
 	);
+
 	// Maintain emulator-on awareness
 	useEffect(() => {
 		const isEmulatorOn = gameBoyInstance.current && (isEmulatorPlaying || intervalPaused);
@@ -424,6 +450,7 @@ export default function App() {
 		[isEmulatorPlaying]
 	);
 
+
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
@@ -441,10 +468,6 @@ export default function App() {
 				intervalPaused={intervalPaused}
 				handlePauseResume={handlePauseResume}
 				handleReset={handleReset}
-				isSoundOn={isSoundOn}
-				initSound={initSound}
-				speed={speed}
-				handleSpeedChange={handleSpeedChange}
 				handlePowerToggle={handlePowerToggle}
 				toggleFullscreenMode={toggleFullscreenMode}
 				isRomLoaded={isRomLoaded}
@@ -453,7 +476,6 @@ export default function App() {
 				runFromSaveState={runFromSaveState}
 				activeROM={activeROM}
 				currentUser={currentUser}
-				toggleMobileZoom={toggleMobileZoom} // here!
 			/>
 			<Console
 				isEmulatorOn={isEmulatorOn}
