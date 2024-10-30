@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { uploadImageToS3 } from '../../utils/saveLoad';
 import OptionButton from './OptionButton';
-import { assetsEndpointPrivate, userPoolRegion } from '../../../config';
+import { userPoolRegion } from '../../../config';
+import {
+    Flex,
+    Button
+} from '@aws-amplify/ui-react';
 
 function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, userId }) {
     const [title, setTitle] = useState(initialData?.title || '');
@@ -61,10 +64,28 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
                     onChange={handleFileChange}
                     accept="image/*"
                 />
-                <div className="modal-options-buttons">
-                    <OptionButton onClick={onClose} confirm={false} />
-                    <OptionButton onClick={handleSubmit} confirm={true} />
-                </div>
+                <Flex
+                    direction="row"
+                    gap="1rem"
+                    justifyContent="center"
+                >
+                    <Button
+                        variation="destructive"
+                        onClick={onClose}
+                        size="large"
+                        confirm={false}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variation="primary"
+                        onClick={handleSubmit}
+                        size="large"
+                        confirm={true}
+                    >
+                        Confirm
+                    </Button>
+                </Flex>
             </div>
         </div>
     );

@@ -5,7 +5,7 @@
   top: 0;
   width: 100%;
   height: 100%;
-  z-index: 3;
+  z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,9 +31,14 @@
   flex-direction: column;
   text-align: center;
   min-width: 320px;
-  /* max-width: 640px; */
-  min-height: 490px;
-  padding: 2em;
+  max-width: 400px;
+  min-height: auto;
+  padding: 0;
+}
+
+.modal-content#save-modal {
+  max-width: 640px !important;
+  padding: 1em;
 }
 
 .modal-content>h2 {
@@ -106,17 +111,21 @@
   margin: auto;
   width: 80%;
 }
+
 .remove-confirm input:not([type='checkbox']) {
   margin: 10px;
 }
+
 .remove-confirm input[type='checkbox'] {
   margin: 10px !important;
 }
+
 .modal-content input {
   text-align: center;
 }
 
-.modal-content input, textarea {
+.modal-content input,
+textarea {
   font-size: 20px;
   margin-bottom: 1em;
 }
@@ -129,22 +138,26 @@
 .modal-content#load-state-content {
   width: 800px;
 }
+
 .modal-content img {
   width: 220px;
   border-radius: 4px;
   outline: 2px gray solid;
   transition: 100ms ease-in-out;
 }
+
 .modal-content img:hover {
   cursor: pointer;
   outline: 5px gray solid;
 }
+
 .save-state-list {
   overflow-x: scroll;
   padding: 4px;
   display: flex;
   justify-content: flex-start;
 }
+
 .save-state-block {
   display: flex;
   flex-direction: column;
@@ -152,9 +165,11 @@
   align-items: center;
   margin: 2em;
 }
+
 .save-state-block button {
   font-size: 10px;
 }
+
 h3.save-state-title {
   font-size: 16px;
   font-weight: 500;
@@ -163,17 +178,21 @@ h3.save-state-title {
   text-overflow: ellipsis;
   text-wrap: nowrap;
 }
+
 .last-update-text {
   font-size: 12px;
   font-weight: 500;
 }
+
 .top {
   z-index: 20;
 }
+
 .delete-btn {
   margin: 10px;
   cursor: pointer;
 }
+
 .profile-modal .modal-content {
   max-width: 400px;
 }
@@ -186,10 +205,12 @@ h3.save-state-title {
   text-align: center;
   margin-bottom: 20px;
 }
+
 .profile-avatar-modal img {
   width: auto;
   height: 80px;
 }
+
 .avatar-placeholder-modal.large {
   width: 100px;
   height: 100px;
@@ -205,13 +226,69 @@ h3.save-state-title {
   .modal-options-buttons {
     justify-content: space-around !important;
   }
+
   .option-button {
     width: var(--btn-height) !important;
     min-width: 0 !important;
   }
+
   .modal-content {
     min-width: 0;
     width: 90%;
     padding: 1em;
+    margin: 0 auto;
   }
+
+  .settings-modal .modal-content {
+    width: 90vw;
+    margin: 0 auto;
+  }
+
+  .amplify-button {
+      min-width: 100px;
+  }
+}
+
+/* Add/update these in your modal.css */
+.settings-modal .modal-content {
+  padding: 0;
+  min-height: auto;
+  width: 380px;
+  background: var(--amplify-colors-background-primary);
+}
+
+.settings-modal .amplify-slider {
+  width: 100%;
+}
+
+.settings-modal .amplify-switchfield {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.settings-modal .amplify-divider {
+  margin: 0.5rem 0;
+}
+
+.settings-modal .amplify-button {
+  width: 100%;
+}
+
+.settings-modal .amplify-heading {
+  margin: 0;
+}
+
+/* Add to your modal.css */
+.amplify-button {
+  min-width: 120px;
+}
+
+.amplify-checkboxfield {
+  margin-top: 0.5rem;
+}
+
+/* Dark mode support */
+[data-amplify-theme='dark'] .modal-content {
+  background: var(--amplify-colors-background-primary);
+  color: var(--amplify-colors-font-primary);
 }

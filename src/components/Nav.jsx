@@ -9,11 +9,15 @@ import { generateClient } from 'aws-amplify/api';
 import { listUserProfiles } from '@/graphql/queries';
 import ProfileModal from '@/components/modals/ProfileModal';
 import SettingsModal from '@/components/modals/SettingsModal';
+import { signOut } from 'aws-amplify/auth';
+import awsconfig from '@/aws-exports';
+import { Amplify } from 'aws-amplify';
 
+Amplify.configure(awsconfig);
 const client = generateClient();
 
 const Nav = () => {
-    const { user, signOut } = useAuth();
+    const { user } = useAuth();
     const { uiSettings, updateUISettings } = useSettings();
     const [userProfile, setUserProfile] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -57,6 +61,8 @@ const Nav = () => {
         try {
             await signOut();
             setShowDropdown(false);
+            window.location.href = '/';
+
         } catch (error) {
             console.error('Error signing out:', error);
         }

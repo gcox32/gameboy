@@ -1,26 +1,69 @@
 import React from "react";
-import OptionButton from "./OptionButton";
 import BaseModal from "./BaseModal";
+import {
+    Flex,
+    Button,
+    CheckboxField,
+    Heading
+} from '@aws-amplify/ui-react';
 
-function ConfirmModal({ isOpen, onClose, onConfirm, children, skipConfirmation, toggleSkipConfirmation }) {
-
+function ConfirmModal({ 
+    isOpen, 
+    onClose, 
+    onConfirm, 
+    children, 
+    skipConfirmation, 
+    toggleSkipConfirmation 
+}) {
     return (
         <BaseModal isOpen={isOpen} onClose={onClose}>
-            <h3 className="h3">{children}</h3>
-            <div className="modal-options-buttons">
-                <OptionButton onClick={onClose} confirm={false} />
-                <OptionButton onClick={onConfirm} confirm={true} />
-            </div>
-            <div className="remove-confirm">
-                <input
-                    type="checkbox"
+            <Flex
+                direction="column"
+                gap="1.5rem"
+                padding="1.5rem"
+                alignItems="center"
+            >
+                <Heading 
+                    level={4}
+                    textAlign="center"
+                >
+                    {children}
+                </Heading>
+
+                <Flex
+                    direction="row"
+                    gap="1rem"
+                    justifyContent="center"
+                >
+                    <Button
+                        variation="destructive"
+                        onClick={onClose}
+                        size="large"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variation="primary"
+                        onClick={onConfirm}
+                        size="large"
+                    >
+                        Confirm
+                    </Button>
+                </Flex>
+
+                <CheckboxField
+                    label="Don't ask me again"
+                    name="skipConfirmation"
+                    value="skip"
                     checked={skipConfirmation}
                     onChange={toggleSkipConfirmation}
+                    justifyContent="center"
+                    alignItems="center"
+                    labelPosition="end"
                 />
-                <p>Don&apos;t ask me again</p>
-            </div>
+            </Flex>
         </BaseModal>
     );
 }
 
-export default ConfirmModal
+export default ConfirmModal;

@@ -1,16 +1,23 @@
 import React from 'react';
 import BaseModal from './BaseModal';
 import { useSettings } from '@/contexts/SettingsContext';
+import {
+    SliderField,
+    SwitchField,
+    Flex,
+    Heading,
+    Text,
+    Button,
+    Divider
+} from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
     const { uiSettings, updateUISettings } = useSettings();
-    const { speed, isSoundOn, skipConfirmation, mobileZoom } = uiSettings;
+    const { speed, isSoundOn, mobileZoom } = uiSettings;
 
-    const onSpeedChange = (e) => {
-        const newSpeed = parseFloat(e.target.value);
-        if (!isNaN(newSpeed) && newSpeed > 0) {
-            updateUISettings({ speed: newSpeed });
-        }
+    const onSpeedChange = (value) => {
+        updateUISettings({ speed: parseFloat(value) });
     };
 
     const onSoundToggle = () => {
@@ -21,45 +28,57 @@ const SettingsModal = ({ isOpen, onClose }) => {
         updateUISettings({ mobileZoom: !mobileZoom });
     };
 
-    const handleClose = () => {
-        onClose();
+    const resetSettings = () => {
+        updateUISettings({
+            speed: 1,
+            isSoundOn: true,
+            mobileZoom: false
+        });
     };
 
     return (
-        <BaseModal isOpen={isOpen} onClose={handleClose} className="settings-modal">
-            <h2>Settings</h2>
-            <div className="setting">
-                <label htmlFor="speed-control">Game Speed:</label>
-                <input 
-                    id="speed-control"
-                    className="speed-control" 
-                    type="number" 
-                    min="0.1"
-                    max="5"
-                    step="0.1" 
-                    value={speed} 
+        <BaseModal isOpen={isOpen} onClose={onClose} className="settings-modal">
+            <Flex direction="column" gap="1.5rem" padding="1rem">
+                <Heading level={4}>Game Settings</Heading>
+
+                <SliderField
+                    label="Game Speed"
+                    value={speed}
                     onChange={onSpeedChange}
-                    title="game speed multiple" 
+                    min={0.1}
+                    max={5}
+                    step={0.1}
+                    labelHelpText={`Current speed: ${speed}x`}
                 />
-            </div>
-            <div className="setting">
-                <label>Sound:</label>
-                <button 
-                    onClick={onSoundToggle}
-                    className={isSoundOn ? 'active' : ''}
+
+                <Divider />
+
+                <SwitchField
+                    label="Sound"
+                    isChecked={isSoundOn}
+                    onChange={onSoundToggle}
+                    labelPosition="start"
+                />
+
+                <Divider />
+
+                <SwitchField
+                    label="Mobile Zoom"
+                    isChecked={mobileZoom}
+                    onChange={onMobileZoomToggle}
+                    labelPosition="start"
+                />
+
+                <Divider />
+
+                <Button
+                    variation="secondary"
+                    onClick={resetSettings}
+                    size="small"
                 >
-                    {isSoundOn ? 'On' : 'Off'}
-                </button>
-            </div>
-            <div className="setting mobile-only">
-                <label>Mobile Zoom:</label>
-                <button 
-                    onClick={onMobileZoomToggle}
-                    className={mobileZoom ? 'active' : ''}
-                >
-                    {mobileZoom ? 'On' : 'Off'}
-                </button>
-            </div>
+                    Reset to Defaults
+                </Button>
+            </Flex>
         </BaseModal>
     );
 };
