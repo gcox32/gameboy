@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import OptionButton from './OptionButton';
 import { userPoolRegion } from '../../../config';
 import {
     Flex,

@@ -45,6 +45,7 @@ const Nav = () => {
             });
 
             const profiles = response.data.listUserProfiles.items;
+            console.log(profiles);
             if (profiles.length > 0) {
                 setUserProfile(profiles[0]);
             }

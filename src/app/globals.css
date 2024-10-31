@@ -38,6 +38,12 @@
   --callout-border-rgb: 172, 175, 176;
   --card-rgb: 180, 185, 188;
   --card-border-rgb: 131, 134, 135;
+
+  /* New variables */
+  --link-color: #333;
+  --background-color: white;
+  --border-color: #ccc;
+  --hover-background-color: #f5f5f5;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -70,13 +76,17 @@
     --callout-border-rgb: 108, 108, 108;
     --card-rgb: 100, 100, 100;
     --card-border-rgb: 200, 200, 200;
+
+    /* Override variables for dark mode */
+    --link-color: #ccc;
+    --background-color: #1a1a1a;
+    --border-color: #555;
+    --hover-background-color: #333;
   }
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
 }
 
 html,
@@ -87,13 +97,7 @@ body {
 
 body {
   color: rgb(var(--foreground-rgb));
-  /* background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
-    background-color: lightblue;
+  background-color: lightblue;
 }
 
 a {
@@ -102,11 +106,12 @@ a {
 }
 
 @media (prefers-color-scheme: dark) {
-  html {
+  body {
     color-scheme: dark;
   }
 }
 
+/* Navigation Styles */
 .nav-container {
   display: flex;
   justify-content: space-between;
@@ -119,12 +124,14 @@ a {
   height: 70px;
 }
 
-.nav-left, .nav-right {
+.nav-left,
+.nav-right {
   display: flex;
   align-items: center;
 }
 
-.nav-left > *, .nav-right > * {
+.nav-left > *,
+.nav-right > * {
   margin: 0 10px;
 }
 
@@ -135,8 +142,8 @@ a {
 
 .nav-menu a {
   margin-right: 1rem;
+  color: var(--link-color);
   text-decoration: none;
-  color: #333;
 }
 
 .hamburger {
@@ -148,46 +155,47 @@ a {
 .hamburger span {
   width: 25px;
   height: 3px;
-  background-color: #333;
+  background-color: var(--link-color);
   margin-bottom: 5px;
   transition: all 0.3s ease;
 }
 
 @media (max-width: 768px) {
   .hamburger {
-      display: flex;
+    display: flex;
   }
 
   .nav-menu {
-      position: fixed;
-      right: -100%;
-      top: 70px;
-      flex-direction: column;
-      background-color: #f0f0f0;
-      width: 100%;
-      text-align: center;
-      transition: 0.3s;
-      box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    right: -100%;
+    top: 70px;
+    flex-direction: column;
+    background-color: var(--background-color);
+    width: 100%;
+    text-align: center;
+    transition: 0.3s;
+    box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
   }
 
   .nav-menu.open {
-      right: 0;
+    right: 0;
   }
 
   .nav-menu a {
-      margin: 1rem 0;
+    margin: 1rem 0;
   }
 
   .profile-container {
-      margin: 1rem 0;
+    margin: 1rem 0;
   }
 
   .profile-dropdown {
-      position: static;
-      width: 100%;
+    position: static;
+    width: 100%;
   }
 }
 
+/* Profile Dropdown Styles */
 .profile-container {
   position: relative;
   transition: 100ms ease-in-out;
@@ -197,11 +205,11 @@ a {
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 8px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: 100ms ease-in-out;
 }
 
@@ -210,7 +218,7 @@ a {
   display: block;
   padding: 8px 16px;
   text-decoration: none;
-  color: #333;
+  color: var(--link-color);
   background: none;
   border: none;
   width: 100%;
@@ -220,10 +228,12 @@ a {
 
 .profile-dropdown a:hover,
 .profile-dropdown button:hover {
-  background-color: #f5f5f5;
+  background-color: var(--hover-background-color);
 }
 
-.avatar, .avatar-placeholder {
+/* Avatar Styles */
+.avatar,
+.avatar-placeholder {
   width: 40px;
   height: 40px;
   border-radius: 5%;
@@ -231,8 +241,10 @@ a {
   transition: 200ms ease-in-out;
 }
 
-.avatar:hover, .avatar-placeholder:hover {
-  outline: 2px white solid;
+.avatar:hover,
+.avatar-placeholder:hover {
+  outline: 2px solid white;
+  cursor: pointer;
 }
 
 .avatar-placeholder {
@@ -243,6 +255,7 @@ a {
   font-weight: bold;
 }
 
+/* Footer Styles */
 .footer {
   display: flex;
   justify-content: space-between;
@@ -261,7 +274,7 @@ a {
 }
 
 .footer-links a {
-  color: #333;
+  color: var(--link-color);
   text-decoration: none;
 }
 

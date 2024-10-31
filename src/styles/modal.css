@@ -134,19 +134,112 @@ textarea {
   min-width: 400px;
 }
 
+.profile-modal .modal-content {
+  max-width: 450px;
+  min-height: auto;
+  padding: 0;
+}
+
+.profile-avatar-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.avatar-placeholder-modal.large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--amplify-colors-brand-primary-80);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 500;
+}
+
+.profile-detail {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background-color: var(--amplify-colors-background-secondary);
+}
+
+
+/* Add to your modal.css */
+.avatar-container {
+  position: relative;
+  display: inline-block;
+  width: 200px;
+  height: 200px;
+}
+
+.avatar-container img {
+  padding: 1em;
+}
+
+.avatar-controls {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  background: var(--amplify-colors-background-primary);
+  padding: 4px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upload-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--amplify-colors-background-secondary);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--amplify-colors-brand-primary-80);
+  transition: width 0.3s ease-in-out;
+}
+
+.avatar-placeholder-modal.large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--amplify-colors-brand-primary-80);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 500;
+}
+
+/* Rest of your existing profile modal styles... */
+
+/* Dark mode support */
+[data-amplify-theme='dark'] .profile-modal .modal-content {
+  background: var(--amplify-colors-background-primary);
+  color: var(--amplify-colors-font-primary);
+}
+
 /* load state modal */
 .modal-content#load-state-content {
   width: 800px;
 }
 
 .modal-content img {
-  width: 220px;
-  border-radius: 4px;
-  outline: 2px gray solid;
   transition: 100ms ease-in-out;
 }
 
-.modal-content img:hover {
+.modal-content img:hover:not(.modal-content .profile-avatar) {
   cursor: pointer;
   outline: 5px gray solid;
 }
@@ -204,11 +297,6 @@ h3.save-state-title {
 .profile-avatar-modal {
   text-align: center;
   margin-bottom: 20px;
-}
-
-.profile-avatar-modal img {
-  width: auto;
-  height: 80px;
 }
 
 .avatar-placeholder-modal.large {

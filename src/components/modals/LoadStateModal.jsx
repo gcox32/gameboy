@@ -84,8 +84,8 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 			<div className="save-state-list">
 				{updatedSaveStates.map((state) => (
 					<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
-						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/beta-sprite.png`} />}
-						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" />}
+						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/beta-sprite.png`} style={{ width:"220px", height:"auto"}} />}
+						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" style={{ width:"220px", height:"auto"}} />}
 						<h3 className="save-state-title">{state.title}</h3>
 						<p className="last-update-text">{formatDate(state.createdAt, false)}</p>
 						<p className="last-update-text">{formatDate(state.updatedAt)}</p>
