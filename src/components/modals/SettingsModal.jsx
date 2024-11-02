@@ -6,7 +6,6 @@ import {
     SwitchField,
     Flex,
     Heading,
-    Text,
     Button,
     Divider
 } from '@aws-amplify/ui-react';
@@ -48,7 +47,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
                     min={0.1}
                     max={5}
                     step={0.1}
-                    labelHelpText={`Current speed: ${speed}x`}
                 />
 
                 <Divider />

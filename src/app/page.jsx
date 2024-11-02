@@ -3,16 +3,9 @@
 import Link from 'next/link';
 import '@/styles/auth.css';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect } from 'react';
 
 export default function Home() {
   const { user, signOut } = useAuth();
-
-  useEffect(() => {
-      if (user) {
-          fetchUserProfile();
-      }
-  }, [user]);
 
   return (
     <div className="container">
