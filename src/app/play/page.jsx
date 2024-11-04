@@ -19,7 +19,7 @@ import {
 import { saveSRAM, fetchUserSaveStates } from '../../utils/saveLoad';
 import { publicGamesEndpoint, backgroundEndpoint } from '../../../config';
 import { useSettings } from '@/contexts/SettingsContext';
-
+import { useGame } from '@/contexts/GameContext';
 
 // Amplify auth
 import { Amplify } from 'aws-amplify';
@@ -51,43 +51,54 @@ export default function App() {
 	const [activeState, setActiveState] = useState(null);
 	const [activeSaveArray, setActiveSaveArray] = useState([]);
 	const [isRomLoaded, setIsRomLoaded] = useState(false);
-	// const [speed, setSpeed] = useState(1);
-	// const [isSoundOn, setIsSoundOn] = useState(settings[0]);
 	const [intervalPaused, setIntervalPaused] = useState(false);
 	const [isEmulatorPlaying, setIsEmulatorPlaying] = useState(false);
 	const [isEmulatorOn, setIsEmulatorOn] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [fullscreenBackground, setFullscreenBackground] = useState('');
-	// const [mobileZoom, setMobileZoom] = useState(false);
 
 	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
 
-    // Add this effect to sync settings with the emulator
-    useEffect(() => {
-        if (gameBoyInstance.current && isEmulatorPlaying) {
-            // Update speed
-            gameBoyInstance.current.setSpeed(speed);
-            
-            // Update interval if running
-            if (runInterval.current) {
-                clearInterval(runInterval.current);
-                runInterval.current = setInterval(() => {
-                    if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
-                        gameBoyInstance.current.run();
-                    }
-                }, settings[6]); // settings[6] is the interval
-            }
-            
-            // Update sound
-            if (settings[0] !== isSoundOn) {
-                settings[0] = isSoundOn;
-                if (gameBoyInstance.current.audioHandle) {
-                    gameBoyInstance.current.initSound();
-                }
-            }
-        }
-    }, [speed, isSoundOn, isEmulatorPlaying]);
+	const { startGame, stopGame } = useGame();
+
+	// Update game context when emulator state changes
+	useEffect(() => {
+		if (isEmulatorPlaying && activeROM) {
+			startGame({
+				id: activeROM.id,
+				title: activeROM.title
+			});
+		} else {
+			stopGame();
+		}
+	}, [isEmulatorPlaying, activeROM]);
+
+	// Add this effect to sync settings with the emulator
+	useEffect(() => {
+		if (gameBoyInstance.current && isEmulatorPlaying) {
+			// Update speed
+			gameBoyInstance.current.setSpeed(speed);
+			
+			// Update interval if running
+			if (runInterval.current) {
+				clearInterval(runInterval.current);
+				runInterval.current = setInterval(() => {
+					if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
+						gameBoyInstance.current.run();
+					}
+				}, settings[6]); // settings[6] is the interval
+			}
+			
+			// Update sound
+			if (settings[0] !== isSoundOn) {
+				settings[0] = isSoundOn;
+				if (gameBoyInstance.current.audioHandle) {
+					gameBoyInstance.current.initSound();
+				}
+			}
+		}
+	}, [speed, isSoundOn, isEmulatorPlaying]);
 
 	useEffect(() => {
 		checkAuthState();
@@ -441,7 +452,6 @@ export default function App() {
 	},
 		[isEmulatorPlaying]
 	);
-
 
 	if (isLoading) {
 		return <div>Loading...</div>;

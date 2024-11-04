@@ -12,6 +12,8 @@ import SettingsModal from '@/components/modals/SettingsModal';
 import { signOut } from 'aws-amplify/auth';
 import awsconfig from '@/aws-exports';
 import { Amplify } from 'aws-amplify';
+import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
+import GameInterruptModal from '@/components/modals/GameInterruptModal';
 
 Amplify.configure(awsconfig);
 const client = generateClient();
@@ -24,6 +26,12 @@ const Nav = () => {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { 
+        isModalOpen, 
+        handleStaticPageNavigation, 
+        handleContinue, 
+        handleClose 
+    } = useProtectedNavigation();
 
     useEffect(() => {
         if (user) {
@@ -104,9 +112,19 @@ const Nav = () => {
                     <span></span>
                 </div>
                 <div className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
-                    <Link href="/play" onClick={() => setIsMenuOpen(false)}>Play</Link>
-                    <Link href="/about" onClick={() => setIsMenuOpen(false)}>About</Link>
-                    <Link href="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+                    <Link href="/play">Play</Link>
+                    <Link 
+                        href="/about" 
+                        onClick={(e) => handleStaticPageNavigation(e, '/about')}
+                    >
+                        About
+                    </Link>
+                    <Link 
+                        href="/contact" 
+                        onClick={(e) => handleStaticPageNavigation(e, '/contact')}
+                    >
+                        Contact
+                    </Link>
                     {user ? (
                         <div className="profile-container">
                             <div onClick={handleProfileClick}>
@@ -148,6 +166,11 @@ const Nav = () => {
                 onClose={closeSettingsModal}
                 settings={uiSettings}
                 onSettingsChange={handleSettingsUpdate}
+            />
+            <GameInterruptModal 
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                onContinue={handleContinue}
             />
         </>
     );

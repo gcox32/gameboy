@@ -1,37 +1,80 @@
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background-color: #f4f4f9;
+/* Static Pages (Terms, Privacy Policy, etc.) */
+.static-page {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 4rem);
 }
 
-.title {
-    font-size: 2rem;
+.static-page header {
+    margin-bottom: 3rem;
+    text-align: center;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 1.5rem;
+}
+
+.static-page .title {
+    font-size: 2.5rem;
     color: #333;
     margin-bottom: 0.5rem;
-    text-align: center;
 }
 
-.last-updated {
+.static-page .last-updated {
+    color: #666;
     font-size: 0.9rem;
-    color: #777;
-    margin-bottom: 1.5rem;
-    text-align: center;
 }
 
-.section-title {
+.static-page section {
+    margin-bottom: 2.5rem;
+}
+
+.static-page .section-title {
     font-size: 1.5rem;
-    color: #333;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+    color: #444;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eaeaea;
 }
 
-.paragraph {
-    font-size: 1rem;
-    color: #555;
+.static-page .paragraph {
     line-height: 1.6;
-    margin-bottom: 1rem;
-    text-align: justify;
+    color: #555;
+    margin-bottom: 1.5rem;
+}
+
+.static-page ul {
+    list-style-type: none;
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.static-page li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    color: #555;
+}
+
+.static-page li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .static-page {
+        margin: 1rem auto;
+    }
+
+    .static-page .title {
+        font-size: 2rem;
+    }
+
+    .static-page .section-title {
+        font-size: 1.25rem;
+    }
 }

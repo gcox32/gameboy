@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import '../styles/styles.css';
 import '../styles/modal.css';
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { GameProvider } from '../contexts/GameContext';
 
 Amplify.configure(awsconfig);
 
@@ -30,9 +31,11 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <AuthProvider>
           <SettingsProvider>
-            <Nav />
-            {children}
-            <Footer />
+            <GameProvider>
+              <Nav />
+              {children}
+              <Footer />
+            </GameProvider>
           </SettingsProvider>
         </AuthProvider>
       </body>

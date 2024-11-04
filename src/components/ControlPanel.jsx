@@ -10,10 +10,7 @@ function ControlPanel({
     intervalPaused,
     handlePauseResume,
     handleReset,
-    isSoundOn,
-    initSound,
     speed,
-    handleSpeedChange,
     handlePowerToggle,
     toggleFullscreenMode,
     isRomLoaded,
@@ -21,8 +18,7 @@ function ControlPanel({
     userSaveStates,
     runFromSaveState,
     activeROM,
-    currentUser,
-    toggleMobileZoom
+    currentUser
 }) {
     const [isPanelVisible, setIsPanelVisible] = useState(true); // Panel is visible by default
     const togglePanel = () => {
@@ -40,10 +36,7 @@ function ControlPanel({
                 intervalPaused={intervalPaused}
                 onPauseResume={handlePauseResume}
                 onReset={handleReset}
-                isSoundOn={isSoundOn}
-                initSound={initSound}
                 speed={speed}
-                onSpeedChange={handleSpeedChange}
                 isEmulatorPlaying={isEmulatorPlaying}
                 onPowerToggle={handlePowerToggle}
                 onFullscreenToggle={toggleFullscreenMode}
@@ -53,7 +46,7 @@ function ControlPanel({
                 runFromSaveState={runFromSaveState}
                 currentROM={activeROM}
                 togglePanel={togglePanel}
-                toggleMobileZoom={toggleMobileZoom}
+
                 isPanelVisible={isPanelVisible}
                 currentUser={currentUser}
             />
