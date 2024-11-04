@@ -251,50 +251,42 @@ export default function App() {
 		}
 	};
 	const toggleFullscreenMode = useCallback(() => {
+		console.log('Starting toggle fullscreen...');
+		console.log('Screen orientation:', window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+
 		if (window.innerWidth > window.innerHeight) {
 			if (!isFullscreen) {
+				console.log('Entering fullscreen mode...');
 				fullscreenContainerRef.current.style.display = "flex";
 				if (gameBoyInstance.current && fullscreenCanvasRef.current) {
+					console.log('Switching to fullscreen canvas...');
 					gameBoyInstance.current.canvas = fullscreenCanvasRef.current;
 				}
 			} else {
+				console.log('Exiting fullscreen mode...');
 				fullscreenContainerRef.current.style.display = "none";
 				if (gameBoyInstance.current && mainCanvasRef.current) {
+					console.log('Switching to main canvas...');
 					gameBoyInstance.current.canvas = mainCanvasRef.current;
 				}
 			}
 		} else {
+			console.log('In portrait mode, using main canvas...');
 			fullscreenContainerRef.current.style.display = "none";
 			if (gameBoyInstance.current && mainCanvasRef.current) {
 				gameBoyInstance.current.canvas = mainCanvasRef.current;
 			}
 		}
+
 		if (gameBoyInstance.current) {
+			console.log('Initializing LCD...');
 			gameBoyInstance.current.initLCD();
 		}
+
+		console.log('Setting fullscreen state to:', !isFullscreen);
 		setIsFullscreen(!isFullscreen);
-	},
-		[isFullscreen, gameBoyInstance]
-	);
-	// Update your handlers to use the new context
-	const handleSpeedChange = (e) => {
-		const newSpeed = e.target.value;
-		if (GameBoyEmulatorInitialized(gameBoyInstance.current)) {
-			if (newSpeed !== null && newSpeed.length > 0) {
-				const parsedSpeed = Math.max(parseFloat(newSpeed), 0.001);
-				updateUISettings({ speed: parsedSpeed });
-			}
-		}
-	};
-	const initSound = () => {
-		updateUISettings({ isSoundOn: !isSoundOn });
-		if (GameBoyEmulatorInitialized(gameBoyInstance.current) && gameBoyInstance.current) {
-			gameBoyInstance.current.initSound();
-		}
-	};
-	const toggleMobileZoom = () => {
-		updateUISettings({ mobileZoom: !mobileZoom });
-	};
+	}, [isFullscreen, gameBoyInstance]);
+
 	const onSaveConfirmed = async (saveModalData, previous = false) => {
 		saveModalData.owner = currentUser.userId;
 		if (previous && activeState) {
@@ -389,7 +381,7 @@ export default function App() {
                 clearInterval(runInterval.current);
             }
         };
-    }, [ROMImage, isRomLoaded, isFullscreen]
+    }, [ROMImage, isRomLoaded]
 	);
 
 	// Maintain emulator-on awareness
