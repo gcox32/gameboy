@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { userPoolRegion } from '../../../config';
 import {
     Flex,
     Button
@@ -11,23 +10,14 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
     const [imageFile, setImageFile] = useState(initialData?.img || '');
 
     const handleSubmit = async () => {
-        let imagePath = initialData?.img || '';
-
-        if (imageFile) {
-            // Handle file upload to S3 and get the key
-            if (imageFile.type.startsWith('image/')) {
-                const fileType = imageFile.name.split('.').pop();
-                imagePath = `private/${userPoolRegion}:${userId}/games/${currentROM.id}/saveStates/SAVE_STATE_ID/${title}.${fileType}`;
-            }
-        }
-
         const saveStateData = {
             title: title,
             description: description,
-            img: imagePath,
+            img: initialData?.img || '',
             imgFile: imageFile
         };
 
+        console.log('Submitting save state with data:', saveStateData);
         onConfirm(saveStateData);
         onClose();
         setTitle('');
@@ -36,7 +26,14 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
     };
 
     const handleFileChange = (e) => {
-        setImageFile(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            console.log('File selected:', file);
+            setImageFile(file);
+        } else {
+            console.error('Invalid file type');
+            setImageFile(null);
+        }
     };
 
     if (!isOpen) return null;
@@ -72,7 +69,6 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
                         variation="destructive"
                         onClick={onClose}
                         size="large"
-                        confirm={false}
                     >
                         Cancel
                     </Button>
@@ -80,7 +76,6 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
                         variation="primary"
                         onClick={handleSubmit}
                         size="large"
-                        confirm={true}
                     >
                         Confirm
                     </Button>

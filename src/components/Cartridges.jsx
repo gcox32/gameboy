@@ -20,7 +20,6 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
                     }
                 });
                 const gamesList = gameData.data.listGames.items;
-                console.log('gamesList', gamesList);
                 setGames(gamesList);
             } catch (err) {
                 setError(err);

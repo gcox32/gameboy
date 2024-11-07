@@ -26,6 +26,9 @@ import { Amplify } from 'aws-amplify';
 import { getCurrentUser } from 'aws-amplify/auth'
 import awsconfig from '../../aws-exports';
 
+// Add import
+import { useSaveState } from '@/hooks/useSaveState';
+
 Amplify.configure(awsconfig);
 
 export default function App() {
@@ -61,6 +64,9 @@ export default function App() {
 	const router = useRouter();
 
 	const { startGame, stopGame } = useGame();
+
+	// Add hook near other hooks
+	const { saveState, isSaving, error } = useSaveState(gameBoyInstance.current, activeROM, currentUser.userId);
 
 	// Update game context when emulator state changes
 	useEffect(() => {
@@ -298,24 +304,20 @@ export default function App() {
 		setIsFullscreen(!isFullscreen);
 	}, [isFullscreen, gameBoyInstance]);
 
-	const onSaveConfirmed = async (saveModalData, previous = false) => {
-		saveModalData.owner = currentUser.userId;
-		if (previous && activeState) {
-			saveModalData.id = activeState.id;
-			saveModalData.filePath = activeState.filePath;
-		}
-		if (gameBoyInstance.current && activeROM && isEmulatorPlaying) {
-			try {
-				const savedState = await saveSRAM(gameBoyInstance.current, activeROM, saveModalData, previous);
-				setActiveState(savedState);
-				mbcRamRef.current = gameBoyInstance.current.MBCRam;
-				console.log('saved successfully');
-				const userSaves = await fetchUserSaveStates(currentUser.userId, activeROM.id);
-				setUserSaveStates(userSaves);
-				setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
-			} catch (error) {
-				console.log(error);
-			}
+	// Replace existing onSaveConfirmed with new version
+	const onSaveConfirmed = async (saveModalData, isUpdate = false) => {
+		if (!gameBoyInstance.current || !activeROM || !isEmulatorPlaying) return;
+
+		try {
+			console.log('saveModalData', saveModalData);
+			const savedState = await saveState(saveModalData, isUpdate);
+			setActiveState(savedState);
+			mbcRamRef.current = gameBoyInstance.current.MBCRam;
+			const userSaves = await fetchUserSaveStates(currentUser.userId, activeROM.id);
+			setUserSaveStates(userSaves);
+			setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
+		} catch (error) {
+			console.error('Save failed:', error);
 		}
 	};
 	const runFromSaveState = (sramArray, selectedSaveState) => {

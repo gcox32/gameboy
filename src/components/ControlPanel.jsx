@@ -18,7 +18,8 @@ function ControlPanel({
     userSaveStates,
     runFromSaveState,
     activeROM,
-    currentUser
+    currentUser,
+    isSaving
 }) {
     const [isPanelVisible, setIsPanelVisible] = useState(true); // Panel is visible by default
     const togglePanel = () => {
@@ -50,6 +51,7 @@ function ControlPanel({
 
                 isPanelVisible={isPanelVisible}
                 currentUser={currentUser}
+                isSaving={isSaving}
             />
             <ToggleButton
                 onClick={togglePanel}

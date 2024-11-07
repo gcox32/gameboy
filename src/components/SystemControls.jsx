@@ -4,9 +4,6 @@ import ConfirmModal from './modals/ConfirmModal';
 import SaveStateModal from './modals/SaveStateModal';
 import LoadStateModal from './modals/LoadStateModal';
 import { Loader } from '@aws-amplify/ui-react';
-import { useRouter } from 'next/navigation';
-import { signOut } from 'aws-amplify/auth';
-import { useAuth } from '@/contexts/AuthContext';
 
 function SystemControls({
     intervalPaused,
@@ -21,7 +18,8 @@ function SystemControls({
     runFromSaveState,
     currentROM,
     togglePanel,
-    currentUser
+    currentUser,
+    isSaving
 }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSaveStateModal, setShowSaveStateModal] = useState(false);
@@ -30,20 +28,6 @@ function SystemControls({
     const [confirmModalMessage, setConfirmModalMessage] = useState('');
     const [skipConfirmation, setSkipConfirmation] = useState(false);
     const [activeROMData, setActiveROMData] = useState(null);
-    const [isSaving, setIsSaving] = useState(false);
-
-    const { setUser } = useAuth();
-    const router = useRouter();
-    const handleLogout = async () => {
-        try {
-            await signOut();
-            setUser(null); 
-            // Redirect to login page
-            router.push('/auth/login');
-        } catch (error) {
-            console.error('Error signing out: ', error);
-        }
-    };
 
     const handleActionWithConfirmation = (action, message) => {
         if (skipConfirmation) {
@@ -76,22 +60,17 @@ function SystemControls({
     };
     const handleSave = async () => {
         if (isRomLoaded && isEmulatorPlaying) {
-            setIsSaving(true);
-
             if (activeROMData) {
                 console.log(activeROMData);
                 onSaveConfirmed(activeROMData, true)
                     .then(() => {
-                        setIsSaving(false);
                     })
                     .catch((error) => {
                         console.error('Error during save:', error);
-                        setIsSaving(false);
                     });
             } else {
                 if (!intervalPaused) onPauseResume();
                 setShowSaveStateModal(true);
-                setIsSaving(false);
             }
         }
     };
@@ -101,23 +80,19 @@ function SystemControls({
             setShowSaveStateModal(true);
         }
     };
-    const saveStateModalAction = async ({ title, description, img }) => {
+    const saveStateModalAction = async ({ title, description, img, imgFile }) => {
         try {
-            const saveModalData = { title, description, img };
-            setIsSaving(true);
-            onSaveConfirmed(saveModalData)
+            const saveModalData = { title, description, img, imgFile };
+            onSaveConfirmed(saveModalData, "")
                 .then(() => {
-                    setIsSaving(false);
                     setActiveROMData(saveModalData);
                     setShowSaveStateModal(false);
                 })
                 .catch((error) => {
                     console.error('Error during save:', error);
-                    setIsSaving(false);
                 });
         } catch (error) {
             console.error('Failed to save game state:', error);
-            setIsSaving(false);
         }
     };
     const closeConfirmModal = () => {
@@ -166,11 +141,15 @@ function SystemControls({
                 <button id="pause-resume-btn" onClick={onPauseResume} disabled={!isEmulatorPlaying}>{intervalPaused ? "Resume" : "Pause"}</button>
                 <button onClick={handleResetConfirm} disabled={!isEmulatorPlaying}>Reset</button>
                 <button onClick={handleLoadSaveState} disabled={!isRomLoaded || isEmulatorPlaying || userSaveStates.length === 0} id="load-btn">Load State</button>
-                <button onClick={handleSave} disabled={!isEmulatorPlaying} >{isSaving ? (<Loader />) : 'Save'}</button>
-                <button onClick={handleSaveAs} disabled={!isEmulatorPlaying} >{isSaving ? (<Loader />) : 'Save As'}</button>
+                <button onClick={handleSave} disabled={!isEmulatorPlaying}>
+                    {isSaving ? (<Loader />) : 'Save'}
+                </button>
+                <button onClick={handleSaveAs} disabled={!isEmulatorPlaying}>
+                    {isSaving ? (<Loader />) : 'Save As'}
+                </button>
                 <button onClick={onFullscreenToggle} disabled={!isRomLoaded} className="desktop">Fullscreen</button>
                 <button onClick={togglePanel} className="mobile">Hide</button>
-                <button onClick={handleLogout}>Logout</button>
+                {/* <button onClick={handleLogout}>Logout</button> */}
             </div>
             <ConfirmModal
                 isOpen={showConfirmModal}
