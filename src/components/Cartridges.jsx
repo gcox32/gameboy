@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { listGames } from '../graphql/queries';
 
-function Cartridges({ onROMSelected, isDisabled, activeSaveState }) {
+function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }) {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -11,8 +11,16 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState }) {
         const fetchGames = async () => {
             const client = generateClient();
             try {
-                const gameData = await client.graphql({query: listGames});
+                const gameData = await client.graphql({
+                    query: listGames,
+                    variables: {
+                        filter: {
+                            owner: { eq: currentUser.userId }
+                        }
+                    }
+                });
                 const gamesList = gameData.data.listGames.items;
+                console.log('gamesList', gamesList);
                 setGames(gamesList);
             } catch (err) {
                 setError(err);
@@ -22,7 +30,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState }) {
         };
 
         fetchGames();
-    }, []);
+    }, [currentUser]);
 
     const handleROMChange = (e) => {
         const selectedValue = e.target.value;

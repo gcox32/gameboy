@@ -31,6 +31,7 @@ function ControlPanel({
                 onROMSelected={handleROMSelected}
                 isDisabled={isEmulatorPlaying}
                 activeSaveState={activeSaveState}
+                currentUser={currentUser}
             />
             <SystemControls
                 intervalPaused={intervalPaused}
