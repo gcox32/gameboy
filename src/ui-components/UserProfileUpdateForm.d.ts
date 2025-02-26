@@ -55,4 +55,4 @@ export declare type UserProfileUpdateFormProps = React.PropsWithChildren<{
     onChange?: (fields: UserProfileUpdateFormInputValues) => UserProfileUpdateFormInputValues;
     onValidate?: UserProfileUpdateFormValidationValues;
 } & React.CSSProperties>;
-export default function UserProfileUpdateForm(props: UserProfileUpdateFormProps): React.ReactElement;
+export default function UserProfileUpdateForm(props: UserProfileUpdateFormProps): React.ReactElement<any>;

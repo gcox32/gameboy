@@ -36,7 +36,7 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }) {
                     <Image 
                         src={`${currentImageUrl}${pokemon.pokedexNo}.png`} 
                         style={{cursor: "pointer", objectFit: "contain"}}
-                        alt={pokemon.speciesName} 
+                        alt={pokemon.speciesName || "Pokemon"} 
                         fill  
                     />
                 </div>

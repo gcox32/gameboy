@@ -1,4 +1,5 @@
 import '@/styles/public.css';
+import Footer from '@/components/layout/Footer';
 
 export default function PrivacyPolicy() {
     return (
@@ -41,6 +42,7 @@ export default function PrivacyPolicy() {
                     If you have any questions about this Privacy Policy, please contact us at wherever.
                 </p>
             </section>
+            <Footer />
         </div>
     );
 }

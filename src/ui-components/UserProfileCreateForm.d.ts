@@ -54,4 +54,4 @@ export declare type UserProfileCreateFormProps = React.PropsWithChildren<{
     onChange?: (fields: UserProfileCreateFormInputValues) => UserProfileCreateFormInputValues;
     onValidate?: UserProfileCreateFormValidationValues;
 } & React.CSSProperties>;
-export default function UserProfileCreateForm(props: UserProfileCreateFormProps): React.ReactElement;
+export default function UserProfileCreateForm(props: UserProfileCreateFormProps): React.ReactElement<any>;

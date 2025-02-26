@@ -39,4 +39,4 @@ export declare type SaveFileCreateFormProps = React.PropsWithChildren<{
     onChange?: (fields: SaveFileCreateFormInputValues) => SaveFileCreateFormInputValues;
     onValidate?: SaveFileCreateFormValidationValues;
 } & React.CSSProperties>;
-export default function SaveFileCreateForm(props: SaveFileCreateFormProps): React.ReactElement;
+export default function SaveFileCreateForm(props: SaveFileCreateFormProps): React.ReactElement<any>;

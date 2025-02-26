@@ -67,4 +67,4 @@ export declare type GameUpdateFormProps = React.PropsWithChildren<{
     onChange?: (fields: GameUpdateFormInputValues) => GameUpdateFormInputValues;
     onValidate?: GameUpdateFormValidationValues;
 } & React.CSSProperties>;
-export default function GameUpdateForm(props: GameUpdateFormProps): React.ReactElement;
+export default function GameUpdateForm(props: GameUpdateFormProps): React.ReactElement<any>;

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import '@/styles/auth.css';
 import { useAuth } from '@/contexts/AuthContext';
-
+import Footer from '@/components/layout/Footer';
 export default function Home() {
   const { user, signOut } = useAuth();
 
@@ -27,6 +27,7 @@ export default function Home() {
           </Link>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

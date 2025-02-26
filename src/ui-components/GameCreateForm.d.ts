@@ -66,4 +66,4 @@ export declare type GameCreateFormProps = React.PropsWithChildren<{
     onChange?: (fields: GameCreateFormInputValues) => GameCreateFormInputValues;
     onValidate?: GameCreateFormValidationValues;
 } & React.CSSProperties>;
-export default function GameCreateForm(props: GameCreateFormProps): React.ReactElement;
+export default function GameCreateForm(props: GameCreateFormProps): React.ReactElement<any>;

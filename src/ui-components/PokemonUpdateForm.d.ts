@@ -52,4 +52,4 @@ export declare type PokemonUpdateFormProps = React.PropsWithChildren<{
     onChange?: (fields: PokemonUpdateFormInputValues) => PokemonUpdateFormInputValues;
     onValidate?: PokemonUpdateFormValidationValues;
 } & React.CSSProperties>;
-export default function PokemonUpdateForm(props: PokemonUpdateFormProps): React.ReactElement;
+export default function PokemonUpdateForm(props: PokemonUpdateFormProps): React.ReactElement<any>;

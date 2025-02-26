@@ -3,8 +3,7 @@ import "./globals.css";
 import { AuthProvider } from '../contexts/AuthContext';
 import { Amplify } from 'aws-amplify';
 import awsconfig from '../aws-exports';
-import Nav from '@/components/Nav';
-import Footer from '@/components/Footer';
+import Nav from '@/components/layout/Nav';
 
 import '../styles/styles.css';
 import '../styles/modal.css';
@@ -34,7 +33,6 @@ export default function RootLayout({ children }) {
             <GameProvider>
               <Nav />
               {children}
-              <Footer />
             </GameProvider>
           </SettingsProvider>
         </AuthProvider>

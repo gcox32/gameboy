@@ -97,6 +97,8 @@ div[class~='dragon-type'] {
   display: flex;
   justify-content: center;
   align-items: stretch;
+  cursor: pointer;
+  transition: 0.1s ease-in-out;
 }
 .party-slot div {
   position: relative;
@@ -107,7 +109,8 @@ div[class~='dragon-type'] {
 }
 
 .party-slot:hover {
-  cursor: pointer;
+  border-color: rgba(255, 255, 255, 1);
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* modal */
@@ -123,6 +126,10 @@ div[class~='dragon-type'] {
   justify-content: center;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
 .pokemon-details-section p {
@@ -153,14 +160,6 @@ div[class~='dragon-type'] {
 .pokemon-move {
   margin: 5px;
 }
-
-/* flipping */
-.pokemon-details-section {
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-}
-
 /* location modal */
 .modal-content.location-modal {
   max-width: 800px;

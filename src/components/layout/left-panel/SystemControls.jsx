@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { getUrl } from 'aws-amplify/storage';
-import ConfirmModal from './modals/ConfirmModal';
-import SaveStateModal from './modals/SaveStateModal';
-import LoadStateModal from './modals/LoadStateModal';
+import ConfirmModal from '../../modals/ConfirmModal';
+import SaveStateModal from '../../modals/SaveStateModal';
+import LoadStateModal from '../../modals/LoadStateModal';
 import { Loader } from '@aws-amplify/ui-react';
 
 function SystemControls({

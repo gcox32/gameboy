@@ -40,4 +40,4 @@ export declare type SaveFileUpdateFormProps = React.PropsWithChildren<{
     onChange?: (fields: SaveFileUpdateFormInputValues) => SaveFileUpdateFormInputValues;
     onValidate?: SaveFileUpdateFormValidationValues;
 } & React.CSSProperties>;
-export default function SaveFileUpdateForm(props: SaveFileUpdateFormProps): React.ReactElement;
+export default function SaveFileUpdateForm(props: SaveFileUpdateFormProps): React.ReactElement<any>;

@@ -165,7 +165,7 @@ body {
   left: 0;
   top: 0;
   height: 100vh;
-  justify-content: space-evenly;
+  gap: 2em;
   transition: left 200ms ease-in-out;
 }
 

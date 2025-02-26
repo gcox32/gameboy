@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/api';
-import { listGames } from '../graphql/queries';
+import { listGames } from '../../../graphql/queries';
 
 function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }) {
     const [games, setGames] = useState([]);

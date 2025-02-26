@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Cartridges from "./Cartridges";
 import SystemControls from "./SystemControls";
-import ToggleButton from "./ToggleButton";
+import ToggleButton from "@/components/common/ToggleButton";
 
 function ControlPanel({
     handleROMSelected,

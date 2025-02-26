@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import GameElementsBar from './pokemon/GameElementsBar';
-import ActiveParty from './pokemon/ActiveParty';
-import GymBadgeCase from './pokemon/BadgeCase';
-import TownMap from './pokemon/TownMap';
-import Pokedex from './pokemon/Pokedex';
-import TeamPhoto from './pokemon/TeamPhoto';
+import GameElementsBar from '@/components/pokemon/GameElementsBar';
+import ActiveParty from '@/components/pokemon/ActiveParty';
+import GymBadgeCase from '@/components/pokemon/BadgeCase';
+import TownMap from '@/components/pokemon/TownMap';
+import Pokedex from '@/components/pokemon/Pokedex';
+import TeamPhoto from '@/components/pokemon/TeamPhoto';
 
 function FullScreenContainer({
   background,

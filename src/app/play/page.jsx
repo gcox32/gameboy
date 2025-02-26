@@ -2,8 +2,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Console from '../../components/console/GameConsole';
-import ControlPanel from '../../components/ControlPanel';
-import FullScreenContainer from '../../components/FullScreenContainer';
+import ControlPanel from '../../components/layout/left-panel/ControlPanel';
+import FullScreenContainer from '../../components/layout/FullScreenContainer';
 import GameBoyCore from '../../utils/GameBoyCore';
 import {
 	registerGUIEvents,
