@@ -61,7 +61,6 @@ function SystemControls({
     const handleSave = async () => {
         if (isRomLoaded && isEmulatorPlaying) {
             if (activeROMData) {
-                console.log(activeROMData);
                 onSaveConfirmed(activeROMData, true)
                     .then(() => {
                     })

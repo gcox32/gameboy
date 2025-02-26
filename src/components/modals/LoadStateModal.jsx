@@ -56,14 +56,14 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 			const client = generateClient();
 			try {
 				// Call API to delete save state from DynamoDB
-				await client.graphql({ query: deleteSaveState, variables: { input: { id: selectedStateForDeletion.id } }});
+				// await client.graphql({ query: deleteSaveState, variables: { input: { id: selectedStateForDeletion.id } }});
 
 				// Delete associated data from S3 if it exists
 				console.log('deleting S3 save file...')
-				await remove(selectedStateForDeletion.filePath)
+				await remove({ path: selectedStateForDeletion.filePath })
 				if (selectedStateForDeletion.img) {
 					console.log('deleting S3 saved associated image...')
-					await remove(selectedStateForDeletion.img, { level: 'private' });
+					await remove({ path: selectedStateForDeletion.img });
 				}
 
 				// Update local state to reflect the deletion

@@ -309,7 +309,6 @@ export default function App() {
 		if (!gameBoyInstance.current || !activeROM || !isEmulatorPlaying) return;
 
 		try {
-			console.log('saveModalData', saveModalData);
 			const savedState = await saveState(saveModalData, isUpdate);
 			setActiveState(savedState);
 			mbcRamRef.current = gameBoyInstance.current.MBCRam;
@@ -480,6 +479,7 @@ export default function App() {
 				runFromSaveState={runFromSaveState}
 				activeROM={activeROM}
 				currentUser={currentUser}
+				isSaving={isSaving}
 			/>
 			<Console
 				isEmulatorOn={isEmulatorOn}

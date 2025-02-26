@@ -137,6 +137,7 @@ div[class~='dragon-type'] {
   width: auto;
   height: 200px;
   outline: none;
+  margin-top: 1em;
 }
 .modal-content .pokemon-details-section img:hover {
   cursor: default;
