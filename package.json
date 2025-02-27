@@ -9,8 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.12",
-    "aws-amplify": "^6.3.6",
     "chart.js": "^4.4.3",
     "chartjs": "^0.3.24",
     "next": "15.1.7",
