@@ -43,7 +43,7 @@ Resize.prototype.configureWorker = function () {
     try {
         var parentObj = this;
         if (typeof Worker !== 'undefined') {
-            this.worker = new Worker(sourceOfWorker.substring(0, sourceOfWorker.length - 3) + "Worker.js");
+			this.worker = new Worker(new URL('./resizeWorker.js', import.meta.url));
             this.worker.onmessage = function (event) {
                 parentObj.heightBuffer = event.data;
                 parentObj.resizeCallback(parentObj.heightBuffer);

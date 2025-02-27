@@ -175,7 +175,7 @@ XAudioServer.prototype.initializeMediaStream = function () {
 		//WebWorker is not GC'd, so manually collect it:
 		XAudioJSMediaStreamWorker.terminate();
 	}
-	XAudioJSMediaStreamWorker = new Worker(XAudioJSsourceHandle.substring(0, XAudioJSsourceHandle.length - 3) + "MediaStreamWorker.js");
+	XAudioJSMediaStreamWorker = new Worker(new URL('./XAudioServerMediaStreamWorker.js', import.meta.url));
 	this.audioHandleMediaStreamProcessing = new ProcessedMediaStream(XAudioJSMediaStreamWorker, XAudioJSMediaStreamSampleRate, XAudioJSChannelsAllocated);
 	this.audioHandleMediaStream.src = this.audioHandleMediaStreamProcessing;
 	this.audioHandleMediaStream.volume = XAudioJSVolume;
