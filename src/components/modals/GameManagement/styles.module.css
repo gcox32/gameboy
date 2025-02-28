@@ -1,0 +1,23 @@
+.modal {
+    max-width: 800px;
+    min-height: 400px;
+}
+
+.gameList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.gameCard {
+    border: 2px solid var(--amplify-colors-border-primary);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.gameCard:hover {
+    border-color: var(--amplify-colors-brand-primary-60);
+    transform: translateY(-2px);
+}

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import Cartridges from "./Cartridges";
-import SystemControls from "./SystemControls";
+import Cartridges from "../Cartridges";
+import SystemControls from "../SystemControls";
 import ToggleButton from "@/components/common/ToggleButton";
+import styles from './styles.module.css';
 
 function ControlPanel({
     handleROMSelected,
@@ -27,7 +28,7 @@ function ControlPanel({
     };
 
     return (
-        <div id="control-panel" className={isPanelVisible ? "visible" : "hidden"}>
+        <div className={`${styles.controlPanel} ${isPanelVisible ? styles.visible : styles.hidden}`}>
             <Cartridges
                 onROMSelected={handleROMSelected}
                 isDisabled={isEmulatorPlaying}

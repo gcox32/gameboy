@@ -1,7 +1,5 @@
 import { generateClient } from 'aws-amplify/api';
 import { uploadData } from 'aws-amplify/storage';
-import { createSaveState, updateSaveState } from '../graphql/mutations';
-import { listGames, listSaveStates } from '../graphql/queries';
 import { userPoolRegion } from '../../config';
 import { v4 as uuidv4 } from 'uuid';
 

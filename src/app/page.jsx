@@ -13,10 +13,10 @@ export default function Home() {
       <p className="description">Play classic Gameboy Color games in your browser!</p>
       {user === null ? (
         <div className="button-container">
-          <Link href="/auth/login">
+          <Link href="login">
             <button className="button">Login</button>
           </Link>
-          <Link href="/auth/signup">
+          <Link href="signup">
             <button className="button">Sign Up</button>
           </Link>
       </div>

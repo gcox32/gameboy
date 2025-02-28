@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-amplify/ui-react": "^6.9.2",
+    "@aws-sdk/client-cognito-identity-provider": "^3.750.0",
+    "aws-amplify": "^6.13.2",
     "chart.js": "^4.4.3",
     "chartjs": "^0.3.24",
     "next": "15.1.7",
@@ -16,12 +19,19 @@
     "react-dom": "19.0.0"
   },
   "devDependencies": {
+    "@aws-amplify/backend": "^1.14.1",
+    "@aws-amplify/backend-cli": "^1.4.11",
     "@types/node": "^20",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
+    "aws-cdk": "^2.1001.0",
+    "aws-cdk-lib": "^2.181.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.25.0",
     "eslint": "^8",
     "eslint-config-next": "15.1.7",
-    "typescript": "^5"
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
   },
   "overrides": {
     "@types/react": "19.0.10",

@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { Amplify } from 'aws-amplify';
+import outputs from '../../../../amplify_outputs.json';
 import { signUp } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Amplify } from 'aws-amplify';
-import awsconfig from '../../../aws-exports';
 import '@/styles/auth.css';
 
-Amplify.configure(awsconfig);
+Amplify.configure(outputs);
 
 export default function SignUp() {
     const [username, setUsername] = useState('');
@@ -28,7 +28,7 @@ export default function SignUp() {
         }
     
         try {
-            const { isSignUpComplete, userId, nextStep } = await signUp({
+            const { isSignUpComplete } = await signUp({
                 username,
                 password,
                 options: {
@@ -39,11 +39,11 @@ export default function SignUp() {
             });
     
             if (isSignUpComplete) {
-                router.push('/auth/login');
+                router.push('login');
             } else {
                 // Encode the password to make it URL-safe
                 const encodedPassword = encodeURIComponent(password);
-                router.push(`/auth/confirm-signup?username=${username}&email=${email}&password=${encodedPassword}`);
+                router.push(`confirm-signup?username=${username}&email=${email}&password=${encodedPassword}`);
             }
         } catch (err) {
             setError(err.message);
@@ -92,7 +92,7 @@ export default function SignUp() {
             </form>
             {error && <p className="error" role="alert">{error}</p>}
             
-            <p className="footer-text">Already have an account? <Link href="/auth/login" className="link">Log in</Link></p>
+            <p className="footer-text">Already have an account? <Link href="login" className="link">Log in</Link></p>
         </div>
     );
     

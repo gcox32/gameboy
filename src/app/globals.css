@@ -256,34 +256,4 @@ a {
 }
 
 /* Footer Styles */
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  font-size: 0.7rem;
-  position: fixed;
-  bottom: 0;
-  height: 40px;
-  z-index: 10;
-  left: 25%;
-}
 
-.footer-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.footer-links a {
-  color: var(--link-color);
-  text-decoration: none;
-}
-
-.footer-links a:hover {
-  text-decoration: underline;
-}
-
-.footer-copyright {
-  color: #666;
-  cursor: auto;
-}

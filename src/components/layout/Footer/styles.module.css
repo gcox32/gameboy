@@ -1,0 +1,36 @@
+.footerText {
+    font-size: 0.9rem;
+    color: #333;
+    text-align: center;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    font-size: 0.7rem;
+    position: fixed;
+    bottom: 0;
+    height: 40px;
+    z-index: 10;
+  }
+  
+  .footerLinks {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .footerLinks a {
+    color: var(--link-color);
+    text-decoration: none;
+  }
+  
+  .footerLinks a:hover {
+    text-decoration: underline;
+  }
+  
+  .footerCopyright {
+    color: #666;
+    cursor: auto;
+  }

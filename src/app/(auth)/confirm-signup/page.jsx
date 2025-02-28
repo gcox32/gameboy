@@ -2,18 +2,15 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { confirmSignUp, signIn, getCurrentUser } from 'aws-amplify/auth';
-import { generateClient } from 'aws-amplify/api';
-import { createUserProfile } from '../../../graphql/mutations';
+import { Amplify } from 'aws-amplify';
+import outputs from '../../../../amplify_outputs.json';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Amplify } from 'aws-amplify';
-import awsconfig from '../../../aws-exports';
-import { authedRoute } from '../../../../config';
 import '@/styles/auth.css';
 
-Amplify.configure(awsconfig);
+Amplify.configure(outputs);
 
-const client = generateClient();
+const authedRoute = '/play';
 
 function ConfirmSignUpComponent() {
     const [username, setUsername] = useState('');
@@ -62,8 +59,6 @@ function ConfirmSignUpComponent() {
 
                 // Step 3: Get current user and create profile
                 const user = await getCurrentUser();
-                await createUserProfileForSignedUpUser(user.userId, username, email);
-
                 // Update the user in the AuthContext
                 setUser(user);
 
@@ -83,31 +78,11 @@ function ConfirmSignUpComponent() {
                     router.push(authedRoute);
                 } catch (signInError) {
                     setError('Failed to sign in. Please try logging in manually.');
-                    router.push('/auth/login');
+                    router.push('login');
                 }
             } else {
                 setError(err.message);
             }
-        }
-    };
-
-    const createUserProfileForSignedUpUser = async (owner, username, email) => {
-        try {
-            const newUserProfile = {
-                owner,
-                username,
-                email,
-                avatar: '',
-                bio: ''
-            };
-
-            await client.graphql({
-                query: createUserProfile,
-                variables: { input: newUserProfile }
-            });
-        } catch (err) {
-            console.error('Error creating user profile:', err);
-            throw err;
         }
     };
 

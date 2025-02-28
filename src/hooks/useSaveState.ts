@@ -1,16 +1,18 @@
 // hooks/useSaveState.js
 import { useState } from 'react';
-import { uploadData } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
-import { createSaveState, updateSaveState } from '../graphql/mutations';
+import { type Schema } from '@/amplify/data/resource';
+import { uploadData } from 'aws-amplify/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { userPoolRegion } from '../../config';
+import { env } from 'process';
 
-export const useSaveState = (gameInstance, currentGame, userId) => {
+const client = generateClient<Schema>();
+
+export const useSaveState = (gameInstance: any, currentGame: any, userId: string) => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  const saveState = async (saveData, isUpdate) => {
+  const saveState = async (saveData: any, isUpdate: boolean) => {
     setIsSaving(true);
     setError(null);
     
@@ -25,7 +27,7 @@ export const useSaveState = (gameInstance, currentGame, userId) => {
       // Save game state to S3
       const saveKey = isUpdate 
         ? saveData.filePath
-        : `private/${userPoolRegion}:${userId}/games/${currentGame.id}/saveStates/${saveStateId}/${saveData.title}.sav`;
+        : `private/${env.REGION}:${userId}/games/${currentGame.id}/saveStates/${saveStateId}/${saveData.title}.sav`;
       
       const savePackage = { MBCRam };
       const blob = new Blob([JSON.stringify(savePackage)], { type: 'application/json' });
@@ -35,7 +37,7 @@ export const useSaveState = (gameInstance, currentGame, userId) => {
       let imagePath = saveData.img || '';
       if (saveData.imgFile && saveData.imgFile.type.startsWith('image/')) {
         const fileType = saveData.imgFile.name.split('.').pop();
-        imagePath = `private/${userPoolRegion}:${userId}/games/${currentGame.id}/saveStates/${saveStateId}/${saveData.title}.${fileType}`;
+        imagePath = `private/${env.REGION}:${userId}/games/${currentGame.id}/saveStates/${saveStateId}/${saveData.title}.${fileType}`;
         
         await uploadData({
           path: imagePath,
@@ -79,3 +81,17 @@ export const useSaveState = (gameInstance, currentGame, userId) => {
     error
   };
 };
+
+function updateSaveState(saveStateInput: any) {
+  return client.graphql({
+    query: updateSaveState,
+    variables: { input: saveStateInput }
+  });
+}
+
+function createSaveState(saveStateInput: any) {
+  return client.graphql({
+    query: createSaveState,
+    variables: { input: saveStateInput }
+  });
+}

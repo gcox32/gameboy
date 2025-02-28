@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { type Schema } from '@/amplify/data/resource';
 import Image from 'next/image';
 import BaseModal from './BaseModal';
 import { generateClient } from 'aws-amplify/api';
 import { uploadData, remove } from 'aws-amplify/storage';
-import { updateUserProfile } from '@/graphql/mutations';
 import {
     Flex,
     Heading,
@@ -12,13 +12,12 @@ import {
     TextAreaField,
     Text,
     View,
-    Alert,
-    FileUploader
+    Alert
 } from '@aws-amplify/ui-react';
 
-const client = generateClient();
+const client = generateClient<Schema>();
 
-const ProfileModal = ({ isOpen, onClose, userProfile }) => {
+const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClose: () => void, userProfile: any }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState(null);
@@ -48,14 +47,14 @@ const ProfileModal = ({ isOpen, onClose, userProfile }) => {
         setUploadProgress(0);
     };
 
-    const handleInputChange = (field, value) => {
+    const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
     };
 
-    const handleImageSelect = async (event) => {
+    const handleImageSelect = async (event: any) => {
         const file = event.target.files[0];
         if (!file) return;
 
@@ -132,17 +131,12 @@ const ProfileModal = ({ isOpen, onClose, userProfile }) => {
             setIsSaving(true);
             setError(null);
 
-            await client.graphql({
-                query: updateUserProfile,
-                variables: {
-                    input: {
-                        id: userProfile.id,
-                        username: formData.username,
-                        email: formData.email,
-                        bio: formData.bio,
-                        avatar: formData.avatar
-                    }
-                }
+            await client.models.Profile.update({
+                id: userProfile.id,
+                username: formData.username,
+                email: formData.email,
+                bio: formData.bio,
+                avatar: formData.avatar
             });
 
             setIsEditing(false);

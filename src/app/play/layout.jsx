@@ -2,6 +2,10 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Amplify } from 'aws-amplify';
+import outputs from '../../../amplify_outputs.json';
+
+Amplify.configure(outputs);
 
 import '../../styles/styles.css';
 import '../../styles/modal.css';
@@ -12,7 +16,7 @@ export default function PlayLayout({ children }) {
 
     useEffect(() => {
         if (!loading && !user) {
-            router.push('/auth/login');
+            router.push('login');
         }
     }, [user, loading, router]);
 

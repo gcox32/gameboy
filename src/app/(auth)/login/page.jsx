@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { signIn, getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Amplify } from 'aws-amplify';
-import awsconfig from '../../../aws-exports';
 import { authedRoute } from '../../../../config';
 import '@/styles/auth.css';
+import { Amplify } from 'aws-amplify';
+import outputs from '../../../../amplify_outputs.json';
 
-Amplify.configure(awsconfig);
+Amplify.configure(outputs);
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -67,28 +67,28 @@ export default function Login() {
     const handleNextStep = (nextStep) => {
         switch (nextStep) {
             case 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED':
-                router.push('/auth/new-password');
+                router.push('new-password');
                 break;
             case 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE':
-                router.push('/auth/custom-challenge');
+                router.push('custom-challenge');
                 break;
             case 'CONFIRM_SIGN_IN_WITH_TOTP_CODE':
-                router.push('/auth/totp');
+                router.push('totp');
                 break;
             case 'CONTINUE_SIGN_IN_WITH_TOTP_SETUP':
-                router.push('/auth/totp-setup');
+                router.push('totp-setup');
                 break;
             case 'CONFIRM_SIGN_IN_WITH_SMS_CODE':
-                router.push('/auth/sms');
+                router.push('sms');
                 break;
             case 'CONTINUE_SIGN_IN_WITH_MFA_SELECTION':
-                router.push('/auth/mfa-selection');
+                router.push('mfa-selection');
                 break;
             case 'RESET_PASSWORD':
-                router.push('/auth/reset-password');
+                router.push('reset-password');
                 break;
             case 'CONFIRM_SIGN_UP':
-                router.push('/auth/confirm-signup');
+                router.push('confirm-signup');
                 break;
             case 'DONE':
                 router.push('/');
@@ -140,7 +140,7 @@ export default function Login() {
             {error && <p className="error" role="alert">{error}</p>}
             
             <div className="signup-prompt">
-                Don&apos;t have an account? <Link href="/auth/signup" className="signup-link">Sign up</Link>
+                Don&apos;t have an account? <Link href="signup" className="signup-link">Sign up</Link>
             </div>
         </div>
     );

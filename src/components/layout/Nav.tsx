@@ -1,22 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { generateClient } from 'aws-amplify/api';
+import { type Schema } from '@/amplify/data/resource';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
-import { generateClient } from 'aws-amplify/api';
-import { listUserProfiles } from '@/graphql/queries';
+
 import ProfileModal from '@/components/modals/ProfileModal';
 import SettingsModal from '@/components/modals/SettingsModal';
 import { signOut } from 'aws-amplify/auth';
-import awsconfig from '@/aws-exports';
-import { Amplify } from 'aws-amplify';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import GameInterruptModal from '@/components/modals/GameInterruptModal';
 
-Amplify.configure(awsconfig);
-const client = generateClient();
+const client = generateClient<Schema>();
 
 const Nav = () => {
     const { user } = useAuth();
@@ -43,16 +41,11 @@ const Nav = () => {
         if (!user) return;
 
         try {
-            const response = await client.graphql({
-                query: listUserProfiles,
-                variables: {
-                    filter: {
-                        owner: { eq: user.userId }
-                    }
+            const profiles = await client.models.Profile.list({
+                filter: {
+                    owner: { eq: user.userId }
                 }
             });
-
-            const profiles = response.data.listUserProfiles.items;
 
             if (profiles.length > 0) {
                 setUserProfile(profiles[0]);
@@ -152,7 +145,7 @@ const Nav = () => {
                             )}
                         </div>
                     ) : (
-                        <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                        <Link href="login" onClick={() => setIsMenuOpen(false)}>Login</Link>
                     )}
                 </div>
             </nav>

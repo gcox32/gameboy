@@ -56,3 +56,8 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*

@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import GameInterruptModal from '@/components/modals/GameInterruptModal';
-
+import styles from './styles.module.css';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { 
@@ -16,8 +16,8 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="footer">
-        <div className="footer-links">
+      <footer className={styles.footer}>
+        <div className={styles.footerLinks}>
           <Link 
             href="/terms"
             onClick={(e) => handleStaticPageNavigation(e, '/terms')}
@@ -31,7 +31,7 @@ const Footer = () => {
             Privacy Policy
           </Link>
         </div>
-        <div className="footer-copyright">
+        <div className={styles.footerCopyright}>
           © {currentYear} letmedemo.com. All rights reserved.
         </div>
       </footer>

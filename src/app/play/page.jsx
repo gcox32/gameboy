@@ -22,19 +22,15 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
 
 // Amplify auth
-import { Amplify } from 'aws-amplify';
 import { getCurrentUser } from 'aws-amplify/auth'
-import awsconfig from '../../aws-exports';
 
 // Add import
 import { useSaveState } from '@/hooks/useSaveState';
 
-Amplify.configure(awsconfig);
-
 export default function App() {
 
 	// Get settings from context
-	const { uiSettings, updateUISettings, emulatorSettings } = useSettings();
+	const { uiSettings } = useSettings();
 	const { speed, isSoundOn, mobileZoom } = uiSettings;	
 
 	// Refs to access the DOM elements
@@ -116,7 +112,7 @@ export default function App() {
 			setUser(user);
 		} catch (error) {
 			console.error('Not authenticated', error);
-			router.push('/auth/login');
+			router.push('login');
 		} finally {
 			setIsLoading(false);
 		}

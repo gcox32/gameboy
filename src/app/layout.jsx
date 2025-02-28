@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from '../contexts/AuthContext';
 import { Amplify } from 'aws-amplify';
-import awsconfig from '../aws-exports';
+import outputs from '../../amplify_outputs.json';
 import Nav from '@/components/layout/Nav';
 
 import '../styles/styles.css';
@@ -10,7 +10,7 @@ import '../styles/modal.css';
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { GameProvider } from '../contexts/GameContext';
 
-Amplify.configure(awsconfig);
+Amplify.configure(outputs);
 
 const inter = Inter({ subsets: ["latin"] });
 

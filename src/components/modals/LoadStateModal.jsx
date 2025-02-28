@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { downloadData, remove } from 'aws-amplify/storage';
-import { deleteSaveState } from '../../graphql/mutations';
 import { generateClient } from 'aws-amplify/api';
 import ConfirmModal from './ConfirmModal';
 import BaseModal from './BaseModal';
-import { assetsEndpoint, assetsEndpointPublic, userPoolRegion } from '../../../config';
+import { assetsEndpoint, assetsEndpointPublic } from '../../../config';
 
 function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 	const [updatedSaveStates, setUpdatedSaveStates] = useState([]);

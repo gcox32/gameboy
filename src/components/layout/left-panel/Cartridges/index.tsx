@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/api';
-import { listGames } from '../../../graphql/queries';
+import { type Schema } from '@/amplify/data/resource';
+import GameManagement from '@/components/modals/GameManagement';
+import styles from './styles.module.css';
 
+const client = generateClient<Schema>();
 function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }) {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
     useEffect(() => {
         const fetchGames = async () => {
-            const client = generateClient();
             try {
-                const gameData = await client.graphql({
-                    query: listGames,
-                    variables: {
-                        filter: {
-                            owner: { eq: currentUser.userId }
-                        }
+                const gamesList = await client.models.Game.list({
+                    filter: {
+                        owner: { eq: currentUser.userId }
                     }
                 });
-                const gamesList = gameData.data.listGames.items;
-                setGames(gamesList);
+                console.log(gamesList);
+                setGames(gamesList.data);
             } catch (err) {
                 setError(err);
             } finally {
@@ -52,6 +51,12 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
                     </option>
                 ))}
             </select>
+
+            <div className={styles.manageGamesButton} onClick={() => setIsGameManagementOpen(true)}>Manage Games</div>
+            <GameManagement
+                isOpen={isGameManagementOpen}
+                onClose={() => setIsGameManagementOpen(false)}
+            />  
             <div id="active-game-title" className={activeSaveState ? "" : 'null'}>
                 { activeSaveState ? activeSaveState.title : '' }
             </div>

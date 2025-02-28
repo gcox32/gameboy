@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { defaultEmulatorSettings, updateEmulatorSettings } from '@/utils/settings/emulatorSettings';
+import React, { createContext, useContext, useState } from 'react';
+import { defaultEmulatorSettings } from '@/utils/settings/emulatorSettings';
 
 const SettingsContext = createContext();
 

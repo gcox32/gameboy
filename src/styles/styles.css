@@ -152,23 +152,6 @@ body {
   display: none;
 }
 
-/* controls */
-#control-panel {
-  display: flex;
-  flex-direction: column;
-  max-width: 400px;
-  padding: 2em;
-  align-items: center;
-  padding-top: 5em;
-  position: absolute;
-  z-index: 7;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  gap: 2em;
-  transition: left 200ms ease-in-out;
-}
-
 .rom-selector {
   padding: 8px 12px;
   border-radius: 5px;
@@ -246,9 +229,7 @@ body {
   text-align: center;
   cursor: pointer;
 }
-#control-panel.hidden {
-  left: -302px; /* Same as the width of the control panel */
-}
+
 
 .toggle-handle {
   position: absolute;
