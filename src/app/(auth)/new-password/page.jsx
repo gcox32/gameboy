@@ -1,7 +1,5 @@
 'use client';
 
-import '@/styles/auth.css';
-
 export default function NewPassword() {
     return (
         <div className="container">

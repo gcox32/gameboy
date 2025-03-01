@@ -2,7 +2,11 @@ import { generateClient } from 'aws-amplify/api';
 import { uploadData } from 'aws-amplify/storage';
 import { userPoolRegion } from '../../config';
 import { v4 as uuidv4 } from 'uuid';
+import { Amplify } from 'aws-amplify';
+import outputs from '../../amplify_outputs.json';
+import { getUrl, downloadData } from 'aws-amplify/storage';
 
+Amplify.configure(outputs);
 export async function saveGameToS3(savePackage, game, saveModalData, userId, previous = false) {
     try {
         // Serialize the entire savePackage object into JSON
@@ -80,55 +84,25 @@ export async function saveSRAM(gameboyInstance, game, saveModalData, previous = 
 }
 
 // loading functions
-
-export async function fetchUserGames(userId) {
-    try {
-        const client = generateClient();
-        const gameData = await client.graphql(
-            {
-                query: listGames,
-                variables: {
-                    filter: {
-                        owner: {
-                            eq: userId,
-                        }
-                    }
-                }
-            });
-
-        return gameData.data.listGames.items;
-
-    } catch (error) {
-        console.error('Error fetching save states:', error);
-        throw error;
-    }
-};
-
 export async function fetchUserSaveStates(userId, gameId) {
     try {
         const client = generateClient();
-        const saveStateData = await client.graphql(
-            {
-                query: listSaveStates,
-                variables: {
-                    filter: {
-                        gameSaveStatesId: {
-                            eq: gameId,
-                        },
-                        owner: {
-                            eq: userId,
-                        }
-                    }
-                }
-            });
+        const saveStateData = await client.models.SaveState.list({
+            filter: {
+                gameId: { eq: gameId },
+                owner: { eq: userId }
+            }
+        });
+        console.log('Save state data:', saveStateData);
 
-        return saveStateData.data.listSaveStates.items;
+        return saveStateData.data;
 
     } catch (error) {
         console.error('Error fetching save states:', error);
         throw error;
     }
 };
+
 export async function uploadImageToS3(file, filePath) {
     try {
         const s3Response = uploadData({ path: filePath, data: file });
@@ -138,3 +112,17 @@ export async function uploadImageToS3(file, filePath) {
         throw error;
     }
 }
+
+export async function loadInGameFile(filePath) {
+    try {
+        console.log('Loading in-game file:', filePath);
+        const linkUrl = (await getUrl({ path: filePath })).url.href;
+        console.log('Link URL:', linkUrl);
+        const fileData = await downloadData({ path: filePath }).result;
+        console.log('File data:', fileData);
+        return fileData;
+    } catch (error) {
+        console.error('Error loading in-game file', error);
+        throw error;
+    }
+};

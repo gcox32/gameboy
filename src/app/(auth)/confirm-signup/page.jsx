@@ -2,13 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { confirmSignUp, signIn, getCurrentUser } from 'aws-amplify/auth';
-import { Amplify } from 'aws-amplify';
-import outputs from '../../../../amplify_outputs.json';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import '@/styles/auth.css';
-
-Amplify.configure(outputs);
 
 const authedRoute = '/play';
 

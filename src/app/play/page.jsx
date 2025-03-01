@@ -16,7 +16,7 @@ import {
 	settings,
 	clearLastEmulation
 } from '../../utils/GameBoyIO';
-import { saveSRAM, fetchUserSaveStates } from '../../utils/saveLoad';
+import { saveSRAM, fetchUserSaveStates, loadInGameFile } from '../../utils/saveLoad';
 import { publicGamesEndpoint, backgroundEndpoint } from '../../../config';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
@@ -145,15 +145,17 @@ export default function App() {
 		if (selectedROM) {
 			setActiveROM(selectedROM);
 			setUserSaveStates(await fetchUserSaveStates(currentUser.userId, selectedROM.id))
+			console.log('User save states:', userSaveStates);
 			updateBackgroundForFullscreen(selectedROM.backgroundImg);
-			const romUrl = `${publicGamesEndpoint}${selectedROM.filePath}`;
+			console.log('Selected ROM:', selectedROM);
 			console.log('Current user:', currentUser);
 			try {
-				const response = await fetch(romUrl);
-				if (!response.ok) {
+				const response = await loadInGameFile(selectedROM.filePath);
+				console.log('Response:', response);
+				if (!response.body) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
-				const blob = await response.blob();
+				const blob = await response.body.blob();
 				const reader = new FileReader();
 				reader.onloadend = () => {
 					setROMImage(reader.result);
@@ -224,7 +226,6 @@ export default function App() {
 			// console.error("GameBoy instance is not initialized.");
 		}
 	}
-
 	const handleReset = () => {
 		if (ROMImage) {
 			console.log("Resetting GameBoy with the same ROM...");

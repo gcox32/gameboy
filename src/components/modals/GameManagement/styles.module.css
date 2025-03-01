@@ -15,9 +15,19 @@
     border-radius: 8px;
     padding: 1rem;
     transition: all 0.2s ease-in-out;
+    cursor: pointer;
 }
 
 .gameCard:hover {
     border-color: var(--amplify-colors-brand-primary-60);
-    transform: translateY(-2px);
+}
+
+.gameCard button {
+    padding: 0.25rem;
+    min-width: auto;
+}
+
+.gameCard button:hover {
+    background-color: var(--amplify-colors-background-secondary);
+    border-radius: 50%;
 }

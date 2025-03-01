@@ -6,11 +6,6 @@ import { signIn, getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '../../../../config';
-import '@/styles/auth.css';
-import { Amplify } from 'aws-amplify';
-import outputs from '../../../../amplify_outputs.json';
-
-Amplify.configure(outputs);
 
 export default function Login() {
     const [username, setUsername] = useState('');

@@ -80,7 +80,7 @@ p.amplify-text:hover {
   cursor: default;
 }
 
-.amplify-flex input {
+.amplify-flex input:not([type="file"]) {
   border-radius: 8px;
 }
 

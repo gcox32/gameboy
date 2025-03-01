@@ -1,14 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Amplify } from 'aws-amplify';
-import outputs from '../../../../amplify_outputs.json';
 import { signUp } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import '@/styles/auth.css';
-
-Amplify.configure(outputs);
 
 export default function SignUp() {
     const [username, setUsername] = useState('');

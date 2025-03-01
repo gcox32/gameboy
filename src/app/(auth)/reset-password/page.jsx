@@ -1,7 +1,5 @@
 'use client';
 
-import '@/styles/auth.css';
-
 export default function ResetPassword() {
     return (
         <div className="container">
