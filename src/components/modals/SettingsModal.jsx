@@ -13,7 +13,16 @@ import '@aws-amplify/ui-react/styles.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
     const { uiSettings, updateUISettings } = useSettings();
-    const { speed, isSoundOn, mobileZoom } = uiSettings;
+    const { speed, isSoundOn, mobileZoom, background } = uiSettings;
+
+    const baseBackground = 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/';
+    const backgroundOptions = [
+        { id: 'default', color: '#000000', image: `${baseBackground}default.png` },
+        { id: 'red', color: '#ff0000', image: `${baseBackground}red.png` },
+        { id: 'blue', color: '#b3e0ff', image: `${baseBackground}blue.png` },
+        { id: 'green', color: '#c8e6c9', image: `${baseBackground}green.png` },
+        { id: 'yellow', color: '#fff9c4', image: `${baseBackground}yellow.png` }
+    ];
 
     const onSpeedChange = (value) => {
         updateUISettings({ speed: parseFloat(value) });
@@ -27,11 +36,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
         updateUISettings({ mobileZoom: !mobileZoom });
     };
 
+    const onBackgroundSelect = (imageFile) => {
+        updateUISettings({ background: imageFile });
+    };
+
     const resetSettings = () => {
         updateUISettings({
             speed: 1,
             isSoundOn: true,
-            mobileZoom: false
+            mobileZoom: false,
+            background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.png'
         });
     };
 
@@ -66,6 +80,30 @@ const SettingsModal = ({ isOpen, onClose }) => {
                     onChange={onMobileZoomToggle}
                     labelPosition="start"
                 />
+
+                <Divider />
+
+                <label>Fullscreen Background</label>
+                <div className="selectBackgroundContainer">
+                    <Flex direction="row" gap="1rem" justifyContent="space-between">
+                        {backgroundOptions.map((bg) => (
+                            <div
+                                key={bg.id}
+                                className={`background-option ${uiSettings.background === bg.image ? 'selected' : ''}`}
+                                style={{
+                                    backgroundColor: bg.color,
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '50%',
+                                    cursor: 'pointer',
+                                    border: uiSettings.background === bg.image ? '3px solid var(--amplify-colors-brand-primary-80)' : '2px solid var(--amplify-colors-border-primary)',
+                                    transition: 'all 0.2s ease-in-out'
+                                }}
+                                onClick={() => onBackgroundSelect(bg.image)}
+                            />
+                        ))}
+                    </Flex>
+                </div>
 
                 <Divider />
 

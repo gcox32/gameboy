@@ -376,3 +376,19 @@ h3.save-state-title {
   background: var(--amplify-colors-background-primary);
   color: var(--amplify-colors-font-primary);
 }
+
+.selectBackgroundContainer {
+    padding: 0.5rem 0;
+}
+
+.background-option {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.background-option:hover {
+    transform: scale(1.1);
+}
+
+.background-option.selected {
+    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--amplify-colors-brand-primary-80);
+}

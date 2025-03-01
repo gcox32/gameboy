@@ -10,7 +10,8 @@ export const SettingsProvider = ({ children }) => {
     const [uiSettings, setUiSettings] = useState({
         speed: 1,
         isSoundOn: true,
-        mobileZoom: false
+        mobileZoom: false,
+        background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.png'
     });
 
     // Emulator Settings

@@ -47,6 +47,7 @@
 - [ ] Custom control mapping
 - [ ] Speed control improvements
 - [ ] Game-specific settings persistence
+- [ ] Dynamic background based on game (e.g. Viridian Forest, Pewter City, etc.)
 
 ### Pokemon Features
 - [x] Real-time team viewer with Sugimori art

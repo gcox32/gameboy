@@ -17,7 +17,7 @@ import {
 	clearLastEmulation
 } from '../../utils/GameBoyIO';
 import { saveSRAM, fetchUserSaveStates, loadInGameFile } from '../../utils/saveLoad';
-import { publicGamesEndpoint, backgroundEndpoint } from '../../../config';
+import { backgroundEndpoint } from '../../../config';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
 
@@ -146,7 +146,6 @@ export default function App() {
 			setActiveROM(selectedROM);
 			setUserSaveStates(await fetchUserSaveStates(currentUser.userId, selectedROM.id))
 			console.log('User save states:', userSaveStates);
-			updateBackgroundForFullscreen(selectedROM.backgroundImg);
 			console.log('Selected ROM:', selectedROM);
 			console.log('Current user:', currentUser);
 			try {
@@ -177,10 +176,10 @@ export default function App() {
 	};
 	const updateBackgroundForFullscreen = (backgroundData) => {
 		if (backgroundData) {
-			const backgroundUrl = `${backgroundEndpoint}${backgroundData}`;
-			setFullscreenBackground(backgroundUrl);
+			setFullscreenBackground(backgroundData);
 		} else {
-			setFullscreenBackground('');
+			// If no ROM-specific background, use the one from settings
+			setFullscreenBackground(uiSettings.background);
 		}
 	};
 	const handlePowerToggle = () => {
@@ -450,6 +449,13 @@ export default function App() {
 	},
 		[isEmulatorPlaying]
 	);
+
+	// Add this effect to watch for background changes in settings
+	useEffect(() => {
+		if (!activeROM?.backgroundImg) {
+			setFullscreenBackground(uiSettings.background);
+		}
+	}, [uiSettings.background, activeROM]);
 
 	if (isLoading) {
 		return <div>Loading...</div>;
