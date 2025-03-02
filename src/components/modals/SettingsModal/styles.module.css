@@ -1,0 +1,29 @@
+.backgroundOptions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.backgroundOption {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--amplify-colors-border-primary);
+    transition: all 0.2s ease-in-out;
+    padding: 0;
+}
+
+.backgroundOption:hover {
+    transform: scale(1.1);
+}
+
+.backgroundOption.selected {
+    border: 3px solid var(--amplify-colors-brand-primary-80);
+}
+
+.resetButton {
+    margin-top: 1rem;
+    width: 100%;
+}

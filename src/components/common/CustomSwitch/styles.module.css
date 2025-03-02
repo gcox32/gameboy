@@ -1,0 +1,37 @@
+.switchContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background-color: var(--amplify-colors-background-secondary);
+    border-radius: 12px;
+    padding: 2px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.switch.checked {
+    background-color: var(--amplify-colors-brand-primary-80);
+}
+
+.thumb {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.switch.checked .thumb {
+    transform: translateX(20px);
+}
