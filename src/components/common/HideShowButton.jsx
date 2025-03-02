@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ToggleButton({ onClick, isPanelVisible }) {
+function HideShowButton({ onClick, isPanelVisible }) {
     return (
         <button 
             onClick={onClick} 
@@ -11,4 +11,4 @@ function ToggleButton({ onClick, isPanelVisible }) {
     );
 }
 
-export default ToggleButton;
+export default HideShowButton;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Cartridges from "../Cartridges";
 import SystemControls from "../SystemControls";
-import ToggleButton from "@/components/common/ToggleButton";
+import HideShowButton from "@/components/common/HideShowButton";
 import styles from './styles.module.css';
 
 function ControlPanel({
@@ -54,7 +54,7 @@ function ControlPanel({
                 currentUser={currentUser}
                 isSaving={isSaving}
             />
-            <ToggleButton
+            <HideShowButton
                 onClick={togglePanel}
                 isPanelVisible={isPanelVisible}
                 mobile={false}
