@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { confirmSignUp, signIn, getCurrentUser } from 'aws-amplify/auth';
+import { confirmSignUp, signIn, getCurrentUser, resendSignUpCode } from 'aws-amplify/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { generateClient } from 'aws-amplify/api';
+import { type Schema } from '@/amplify/data/resource';
 
 const authedRoute = '/play';
+
+const client = generateClient<Schema>();
 
 function ConfirmSignUpComponent() {
     const [username, setUsername] = useState('');
@@ -17,6 +21,7 @@ function ConfirmSignUpComponent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { setUser } = useAuth();
+    const [isResending, setIsResending] = useState(false);
 
     useEffect(() => {
         const username = searchParams.get('username');
@@ -54,10 +59,25 @@ function ConfirmSignUpComponent() {
 
                 // Step 3: Get current user and create profile
                 const user = await getCurrentUser();
+                
+                // Create Profile record
+                try {
+                    await client.models.Profile.create({
+                        id: user.userId,
+                        owner: user.userId,
+                        username: email,
+                        email: email,
+                        avatar: 'https://assets.letmedemo.com/public/gameboy/images/users/default-avatar.png',
+                        bio: ''
+                    });
+                    setMessage('Profile created. Redirecting to game...');
+                } catch (profileError) {
+                    console.error('Error creating profile:', profileError);
+                    // Continue even if profile creation fails
+                }
+
                 // Update the user in the AuthContext
                 setUser(user);
-
-                setMessage('Profile created. Redirecting to game...');
                 router.push(authedRoute);
             } else {
                 setError('Sign in failed after confirmation.');
@@ -65,7 +85,6 @@ function ConfirmSignUpComponent() {
         } catch (err) {
             if (err.message.includes('User cannot be confirmed. Current status is CONFIRMED')) {
                 setMessage('Your account is already confirmed. Redirecting to game...');
-                // Try to sign in the user if they're already confirmed
                 try {
                     await signIn({ username, password });
                     const user = await getCurrentUser();
@@ -78,6 +97,26 @@ function ConfirmSignUpComponent() {
             } else {
                 setError(err.message);
             }
+        }
+    };
+
+    const handleResendCode = async () => {
+        if (!username) {
+            setError('Username is required to resend code');
+            return;
+        }
+        
+        setIsResending(true);
+        setError(null);
+        setMessage(null);
+        
+        try {
+            await resendSignUpCode({ username });
+            setMessage('Verification code has been resent to your email');
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsResending(false);
         }
     };
 
@@ -95,6 +134,14 @@ function ConfirmSignUpComponent() {
                 />
                 <button type="submit" className="button">Confirm</button>
             </form>
+            <button 
+                onClick={handleResendCode} 
+                disabled={isResending}
+                className="button secondary"
+                style={{ marginTop: '1rem' }}
+            >
+                {isResending ? 'Sending...' : 'Resend Code'}
+            </button>
             {error && <p role="alert" className="error">{error}</p>}
             {message && <p role="status" className="status-message">{message}</p>}
         </div>

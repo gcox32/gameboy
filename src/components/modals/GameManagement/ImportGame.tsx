@@ -25,7 +25,7 @@ interface ImportGameProps {
 
 export default function ImportGame({ userId, onSuccess, onCancel }: ImportGameProps) {
     const [gameFile, setGameFile] = useState<File | null>(null);
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageFile, setImageFile] = useState<File | string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -62,7 +62,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
         if (file && (file.name.toLowerCase().endsWith('.gbc') || file.name.toLowerCase().endsWith('.gb'))) {
             setGameFile(file);
             setError(null);
-            
+
             // Auto-fill title from filename if empty
             if (!formData.title) {
                 const title = file.name.split('.').slice(0, -1).join('.');
@@ -91,7 +91,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
         try {
             const gameId = uuidv4();
             const filePath = `protected/${userId}/games/${gameId}/${gameFile.name}`;
-            
+
             // Upload game file to S3
             await uploadData({
                 path: filePath,
@@ -108,16 +108,20 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
             // Handle image upload if provided
             let imagePath = '';
             if (imageFile) {
-                const fileType = imageFile.name.split('.').pop();
-                imagePath = `protected/${userId}/games/${gameId}/cover.${fileType}`;
-                
-                await uploadData({
-                    path: imagePath,
-                    data: imageFile,
-                    options: {
-                        contentType: imageFile.type
-                    }
-                }).result;
+                if (typeof imageFile === 'string') {
+                    imagePath = imageFile;
+                } else {
+                    const fileType = imageFile.name.split('.').pop();
+                    imagePath = `protected/${userId}/games/${gameId}/cover.${fileType}`;
+                    
+                    await uploadData({
+                        path: imagePath,
+                        data: imageFile,
+                        options: {
+                            contentType: imageFile.type
+                        }
+                    }).result;
+                }
             }
 
             // Create game record in database
@@ -157,7 +161,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                         error={error}
                     />
                 </View>
-                
+
                 <ImageUpload
                     onChange={setImageFile}
                     label="Game Cover Image (Optional)"
@@ -179,7 +183,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
 
                 {uploadProgress > 0 && uploadProgress < 100 && (
                     <div className="upload-progress">
-                        <div 
+                        <div
                             className="progress-bar"
                             style={{ width: `${uploadProgress}%` }}
                         />

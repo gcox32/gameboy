@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
-
+import { getS3Url } from '@/utils/saveLoad';
 import ProfileModal from '@/components/modals/ProfileModal';
 import SettingsModal from '@/components/modals/SettingsModal';
 import { signOut } from 'aws-amplify/auth';
@@ -20,6 +20,7 @@ const Nav = () => {
     const { user } = useAuth();
     const { uiSettings, updateUISettings } = useSettings();
     const [userProfile, setUserProfile] = useState(null);
+    const [avatarUrl, setAvatarUrl] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -35,7 +36,7 @@ const Nav = () => {
         if (user) {
             fetchUserProfile();
         }
-    }, [user]);
+    }, [user, userProfile]);
 
     const fetchUserProfile = async () => {
         if (!user) return;
@@ -46,9 +47,13 @@ const Nav = () => {
                     owner: { eq: user.userId }
                 }
             });
-
-            if (profiles.length > 0) {
-                setUserProfile(profiles[0]);
+            if (profiles.data.length > 0) {
+                const profile = profiles.data[0];
+                setUserProfile(profile);
+                if (profile.avatar) {
+                    const url = await getS3Url(profile.avatar);
+                    setAvatarUrl(url);
+                }
             }
         } catch (error) {
             console.error('Error fetching user profile:', error);
@@ -121,9 +126,9 @@ const Nav = () => {
                     {user ? (
                         <div className="profile-container">
                             <div onClick={handleProfileClick}>
-                                {userProfile && userProfile.avatar ? (
+                                {userProfile && avatarUrl ? (
                                     <Image
-                                        src={userProfile.avatar}
+                                        src={avatarUrl}
                                         alt={userProfile.username}
                                         title={userProfile.username}
                                         width={40}

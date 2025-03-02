@@ -116,3 +116,18 @@
 .link:hover {
     text-decoration: underline;
 }
+
+.button.secondary {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.button.secondary:hover {
+    background-color: var(--primary-color-light);
+}
+
+.button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}

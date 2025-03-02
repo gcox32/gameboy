@@ -6,6 +6,7 @@ import { signIn, getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '../../../../config';
+import '@/styles/auth.css';
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -62,28 +63,28 @@ export default function Login() {
     const handleNextStep = (nextStep) => {
         switch (nextStep) {
             case 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED':
-                router.push('new-password');
+                router.push('/new-password');
                 break;
             case 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE':
-                router.push('custom-challenge');
+                router.push('/custom-challenge');
                 break;
             case 'CONFIRM_SIGN_IN_WITH_TOTP_CODE':
-                router.push('totp');
+                router.push('/totp');
                 break;
             case 'CONTINUE_SIGN_IN_WITH_TOTP_SETUP':
-                router.push('totp-setup');
+                router.push('/totp-setup');
                 break;
             case 'CONFIRM_SIGN_IN_WITH_SMS_CODE':
-                router.push('sms');
+                router.push('/sms');
                 break;
             case 'CONTINUE_SIGN_IN_WITH_MFA_SELECTION':
-                router.push('mfa-selection');
+                router.push('/mfa-selection');
                 break;
             case 'RESET_PASSWORD':
-                router.push('reset-password');
+                router.push('/reset-password');
                 break;
             case 'CONFIRM_SIGN_UP':
-                router.push('confirm-signup');
+                router.push('/confirm-signup');
                 break;
             case 'DONE':
                 router.push('/');
@@ -107,7 +108,7 @@ export default function Login() {
             <form onSubmit={handleLogin} className="form">
                 <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Email"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
@@ -135,7 +136,7 @@ export default function Login() {
             {error && <p className="error" role="alert">{error}</p>}
             
             <div className="signup-prompt">
-                Don&apos;t have an account? <Link href="signup" className="signup-link">Sign up</Link>
+                Don&apos;t have an account? <Link href="/signup" className="signup-link">Sign up</Link>
             </div>
         </div>
     );

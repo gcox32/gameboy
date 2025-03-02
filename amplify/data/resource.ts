@@ -8,7 +8,7 @@ const schema = a.schema({
   Game: GameSchema,
   SaveState: SaveStateSchema,
   Profile: ProfileSchema,
-});
+})
 
 export type Schema = ClientSchema<typeof schema>;
 

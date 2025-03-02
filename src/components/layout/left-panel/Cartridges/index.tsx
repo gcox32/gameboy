@@ -18,7 +18,6 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
                     owner: { eq: currentUser.userId }
                 }
             });
-            console.log(gamesList);
             setGames(gamesList.data);
         } catch (err) {
             setError(err);

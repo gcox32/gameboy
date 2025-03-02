@@ -50,18 +50,13 @@ export default function SignUp() {
             <h1 className="title">Sign Up</h1>
             <form onSubmit={handleSignUp} className="form">
                 <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    className="input"
-                />
-                <input
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                        setEmail(e.target.value);
+                        setUsername(e.target.value);
+                    }}
                     required
                     className="input"
                 />

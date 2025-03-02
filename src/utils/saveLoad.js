@@ -126,3 +126,18 @@ export async function loadInGameFile(filePath) {
         throw error;
     }
 };
+
+export async function getS3Url(key) {
+    if (!key) return null;
+    try {
+        if (key.includes('public')) {
+            return key;
+        } else {
+            const { url } = await getUrl({ path: key });
+            return url.href;
+        }
+    } catch (error) {
+        console.error('Error getting S3 URL:', error);
+        return null;
+    }
+};

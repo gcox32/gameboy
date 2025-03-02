@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { type Schema } from '@/amplify/data/resource';
 import Image from 'next/image';
 import BaseModal from './BaseModal';
@@ -14,10 +14,18 @@ import {
     View,
     Alert
 } from '@aws-amplify/ui-react';
+import { getS3Url } from '@/utils/saveLoad';
 
 const client = generateClient<Schema>();
 
-const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClose: () => void, userProfile: any }) => {
+interface ProfileModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    userProfile: any;
+    onUpdate?: () => void;
+}
+
+const ProfileModal = ({ isOpen, onClose, userProfile }: ProfileModalProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState(null);
@@ -31,7 +39,17 @@ const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClo
         avatar: userProfile?.avatar || ''
     });
 
-    const handleEditToggle = () => {
+    useEffect(() => {
+        const loadAvatarUrl = async () => {
+            if (userProfile?.avatar) {
+                const url = await getS3Url(userProfile.avatar);
+                setImagePreview(url);
+            }
+        };
+        loadAvatarUrl();
+    }, [userProfile?.avatar]);
+
+    const handleEditToggle = async () => {
         if (isEditing) {
             // Reset form data if canceling edit
             setFormData({
@@ -40,7 +58,8 @@ const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClo
                 bio: userProfile?.bio || '',
                 avatar: userProfile?.avatar || ''
             });
-            setImagePreview(userProfile?.avatar || null);
+            const avatarUrl = await getS3Url(userProfile?.avatar);
+            setImagePreview(avatarUrl);
         }
         setIsEditing(!isEditing);
         setError(null);
@@ -70,21 +89,14 @@ const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClo
             return;
         }
 
-        // Create preview
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result);
-        };
-        reader.readAsDataURL(file);
-
         try {
             setError(null);
             setUploadProgress(0);
 
             // Upload to S3
-            const fileName = `avatars/${userProfile.id}/${Date.now()}-${file.name}`;
-            const result = await uploadData({
-                key: fileName,
+            const fileName = `protected/${userProfile.owner}/avatar/${Date.now()}-${file.name}`;
+            await uploadData({
+                path: fileName,
                 data: file,
                 options: {
                     contentType: file.type,
@@ -95,17 +107,21 @@ const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClo
                 }
             }).result;
 
-            // Update form data with the new S3 URL
-            const avatarUrl = result.key; // You might need to construct the full URL depending on your setup
+            // Get the URL for preview
+            const url = await getS3Url(fileName);
+            setImagePreview(url);
+
+            // Update form data with the S3 key
             setFormData(prev => ({
                 ...prev,
-                avatar: avatarUrl
+                avatar: fileName
             }));
-            
+
         } catch (err) {
             console.error('Error uploading image:', err);
             setError('Failed to upload image. Please try again.');
-            setImagePreview(userProfile?.avatar || null);
+            const url = await getS3Url(userProfile.avatar);
+            setImagePreview(url);
         }
     };
 
@@ -113,7 +129,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClo
         try {
             if (formData.avatar) {
                 // Remove from S3 if it exists
-                await remove({ key: formData.avatar });
+                await remove({ path: formData.avatar });
             }
             setFormData(prev => ({
                 ...prev,
@@ -173,49 +189,61 @@ const ProfileModal = ({ isOpen, onClose, userProfile }: { isOpen: boolean, onClo
                     <Flex direction="column" gap="1.5rem">
                         <View className="profile-avatar-section">
                             <div className="avatar-container">
-                                {imagePreview || userProfile.avatar ? (
-                                    <Image
-                                        src={imagePreview || userProfile.avatar}
-                                        alt={userProfile.username}
-                                        fill
-                                        className="profile-avatar"
-                                        sx={{ objectFit: "contain"}}
-                                    />
-                                ) : (
-                                    <div className="avatar-placeholder-modal large">
-                                        {userProfile.username.charAt(0).toUpperCase()}
-                                    </div>
-                                )}
+                                <Image
+                                    src={imagePreview}
+                                    alt={userProfile.username}
+                                    width={100}
+                                    height={100}
+                                    className="profile-avatar"
+                                    style={{ objectFit: "cover" }}
+                                />
                                 {isEditing && (
-                                    <div className="avatar-controls">
-                                        <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            onChange={handleImageSelect}
-                                            accept="image/*"
-                                            style={{ display: 'none' }}
-                                        />
-                                        <Button
-                                            onClick={() => fileInputRef.current?.click()}
-                                            size="small"
-                                            variation="primary"
-                                        >
-                                            Upload
-                                        </Button>
+                                    <>
+                                        <div className="avatar-overlay">
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                onChange={handleImageSelect}
+                                                accept="image/*"
+                                                style={{ display: 'none' }}
+                                                aria-label="Upload profile picture"
+                                            />
+                                            <Button
+                                                onClick={() => fileInputRef.current?.click()}
+                                                size="small"
+                                                variation="link"
+                                                className="upload-button"
+                                            >
+                                                <svg 
+                                                    width="24" 
+                                                    height="24" 
+                                                    viewBox="0 0 24 24" 
+                                                    fill="none" 
+                                                    stroke="currentColor" 
+                                                    strokeWidth="2"
+                                                >
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                    <polyline points="17 8 12 3 7 8" />
+                                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                                </svg>
+                                                <span>Upload New Image</span>
+                                            </Button>
+                                        </div>
                                         {imagePreview && (
                                             <Button
                                                 onClick={handleRemoveImage}
                                                 size="small"
                                                 variation="destructive"
+                                                className="remove-button"
                                             >
                                                 Remove
                                             </Button>
                                         )}
-                                    </div>
+                                    </>
                                 )}
                                 {uploadProgress > 0 && uploadProgress < 100 && (
                                     <div className="upload-progress">
-                                        <div 
+                                        <div
                                             className="progress-bar"
                                             style={{ width: `${uploadProgress}%` }}
                                         />

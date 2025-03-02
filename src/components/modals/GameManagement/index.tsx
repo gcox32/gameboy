@@ -8,8 +8,7 @@ import {
     Alert,
     Text,
     View,
-    Loader,
-    Icon
+    Loader
 } from '@aws-amplify/ui-react';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './styles.module.css';
@@ -18,8 +17,8 @@ import GameEditForm from './GameEditForm';
 
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
-import { getUrl } from 'aws-amplify/storage';
 import { uploadData } from 'aws-amplify/storage';
+import { getS3Url } from '@/utils/saveLoad';
 
 const client = generateClient<Schema>();
 
@@ -63,8 +62,9 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             for (const game of games) {
                 if (game.img) {
                     try {
-                        const { url } = await getUrl({ path: game.img });
-                        imageUrls[game.id] = url.href;
+                        const url = await getS3Url(game.img);
+                        imageUrls[game.id] = url;
+                        console.log(imageUrls);
                     } catch (err) {
                         console.error('Error loading image for game:', game.id, err);
                     }
