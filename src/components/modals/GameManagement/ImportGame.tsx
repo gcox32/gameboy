@@ -9,8 +9,11 @@ import {
     TextField,
     TextAreaField,
     Alert,
-    SelectField,
+    View,
+    Text
 } from '@aws-amplify/ui-react';
+import { ImageUpload } from '@/components/common/ImageUpload';
+import FileUploadZone from '@/components/common/FileUploadZone';
 
 const client = generateClient<Schema>();
 
@@ -22,23 +25,28 @@ interface ImportGameProps {
 
 export default function ImportGame({ userId, onSuccess, onCancel }: ImportGameProps) {
     const [gameFile, setGameFile] = useState<File | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        series: '',
-        generation: '',
-        releaseDate: '',
+        img: ''
     });
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file && file.name.toLowerCase().endsWith('.gbc')) {
+    const handleGameFileChange = (file: File) => {
+        if (file && (file.name.toLowerCase().endsWith('.gbc') || file.name.toLowerCase().endsWith('.gb'))) {
             setGameFile(file);
             setError(null);
+            
+            // Auto-fill title from filename if empty
+            if (!formData.title) {
+                const title = file.name.split('.').slice(0, -1).join('.');
+                setFormData(prev => ({ ...prev, title }));
+            }
         } else {
-            setError('Please select a valid .gbc file');
+            setError('Please select a valid .gb or .gbc file');
             setGameFile(null);
         }
     };
@@ -49,6 +57,10 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
             setError('Please select a game file');
             return;
         }
+        if (!formData.title.trim()) {
+            setError('Please enter a title');
+            return;
+        }
 
         setLoading(true);
         setError(null);
@@ -56,22 +68,48 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
         try {
             const gameId = uuidv4();
             const filePath = `protected/${userId}/games/${gameId}/${gameFile.name}`;
-
+            
             // Upload game file to S3
             await uploadData({
                 path: filePath,
                 data: gameFile,
                 options: {
-                    contentType: 'application/octet-stream'
+                    contentType: 'application/octet-stream',
+                    onProgress: ({ transferredBytes, totalBytes }) => {
+                        const progress = (transferredBytes / totalBytes) * 100;
+                        setUploadProgress(progress);
+                    }
                 }
             }).result;
+
+            // Handle image upload if provided
+            let imagePath = '';
+            if (imageFile) {
+                const fileType = imageFile.name.split('.').pop();
+                imagePath = `protected/${userId}/games/${gameId}/cover.${fileType}`;
+                
+                await uploadData({
+                    path: imagePath,
+                    data: imageFile,
+                    options: {
+                        contentType: imageFile.type
+                    }
+                }).result;
+            }
 
             // Create game record in database
             await client.models.Game.create({
                 id: gameId,
                 owner: userId,
-                filePath,
-                ...formData
+                title: formData.title,
+                filePath: filePath,
+                img: imagePath,
+                metadata: JSON.stringify({
+                    description: formData.description,
+                    series: '',
+                    generation: '',
+                    releaseDate: ''
+                })
             });
 
             onSuccess();
@@ -87,12 +125,19 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
         <form onSubmit={handleSubmit}>
             <Flex direction="column" gap="1rem">
                 {error && <Alert variation="error">{error}</Alert>}
+
+                <View>
+                    <Text>Game ROM File</Text>
+                    <FileUploadZone
+                        onFileSelect={handleGameFileChange}
+                        accept=".gb,.gbc"
+                        error={error}
+                    />
+                </View>
                 
-                <input
-                    type="file"
-                    accept=".gbc, .gb"
-                    onChange={handleFileChange}
-                    style={{ marginBottom: '1rem' }}
+                <ImageUpload
+                    onChange={setImageFile}
+                    label="Game Cover Image (Optional)"
                 />
 
                 <TextField
@@ -108,24 +153,14 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                     onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 />
 
-                <TextField
-                    label="Series"
-                    value={formData.series}
-                    onChange={e => setFormData(prev => ({ ...prev, series: e.target.value }))}
-                />
-
-                <TextField
-                    label="Generation"
-                    value={formData.generation}
-                    onChange={e => setFormData(prev => ({ ...prev, generation: e.target.value }))}
-                />
-
-                <TextField
-                    label="Release Date"
-                    type="date"
-                    value={formData.releaseDate}
-                    onChange={e => setFormData(prev => ({ ...prev, releaseDate: e.target.value }))}
-                />
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="upload-progress">
+                        <div 
+                            className="progress-bar"
+                            style={{ width: `${uploadProgress}%` }}
+                        />
+                    </div>
+                )}
 
                 <Flex direction="row" gap="1rem" justifyContent="flex-end">
                     <Button

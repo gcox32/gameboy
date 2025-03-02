@@ -17,8 +17,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
     const baseBackground = 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/';
     const backgroundOptions = [
-        { id: 'default', color: '#000000', image: `${baseBackground}default.png` },
-        { id: 'red', color: '#ff0000', image: `${baseBackground}red.png` },
+        { id: 'default', color: '#808080', image: `${baseBackground}default.jpeg` },
+        { id: 'red', color: '#ffcdd2', image: `${baseBackground}red.png` },
         { id: 'blue', color: '#b3e0ff', image: `${baseBackground}blue.png` },
         { id: 'green', color: '#c8e6c9', image: `${baseBackground}green.png` },
         { id: 'yellow', color: '#fff9c4', image: `${baseBackground}yellow.png` }
@@ -45,7 +45,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             speed: 1,
             isSoundOn: true,
             mobileZoom: false,
-            background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.png'
+            background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg'
         });
     };
 

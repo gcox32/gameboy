@@ -18,6 +18,7 @@ import GameEditForm from './GameEditForm';
 
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
+import { getUrl } from 'aws-amplify/storage';
 
 const client = generateClient<Schema>();
 
@@ -46,12 +47,34 @@ export default function GameManagement({ isOpen, onClose }: GameManagementProps)
     const [editingGame, setEditingGame] = useState<Game | null>(null);
     const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
     const [skipDeleteConfirmation, setSkipDeleteConfirmation] = useState(false);
+    const [gameImages, setGameImages] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (isOpen && user) {
             loadGames();
         }
     }, [isOpen, user]);
+
+    useEffect(() => {
+        const loadImages = async () => {
+            const imageUrls: Record<string, string> = {};
+            for (const game of games) {
+                if (game.img) {
+                    try {
+                        const { url } = await getUrl({ path: game.img });
+                        imageUrls[game.id] = url.href;
+                    } catch (err) {
+                        console.error('Error loading image for game:', game.id, err);
+                    }
+                }
+            }
+            setGameImages(imageUrls);
+        };
+
+        if (games.length > 0) {
+            loadImages();
+        }
+    }, [games]);
 
     const loadGames = async () => {
         try {
@@ -108,22 +131,32 @@ export default function GameManagement({ isOpen, onClose }: GameManagementProps)
     };
 
     const renderGameCard = (game: Game) => (
-        <div key={game.id} className={styles.gameCard} onClick={() => setEditingGame(game)}>
-            <Flex direction="column" gap="0.5rem">
-                <Text fontSize="1.1em" fontWeight="bold" className={styles.gameCardP}>
-                    {game.title}
-                </Text>
-                {game.series && (
-                    <Text fontSize="0.9em" color="gray">
-                        Series: {game.series}
+        <div 
+            key={game.id} 
+            className={styles.gameCard} 
+            onClick={() => setEditingGame(game)}
+        >
+            <div 
+                className={styles.gameCardBackground}
+                style={gameImages[game.id] ? { backgroundImage: `url(${gameImages[game.id]})` } : undefined}
+            />
+            <div className={styles.gameCardContent}>
+                <Flex direction="column" gap="0.5rem">
+                    <Text fontSize="1.1em" fontWeight="bold" className={styles.gameCardTitle}>
+                        {game.title}
                     </Text>
-                )}
-                {game.generation && (
-                    <Text fontSize="0.8em" color="gray">
-                        Gen: {game.generation}
-                    </Text>
-                )}
-            </Flex>
+                    {game.metadata?.series && (
+                        <Text fontSize="0.9em" color="white">
+                            Series: {game.metadata.series}
+                        </Text>
+                    )}
+                    {game.metadata?.generation && (
+                        <Text fontSize="0.8em" color="white">
+                            Gen: {game.metadata.generation}
+                        </Text>
+                    )}
+                </Flex>
+            </div>
         </div>
     );
 

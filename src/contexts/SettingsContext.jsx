@@ -11,7 +11,7 @@ export const SettingsProvider = ({ children }) => {
         speed: 1,
         isSoundOn: true,
         mobileZoom: false,
-        background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.png'
+        background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg'
     });
 
     // Emulator Settings

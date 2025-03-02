@@ -17,7 +17,6 @@ import {
 	clearLastEmulation
 } from '../../utils/GameBoyIO';
 import { saveSRAM, fetchUserSaveStates, loadInGameFile } from '../../utils/saveLoad';
-import { backgroundEndpoint } from '../../../config';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
 
