@@ -10,23 +10,24 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
-    useEffect(() => {
-        const fetchGames = async () => {
-            try {
-                const gamesList = await client.models.Game.list({
-                    filter: {
-                        owner: { eq: currentUser.userId }
-                    }
-                });
-                console.log(gamesList);
-                setGames(gamesList.data);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
 
+    const fetchGames = async () => {
+        try {
+            const gamesList = await client.models.Game.list({
+                filter: {
+                    owner: { eq: currentUser.userId }
+                }
+            });
+            console.log(gamesList);
+            setGames(gamesList.data);
+        } catch (err) {
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchGames();
     }, [currentUser]);
 
@@ -56,12 +57,12 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
             <GameManagement
                 isOpen={isGameManagementOpen}
                 onClose={() => setIsGameManagementOpen(false)}
+                onGameDeleted={fetchGames}
             />  
             <div id="active-game-title" className={activeSaveState ? "" : 'null'}>
                 { activeSaveState ? activeSaveState.title : '' }
             </div>
         </>
-
     );
 }
 

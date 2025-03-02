@@ -6,34 +6,52 @@ import {
     TextAreaField,
     Alert,
     Heading,
-    Icon,
+    View
 } from '@aws-amplify/ui-react';
+import { ImageUpload } from '@/components/common/ImageUpload';
 
 interface Game {
     id: string;
     title: string;
-    description: string;
-    series?: string;
-    generation?: string;
-    releaseDate?: string;
+    img?: string;
+    filePath: string;
+    metadata?: {
+        description?: string;
+        series?: string;
+        generation?: string;
+        releaseDate?: string;
+    };
 }
 
 interface GameEditFormProps {
     game: Game;
-    onSave: (gameData: Game) => void;
+    gameImgRef: string;
+    onSave: (gameData: Game) => Promise<void>;
     onCancel: () => void;
     onDelete: (game: Game) => void;
 }
 
-export default function GameEditForm({ game, onSave, onCancel, onDelete }: GameEditFormProps) {
+export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDelete }: GameEditFormProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [formData, setFormData] = useState({
-        title: game.title || '',
-        description: game.description || '',
-        series: game.series || '',
-        generation: game.generation || '',
-        releaseDate: game.releaseDate || '',
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [formData, setFormData] = useState(() => {
+        // Parse metadata if it exists
+        let metadata;
+        try {
+            metadata = game.metadata ? JSON.parse(game.metadata) : {};
+        } catch (e) {
+            console.error('Error parsing metadata:', e);
+            metadata = {};
+        }
+
+        return {
+            title: game.title || '',
+            description: metadata.description || '',
+            series: metadata.series || '',
+            generation: metadata.generation || '',
+            releaseDate: metadata.releaseDate || '',
+        };
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +62,15 @@ export default function GameEditForm({ game, onSave, onCancel, onDelete }: GameE
         try {
             await onSave({
                 ...game,
-                ...formData,
+                title: formData.title,
+                img: game.img, // This will be handled by the parent component
+                metadata: {
+                    description: formData.description,
+                    series: formData.series,
+                    generation: formData.generation,
+                    releaseDate: formData.releaseDate
+                },
+                imageFile // Pass the new image file if one was selected
             });
         } catch (err) {
             console.error('Error saving game:', err);
@@ -60,15 +86,24 @@ export default function GameEditForm({ game, onSave, onCancel, onDelete }: GameE
                 <Flex justifyContent="space-between" alignItems="center">
                     <Heading level={5}>Edit Game Details</Heading>
                     <Button
-                        variation="link"
+                        variation="destructive"
                         onClick={() => onDelete(game)}
                         type="button"
+                        size="small"
                     >
-                        Delete
+                        Delete Game
                     </Button>
                 </Flex>
 
                 {error && <Alert variation="error">{error}</Alert>}
+
+                <View>
+                    <ImageUpload
+                        value={gameImgRef}
+                        onChange={setImageFile}
+                        label="Game Cover Image"
+                    />
+                </View>
 
                 <TextField
                     label="Title"

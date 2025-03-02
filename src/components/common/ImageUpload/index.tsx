@@ -1,15 +1,21 @@
 import { useState } from 'react';
 import { ImageIcon, Loader } from 'lucide-react';
-import { uploadData } from 'aws-amplify/storage';
 import styles from './styles.module.css';
+
+interface PresetImage {
+  id: string;
+  url: string;
+  label: string;
+}
 
 interface ImageUploadProps {
   value?: string;
-  onChange: (file: File) => void;
+  onChange: (file: File | string) => void;
   label?: string;
   accept?: string;
   maxSize?: number; // in MB
   preview?: boolean;
+  presetImages?: PresetImage[];
 }
 
 export function ImageUpload({
@@ -18,11 +24,13 @@ export function ImageUpload({
   label = "Click to add image",
   accept = "image/*",
   maxSize = 5,
-  preview = true
+  preview = true,
+  presetImages = []
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(value || null);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
   const handleImageClick = () => {
     const input = document.createElement('input');
@@ -47,6 +55,7 @@ export function ImageUpload({
 
       setIsUploading(true);
       setError(null);
+      setSelectedPreset(null);
 
       try {
         // Create preview if enabled
@@ -71,36 +80,63 @@ export function ImageUpload({
     input.click();
   };
 
+  const handlePresetSelect = (preset: PresetImage) => {
+    setSelectedPreset(preset.id);
+    setImagePreview(preset.url);
+    setError(null);
+    onChange(preset.url);
+  };
+
   return (
     <div className={styles.container}>
-      <div 
-        className={styles.uploadArea}
-        onClick={handleImageClick}
-      >
-        {imagePreview ? (
-          <div className={styles.preview}>
-            <img src={imagePreview} alt="Preview" />
-            <div className={styles.overlay}>
-              <span>Click to replace image</span>
+      <div className={styles.uploadSection}>
+        <div 
+          className={styles.uploadArea}
+          onClick={handleImageClick}
+        >
+          {imagePreview ? (
+            <div className={styles.preview}>
+              <img src={imagePreview} alt="Preview" />
+              <div className={styles.overlay}>
+                <span>Click to replace image</span>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className={styles.placeholder}>
-            {isUploading ? (
-              <>
-                <Loader className={styles.loadingIcon} />
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <ImageIcon className={styles.icon} />
-                <span>{label}</span>
-              </>
-            )}
-          </div>
-        )}
+          ) : (
+            <div className={styles.placeholder}>
+              {isUploading ? (
+                <>
+                  <Loader className={styles.loadingIcon} />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <ImageIcon className={styles.icon} />
+                  <span>{label}</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        {error && <p className={styles.error}>{error}</p>}
       </div>
-      {error && <p className={styles.error}>{error}</p>}
+
+      {presetImages.length > 0 && (
+        <div className={styles.presetImages}>
+          <p className={styles.presetLabel}>Or choose from preset images:</p>
+          <div className={styles.presetGrid}>
+            {presetImages.map((preset) => (
+              <div
+                key={preset.id}
+                className={`${styles.presetItem} ${selectedPreset === preset.id ? styles.selected : ''}`}
+                onClick={() => handlePresetSelect(preset)}
+              >
+                <img src={preset.url} alt={preset.label} />
+                <span>{preset.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

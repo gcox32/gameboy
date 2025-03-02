@@ -19,6 +19,7 @@ import GameEditForm from './GameEditForm';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import { getUrl } from 'aws-amplify/storage';
+import { uploadData } from 'aws-amplify/storage';
 
 const client = generateClient<Schema>();
 
@@ -36,9 +37,10 @@ interface Game {
 interface GameManagementProps {
     isOpen: boolean;
     onClose: () => void;
+    onGameDeleted?: () => void;
 }
 
-export default function GameManagement({ isOpen, onClose }: GameManagementProps) {
+export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameManagementProps) {
     const { user } = useAuth();
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
@@ -95,18 +97,47 @@ export default function GameManagement({ isOpen, onClose }: GameManagementProps)
         }
     };
 
-    const handleEditGame = async (gameData: Game) => {
+    const handleEditGame = async (gameData: Game & { imageFile?: File }) => {
         try {
+            setLoading(true);
+            setError(null);
+
+            // Handle image upload if a new image was provided
+            let imagePath = gameData.img || '';
+            if (gameData.imageFile) {
+                const fileType = gameData.imageFile.name.split('.').pop();
+                imagePath = `protected/${user.userId}/games/${gameData.id}/cover.${fileType}`;
+                
+                await uploadData({
+                    path: imagePath,
+                    data: gameData.imageFile,
+                    options: {
+                        contentType: gameData.imageFile.type
+                    }
+                }).result;
+            }
+
+            // Update game record in database
             await client.models.Game.update({
                 id: gameData.id,
                 owner: user.userId,
-                ...gameData
+                title: gameData.title,
+                img: imagePath,
+                metadata: JSON.stringify({
+                    description: gameData.metadata?.description || '',
+                    series: gameData.metadata?.series || '',
+                    generation: gameData.metadata?.generation || '',
+                    releaseDate: gameData.metadata?.releaseDate || ''
+                })
             });
+
             setEditingGame(null);
             loadGames();
         } catch (err) {
             console.error('Error updating game:', err);
             setError('Failed to update game. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -118,6 +149,7 @@ export default function GameManagement({ isOpen, onClose }: GameManagementProps)
             setGameToDelete(null);
             setEditingGame(null);  // Close edit form if open
             loadGames();
+            onGameDeleted?.();
         } catch (err) {
             console.error('Error deleting game:', err);
             setError('Failed to delete game. Please try again.');
@@ -186,6 +218,7 @@ export default function GameManagement({ isOpen, onClose }: GameManagementProps)
             return (
                 <GameEditForm
                     game={editingGame}
+                    gameImgRef={gameImages[editingGame.id]}
                     onSave={handleEditGame}
                     onCancel={() => setEditingGame(null)}
                     onDelete={(game) => {

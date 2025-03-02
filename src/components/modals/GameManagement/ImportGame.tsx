@@ -35,6 +35,29 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
         img: ''
     });
 
+    const presetImages = [
+        {
+            id: 'green',
+            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-green.jpg',
+            label: 'Green'
+        },
+        {
+            id: 'red',
+            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-red.jpg',
+            label: 'Red'
+        },
+        {
+            id: 'blue',
+            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-blue.jpg',
+            label: 'Blue'
+        },
+        {
+            id: 'yellow',
+            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-yellow.jpg',
+            label: 'Yellow'
+        }
+    ];
+
     const handleGameFileChange = (file: File) => {
         if (file && (file.name.toLowerCase().endsWith('.gbc') || file.name.toLowerCase().endsWith('.gb'))) {
             setGameFile(file);
@@ -138,6 +161,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                 <ImageUpload
                     onChange={setImageFile}
                     label="Game Cover Image (Optional)"
+                    presetImages={presetImages}
                 />
 
                 <TextField
