@@ -44,7 +44,7 @@ interface SystemControlsProps {
 	isSaving: boolean;
 }
 
-function SystemControls({
+export default function SystemControls({
 	intervalPaused,
 	onPauseResume,
 	onReset,
@@ -250,6 +250,3 @@ function SystemControls({
 		</div>
 	);
 }
-
-export default SystemControls;
-

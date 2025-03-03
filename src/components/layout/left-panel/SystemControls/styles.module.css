@@ -20,6 +20,7 @@
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .primaryButton {
@@ -44,7 +45,7 @@
 
 .warningButton {
     background-color: var(--amplify-colors-background-error);
-    color: white;
+    color: var(--amplify-colors-font-primary);
     border: none;
 }
 
