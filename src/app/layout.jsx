@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import { AuthProvider } from '../contexts/AuthContext';
 import { Amplify } from 'aws-amplify';
 import outputs from '../../amplify_outputs.json';
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
             </GameProvider>
           </SettingsProvider>
         </AuthProvider>
+        <GoogleAnalytics />
       </body>
     </html>
   );
