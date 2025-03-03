@@ -24,8 +24,8 @@ const ContactPage = () => {
       <section>
         <h2 className="section-title">Contribute</h2>
         <p className="paragraph">
-          JS GBC is an open-source project. If you'd like to contribute or report issues, 
-          visit our GitHub repository:
+          {`JS GBC is an open-source project. If you'd like to contribute or report issues, 
+          visit our GitHub repository:`}
         </p>
         <p className="paragraph">
           <a 

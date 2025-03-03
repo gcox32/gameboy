@@ -33,7 +33,7 @@ const AboutPage = () => {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Open Source</h2>
         <p className={styles.paragraph}>
-          JS GBC is an open-source project, and we welcome contributions from the community. Whether you're a developer, designer, or just want to make it better, there are ways to get involved:
+          {`JS GBC is an open-source project, and we welcome contributions from the community. Whether you're a developer, designer, or just want to make it better, there are ways to get involved:`}
         </p>
         <div className={styles.buttonContainer}>
           <Link 

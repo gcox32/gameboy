@@ -32,7 +32,7 @@ export default function PrivacyPolicy() {
                     We use the collected information to:
                 </p>
                 <ul>
-                    <li>Right now? We don't use your information for anything.</li>
+                    <li>{`Right now? We don't use your information for anything.`}</li>
                 </ul>
             </section>
 
