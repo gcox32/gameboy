@@ -263,8 +263,8 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                     >
                         <Flex direction="column" gap="1rem">
                             <Text>
-                                Are you sure you want to delete "{gameToDelete.title}"?
-                                This action cannot be undone and will remove all associated save states.
+                                {`Are you sure you want to delete "${gameToDelete.title}"?
+                                This action cannot be undone and will remove all associated save states.`}
                             </Text>
                             <Flex gap="1rem" justifyContent="flex-end">
                                 <Button
@@ -320,7 +320,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                 skipConfirmation={skipDeleteConfirmation}
                 toggleSkipConfirmation={() => setSkipDeleteConfirmation(!skipDeleteConfirmation)}
             >
-                Are you sure you want to delete "{gameToDelete?.title}"? This action cannot be undone and will remove all associated save states.
+                {`Are you sure you want to delete "${gameToDelete?.title}"? This action cannot be undone and will remove all associated save states.`}
             </ConfirmModal>
         </>
     );
