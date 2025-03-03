@@ -13,7 +13,7 @@ const AboutPage = () => {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>What is JS GBC?</h2>
         <p className={styles.paragraph}>
-          JS GBC is a web-based GameBoy Color emulator that lets you play your favorite classic games directly in your browser.
+          JS GBC is a web-based GameBoy Color emulator that lets you play your favorite games directly in your browser.
         </p>
       </section>
 

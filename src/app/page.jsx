@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="container">
       <h1 className="title">Welcome to JS GBC</h1>
-      <p className="description">Play classic Gameboy Color games in your browser!</p>
+      <p className="description">Play Gameboy Color games in your browser.</p>
       {user === null ? (
         <div className="button-container">
           <Link href="login">
