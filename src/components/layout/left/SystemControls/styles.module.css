@@ -53,7 +53,7 @@
     background-color: var(--amplify-colors-background-error-hover);
 }
 
-button:disabled {
+.buttonGroup button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
