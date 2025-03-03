@@ -208,6 +208,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                     onSuccess={() => {
                         setShowImport(false);
                         loadGames();
+                        onGameDeleted?.();
                     }}
                     onCancel={() => setShowImport(false)}
                 />
