@@ -263,9 +263,10 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 <TextField
                                     label="Email"
                                     value={formData.email}
-                                    onChange={e => handleInputChange('email', e.target.value)}
                                     placeholder="Enter email"
                                     type="email"
+                                    isReadOnly={true}
+                                    isDisabled={true}
                                 />
                                 <TextAreaField
                                     label="Bio"
