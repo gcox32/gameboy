@@ -1,5 +1,5 @@
 import '@/styles/public.css';
-
+import Footer from '@/components/layout/Footer';
 export default function TermsAndConditions() {
     return (
         <div className="container static-page">
@@ -58,6 +58,7 @@ export default function TermsAndConditions() {
                     If you have any questions about these Terms of Service, please contact us at <a href="mailto:support@letmedemo.com">support@letmedemo.com</a>.
                 </p>
             </section>
+            <Footer />
         </div>
     );
 }
