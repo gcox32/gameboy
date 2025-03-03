@@ -1,0 +1,26 @@
+/* full screen */
+.fullscreenContainer {
+    display: none; /* Hidden by default */
+    position: fixed; /* Or absolute, depending on layout */
+    background-color: #282c34;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3; /* To ensure it's above other content */
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .fullscreen {
+    width: 525px;
+    height: calc(525px * (286 / 321));
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 3px solid;
+    margin: 0;
+    position: absolute;
+  }

@@ -7,7 +7,6 @@ interface ProfilePopoutProps {
     avatarUrl: string | null;
     onAvatarClick: () => void;
     onProfileClick: () => void;
-    onSettingsClick: () => void;
     onLogoutClick: () => void;
     isOpen: boolean;
 }
@@ -17,7 +16,6 @@ const ProfilePopout = ({
     avatarUrl,
     onAvatarClick,
     onProfileClick,
-    onSettingsClick,
     onLogoutClick,
     isOpen
 }: ProfilePopoutProps) => {
@@ -57,13 +55,6 @@ const ProfilePopout = ({
                         role="menuitem"
                     >
                         Profile
-                    </button>
-                    <button 
-                        onClick={onSettingsClick}
-                        className={styles.dropdownItem}
-                        role="menuitem"
-                    >
-                        Settings
                     </button>
                     <button 
                         onClick={onLogoutClick}

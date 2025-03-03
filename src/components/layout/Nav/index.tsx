@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getS3Url } from '@/utils/saveLoad';
@@ -14,6 +13,8 @@ import { signOut } from 'aws-amplify/auth';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import GameInterruptModal from '@/components/modals/GameInterruptModal';
 import ProfilePopout from './ProfilePopout';
+import { FaCog } from 'react-icons/fa';
+import styles from './styles.module.css';
 
 const client = generateClient<Schema>();
 
@@ -70,9 +71,8 @@ const Nav = () => {
         setShowDropdown(false);
     };
 
-    const handleSettingsOptionClick = () => {
-        openSettingsModal();
-        setShowDropdown(false);
+    const handleSettingsClick = () => {
+        setIsSettingsModalOpen(true);
     };
 
     const handleLogout = async () => {
@@ -91,11 +91,6 @@ const Nav = () => {
         setShowDropdown(false);
     };
 
-    const openSettingsModal = () => {
-        setIsSettingsModalOpen(true);
-        setShowDropdown(false);
-    }
-
     const closeProfileModal = () => {
         setIsProfileModalOpen(false);
     };
@@ -110,14 +105,13 @@ const Nav = () => {
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
-        document.body.style.overflow = !isMenuOpen ? 'hidden' : 'auto';
     };
 
     return (
         <>
-            <nav className="nav-container">
+            <nav className={styles.navContainer}>
                 <button 
-                    className={`hamburger ${isMenuOpen ? 'open' : ''}`}
+                    className={`${styles.hamburger} ${isMenuOpen ? styles.open : ''}`}
                     onClick={toggleMenu}
                     aria-label="Toggle menu"
                     aria-expanded={isMenuOpen}
@@ -126,7 +120,7 @@ const Nav = () => {
                     <span></span>
                     <span></span>
                 </button>
-                <div className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
+                <div className={`${styles.navMenu} ${isMenuOpen ? styles.open : ''}`}>
                     <Link href="/play">Play</Link>
                     <Link 
                         href="/about" 
@@ -140,13 +134,19 @@ const Nav = () => {
                     >
                         Contact
                     </Link>
+                    <button
+                        className={styles.settingsButton}
+                        onClick={handleSettingsClick}
+                        aria-label="Settings"
+                    >
+                        <FaCog />
+                    </button>
                     {user ? (
                         <ProfilePopout
                             userProfile={userProfile}
                             avatarUrl={avatarUrl}
                             onAvatarClick={handleAvatarClick}
                             onProfileClick={handleProfileOptionClick}
-                            onSettingsClick={handleSettingsOptionClick}
                             onLogoutClick={handleLogout}
                             isOpen={showDropdown}
                         />

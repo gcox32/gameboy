@@ -8,11 +8,7 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.avatarButton:hover {
-    transform: scale(1.05);
+    transition: all 0.2s ease-in-out;
 }
 
 .avatar {
@@ -23,7 +19,7 @@
 }
 
 .avatarButton:hover .avatar {
-    outline: 2px solid var(--amplify-colors-brand-primary-80);
+    border: 1px solid var(--amplify-colors-brand-primary-80);
 }
 
 .avatarPlaceholder {
@@ -38,11 +34,6 @@
     font-weight: bold;
     font-size: 1.2rem;
     transition: all 0.2s ease;
-}
-
-.avatarButton:hover .avatarPlaceholder {
-    background-color: var(--amplify-colors-background-tertiary);
-    outline: 2px solid var(--amplify-colors-brand-primary-80);
 }
 
 .dropdown {
@@ -92,10 +83,7 @@
         gap: 1rem;
         padding: 0.5rem;
         border-radius: 8px;
-    }
-
-    .avatarButton:hover {
-        background-color: var(--amplify-colors-background-secondary);
+        transition: all 0s;
     }
 
     .dropdown {

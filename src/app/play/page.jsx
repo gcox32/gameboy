@@ -1,29 +1,25 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Console from '../../components/console/GameConsole';
-import ControlPanel from '../../components/layout/left-panel/ControlPanel';
-import FullScreenContainer from '../../components/layout/FullScreenContainer';
-import GameBoyCore from '../../utils/GameBoyCore';
+import Console from '@/components/console/GameConsole';
+import ControlPanel from '@/components/layout/left/ControlPanel';
+import FullScreenContainer from '@/components/layout/FullScreenContainer';
+import GameBoyCore from '@/utils/GameBoyCore';
 import {
 	registerGUIEvents,
 	keyDown,
 	keyUp
-} from '../../utils/other/gui';
+} from '@/utils/other/gui';
 import {
 	GameBoyEmulatorInitialized,
 	GameBoyEmulatorPlaying,
 	settings,
 	clearLastEmulation
-} from '../../utils/GameBoyIO';
-import { saveSRAM, fetchUserSaveStates, loadInGameFile } from '../../utils/saveLoad';
+} from '@/utils/GameBoyIO';
+import { fetchUserSaveStates, loadInGameFile } from '@/utils/saveLoad';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
-
-// Amplify auth
 import { getCurrentUser } from 'aws-amplify/auth'
-
-// Add import
 import { useSaveState } from '@/hooks/useSaveState';
 
 export default function App() {
@@ -495,7 +491,6 @@ export default function App() {
 				activeROM={activeROM}
 				activeState={activeState}
 				inGameMemory={inGameMemory}
-				MBCRam={mbcRamRef}
 				onPauseResume={handlePauseResume}
 				intervalPaused={intervalPaused}
 			/>
