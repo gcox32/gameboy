@@ -13,6 +13,7 @@ import SettingsModal from '@/components/modals/SettingsModal';
 import { signOut } from 'aws-amplify/auth';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import GameInterruptModal from '@/components/modals/GameInterruptModal';
+import ProfilePopout from './ProfilePopout';
 
 const client = generateClient<Schema>();
 
@@ -36,7 +37,7 @@ const Nav = () => {
         if (user) {
             fetchUserProfile();
         }
-    }, [user, userProfile]);
+    }, [user]);
 
     const fetchUserProfile = async () => {
         if (!user) return;
@@ -60,8 +61,18 @@ const Nav = () => {
         }
     };
 
-    const handleProfileClick = () => {
+    const handleAvatarClick = () => {
         setShowDropdown(!showDropdown);
+    };
+
+    const handleProfileOptionClick = () => {
+        openProfileModal();
+        setShowDropdown(false);
+    };
+
+    const handleSettingsOptionClick = () => {
+        openSettingsModal();
+        setShowDropdown(false);
     };
 
     const handleLogout = async () => {
@@ -99,16 +110,22 @@ const Nav = () => {
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+        document.body.style.overflow = !isMenuOpen ? 'hidden' : 'auto';
     };
 
     return (
         <>
             <nav className="nav-container">
-                <div className="hamburger" onClick={toggleMenu}>
+                <button 
+                    className={`hamburger ${isMenuOpen ? 'open' : ''}`}
+                    onClick={toggleMenu}
+                    aria-label="Toggle menu"
+                    aria-expanded={isMenuOpen}
+                >
                     <span></span>
                     <span></span>
                     <span></span>
-                </div>
+                </button>
                 <div className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                     <Link href="/play">Play</Link>
                     <Link 
@@ -124,31 +141,15 @@ const Nav = () => {
                         Contact
                     </Link>
                     {user ? (
-                        <div className="profile-container">
-                            <div onClick={handleProfileClick}>
-                                {userProfile && avatarUrl ? (
-                                    <Image
-                                        src={avatarUrl}
-                                        alt={userProfile.username}
-                                        title={userProfile.username}
-                                        width={40}
-                                        height={40}
-                                        className="avatar"
-                                    />
-                                ) : (
-                                    <div className="avatar-placeholder">
-                                        {userProfile ? userProfile.username.charAt(0).toUpperCase() : ''}
-                                    </div>
-                                )}
-                            </div>
-                            {showDropdown && (
-                                <div className="profile-dropdown">
-                                    <button onClick={openProfileModal}>Profile</button>
-                                    <button onClick={openSettingsModal}>Settings</button>
-                                    <button onClick={handleLogout}>Logout</button>
-                                </div>
-                            )}
-                        </div>
+                        <ProfilePopout
+                            userProfile={userProfile}
+                            avatarUrl={avatarUrl}
+                            onAvatarClick={handleAvatarClick}
+                            onProfileClick={handleProfileOptionClick}
+                            onSettingsClick={handleSettingsOptionClick}
+                            onLogoutClick={handleLogout}
+                            isOpen={showDropdown}
+                        />
                     ) : (
                         <Link href="login" onClick={() => setIsMenuOpen(false)}>Login</Link>
                     )}
@@ -158,6 +159,7 @@ const Nav = () => {
                 isOpen={isProfileModalOpen}
                 onClose={closeProfileModal}
                 userProfile={userProfile}
+                onUpdate={fetchUserProfile}
             />
             <SettingsModal
                 isOpen={isSettingsModalOpen}

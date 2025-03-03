@@ -1,0 +1,115 @@
+.container {
+    position: relative;
+    display: inline-block;
+}
+
+.avatarButton {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.avatarButton:hover {
+    transform: scale(1.05);
+}
+
+.avatar {
+    border-radius: 8px;
+    object-fit: cover;
+    transition: outline 0.2s ease;
+    margin: 0 auto;
+}
+
+.avatarButton:hover .avatar {
+    outline: 2px solid var(--amplify-colors-brand-primary-80);
+}
+
+.avatarPlaceholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: var(--amplify-colors-background-secondary);
+    color: var(--amplify-colors-font-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.avatarButton:hover .avatarPlaceholder {
+    background-color: var(--amplify-colors-background-tertiary);
+    outline: 2px solid var(--amplify-colors-brand-primary-80);
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 200px;
+    background-color: var(--amplify-colors-background-primary);
+    border: 1px solid var(--amplify-colors-border-primary);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    z-index: 50;
+}
+
+.dropdownItem {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--amplify-colors-font-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.dropdownItem:hover {
+    background-color: var(--amplify-colors-background-secondary);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .avatarButton {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+    }
+
+    .avatarButton:hover {
+        background-color: var(--amplify-colors-background-secondary);
+    }
+
+    .dropdown {
+        position: static;
+        margin-top: 0.5rem;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: none;
+        border: 1px solid var(--amplify-colors-border-primary);
+    }
+
+    .dropdownItem {
+        text-align: center;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}

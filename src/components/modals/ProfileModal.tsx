@@ -25,7 +25,7 @@ interface ProfileModalProps {
     onUpdate?: () => void;
 }
 
-const ProfileModal = ({ isOpen, onClose, userProfile }: ProfileModalProps) => {
+const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState(null);
@@ -156,7 +156,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile }: ProfileModalProps) => {
             });
 
             setIsEditing(false);
-            // You might want to refresh the user profile data here
+            onUpdate?.();
         } catch (err) {
             setError('Failed to update profile. Please try again.');
             console.error('Error updating profile:', err);
