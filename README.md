@@ -8,30 +8,3 @@ The core emulator mechanics were adapted from this project: [GameBoy-Online](htt
 The TODO list can be found [here](https://github.com/gcox32/gameboy/blob/main/TODO.md).
 
 ![cloyster](https://assets.letmedemo.com/public/gameboy/images/pokemon/sugimori/rb/091.png)
-
-## S3 Structure
-
-&lt;s3endpoint&gt;/private/&lt;user-pool-region&gt;:&lt;user-cognito-sub&gt;/  
-  ├─ games/  
-  │&nbsp;&nbsp;&nbsp;&nbsp;├── &lt;game-id&gt;/  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── gameFile.ext  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── gameImg.png  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── saveStates/  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── &lt;save-state-id&gt;/  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── file1.sav  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── file2.json  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;├── file3.png  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;└── ...  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;└── ...  
-  │&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;└── ...    
-  │&nbsp;&nbsp;&nbsp;&nbsp;└── ...  
-  └─ profile/  
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ avatar.png  
-      └─ ...  
-
-&lt;s3endpoint&gt;/public/  
-  &nbsp;&nbsp;&nbsp;&nbsp;├─ asset1.png  
-  &nbsp;&nbsp;&nbsp;&nbsp;├─ asset2.js  
-  &nbsp;&nbsp;&nbsp;&nbsp;└─ ...  
-
-
