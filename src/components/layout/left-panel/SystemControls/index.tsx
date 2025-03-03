@@ -56,8 +56,6 @@ function SystemControls({
 	userSaveStates,
 	runFromSaveState,
 	currentROM,
-	isPanelVisible,
-	togglePanel,
 	currentUser,
 	isSaving
 }: SystemControlsProps) {

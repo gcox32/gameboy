@@ -190,7 +190,6 @@ a {
   }
 
   .profile-dropdown {
-    position: static;
     width: 100%;
   }
 }
@@ -202,7 +201,7 @@ a {
 }
 
 .profile-dropdown {
-  position: absolute;
+  position: static;
   top: 100%;
   right: 0;
   background-color: var(--background-color);
