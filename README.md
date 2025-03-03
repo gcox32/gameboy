@@ -7,7 +7,7 @@ The core emulator mechanics were adapted from this project: [GameBoy-Online](htt
 
 The TODO list can be found [here](https://github.com/gcox32/gameboy/blob/main/TODO.md).
 
-![cloyster](https://assets.letmedemo.com/public/gameboy/images/sugimori/rb/091.png)
+![cloyster](https://assets.letmedemo.com/public/gameboy/images/pokemon/sugimori/rb/091.png)
 
 ## S3 Structure
 

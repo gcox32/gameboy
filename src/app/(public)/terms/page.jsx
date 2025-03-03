@@ -55,7 +55,7 @@ export default function TermsAndConditions() {
             <section>
                 <h2 className="section-title">Contact</h2>
                 <p className="paragraph">
-                    If you have any questions about these Terms of Service, please contact us at wherever.
+                    If you have any questions about these Terms of Service, please contact us at <a href="mailto:support@letmedemo.com">support@letmedemo.com</a>.
                 </p>
             </section>
         </div>

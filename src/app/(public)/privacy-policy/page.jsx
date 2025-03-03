@@ -6,7 +6,7 @@ export default function PrivacyPolicy() {
         <div className="container static-page">
             <header>
                 <h1 className="title">Privacy Policy</h1>
-                <p className="last-updated">Last updated: January 2024</p>
+                <p className="last-updated">Last updated: March 2025</p>
             </header>
 
             <section>
@@ -32,14 +32,14 @@ export default function PrivacyPolicy() {
                     We use the collected information to:
                 </p>
                 <ul>
-                    <li>blah blah blah</li>
+                    <li>Right now? We don't use your information for anything.</li>
                 </ul>
             </section>
 
             <section>
                 <h2 className="section-title">Contact Us</h2>
                 <p className="paragraph">
-                    If you have any questions about this Privacy Policy, please contact us at wherever.
+                    If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@letmedemo.com">support@letmedemo.com</a>.
                 </p>
             </section>
             <Footer />

@@ -1,0 +1,139 @@
+.aboutPage {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 4rem);
+}
+
+.header {
+  margin-bottom: 3rem;
+  text-align: center;
+  border-bottom: 2px solid var(--border-color, #eaeaea);
+  padding-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: var(--text-primary, #333);
+  margin-bottom: 0.5rem;
+}
+
+.section {
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in forwards;
+}
+
+.section:nth-child(1) { animation-delay: 0.1s; }
+.section:nth-child(2) { animation-delay: 0.2s; }
+.section:nth-child(3) { animation-delay: 0.3s; }
+.section:nth-child(4) { animation-delay: 0.4s; }
+
+.sectionTitle {
+  font-size: 1.5rem;
+  color: var(--text-secondary, #444);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color, #eaeaea);
+}
+
+.paragraph {
+  line-height: 1.6;
+  color: var(--text-tertiary, #555);
+  margin-bottom: 1.5rem;
+}
+
+.featureList {
+  list-style-type: none;
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.featureList li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-tertiary, #555);
+}
+
+.featureList li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--text-secondary, #666);
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.link {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color, #6200ea);
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.link:hover {
+  background-color: var(--primary-color-dark, #3700b3);
+}
+
+.imageContainer {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in forwards 0.5s;
+}
+
+.mascotImage {
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  filter: grayscale(30%);
+}
+
+.mascotImage:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .aboutPage {
+    margin: 1rem auto;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .buttonContainer {
+    flex-direction: column;
+  }
+
+  .link {
+    text-align: center;
+  }
+}
