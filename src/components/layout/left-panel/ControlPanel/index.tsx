@@ -4,6 +4,25 @@ import SystemControls from "../SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
 import styles from './styles.module.css';
 
+interface ControlPanelProps {
+    handleROMSelected: (rom: any) => void;
+    isEmulatorPlaying: boolean;
+    activeSaveState: any;
+    intervalPaused: boolean;
+    handlePauseResume: () => void;
+    handleReset: () => void;
+    speed: number;
+    handlePowerToggle: () => void;
+    toggleFullscreenMode: () => void;
+    isRomLoaded: boolean;
+    onSaveConfirmed: (saveData: any, isSaveAs: boolean) => Promise<void>;
+    userSaveStates: any[];
+    runFromSaveState: (sramArray: number[], selectedSaveState: any) => void;
+    activeROM: any;
+    currentUser: any;
+    isSaving: boolean;
+}
+
 function ControlPanel({
     handleROMSelected,
     isEmulatorPlaying,
@@ -21,10 +40,11 @@ function ControlPanel({
     activeROM,
     currentUser,
     isSaving
-}) {
+}: ControlPanelProps) {
     const [isPanelVisible, setIsPanelVisible] = useState(true); // Panel is visible by default
     const togglePanel = () => {
         setIsPanelVisible(!isPanelVisible);
+        console.log(isPanelVisible);
     };
 
     return (
@@ -39,7 +59,6 @@ function ControlPanel({
                 intervalPaused={intervalPaused}
                 onPauseResume={handlePauseResume}
                 onReset={handleReset}
-                speed={speed}
                 isEmulatorPlaying={isEmulatorPlaying}
                 onPowerToggle={handlePowerToggle}
                 onFullscreenToggle={toggleFullscreenMode}

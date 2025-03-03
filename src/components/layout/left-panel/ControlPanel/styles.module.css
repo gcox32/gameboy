@@ -13,6 +13,7 @@
     height: 100vh;
     gap: 2em;
     transition: left 200ms ease-in-out;
+    background-color: rgba(0,0,0, 0.75);
   }
 
   .controlPanel.hidden {

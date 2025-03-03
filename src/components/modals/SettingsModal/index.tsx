@@ -12,11 +12,16 @@ import {
 import { backgroundOptions } from './config';
 import styles from './styles.module.css';
 
-const SettingsModal = ({ isOpen, onClose }) => {
+interface SettingsModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const { uiSettings, updateUISettings } = useSettings();
     const { speed, isSoundOn, mobileZoom } = uiSettings;
 
-    const onSpeedChange = (value) => {
+    const onSpeedChange = (value: number) => {
         updateUISettings({ speed: value });
     };
 
@@ -28,8 +33,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
         updateUISettings({ mobileZoom: !mobileZoom });
     };
 
-    const onBackgroundSelect = (imageFile) => {
-        updateUISettings({ background: imageFile });
+    const onBackgroundSelect = (imageRef: string | null ) => {
+        updateUISettings({ background: imageRef });
     };
 
     const resetSettings = () => {
@@ -90,7 +95,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 <Divider />
 
                 <Button
-                    variation="secondary"
                     onClick={resetSettings}
                     size="small"
                     className={styles.resetButton}

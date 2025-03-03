@@ -1,0 +1,68 @@
+.controlsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    padding: 1rem;
+}
+
+.buttonGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.buttonGroup button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.primaryButton {
+    background-color: var(--amplify-colors-brand-primary-80);
+    color: white;
+    border: none;
+}
+
+.primaryButton:hover:not(:disabled) {
+    background-color: var(--amplify-colors-brand-primary-90);
+}
+
+.secondaryButton {
+    background-color: var(--amplify-colors-background-secondary);
+    color: var(--amplify-colors-font-primary);
+    border: 1px solid var(--amplify-colors-border-primary);
+}
+
+.secondaryButton:hover:not(:disabled) {
+    background-color: var(--amplify-colors-background-tertiary);
+}
+
+.warningButton {
+    background-color: var(--amplify-colors-background-error);
+    color: white;
+    border: none;
+}
+
+.warningButton:hover:not(:disabled) {
+    background-color: var(--amplify-colors-background-error-hover);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .controlsContainer {
+        padding: 0.5rem;
+    }
+
+    .buttonGroup button {
+        padding: 0.5rem;
+    }
+}
