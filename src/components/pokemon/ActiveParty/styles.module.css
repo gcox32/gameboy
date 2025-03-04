@@ -1,0 +1,37 @@
+.activeParty {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    min-width: 1000px;
+    position: absolute;
+    bottom: 10px;
+    z-index: 3;
+    margin-top: 20px;
+}
+
+.partySlot {
+    height: 144px;
+    width: 144px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 50%;
+    border: 8px rgba(255, 255, 255, 0.5) solid;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    cursor: pointer;
+    transition: 0.1s ease-in-out;
+}
+
+.partySlot div {
+    position: relative;
+    width: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+.partySlot:hover {
+    border-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 0.5);
+}
