@@ -1,0 +1,17 @@
+.modalContent.locationModal {
+    max-width: 800px;
+    overflow-y: scroll;
+}
+
+.modalContent.locationModal img:hover {
+    cursor: default;
+    outline: 2px gray solid;
+}
+
+.mapLocDetails {
+    width: 600px;
+}
+
+.mapLocDetails p {
+    text-align: justify;
+}

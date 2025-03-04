@@ -1,20 +1,4 @@
 
 /* location modal */
-.modal-content.location-modal {
-  max-width: 800px;
-  overflow-y: scroll;
-}
 
-.modal-content.location-modal img:hover {
-  cursor: default;
-  outline: 2px gray solid;
-}
-
-.map-loc-details {
-  width: 600px;
-}
-
-.map-loc-details p {
-  text-align: justify;
-}
 

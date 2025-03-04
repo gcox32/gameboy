@@ -2,7 +2,7 @@
     position: absolute;
     left: 60px;
     top: 60px;
-    cursor: url('@/assets/images/map-cursor.png') 16 16, auto;
+    cursor: url('/images/map-cursor.png') 16 16, auto;
 }
 
 .townMap img {
