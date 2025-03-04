@@ -1,27 +1,37 @@
 import React, { useState } from "react";
 import TownMapLocation from "./TownMapLocation";
-import { locations } from "../../utils/pokemon/locations";
-import LocationModal from "../modals/pokemon/LocationModal";
+import { locations } from "@/utils/pokemon/locations";
+import LocationModal from "@/components/modals/pokemon/LocationModal";
+import styles from "./styles.module.css";
 
-function TownMap(inGameMem) {
+interface Location {
+    title: string;
+    slogan: string;
+    img: string;
+    desc: string;
+    persons: string[];
+    places: string[];
+}
+
+function TownMap(inGameMem: any[]) {
     const [modalOpen, setModalOpen] = useState(false);
-    const [selectedLocation, setSelectedLocation] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
     const mapSrc = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/maps/rby-kanto-town-map.png';
 
-    const openModal = (location) => {
+    const openModal = (location: any) => {
         setSelectedLocation(location);
         setModalOpen(true);
     };
     return (
         <>
-            <div className="town-map">
+            <div className={styles.townMap}>
                 <img src={`${mapSrc}`} alt="Town Map" />
                 {locations.map((loc, index) => (
                     <TownMapLocation
                         key={index}
                         locData={loc}
                         onClick={() => openModal(loc)}
-                    /> // Added a key prop for list elements
+                    />
                 ))}
             </div>
             {selectedLocation && (

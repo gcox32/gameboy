@@ -1,6 +1,7 @@
 import React from "react";
+import styles from "./styles.module.css";
 
-function TownMapLocation({ locData, onClick }) {
+function TownMapLocation({ locData, onClick }: { locData: any, onClick: () => void }) {
     const { x, y, height, width, locType, title } = locData;
     const locStyle = {
         left: `${x}px`, 
@@ -11,10 +12,10 @@ function TownMapLocation({ locData, onClick }) {
 
     return (
         <div
-            className={`town-map-loc ${locType}`}
+            className={`${styles.townMapLoc} ${locType}`}
             style={locStyle}
             title={title}
-            onClick={onClick} // Add this line to handle clicks
+            onClick={onClick}
         >
         </div>
     )

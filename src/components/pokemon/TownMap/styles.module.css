@@ -1,0 +1,38 @@
+.townMap {
+    position: absolute;
+    left: 60px;
+    top: 60px;
+    cursor: url('@/assets/images/map-cursor.png') 16 16, auto;
+}
+
+.townMap img {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    border-radius: 8px;
+    border: 2px black solid;
+    overflow: hidden;
+}
+
+.mapLocHero {
+    width: 600px !important;
+}
+
+.townMapLoc {
+    position: absolute;
+    transition: 100ms ease-in-out;
+    opacity: 0.5;
+}
+
+.townMapLoc.city,
+.townMapLoc.town {
+    border: 1px black solid;
+}
+
+.townMapLoc:hover {
+    background-color: yellow;
+}
+
+.townMapLoc:active {
+    transform: scale(1.1);
+}
