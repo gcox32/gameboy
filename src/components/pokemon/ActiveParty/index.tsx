@@ -16,6 +16,7 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }: ActivePart
         if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
             try {
                 const parsedParty = parseParty(array);
+                console.log(parsedParty);
                 setPartyData(parsedParty.pokemonList);
                 partyArray.current = array as never[];
             } catch {
