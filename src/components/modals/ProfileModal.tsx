@@ -40,6 +40,15 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     });
 
     useEffect(() => {
+        setFormData({
+            username: userProfile?.username || '',
+            email: userProfile?.email || '',
+            bio: userProfile?.bio || '',
+            avatar: userProfile?.avatar || ''
+        });
+    }, [userProfile]);
+
+    useEffect(() => {
         const loadAvatarUrl = async () => {
             if (userProfile?.avatar) {
                 const url = await getS3Url(userProfile.avatar);
@@ -51,13 +60,6 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
 
     const handleEditToggle = async () => {
         if (isEditing) {
-            // Reset form data if canceling edit
-            setFormData({
-                username: userProfile?.username || '',
-                email: userProfile?.email || '',
-                bio: userProfile?.bio || '',
-                avatar: userProfile?.avatar || ''
-            });
             const avatarUrl = await getS3Url(userProfile?.avatar);
             setImagePreview(avatarUrl);
         }
