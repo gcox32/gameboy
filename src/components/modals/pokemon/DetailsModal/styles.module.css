@@ -1,200 +1,182 @@
-:root {
-    --normal: rgb(218, 207, 192);
-    --fighting: rgb(198, 169, 130);
-    --flying: rgb(214, 187, 187);
-    --poison: rgb(162, 137, 162);
-    --ground: rgb(205, 168, 120);
-    --rock: rgb(157, 139, 139);
-    --bug: rgb(180, 233, 180);
-    --ghost: rgb(159, 158, 158);
-    --fire: rgb(255, 181, 181);
-    --water: rgb(164, 164, 253);
-    --grass: rgb(131, 152, 131);
-    --electric: rgb(255, 255, 188);
-    --psychic: rgb(253, 210, 217);
-    --ice: rgb(186, 249, 249);
-    --dragon: rgb(255, 226, 171);
-  }
-  
-  .normalType {
-    background-color: var(--normal);
-  }
-  
-  .fightingType {
-    background-color: var(--fighting);
-  }
-  
-  .flyingType {
-    background-color: var(--flying);
-  }
-  
-  .poisonType {
-    background-color: var(--poison);
-  }
-  
-  .groundType {
-    background-color: var(--ground);
-  }
-  
-  .rockType {
-    background-color: var(--rock);
-  }
-  
-  .bugType {
-    background-color: var(--bug);
-  }
-  
-  .ghostType {
-    background-color: var(--ghost);
-  }
-  
-  .fireType {
-    background-color: var(--fire);
-  }
-  
-  .waterType {
-    background-color: var(--water);
-  }
-  
-  .grassType {
-    background-color: var(--grass);
-  }
-  
-  .electricType {
-    background-color: var(--electric);
-  }
-  
-  .psychicType {
-    background-color: var(--psychic);
-  }
-  
-  .iceType {
-    background-color: var(--ice);
-  }
-  
-  .dragonType {
-    background-color: var(--dragon);
-  }
-  
-  /* modal */
-  .modalContent {
-    max-width: 1000px;
-    background: linear-gradient(to bottom right, #2a2a2a, #1a1a1a);
-    color: #fff;
-    border-radius: 16px;
-    padding: 2rem;
-  }
-  
-  .pokemonDetailsRow {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-  
-  .pokemonDetailsSection {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    width: 300px;
-    height: 300px;
-    position: relative;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-    cursor: pointer;
-  }
-  
-  .pokemonDetailsSection.top {
-    height: 200px;
-  }
-  
-  .pokemonDetailsSection.back {
-    transform: rotateY(180deg);
-  }
-  
-  .pokemonDetailsSection h2 {
-    color: #fff;
-    margin: 0 0 1rem;
-    font-size: 1.8rem;
-  }
-  
-  .pokemonDetailsSection h3 {
-    color: #fff;
-    margin: 0 0 1rem;
-    font-size: 1.4rem;
-  }
+.normalType {
+  background-color: var(--normal);
+}
 
-  .pokemonDetailsSection h4 {
-    color: #fff;
-    margin: 0;
-    font-size: 1.2rem;
-  }
-  
-  .pokemonDetailsSection p {
-    color: #ccc;
-    margin: 0;
-    font-size: 1rem;
-  }
-  
-  .centered {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-  }
-  
-  .pokemonMove {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    margin: 0.5rem 0;
-    transition: background-color 0.2s;
-  }
-  
-  .pokemonMove:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .typeTag {
-    display: inline-block;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin: 0.5rem;
-    text-transform: uppercase;
-  }
-  
-  .statValue {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-  }
-  
-  .statBar {
-    flex: 1;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    margin: 0 1rem;
-    overflow: hidden;
-  }
-  
-  .statBarFill {
-    height: 100%;
-    background: linear-gradient(to right, #4CAF50, #8BC34A);
-    transition: width 0.3s ease;
-  }
-  
-  .statBarFill.ev {
-    background: linear-gradient(to right, #FF6B6B, #FF8E8E);
-  }
-  
-  .statBarFill.iv {
-    background: linear-gradient(to right, #4ECDC4, #45B7AF);
-  }
-  
-  .statBarFill.stat {
-    background: linear-gradient(to right, #4CAF50, #8BC34A);
-  }
+.fightingType {
+  background-color: var(--fighting);
+}
+
+.flyingType {
+  background-color: var(--flying);
+}
+
+.poisonType {
+  background-color: var(--poison);
+}
+
+.groundType {
+  background-color: var(--ground);
+}
+
+.rockType {
+  background-color: var(--rock);
+}
+
+.bugType {
+  background-color: var(--bug);
+}
+
+.ghostType {
+  background-color: var(--ghost);
+}
+
+.fireType {
+  background-color: var(--fire);
+}
+
+.waterType {
+  background-color: var(--water);
+}
+
+.grassType {
+  background-color: var(--grass);
+}
+
+.electricType {
+  background-color: var(--electric);
+}
+
+.psychicType {
+  background-color: var(--psychic);
+}
+
+.iceType {
+  background-color: var(--ice);
+}
+
+.dragonType {
+  background-color: var(--dragon);
+}
+
+/* modal */
+.modalContent {
+  max-width: 1000px;
+  background: linear-gradient(to bottom right, #2a2a2a, #1a1a1a);
+  color: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.pokemonDetailsRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.pokemonDetailsSection {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 300px;
+  height: 300px;
+  position: relative;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.pokemonDetailsSection.top {
+  height: 200px;
+}
+
+.pokemonDetailsSection.back {
+  transform: rotateY(180deg);
+}
+
+.pokemonDetailsSection h2 {
+  color: #fff;
+  margin: 0 0 1rem;
+  font-size: 1.8rem;
+}
+
+.pokemonDetailsSection h3 {
+  color: #fff;
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
+}
+
+.pokemonDetailsSection h4 {
+  color: #fff;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.pokemonDetailsSection p {
+  color: #ccc;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.pokemonMove {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+  transition: background-color 0.2s;
+}
+
+.pokemonMove:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.typeTag {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0.5rem;
+  text-transform: uppercase;
+}
+
+.statValue {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.statBar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  margin: 0 1rem;
+  overflow: hidden;
+}
+
+.statBarFill {
+  height: 100%;
+  background: linear-gradient(to right, #4CAF50, #8BC34A);
+  transition: width 0.3s ease;
+}
+
+.statBarFill.ev {
+  background: linear-gradient(to right, #FF6B6B, #FF8E8E);
+}
+
+.statBarFill.iv {
+  background: linear-gradient(to right, #4ECDC4, #45B7AF);
+}
+
+.statBarFill.stat {
+  background: linear-gradient(to right, #4CAF50, #8BC34A);
+}

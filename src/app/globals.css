@@ -44,6 +44,23 @@
   --background-color: white;
   --border-color: #ccc;
   --hover-background-color: #f5f5f5;
+
+  /* Pokemon Type Colors */
+  --normal: rgb(218, 207, 192);
+  --fighting: rgb(198, 169, 130);
+  --flying: rgb(214, 187, 187);
+  --poison: rgb(162, 137, 162);
+  --ground: rgb(205, 168, 120);
+  --rock: rgb(157, 139, 139);
+  --bug: rgb(180, 233, 180);
+  --ghost: rgb(159, 158, 158);
+  --fire: rgb(255, 181, 181);
+  --water: rgb(164, 164, 253);
+  --grass: rgb(131, 152, 131);
+  --electric: rgb(255, 255, 188);
+  --psychic: rgb(253, 210, 217);
+  --ice: rgb(186, 249, 249);
+  --dragon: rgb(255, 226, 171);
 }
 
 @media (prefers-color-scheme: dark) {
