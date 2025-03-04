@@ -179,31 +179,6 @@ div[class~='dragon-type'] {
   text-align: justify;
 }
 
-/* badges */
-.badges-case {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  position: absolute;
-  top: 60px;
-  right: 24px;
-  width: 400px;
-  border: 4px goldenrod solid;
-  background-color: darkblue;
-  border-radius: 16px;
-  padding: 10px;
-}
-
-.badge {
-  padding: 5px;
-  margin: 5px;
-}
-
-.badge .silhouette {
-  filter: brightness(0);
-  opacity: 0.5;
-}
-
 /* game elements */
 .game-elements-bar {
   position: fixed;
@@ -219,83 +194,6 @@ div[class~='dragon-type'] {
   z-index: 1;
 }
 
-.icon {
-  cursor: pointer;
-  width: 60px;
-  height: 60px;
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.icon.active {
-  border: 4px black solid;
-}
-
-@keyframes badgeEarned {
-  0% {
-      transform: scale(3);
-      opacity: 0;
-  }
-  95% {
-    transform: scale(0.95);
-  }
-  100% {
-      opacity: 1;
-      transform: scale(1);
-  }
-}
-
-
-.badge.earned.animate {
-    animation: badgeEarned 1.8s forwards cubic-bezier(.55,.23,.97,.09);
-}
-
-.badge .silhouette {
-  filter: brightness(0) invert(1);
-}
-
-.badge .badge-image-wrapper {
-  transition: filter 0.8s;
-}
-
-.badge.earned .badge-image-wrapper {
-    position: relative;
-    overflow: hidden; /* Keeps the pseudo-element within the badge boundaries */
-}
-
-.badge.earned:hover {
-  cursor: pointer;
-}
-
-.badge.earned .badge-image-wrapper::after {
-    content: '';
-    position: absolute;
-    top: -50%; 
-    left: -50%;
-    width: 200%; 
-    height: 200%; 
-    background: linear-gradient(to right, transparent, white, transparent);
-    transform: rotate(45deg) translateX(-100%);
-    opacity: 0; 
-}
-
-.badge.earned .badge-image-wrapper.gleam::after {
-    animation: gleamEffect 1s forwards; /* Play the animation */
-}
-
-@keyframes gleamEffect {
-    0% {
-        transform: rotate(45deg) translateX(-100%);
-        opacity: 1;
-    }
-    100% {
-        transform: rotate(45deg) translateX(100%);
-        opacity: 0;
-    }
-}
 
 .town-map {
   position: absolute;

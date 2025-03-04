@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import GameElementsBar from '@/components/layout/GameElementsBar';
 import ActiveParty from '@/components/pokemon/ActiveParty';
-import GymBadgeCase from '@/components/pokemon/BadgeCase';
+import GymBadgeCase from '@/components/pokemon/GymBadgeCase';
 import TownMap from '@/components/pokemon/TownMap';
 import Pokedex from '@/components/pokemon/Pokedex';
 import TeamPhoto from '@/components/pokemon/TeamPhoto';

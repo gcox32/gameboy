@@ -1,0 +1,91 @@
+.badgesCase {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: absolute;
+    bottom: 180px;
+    left: 24px;
+    width: 400px;
+    border: 4px goldenrod solid;
+    background-color: darkblue;
+    border-radius: 16px;
+    padding: 10px;
+}
+
+.badge {
+    padding: 5px;
+    margin: 5px;
+}
+
+.badge .silhouette {
+    filter: brightness(0);
+    opacity: 0.5;
+}
+
+@keyframes badgeEarned {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.badge.earned.animate {
+    animation: badgeEarned 1s forwards cubic-bezier(.32, .91, .93, .71);
+}
+
+/* Add this to ensure animation resets */
+.badge.earned:not(.animate) {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.badge .silhouette {
+    filter: brightness(0) invert(1);
+}
+
+.badge .badgeImageWrapper {
+    transition: filter 0.8s;
+}
+
+.badge.earned .badgeImageWrapper {
+    position: relative;
+    overflow: hidden;
+    /* Keeps the pseudo-element within the badge boundaries */
+}
+
+.badge.earned:hover {
+    cursor: pointer;
+}
+
+.badge.earned .badgeImageWrapper::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 150%;
+    height: 150%;
+    background: linear-gradient(to right, transparent, white, transparent);
+    transform: rotate(45deg) translateX(-100%);
+    opacity: 0;
+}
+
+@keyframes gleamEffect {
+    0% {
+        transform: rotate(45deg) translateX(-100%);
+        opacity: 1;
+    }
+
+    100% {
+        transform: rotate(45deg) translateX(100%);
+        opacity: 0;
+    }
+}
+
+.badge.earned .badgeImageWrapper.gleam::after {
+    animation: gleamEffect 1s forwards cubic-bezier(.32, 0, .95, .71);
+}
