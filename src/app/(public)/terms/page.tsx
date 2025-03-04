@@ -1,22 +1,23 @@
-import '@/styles/public.css';
 import Footer from '@/components/layout/Footer';
+import styles from '../styles.module.css';
+
 export default function TermsAndConditions() {
     return (
-        <div className="container static-page">
+        <div className={`${styles.container} ${styles.staticPage}`}>
             <header>
-                <h1 className="title">Terms of Service</h1>
-                <p className="last-updated">Last updated: November 2024</p>
+                <h1 className={styles.title}>Terms of Service</h1>
+                <p className={styles.lastUpdated}>Last updated: November 2024</p>
             </header>
 
             <section>
-                <p className="paragraph">
+                <p className={styles.paragraph}>
                     Welcome to JS GBC. By accessing or using our website, you agree to be bound by these Terms of Service.
                 </p>
             </section>
 
             <section>
-                <h2 className="section-title">Account Terms</h2>
-                <p className="paragraph">
+                <h2 className={styles.sectionTitle}>Account Terms</h2>
+                <p className={styles.paragraph}>
                     To access certain features of JS GBC, you may need to create an account. You agree to:
                 </p>
                 <ul>
@@ -27,8 +28,8 @@ export default function TermsAndConditions() {
             </section>
 
             <section>
-                <h2 className="section-title">Acceptable Use</h2>
-                <p className="paragraph">
+                <h2 className={styles.sectionTitle}>Acceptable Use</h2>
+                <p className={styles.paragraph}>
                     When using JS GBC, you agree not to:
                 </p>
                 <ul>
@@ -39,22 +40,22 @@ export default function TermsAndConditions() {
             </section>
 
             <section>
-                <h2 className="section-title">Game Content</h2>
-                <p className="paragraph">
+                <h2 className={styles.sectionTitle}>Game Content</h2>
+                <p className={styles.paragraph}>
                     Users are responsible for providing their own game files. JS GBC does not provide or host game ROMs.
                 </p>
             </section>
 
             <section>
-                <h2 className="section-title">Modifications to Service</h2>
-                <p className="paragraph">
+                <h2 className={styles.sectionTitle}>Modifications to Service</h2>
+                <p className={styles.paragraph}>
                     We reserve the right to modify or discontinue JS GBC at any time, with or without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuance of the service.
                 </p>
             </section>
 
             <section>
-                <h2 className="section-title">Contact</h2>
-                <p className="paragraph">
+                <h2 className={styles.sectionTitle}>Contact</h2>
+                <p className={styles.paragraph}>
                     If you have any questions about these Terms of Service, please contact us at <a href="mailto:support@letmedemo.com">support@letmedemo.com</a>.
                 </p>
             </section>

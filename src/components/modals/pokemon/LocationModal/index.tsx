@@ -24,8 +24,8 @@ function LocationModal({ isOpen, onClose, title, slogan, img, desc, persons, pla
                     className={styles.mapLocHero}
                     alt={title}
                     layout="responsive"
-                    width={800}  // Specify appropriate width
-                    height={600} // Specify appropriate height
+                    width={800} 
+                    height={600}
                 />
             )}
             <div className={styles.mapLocDetails}>

@@ -1,11 +1,11 @@
-import styles from './styles.module.css';
+import styles from '../styles.module.css';
 import Footer from '@/components/layout/Footer';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const AboutPage = () => {
   return (
-    <div className={`container ${styles.aboutPage}`}>
+    <div className={`${styles.container} ${styles.aboutPage}`}>
       <header className={styles.header}>
         <h1 className={styles.title}>About JS GBC</h1>
       </header>
