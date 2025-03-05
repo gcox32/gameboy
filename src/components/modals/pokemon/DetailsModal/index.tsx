@@ -46,7 +46,7 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalPr
             <div className={styles.pokemonDetailsRow}>
                 <div className={styles.pokemonDetailsSection + " " + styles.top}>
                     <h2>{pokemon.nickname || pokemon.speciesName}</h2>
-                    <p>Lv. {pokemon.structure.level}</p>
+                    <p>Lv.{pokemon.structure.level}</p>
                     <p>#{pokemon.pokedexNo.toString().padStart(3, '0')}</p>
                     <div>
                         <span className={`${styles.typeTag} ${styles[structure.type1.toLowerCase() + 'Type']}`}>
@@ -94,9 +94,9 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalPr
                         <div>
                             <h3>Stats</h3>
                             <div className={styles.statValue}>
-                                <span>HP:</span>
+                                <span style={{ marginRight: "1em" }}>HP:</span>
                                 {renderStatBar(structure.levelStats.maxHP, 255, 'stat')}
-                                <span>{structure.currentHP} / {structure.levelStats.maxHP}</span>
+                                <span>{structure.levelStats.maxHP}</span>
                             </div>
                             <div className={styles.statValue}>
                                 <span>ATK:</span>

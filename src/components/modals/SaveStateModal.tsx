@@ -3,8 +3,18 @@ import {
     Flex,
     Button
 } from '@aws-amplify/ui-react';
+import styles from './styles.module.css';
 
-function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, userId }) {
+interface SaveStateModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: (saveStateData: any) => void;
+    initialData: any;
+    currentROM: any;
+    userId: string;
+}
+
+function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, userId }: SaveStateModalProps) {
     const [title, setTitle] = useState(initialData?.title || '');
     const [description, setDescription] = useState(initialData?.description || '');
     const [imageFile, setImageFile] = useState(initialData?.img || '');
@@ -25,8 +35,8 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
         setImageFile(null);
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (file && file.type.startsWith('image/')) {
             console.log('File selected:', file);
             setImageFile(file);
@@ -39,10 +49,10 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
     if (!isOpen) return null;
 
     return (
-        <div className="modal">
-            <div onClick={onClose} className="modal-overlay"></div>
-            <div className="modal-content" id="save-modal">
-                <button onClick={onClose} className="close-modal">&times;</button>
+        <div className={styles.modal}>
+            <div onClick={onClose} className={styles.modalOverlay}></div>
+            <div className={styles.modalContent} id={styles.saveModal}>
+                <button onClick={onClose} className={styles.closeModal}>&times;</button>
                 <h2>Save Game</h2>
                 <input
                     type="text"

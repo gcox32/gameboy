@@ -1,13 +1,17 @@
 'use client';
 
 import { useGame } from '@/contexts/GameContext';
-import { useRouter } from 'next/navigation';
 import { Button, Flex } from '@aws-amplify/ui-react';
 import BaseModal from './BaseModal';
 
-export default function GameInterruptModal({ isOpen, onClose, onContinue }) {
+interface GameInterruptModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onContinue: () => void;
+}
+
+export default function GameInterruptModal({ isOpen, onClose, onContinue }: GameInterruptModalProps) {
     const { gameState } = useGame();
-    const router = useRouter();
 
     return (
         <BaseModal isOpen={isOpen} onClose={onClose}>

@@ -7,6 +7,15 @@ import {
     Heading
 } from '@aws-amplify/ui-react';
 
+interface ConfirmModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    children: React.ReactNode;
+    skipConfirmation: boolean;
+    toggleSkipConfirmation: () => void;
+}
+
 function ConfirmModal({ 
     isOpen, 
     onClose, 
@@ -14,7 +23,7 @@ function ConfirmModal({
     children, 
     skipConfirmation, 
     toggleSkipConfirmation 
-}) {
+}: ConfirmModalProps) {
     return (
         <BaseModal isOpen={isOpen} onClose={onClose}>
             <Flex

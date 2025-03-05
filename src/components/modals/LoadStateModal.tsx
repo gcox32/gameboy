@@ -4,16 +4,41 @@ import { generateClient } from 'aws-amplify/api';
 import ConfirmModal from './ConfirmModal';
 import BaseModal from './BaseModal';
 import { assetsEndpoint, assetsEndpointPublic } from '../../../config';
+import styles from './styles.module.css';
 
-function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
-	const [updatedSaveStates, setUpdatedSaveStates] = useState([]);
+interface SaveState {
+    id: string;
+    title: string;
+    filePath: string;
+    img?: string;
+    imageUrl?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface LoadStateModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    saveStates: any[];
+    onConfirm: (saveState: any) => void;
+    userId: string;
+}
+
+function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }: LoadStateModalProps) {
+	const [updatedSaveStates, setUpdatedSaveStates] = useState<SaveState[]>([]);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
-	const [selectedStateForDeletion, setSelectedStateForDeletion] = useState(null);
+	const [selectedStateForDeletion, setSelectedStateForDeletion] = useState<SaveState | null>(null);
 
-	const formatDate = (dateString, update=true) => {
+	const formatDate = (dateString: string, update = true) => {
 		const date = new Date(dateString);
-		const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-		return `${update ? 'Last Saved':'Created'}: ${date.toLocaleString('en-US', options)}`;
+		const options: Intl.DateTimeFormatOptions = {
+			year: 'numeric' as const,
+			month: 'short' as const,
+			day: 'numeric' as const,
+			hour: '2-digit' as const,
+			minute: '2-digit' as const
+		};
+		return `${update ? 'Last Saved' : 'Created'}: ${date.toLocaleString('en-US', options)}`;
 	};
 	useEffect(() => {
 		const fetchImageUrls = async () => {
@@ -46,7 +71,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 	}, [isOpen, saveStates]);
 	
 
-	const handleDeleteClick = (saveState) => {
+	const handleDeleteClick = (saveState: any) => {
 		setSelectedStateForDeletion(saveState);
 		setShowConfirmModal(true);
 	}
@@ -80,15 +105,15 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 	return (
 		<BaseModal isOpen={isOpen} onClose={onClose}>
 			<h2>Select a Save State</h2>
-			<div className="save-state-list">
+			<div className={styles.saveStateList}>
 				{updatedSaveStates.map((state) => (
-					<div className="save-state-block" key={state.id} onClick={() => onConfirm(state)}>
+					<div className={styles.saveStateBlock} key={state.id} onClick={() => onConfirm(state)}>
 						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/beta-sprite.png`} style={{ width:"220px", height:"auto"}} />}
 						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" style={{ width:"220px", height:"auto"}} />}
-						<h3 className="save-state-title">{state.title}</h3>
-						<p className="last-update-text">{formatDate(state.createdAt, false)}</p>
-						<p className="last-update-text">{formatDate(state.updatedAt)}</p>
-						<button className="delete-btn" onClick={(e) => {
+						<h3 className={styles.saveStateTitle}>{state.title}</h3>
+						<p className={styles.lastUpdateText}>{formatDate(state.createdAt, false)}</p>
+						<p className={styles.lastUpdateText}>{formatDate(state.updatedAt)}</p>
+						<button className={styles.deleteBtn} onClick={(e) => {
 							e.stopPropagation();
 							handleDeleteClick(state);
 						}}>Delete</button>
@@ -99,6 +124,8 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }) {
 				isOpen={showConfirmModal}
 				onClose={() => setShowConfirmModal(false)}
 				onConfirm={handleDeleteConfirmed}
+				skipConfirmation={false}
+				toggleSkipConfirmation={() => {}}
 			>
 				Are you sure you want to delete this save state?
 			</ConfirmModal>

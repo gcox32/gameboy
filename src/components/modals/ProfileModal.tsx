@@ -15,6 +15,7 @@ import {
     Alert
 } from '@aws-amplify/ui-react';
 import { getS3Url } from '@/utils/saveLoad';
+import styles from './styles.module.css';
 
 const client = generateClient<Schema>();
 
@@ -28,16 +29,18 @@ interface ProfileModalProps {
 const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [imagePreview, setImagePreview] = useState(userProfile?.avatar || null);
-    const fileInputRef = useRef(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(userProfile?.avatar || null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [formData, setFormData] = useState({
         username: userProfile?.username || '',
         email: userProfile?.email || '',
         bio: userProfile?.bio || '',
         avatar: userProfile?.avatar || ''
     });
+
+    const defaultAvatar = 'https://assets.letmedemo.com/public/gameboy/images/users/default-avatar.png';
 
     useEffect(() => {
         setFormData({
@@ -103,6 +106,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                 options: {
                     contentType: file.type,
                     onProgress: ({ transferredBytes, totalBytes }) => {
+                        if (!totalBytes) return;
                         const progress = (transferredBytes / totalBytes) * 100;
                         setUploadProgress(progress);
                     },
@@ -168,7 +172,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     };
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} className="profile-modal">
+        <BaseModal isOpen={isOpen} onClose={onClose} className={styles.profileModal}>
             <Flex direction="column" gap="1.5rem" padding="1.5rem">
                 <Flex justifyContent="space-between" alignItems="center">
                     <Heading level={4}>User Profile</Heading>
@@ -189,19 +193,19 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
 
                 {userProfile && (
                     <Flex direction="column" gap="1.5rem">
-                        <View className="profile-avatar-section">
-                            <div className="avatar-container">
+                        <View className={styles.profileAvatarSection}>
+                            <div className={styles.avatarContainer}>
                                 <Image
-                                    src={imagePreview}
+                                    src={imagePreview || defaultAvatar}
                                     alt={userProfile.username}
                                     width={100}
                                     height={100}
-                                    className="profile-avatar"
+                                    className={styles.profileAvatar}
                                     style={{ objectFit: "cover" }}
                                 />
                                 {isEditing && (
                                     <>
-                                        <div className="avatar-overlay">
+                                        <div className={styles.avatarOverlay}>
                                             <input
                                                 type="file"
                                                 ref={fileInputRef}
@@ -214,7 +218,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                                 onClick={() => fileInputRef.current?.click()}
                                                 size="small"
                                                 variation="link"
-                                                className="upload-button"
+                                                className={styles.uploadButton}
                                             >
                                                 <svg 
                                                     width="24" 
@@ -236,7 +240,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                                 onClick={handleRemoveImage}
                                                 size="small"
                                                 variation="destructive"
-                                                className="remove-button"
+                                                className={styles.removeButton}
                                             >
                                                 Remove
                                             </Button>
@@ -244,9 +248,9 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     </>
                                 )}
                                 {uploadProgress > 0 && uploadProgress < 100 && (
-                                    <div className="upload-progress">
+                                    <div className={styles.uploadProgress}>
                                         <div
-                                            className="progress-bar"
+                                            className={styles.progressBar}
                                             style={{ width: `${uploadProgress}%` }}
                                         />
                                     </div>
@@ -288,15 +292,15 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                             </Flex>
                         ) : (
                             <Flex direction="column" gap="1rem">
-                                <View className="profile-detail">
+                                <View className={styles.profileDetail}>
                                     <Text variation="secondary">Username</Text>
                                     <Text>{userProfile.username}</Text>
                                 </View>
-                                <View className="profile-detail">
+                                <View className={styles.profileDetail}>
                                     <Text variation="secondary">Email</Text>
                                     <Text>{userProfile.email}</Text>
                                 </View>
-                                <View className="profile-detail">
+                                <View className={styles.profileDetail}>
                                     <Text variation="secondary">Bio</Text>
                                     <Text>{userProfile.bio || 'No bio available'}</Text>
                                 </View>

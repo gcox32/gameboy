@@ -1,0 +1,402 @@
+/* modal */
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalOverlay {
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.modalContent {
+  border-radius: 16px;
+  z-index: 10;
+  position: absolute;
+  max-height: 90%;
+  overflow-y: scroll;
+  background: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
+  display: inline-flex;
+  flex-direction: column;
+  text-align: center;
+  min-width: 320px;
+  max-width: 930px;
+  min-height: auto;
+  padding: 1em;
+}
+
+.modalContent#saveModal {
+  max-width: 640px !important;
+  padding: 1em;
+}
+
+.modalContent>h2 {
+  font-size: 20px;
+  font-weight: 200;
+  margin: 1em;
+  text-align: center;
+}
+
+.modalContent>h3 {
+  font-size: 28px;
+  font-weight: 200;
+  margin: 2em auto;
+  max-width: 80%;
+}
+
+.modal .closeModal {
+  position: absolute;
+  right: 8px;
+  top: 0;
+  cursor: pointer;
+  font-size: 28px;
+  opacity: 0.5;
+  background: none;
+  border: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal .closeModal:hover {
+  opacity: 0.9;
+}
+
+.modal .modalContent label {
+  padding: 5px;
+}
+
+.modalOptionsButtons {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin: auto;
+}
+
+.modalOptionsButtons button {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  min-width: var(--btn-width);
+  height: var(--btn-height);
+  margin: 1em;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.modalOptionsButtons button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.modalOptionsButtons button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.removeConfirm {
+  display: flex;
+  font-size: 16px;
+  margin: auto;
+  width: 80%;
+}
+
+.removeConfirm input:not([type='checkbox']) {
+  margin: 10px;
+}
+
+.removeConfirm input[type='checkbox'] {
+  margin: 10px !important;
+}
+
+.modalContent input {
+  text-align: center;
+}
+
+.modalContent input,
+.modalContent textarea {
+  font-size: 20px;
+  margin-bottom: 1em;
+}
+
+.modalContent#saveModal {
+  min-width: 400px;
+}
+
+.profileModal .modalContent {
+  max-width: 450px;
+  min-height: auto;
+  padding: 0;
+}
+
+.profileAvatarSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.avatarPlaceholderModal.large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--amplify-colors-brand-primary-80);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 500;
+}
+
+.profileDetail {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background-color: var(--amplify-colors-background-secondary);
+}
+
+.avatarContainer {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.avatarContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatarContainer:hover .avatarOverlay {
+  opacity: 1;
+}
+
+.uploadButton {
+  color: white !important;
+  background: transparent !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.uploadButton:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.uploadButton span {
+  font-size: 0.875rem;
+}
+
+.removeButton {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatarContainer:hover .removeButton {
+  opacity: 1;
+}
+
+.uploadProgress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--amplify-colors-background-secondary);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--amplify-colors-brand-primary-80);
+  transition: width 0.3s ease-in-out;
+}
+
+.avatarPlaceholderModal.large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--amplify-colors-brand-primary-80);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 500;
+}
+
+/* Dark mode support */
+[data-amplify-theme='dark'] .modalContent {
+  background: var(--amplify-colors-background-primary);
+  color: var(--amplify-colors-font-primary);
+}
+
+/* load state modal */
+.modalContent#loadStateContent {
+  width: 800px;
+}
+
+.modalContent img {
+  transition: 100ms ease-in-out;
+}
+
+.modalContent img:hover:not(.modalContent .profileAvatar) {
+  cursor: pointer;
+  outline: 5px gray solid;
+}
+
+.saveStateList {
+  overflow-x: scroll;
+  padding: 4px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.saveStateBlock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 2em;
+}
+
+.saveStateBlock button {
+  font-size: 10px;
+}
+
+h3.saveStateTitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 0;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+}
+
+.lastUpdateText {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.top {
+  z-index: 20;
+}
+
+.deleteBtn {
+  margin: 10px;
+  cursor: pointer;
+}
+
+.profileModalContent {
+  padding: 20px;
+}
+
+.profileAvatarModal {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.avatarPlaceholderModal.large {
+  width: 100px;
+  height: 100px;
+  font-size: 40px;
+  line-height: 100px;
+}
+
+.profileDetails p {
+  margin: 10px 0;
+}
+
+@media screen and (max-width: 400px) {
+  .modalOptionsButtons {
+    justify-content: space-around !important;
+  }
+
+  .optionButton {
+    width: var(--btn-height) !important;
+    min-width: 0 !important;
+  }
+
+  .modalContent {
+    min-width: 0;
+    width: 90%;
+    padding: 1em;
+    margin: 0 auto;
+  }
+
+  .settingsModal .modalContent {
+    width: 90vw;
+    margin: 0 auto;
+  }
+
+  .amplifyButton {
+      min-width: 100px;
+  }
+}
+
+.settingsModal .modalContent {
+  padding: 0;
+  min-height: auto;
+  width: 380px;
+  background: var(--amplify-colors-background-primary);
+}
+
+.settingsModal .amplifySlider {
+  width: 100%;
+}
+
+.settingsModal .amplifySwitchfield {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.settingsModal .amplifyDivider {
+  margin: 0.5rem 0;
+}
+
+.settingsModal .amplifyButton {
+  width: 100%;
+}
+
+.settingsModal .amplifyHeading {
+  margin: 0;
+}
+
+.amplifyButton {
+  min-width: 120px;
+}
+
+.amplifyCheckboxfield {
+  margin-top: 0.5rem;
+}
+
