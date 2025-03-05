@@ -3,3 +3,42 @@
     color: var(--amplify-colors-brand-primary-60);
     font-size: 12px;
 }
+
+.mobile {
+    display: none;
+}
+
+.romSelector {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 2px black solid;
+    background-color: white;
+    cursor: pointer;
+    width: var(--btn-width);
+    height: var(--btn-height);
+    text-align: center;
+    font-size: 12px;
+}
+
+.romSelector:disabled {
+    background-color: #eee;
+    cursor: not-allowed;
+}
+
+#activeGameTitle {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 2px black solid;
+    background-color: white;
+    margin-bottom: 10px;
+    width: var(--btn-width);
+    height: var(--btn-height);
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#activeGameTitle.null {
+    background-color: gray;
+}

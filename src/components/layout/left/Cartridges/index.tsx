@@ -43,7 +43,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
 
     return (
         <>
-            <select onChange={handleROMChange} disabled={isDisabled} className="rom-selector">
+            <select onChange={handleROMChange} disabled={isDisabled} className={styles.romSelector}>
                 <option value="">Select a Game</option>
                 {games.map(game => (
                     <option key={game.id} value={game.filePath}>
@@ -58,7 +58,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
                 onClose={() => setIsGameManagementOpen(false)}
                 onGameDeleted={fetchGames}
             />  
-            <div id="active-game-title" className={activeSaveState ? "" : 'null'}>
+            <div id={styles.activeGameTitle} className={activeSaveState ? "" : styles.null}>
                 { activeSaveState ? activeSaveState.title : '' }
             </div>
         </>
