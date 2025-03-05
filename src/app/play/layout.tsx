@@ -1,17 +1,17 @@
 'use client';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Amplify } from 'aws-amplify';
 import outputs from '../../../amplify_outputs.json';
 
 Amplify.configure(outputs);
 
-import '../../styles/styles.css';
-import '../../styles/modal.css';
-
-export default function PlayLayout({ children }) {
-    const { user, loading } = useAuth();
+export default function PlayLayout({ children }: { children: ReactNode }) {
+    const auth = useAuth();
+    if (!auth) throw new Error('Auth context not available');
+    const { user, loading } = auth;
     const router = useRouter();
 
     useEffect(() => {

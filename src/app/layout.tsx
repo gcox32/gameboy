@@ -1,15 +1,15 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
-import { AuthProvider } from '../contexts/AuthContext';
+import { ReactNode } from 'react';
+
 import { Amplify } from 'aws-amplify';
 import outputs from '../../amplify_outputs.json';
-import Nav from '@/components/layout/Nav';
 
-import '../styles/styles.css';
-import '../styles/modal.css';
+import { AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { GameProvider } from '../contexts/GameContext';
+import Nav from '@/components/layout/Nav';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
 Amplify.configure(outputs);
 
@@ -25,7 +25,7 @@ export const metadata = {
   }
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={inter.className}>

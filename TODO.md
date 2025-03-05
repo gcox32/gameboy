@@ -51,7 +51,6 @@
 
 ### Pokemon Features
 - [x] Real-time team viewer with Sugimori art
-- [ ] Team builder interface
 - [x] Progress tracking (badges, Pokedex)
 
 ## Testing Implementation
@@ -62,6 +61,7 @@
 
 ## Documentation
 - [ ] Add comprehensive README
+- [ ] Add README for the frontend
 - [ ] Document emulator architecture
 - [ ] Add contributing guidelines
 - [ ] Create user guide
@@ -79,7 +79,6 @@
 - [ ] Optimize AWS Amplify usage
 
 ## Stretch Goals
-- [ ] Multiplayer features (trading, battling)
 - [ ] Community features (save state sharing)
 - [ ] Advanced game analysis tools
 - [ ] Custom texture packs
