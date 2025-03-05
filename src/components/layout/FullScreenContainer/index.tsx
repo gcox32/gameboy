@@ -52,7 +52,7 @@ export default function FullScreenContainer({
           />
           {showActiveParty && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
           {showGymBadgeCase && <GymBadgeCase inGameMem={inGameMemory} />}
-          {showMap && <TownMap inGameMem={inGameMemory}/>}
+          {showMap && <TownMap />}
           {showPokedex && <Pokedex />}
           {showTeamPhoto && <TeamPhoto />}
     </div>

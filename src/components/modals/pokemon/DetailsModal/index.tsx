@@ -4,7 +4,13 @@ import RadarChart from "./RadarChart";
 import Image from "next/image";
 import styles from "./styles.module.css";
 import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "@/../config";
-import { PokemonDetailsModalProps, Move } from "./types";
+import { Move, PokemonDetails } from "@/types/pokemon";
+
+interface PokemonDetailsModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    pokemon: PokemonDetails;
+}
 
 function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalProps) {
     const [isStatsFlipped, setIsStatsFlipped] = useState(false);

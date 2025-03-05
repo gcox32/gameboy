@@ -13,7 +13,7 @@ interface Location {
     places: string[];
 }
 
-function TownMap(inGameMem: any[]) {
+function TownMap() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
     const mapSrc = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/maps/rby-kanto-town-map.png';

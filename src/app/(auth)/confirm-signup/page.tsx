@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
+import styles from '../styles.module.css';
 
 const authedRoute = '/play';
 
@@ -16,11 +17,14 @@ function ConfirmSignUpComponent() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmationCode, setConfirmationCode] = useState('');
-    const [error, setError] = useState(null);
-    const [message, setMessage] = useState(null);
+    const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { setUser } = useAuth();
+    const auth = useAuth();
+    if (!auth) throw new Error('Auth context not available');
+    const { setUser }: { setUser: (user: any) => void } = auth;
+    
     const [isResending, setIsResending] = useState(false);
 
     useEffect(() => {
@@ -33,7 +37,7 @@ function ConfirmSignUpComponent() {
         if (password) setPassword(password);
     }, [searchParams]);
 
-    const handleConfirmSignUp = async (e) => {
+    const handleConfirmSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setMessage(null);
@@ -82,20 +86,22 @@ function ConfirmSignUpComponent() {
             } else {
                 setError('Sign in failed after confirmation.');
             }
-        } catch (err) {
-            if (err.message.includes('User cannot be confirmed. Current status is CONFIRMED')) {
-                setMessage('Your account is already confirmed. Redirecting to game...');
-                try {
-                    await signIn({ username, password });
-                    const user = await getCurrentUser();
-                    setUser(user);
-                    router.push(authedRoute);
-                } catch (signInError) {
-                    setError('Failed to sign in. Please try logging in manually.');
-                    router.push('login');
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                if (err.message.includes('User cannot be confirmed. Current status is CONFIRMED')) {
+                    setMessage('Your account is already confirmed. Redirecting to game...');
+                    try {
+                        await signIn({ username, password });
+                        const user = await getCurrentUser();
+                        setUser(user);
+                        router.push(authedRoute);
+                    } catch (signInError) {
+                        setError('Failed to sign in. Please try logging in manually.');
+                        router.push('login');
+                    }
+                } else {
+                    setError(err.message);
                 }
-            } else {
-                setError(err.message);
             }
         }
     };
@@ -113,26 +119,26 @@ function ConfirmSignUpComponent() {
         try {
             await resendSignUpCode({ username });
             setMessage('Verification code has been resent to your email');
-        } catch (err) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setIsResending(false);
         }
     };
 
     return (
-        <div className="container">
-            <h2 className="title">Confirm Sign Up</h2>
-            <form onSubmit={handleConfirmSignUp} className="form">
+        <div className={styles.container}>
+            <h2 className={styles.title}>Confirm Sign Up</h2>
+            <form onSubmit={handleConfirmSignUp} className={styles.form}>
                 <input
                     type="text"
                     placeholder="Confirmation Code"
                     value={confirmationCode}
                     onChange={(e) => setConfirmationCode(e.target.value)}
                     required
-                    className="input"
+                    className={styles.input}
                 />
-                <button type="submit" className="button">Confirm</button>
+                <button type="submit" className={styles.button}>Confirm</button>
             </form>
             <button 
                 onClick={handleResendCode} 
@@ -142,8 +148,8 @@ function ConfirmSignUpComponent() {
             >
                 {isResending ? 'Sending...' : 'Resend Code'}
             </button>
-            {error && <p role="alert" className="error">{error}</p>}
-            {message && <p role="status" className="status-message">{message}</p>}
+            {error && <p role="alert" className={styles.error}>{error}</p>}
+            {message && <p role="status" className={styles.statusMessage}>{message}</p>}
         </div>
     );
 }

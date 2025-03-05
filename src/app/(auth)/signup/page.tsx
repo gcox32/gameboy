@@ -4,16 +4,17 @@ import { useState } from 'react';
 import { signUp } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import styles from '../styles.module.css';
 
 export default function SignUp() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [agreeToTerms, setAgreeToTerms] = useState(false);
     const router = useRouter();
 
-    const handleSignUp = async (e) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
     
@@ -40,15 +41,15 @@ export default function SignUp() {
                 const encodedPassword = encodeURIComponent(password);
                 router.push(`confirm-signup?username=${username}&email=${email}&password=${encodedPassword}`);
             }
-        } catch (err) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         }
     };
 
     return (
-        <div className="container">
-            <h1 className="title">Sign Up</h1>
-            <form onSubmit={handleSignUp} className="form">
+        <div className={styles.container}>
+            <h1 className={styles.title}>Sign Up</h1>
+            <form onSubmit={handleSignUp} className={styles.form}>
                 <input
                     type="email"
                     placeholder="Email"
@@ -58,7 +59,7 @@ export default function SignUp() {
                         setUsername(e.target.value);
                     }}
                     required
-                    className="input"
+                    className={styles.input}
                 />
                 <input
                     type="password"
@@ -66,23 +67,23 @@ export default function SignUp() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="input"
+                    className={styles.input}
                 />
-                <label className="checkbox-label">
+                <label className={styles.checkboxLabel}>
                     <input
                         type="checkbox"
                         checked={agreeToTerms}
                         onChange={(e) => setAgreeToTerms(e.target.checked)}
                         required
-                        className="checkbox"
+                        className={styles.checkbox}
                     />
-                    I agree to the <Link href="/terms" className="link">Terms and Conditions</Link> and <Link href="/privacy-policy" className="link">Privacy Policy</Link>
+                    I agree to the <Link href="/terms" className={styles.link}>Terms and Conditions</Link> and <Link href="/privacy-policy" className={styles.link}>Privacy Policy</Link>
                 </label>
-                <button type="submit" className="button">Sign Up</button>
+                <button type="submit" className={styles.button}>Sign Up</button>
             </form>
-            {error && <p className="error" role="alert">{error}</p>}
+            {error && <p className={styles.error} role="alert">{error}</p>}
             
-            <p className="footer-text">Already have an account? <Link href="login" className="link">Log in</Link></p>
+            <p className={styles.footerText}>Already have an account? <Link href="login" className={styles.link}>Log in</Link></p>
         </div>
     );
     

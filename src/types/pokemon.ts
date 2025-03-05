@@ -1,3 +1,14 @@
+export interface PartySlotProps {
+    pokemon: PokemonDetails;
+    onClick: (pokemon: PokemonDetails) => void;
+}
+
+export interface ActivePartyProps {
+    inGameMemory: any[];
+    onPauseResume: () => void;
+    intervalPaused: boolean;
+}
+
 export interface PokemonDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;

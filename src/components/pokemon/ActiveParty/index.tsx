@@ -4,11 +4,11 @@ import { useInGameMemoryWatcher } from "@/utils/MemoryWatcher";
 import { parseParty } from "@/utils/pokemon/parse";
 import PokemonDetailsModal from "@/components/modals/pokemon/DetailsModal";
 import styles from "./styles.module.css";
-import { Pokemon, ActivePartyProps } from "./types";
+import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 
 function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }: ActivePartyProps) {
     const partyArray = useRef([])
-    const [partyData, setPartyData] = useState<Pokemon[]>([]);
+    const [partyData, setPartyData] = useState<PokemonDetails[]>([]);
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -70,8 +70,8 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }: ActivePart
 
     return (
         <div className={styles.activeParty}>
-            {partyData.map((pokemon: Pokemon, index: number) => (
-                <PartySlot key={pokemon.id || index} pokemon={pokemon} onClick={() => handlePokemonClick(index)} />
+            {partyData.map((pokemon: PokemonDetails, index: number) => (
+                <PartySlot key={pokemon.pokedexNo || index} pokemon={pokemon} onClick={() => handlePokemonClick(index)} />
             ))}
             {selectedPokemonIndex !== null && (
                 <PokemonDetailsModal

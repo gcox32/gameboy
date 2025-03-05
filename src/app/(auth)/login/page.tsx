@@ -6,15 +6,18 @@ import { signIn, getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '../../../../config';
-import '@/styles/auth.css';
+import styles from '../styles.module.css';
 
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const { user, setUser, loading } = useAuth();
+    const auth = useAuth();
+    if (!auth) throw new Error('Auth context not available');
+    const { user, loading } = auth;
+    const { setUser }: { setUser: (user: any) => void } = auth;
 
     useEffect(() => {
         if (!loading && user) {
@@ -30,7 +33,7 @@ export default function Login() {
         }
     }, []);
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         try {
@@ -55,12 +58,12 @@ export default function Login() {
             } else {
                 handleNextStep(nextStep.signInStep);
             }
-        } catch (err) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         }
     };
 
-    const handleNextStep = (nextStep) => {
+    const handleNextStep = (nextStep: string) => {
         switch (nextStep) {
             case 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED':
                 router.push('/new-password');
@@ -103,16 +106,16 @@ export default function Login() {
     }
 
     return (
-        <div className="container">
-            <h1 className="title">Login</h1>
-            <form onSubmit={handleLogin} className="form">
+        <div className={styles.container}>
+            <h1 className={styles.title}>Login</h1>
+            <form onSubmit={handleLogin} className={styles.form}>
                 <input
                     type="text"
                     placeholder="Email"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
-                    className="input"
+                    className={styles.input}
                 />
                 <input
                     type="password"
@@ -120,23 +123,23 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="input"
+                    className={styles.input}
                 />
-                <label className="checkbox-label">
+                <label className={styles.checkboxLabel}>
                     <input
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="checkbox"
+                        className={styles.checkbox}
                     />
                     Remember Me
                 </label>
-                <button type="submit" className="button">Login</button>
+                <button type="submit" className={styles.button}>Login</button>
             </form>
-            {error && <p className="error" role="alert">{error}</p>}
+            {error && <p className={styles.error} role="alert">{error}</p>}
             
-            <div className="signup-prompt">
-                Don&apos;t have an account? <Link href="/signup" className="signup-link">Sign up</Link>
+            <div className={styles.signupPrompt}>
+                {`Don't have an account? `}<Link href="/signup" className={styles.signupLink}>Sign up</Link>
             </div>
         </div>
     );

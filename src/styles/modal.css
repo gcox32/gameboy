@@ -255,8 +255,6 @@ textarea {
   font-weight: 500;
 }
 
-/* Rest of your existing profile modal styles... */
-
 /* Dark mode support */
 [data-amplify-theme='dark'] .profile-modal .modal-content {
   background: var(--amplify-colors-background-primary);

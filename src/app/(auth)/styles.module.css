@@ -40,7 +40,7 @@
     box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.2);
 }
 
-.status-message {
+.statusMessage {
     color: #333;
     font-size: 0.9rem;
     margin-top: 1rem;
@@ -68,18 +68,18 @@
     margin-top: 0.5rem;
 }
 
-.signup-prompt {
+.signupPrompt {
     margin-top: 1.5rem;
     font-size: 0.9rem;
     color: #333;
 }
 
-.signup-link {
+.signupLink {
     color: #6200ea;
     text-decoration: none;
 }
 
-.signup-link:hover {
+.signupLink:hover {
     text-decoration: underline;
 }
 
@@ -90,13 +90,13 @@
     text-align: center;
 }
 
-.button-container {
+.buttonContainer {
     display: flex;
     gap: 1rem;
     justify-content: center;
 }
 
-.checkbox-label {
+.checkboxLabel {
     display: flex;
     align-items: center;
     font-size: 0.9rem;

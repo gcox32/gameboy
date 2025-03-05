@@ -2,7 +2,7 @@ import React from "react";
 import { pokemonGifEndpoint } from "@/../config";
 import Image from "next/image";
 import styles from "./styles.module.css";
-import { PartySlotProps } from "./types";
+import { PartySlotProps } from "@/types/pokemon";
 
 function PartySlot({ pokemon, onClick }: PartySlotProps) {
     return (

@@ -1,0 +1,36 @@
+'use client'
+
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import Footer from '@/components/layout/Footer';
+import styles from './(auth)/styles.module.css';
+
+export default function Home() {
+  const auth = useAuth();
+  if (!auth) throw new Error('Auth context not available');
+  const { user } = auth;
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Welcome to JS GBC</h1>
+      <p className={styles.description}>Play Gameboy Color games in your browser.</p>
+      {user === null ? (
+        <div className={styles.buttonContainer}>
+          <Link href="login">
+            <button className={styles.button}>Login</button>
+          </Link>
+          <Link href="signup">
+            <button className={styles.button}>Sign Up</button>
+          </Link>
+      </div>
+      ) : (
+        <div className={styles.buttonContainer}>
+          <Link href="/play">
+            <button className={styles.button}>Play</button>
+          </Link>
+        </div>
+      )}
+      <Footer />
+    </div>
+  );
+}
