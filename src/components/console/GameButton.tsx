@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
-function GameButton({ elementId, className, keyCode }) {
-    const [intervalId, setIntervalId] = useState(null);
+interface GameButtonProps {
+    elementId: string;
+    className: string;
+    keyCode: string;
+}
+
+function GameButton({ elementId, className, keyCode }: GameButtonProps) {
+    const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
     const clickBtn = () => {
         const keyEvent = new KeyboardEvent("keydown", {
             bubbles: true,
             cancelable: true,
-            char: 'x',
             key: 'x',
-            shiftKey : false,
-            keyCode: keyCode
+            shiftKey: false,
+            keyCode: parseInt(keyCode)
         });
         document.dispatchEvent(keyEvent);
     };
@@ -19,13 +24,12 @@ function GameButton({ elementId, className, keyCode }) {
         const keyEvent = new KeyboardEvent("keyup", {
             bubbles: true,
             cancelable: true,
-            char: 'x',
             key: 'x',
-            shiftKey : false,
-            keyCode: keyCode
+            shiftKey: false,
+            keyCode: parseInt(keyCode)
         });
         document.dispatchEvent(keyEvent);
-        clearInterval(intervalId);
+        if (intervalId) clearInterval(intervalId);
         setIntervalId(null);
     };
 
