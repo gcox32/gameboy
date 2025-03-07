@@ -400,3 +400,12 @@ h3.saveStateTitle {
   margin-top: 0.5rem;
 }
 
+.closeModal.light {
+  color: #fff;
+  opacity: 0.7;
+}
+
+.closeModal.light:hover {
+  opacity: 1;
+}
+

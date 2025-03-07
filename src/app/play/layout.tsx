@@ -29,8 +29,8 @@ export default function PlayLayout({ children }: { children: ReactNode }) {
     }
 
     return (
-        <div>
+        <>
             {children}
-        </div>
+        </>
     );
 }

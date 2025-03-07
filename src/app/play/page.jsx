@@ -1,6 +1,11 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { fetchUserSaveStates, loadInGameFile } from '@/utils/saveLoad';
+import { useSettings } from '@/contexts/SettingsContext';
+import { useGame } from '@/contexts/GameContext';
+import { getCurrentUser } from 'aws-amplify/auth'
+import { useSaveState } from '@/hooks/useSaveState';
 import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/left/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
@@ -16,14 +21,8 @@ import {
 	settings,
 	clearLastEmulation
 } from '@/utils/GameBoyIO';
-import { fetchUserSaveStates, loadInGameFile } from '@/utils/saveLoad';
-import { useSettings } from '@/contexts/SettingsContext';
-import { useGame } from '@/contexts/GameContext';
-import { getCurrentUser } from 'aws-amplify/auth'
-import { useSaveState } from '@/hooks/useSaveState';
 
 export default function App() {
-
 	// Get settings from context
 	const { uiSettings } = useSettings();
 	const { speed, isSoundOn, mobileZoom } = uiSettings;	
@@ -169,14 +168,6 @@ export default function App() {
 			setIsRomLoaded(false);
 		}
 	};
-	const updateBackgroundForFullscreen = (backgroundData) => {
-		if (backgroundData) {
-			setFullscreenBackground(backgroundData);
-		} else {
-			// If no ROM-specific background, use the one from settings
-			setFullscreenBackground(uiSettings.background);
-		}
-	};
 	const handlePowerToggle = () => {
 		if (gameBoyInstance.current && (isEmulatorPlaying || intervalPaused)) {
 			console.log("Turning off the emulator...");
@@ -294,8 +285,6 @@ export default function App() {
 		console.log('Setting fullscreen state to:', !isFullscreen);
 		setIsFullscreen(!isFullscreen);
 	}, [isFullscreen, gameBoyInstance]);
-
-	// Replace existing onSaveConfirmed with new version
 	const onSaveConfirmed = async (saveModalData, isUpdate = false) => {
 		if (!gameBoyInstance.current || !activeROM || !isEmulatorPlaying) return;
 
@@ -386,7 +375,6 @@ export default function App() {
         };
     }, [ROMImage, isRomLoaded]
 	);
-
 	// Maintain emulator-on awareness
 	useEffect(() => {
 		const isEmulatorOn = gameBoyInstance.current && (isEmulatorPlaying || intervalPaused);
@@ -444,18 +432,19 @@ export default function App() {
 	},
 		[isEmulatorPlaying]
 	);
-
-	// Add this effect to watch for background changes in settings
+	// Watch for background changes in settings
 	useEffect(() => {
 		if (!activeROM?.backgroundImg) {
 			setFullscreenBackground(uiSettings.background);
 		}
 	}, [uiSettings.background, activeROM]);
 
+	// Loading screen
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
 
+	// If user is not logged in, don't render anything
 	if (!currentUser) {
 		return null;
 	}

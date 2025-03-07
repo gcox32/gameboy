@@ -4,7 +4,11 @@ import RadarChart from "./RadarChart";
 import Image from "next/image";
 import styles from "./styles.module.css";
 import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "@/../config";
-import { Move, PokemonDetails } from "@/types/pokemon";
+import { PokemonDetails } from "@/types/pokemon";
+import CurrentStats from "./Stats/CurrentStats";
+import EffortValues from "./Stats/EffortValues";
+import IndividualValues from "./Stats/IndividuaValues";
+import Moveset from "./Moveset";
 
 interface PokemonDetailsModalProps {
     isOpen: boolean;
@@ -42,7 +46,7 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalPr
     const structure = pokemon.structure;
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modalContent}>
+        <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modalContent} lightCloseButton>
             <div className={styles.pokemonDetailsRow}>
                 <div className={styles.pokemonDetailsSection + " " + styles.top}>
                     <h2>{pokemon.nickname || pokemon.speciesName}</h2>
@@ -70,133 +74,39 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalPr
                     />
                 </div>
 
-                <div className={styles.pokemonDetailsSection + " " + styles.top}>
-                    <h4>Moveset</h4>
-                    {structure.moves.map((move: Move, index: number) => (
-                        move.id !== 0 && (
-                            <div key={index} className={styles.pokemonMove}>
-                                <p>{move.id} (PP: {move.pp})</p>
-                            </div>
-                        )
-                    ))}
-                </div>
+                <Moveset moves={structure.moves} />
+
             </div>
 
             <div className={styles.pokemonDetailsRow}>
-                {/* Stats Section */}
                 <div
-                    className={`${styles.pokemonDetailsSection} ${isStatsFlipped ? styles.back : ''}`}
+                    className={`${styles.pokemonDetailsSection} ${isStatsFlipped ? styles.back : ''} ${styles.cursorPointer}`}
                     onClick={() => setIsStatsFlipped(!isStatsFlipped)}
                 >
                     {isStatsFlipped ? (
                         <RadarChart stats={structure.levelStats} chartTitle="Level Stats" />
                     ) : (
-                        <div>
-                            <h3>Stats</h3>
-                            <div className={styles.statValue}>
-                                <span style={{ marginRight: "1em" }}>HP:</span>
-                                {renderStatBar(structure.levelStats.maxHP, 255, 'stat')}
-                                <span>{structure.levelStats.maxHP}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>ATK:</span>
-                                {renderStatBar(structure.levelStats.attack, 255, 'stat')}
-                                <span>{structure.levelStats.attack}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>DEF:</span>
-                                {renderStatBar(structure.levelStats.defense, 255, 'stat')}
-                                <span>{structure.levelStats.defense}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>SPE:</span>
-                                {renderStatBar(structure.levelStats.speed, 255, 'stat')}
-                                <span>{structure.levelStats.speed}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>SPC:</span>
-                                {renderStatBar(structure.levelStats.special, 255, 'stat')}
-                                <span>{structure.levelStats.special}</span>
-                            </div>
-                        </div>
+                        <CurrentStats renderStatBar={renderStatBar} structure={structure} />
                     )}
                 </div>
-
-                {/* EVs */}
                 <div
-                    className={`${styles.pokemonDetailsSection} ${isEVsFlipped ? styles.back : ''}`}
+                    className={`${styles.pokemonDetailsSection} ${isEVsFlipped ? styles.back : ''} ${styles.cursorPointer}`}
                     onClick={() => setIsEVsFlipped(!isEVsFlipped)}
                 >
                     {isEVsFlipped ? (
                         <RadarChart stats={structure.EVs} chartTitle="EVs" />
                     ) : (
-                        <div>
-                            <h3>Effort Values</h3>
-                            <div className={styles.statValue}>
-                                <span>HP:</span>
-                                {renderStatBar(structure.EVs.hp, 65535, 'ev')}
-                                <span>{structure.EVs.hp}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>ATK:</span>
-                                {renderStatBar(structure.EVs.attack, 65535, 'ev')}
-                                <span>{structure.EVs.attack}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>DEF:</span>
-                                {renderStatBar(structure.EVs.defense, 65535, 'ev')}
-                                <span>{structure.EVs.defense}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>SPE:</span>
-                                {renderStatBar(structure.EVs.speed, 65535, 'ev')}
-                                <span>{structure.EVs.speed}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>SPC:</span>
-                                {renderStatBar(structure.EVs.special, 65535, 'ev')}
-                                <span>{structure.EVs.special}</span>
-                            </div>
-                        </div>
+                        <EffortValues renderStatBar={renderStatBar} structure={structure} />
                     )}
                 </div>
-
-                {/* IVs */}
                 <div
-                    className={`${styles.pokemonDetailsSection} ${isIVsFlipped ? styles.back : ''}`}
+                    className={`${styles.pokemonDetailsSection} ${isIVsFlipped ? styles.back : ''} ${styles.cursorPointer}`}
                     onClick={() => setIsIVsFlipped(!isIVsFlipped)}
                 >
                     {isIVsFlipped ? (
                         <RadarChart stats={structure.IVs} chartTitle="IVs" />
                     ) : (
-                        <div>
-                            <h3>Individual Values</h3>
-                            <div className={styles.statValue}>
-                                <span>HP:</span>
-                                {renderStatBar(structure.IVs.hp, 15, 'iv')}
-                                <span>{structure.IVs.hp}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>ATK:</span>
-                                {renderStatBar(structure.IVs.attack, 15, 'iv')}
-                                <span>{structure.IVs.attack}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>DEF:</span>
-                                {renderStatBar(structure.IVs.defense, 15, 'iv')}
-                                <span>{structure.IVs.defense}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>SPE:</span>
-                                {renderStatBar(structure.IVs.speed, 15, 'iv')}
-                                <span>{structure.IVs.speed}</span>
-                            </div>
-                            <div className={styles.statValue}>
-                                <span>SPC:</span>
-                                {renderStatBar(structure.IVs.special, 15, 'iv')}
-                                <span>{structure.IVs.special}</span>
-                            </div>
-                        </div>
+                        <IndividualValues renderStatBar={renderStatBar} structure={structure} />
                     )}
                 </div>
             </div>

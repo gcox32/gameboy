@@ -1,0 +1,1487 @@
+{
+    "1": {
+        "name": "POUND",
+        "type": "NORMAL",
+        "PP": 35,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "2": {
+        "name": "KARATE CHOP",
+        "type": "FIGHTING",
+        "PP": 25,
+        "basepower": 50,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "3": {
+        "name": "DOUBLESLAP",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 15,
+        "accuracy": 90,
+        "description": "TWO_TO_FIVE_ATTACKS_EFFECT",
+        "clean_description": "hit 2-5 times"
+    },
+    "4": {
+        "name": "COMET PUNCH",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 25,
+        "accuracy": 90,
+        "description": "TWO_TO_FIVE_ATTACKS_EFFECT",
+        "clean_description": "hit 2-5 times"
+    },
+    "5": {
+        "name": "MEGA PUNCH",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 80,
+        "accuracy": 85,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "6": {
+        "name": "PAY DAY",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "PAY_DAY_EFFECT",
+        "clean_description": "get paid 2x user level"
+    },
+    "7": {
+        "name": "FIRE PUNCH",
+        "type": "FIRE",
+        "PP": 15,
+        "basepower": 75,
+        "accuracy": 100,
+        "description": "BURN_SIDE_EFFECT1",
+        "clean_description": "chance to burn"
+    },
+    "8": {
+        "name": "ICE PUNCH",
+        "type": "ICE",
+        "PP": 15,
+        "basepower": 75,
+        "accuracy": 100,
+        "description": "FREEZE_SIDE_EFFECT",
+        "clean_description": "chance to freeze"
+    },
+    "9": {
+        "name": "THUNDERPUNCH",
+        "type": "ELECTRIC",
+        "PP": 15,
+        "basepower": 75,
+        "accuracy": 100,
+        "description": "PARALYZE_SIDE_EFFECT1",
+        "clean_description": "chance to paralyze"
+    },
+    "10": {
+        "name": "SCRATCH",
+        "type": "NORMAL",
+        "PP": 35,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "11": {
+        "name": "VICEGRIP",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 55,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "12": {
+        "name": "GUILLOTINE",
+        "type": "BUG",
+        "PP": 5,
+        "basepower": 1,
+        "accuracy": 50,
+        "description": "OHKO_EFFECT",
+        "clean_description": "one-hit ko"
+    },
+    "13": {
+        "name": "RAZOR WIND",
+        "type": "FLYING",
+        "PP": 10,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "DEFENSE_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target defense"
+    },
+    "14": {
+        "name": "SWORDS DANCE",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ATTACK_UP2_EFFECT",
+        "clean_description": "sharply increase user attack"
+    },
+    "15": {
+        "name": "CUT",
+        "type": "BUG",
+        "PP": 30,
+        "basepower": 60,
+        "accuracy": 95,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "16": {
+        "name": "GUST",
+        "type": "FLYING",
+        "PP": 35,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "17": {
+        "name": "WING ATTACK",
+        "type": "FLYING",
+        "PP": 35,
+        "basepower": 70,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "18": {
+        "name": "WHIRLWIND",
+        "type": "FLYING",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 0,
+        "description": "HEAL_EFFECT",
+        "clean_description": "restore half of user hp"
+    },
+    "19": {
+        "name": "FLY",
+        "type": "FLYING",
+        "PP": 15,
+        "basepower": 65,
+        "accuracy": 95,
+        "description": "FLY_EFFECT",
+        "clean_description": "spend one turn in the air"
+    },
+    "20": {
+        "name": "BIND",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 15,
+        "accuracy": 85,
+        "description": "TRAPPING_EFFECT",
+        "clean_description": "trap the target for 2-5 turns"
+    },
+    "21": {
+        "name": "SLAM",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 80,
+        "accuracy": 85,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "22": {
+        "name": "VINE WHIP",
+        "type": "GRASS",
+        "PP": 20,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "23": {
+        "name": "STOMP",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "FLINCH_SIDE_EFFECT2",
+        "clean_description": "high chance to flinch"
+    },
+    "24": {
+        "name": "DOUBLE KICK",
+        "type": "FIGHTING",
+        "PP": 30,
+        "basepower": 30,
+        "accuracy": 100,
+        "description": "ATTACK_TWICE_EFFECT",
+        "clean_description": "attack twice"
+    },
+    "25": {
+        "name": "MEGA KICK",
+        "type": "NORMAL",
+        "PP": 5,
+        "basepower": 120,
+        "accuracy": 75,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "26": {
+        "name": "JUMP KICK",
+        "type": "FIGHTING",
+        "PP": 25,
+        "basepower": 70,
+        "accuracy": 95,
+        "description": "JUMP_KICK_EFFECT",
+        "clean_description": "recoil if user misses"
+    },
+    "27": {
+        "name": "ROLLING KICK",
+        "type": "FIGHTING",
+        "PP": 15,
+        "basepower": 60,
+        "accuracy": 85,
+        "description": "FLINCH_SIDE_EFFECT2",
+        "clean_description": "high chance to flinch"
+    },
+    "28": {
+        "name": "SAND ATTACK",
+        "type": "GROUND",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ACCURACY_DOWN1_EFFECT",
+        "clean_description": "decrease target accuracy"
+    },
+    "29": {
+        "name": "HEADBUTT",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 70,
+        "accuracy": 100,
+        "description": "FLINCH_SIDE_EFFECT2",
+        "clean_description": "high chance to flinch"
+    },
+    "30": {
+        "name": "HORN ATTACK",
+        "type": "NORMAL",
+        "PP": 25,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "31": {
+        "name": "FURY ATTACK",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 15,
+        "accuracy": 100,
+        "description": "TWO_TO_FIVE_ATTACKS_EFFECT",
+        "clean_description": "hit 2-5 times"
+    },
+    "32": {
+        "name": "HORN DRILL",
+        "type": "NORMAL",
+        "PP": 5,
+        "basepower": 1,
+        "accuracy": 50,
+        "description": "OHKO_EFFECT",
+        "clean_description": "one-hit ko"
+    },
+    "33": {
+        "name": "TACKLE",
+        "type": "NORMAL",
+        "PP": 35,
+        "basepower": 35,
+        "accuracy": 95,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "34": {
+        "name": "BODY SLAM",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 85,
+        "accuracy": 100,
+        "description": "PARALYZE_SIDE_EFFECT2",
+        "clean_description": "high chance to paralyze"
+    },
+    "35": {
+        "name": "WRAP",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 15,
+        "accuracy": 85,
+        "description": "TRAPPING_EFFECT",
+        "clean_description": "trap the target for 2-5 turns"
+    },
+    "36": {
+        "name": "TAKE DOWN",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 90,
+        "accuracy": 85,
+        "description": "RECOIL_EFFECT",
+        "clean_description": "take recoil damage"
+    },
+    "37": {
+        "name": "THRASH",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 90,
+        "accuracy": 100,
+        "description": "THRASH_PETAL_DANCE_EFFECT",
+        "clean_description": "go berserk for 2-3 turns"
+    },
+    "38": {
+        "name": "DOUBLE EDGE",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 100,
+        "accuracy": 100,
+        "description": "RECOIL_EFFECT",
+        "clean_description": "take recoil damage"
+    },
+    "39": {
+        "name": "TAIL WHIP",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "DEFENSE_DOWN1_EFFECT",
+        "clean_description": "decrease target defense"
+    },
+    "40": {
+        "name": "POISON STING",
+        "type": "POISON",
+        "PP": 35,
+        "basepower": 15,
+        "accuracy": 100,
+        "description": "POISON_SIDE_EFFECT1",
+        "clean_description": "chance to poison"
+    },
+    "41": {
+        "name": "TWINEEDLE",
+        "type": "BUG",
+        "PP": 20,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "TWINEEDLE_EFFECT",
+        "clean_description": "hit twice with chance to poison"
+    },
+    "42": {
+        "name": "PIN MISSILE",
+        "type": "BUG",
+        "PP": 20,
+        "basepower": 25,
+        "accuracy": 85,
+        "description": "TWO_TO_FIVE_ATTACKS_EFFECT",
+        "clean_description": "hit 2-5 times"
+    },
+    "43": {
+        "name": "LEER",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "DEFENSE_DOWN1_EFFECT",
+        "clean_description": "decrease target defense"
+    },
+    "44": {
+        "name": "BITE",
+        "type": "NORMAL",
+        "PP": 25,
+        "basepower": 60,
+        "accuracy": 100,
+        "description": "FLINCH_SIDE_EFFECT1",
+        "clean_description": "chance to flinch"
+    },
+    "45": {
+        "name": "GROWL",
+        "type": "NORMAL",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ATTACK_DOWN1_EFFECT",
+        "clean_description": "decrease target attack"
+    },
+    "46": {
+        "name": "X SCISSOR",
+        "type": "BUG",
+        "PP": 15,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "47": {
+        "name": "SING",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 70,
+        "description": "SLEEP_EFFECT",
+        "clean_description": "put target to sleep"
+    },
+    "48": {
+        "name": "SUPERSONIC",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 80,
+        "description": "CONFUSION_EFFECT",
+        "clean_description": "confuse the target"
+    },
+    "49": {
+        "name": "SONICBOOM",
+        "type": "FLYING",
+        "PP": 20,
+        "basepower": 40,
+        "accuracy": 90,
+        "description": "SPECIAL_DAMAGE_EFFECT",
+        "clean_description": "deal 40 damage"
+    },
+    "50": {
+        "name": "DISABLE",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "DISABLE_EFFECT",
+        "clean_description": "disable a random move"
+    },
+    "51": {
+        "name": "ACID",
+        "type": "POISON",
+        "PP": 30,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "DEFENSE_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target defense"
+    },
+    "52": {
+        "name": "EMBER",
+        "type": "FIRE",
+        "PP": 25,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "BURN_SIDE_EFFECT1",
+        "clean_description": "chance to burn"
+    },
+    "53": {
+        "name": "FLAMETHROWER",
+        "type": "FIRE",
+        "PP": 15,
+        "basepower": 95,
+        "accuracy": 100,
+        "description": "BURN_SIDE_EFFECT1",
+        "clean_description": "chance to burn"
+    },
+    "54": {
+        "name": "MIST",
+        "type": "ICE",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "MIST_EFFECT",
+        "clean_description": "create a mist to protect user stats"
+    },
+    "55": {
+        "name": "WATER GUN",
+        "type": "WATER",
+        "PP": 20,
+        "basepower": 60,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "56": {
+        "name": "HYDRO PUMP",
+        "type": "WATER",
+        "PP": 10,
+        "basepower": 100,
+        "accuracy": 90,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "57": {
+        "name": "SURF",
+        "type": "WATER",
+        "PP": 15,
+        "basepower": 95,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "58": {
+        "name": "ICE BEAM",
+        "type": "ICE",
+        "PP": 10,
+        "basepower": 95,
+        "accuracy": 100,
+        "description": "FREEZE_SIDE_EFFECT",
+        "clean_description": "chance to freeze"
+    },
+    "59": {
+        "name": "BLIZZARD",
+        "type": "ICE",
+        "PP": 5,
+        "basepower": 120,
+        "accuracy": 90,
+        "description": "FREEZE_SIDE_EFFECT",
+        "clean_description": "chance to freeze"
+    },
+    "60": {
+        "name": "PSYBEAM",
+        "type": "PSYCHIC",
+        "PP": 20,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "CONFUSION_SIDE_EFFECT",
+        "clean_description": "chance to confuse"
+    },
+    "61": {
+        "name": "BUBBLEBEAM",
+        "type": "WATER",
+        "PP": 20,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "SPEED_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target speed"
+    },
+    "62": {
+        "name": "AURORA BEAM",
+        "type": "ICE",
+        "PP": 20,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "ATTACK_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target attack"
+    },
+    "63": {
+        "name": "HYPER BEAM",
+        "type": "NORMAL",
+        "PP": 5,
+        "basepower": 150,
+        "accuracy": 90,
+        "description": "HYPER_BEAM_EFFECT",
+        "clean_description": "must recharge next turn"
+    },
+    "64": {
+        "name": "PECK",
+        "type": "FLYING",
+        "PP": 35,
+        "basepower": 35,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "65": {
+        "name": "DRILL PECK",
+        "type": "FLYING",
+        "PP": 20,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "66": {
+        "name": "SUBMISSION",
+        "type": "FIGHTING",
+        "PP": 25,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "RECOIL_EFFECT",
+        "clean_description": "take recoil damage"
+    },
+    "67": {
+        "name": "LOW KICK",
+        "type": "FIGHTING",
+        "PP": 20,
+        "basepower": 50,
+        "accuracy": 90,
+        "description": "FLINCH_SIDE_EFFECT2",
+        "clean_description": "high chance to flinch"
+    },
+    "68": {
+        "name": "COUNTER",
+        "type": "FIGHTING",
+        "PP": 20,
+        "basepower": 1,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "69": {
+        "name": "SEISMIC TOSS",
+        "type": "FIGHTING",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SPECIAL_DAMAGE_EFFECT",
+        "clean_description": "deal damage equal to user level"
+    },
+    "70": {
+        "name": "STRENGTH",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "71": {
+        "name": "ABSORB",
+        "type": "GRASS",
+        "PP": 20,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "DRAIN_HP_EFFECT",
+        "clean_description": "drain hp from target"
+    },
+    "72": {
+        "name": "MEGA DRAIN",
+        "type": "GRASS",
+        "PP": 10,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "DRAIN_HP_EFFECT",
+        "clean_description": "drain hp from target"
+    },
+    "73": {
+        "name": "LEECH SEED",
+        "type": "GRASS",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 90,
+        "description": "LEECH_SEED_EFFECT",
+        "clean_description": "plant seeds that drain hp"
+    },
+    "74": {
+        "name": "GROWTH",
+        "type": "NORMAL",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SPECIAL_UP1_EFFECT",
+        "clean_description": "increase user special"
+    },
+    "75": {
+        "name": "RAZOR LEAF",
+        "type": "GRASS",
+        "PP": 25,
+        "basepower": 55,
+        "accuracy": 95,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "76": {
+        "name": "SOLARBEAM",
+        "type": "GRASS",
+        "PP": 10,
+        "basepower": 150,
+        "accuracy": 100,
+        "description": "CHARGE_EFFECT",
+        "clean_description": "charge up for one turn"
+    },
+    "77": {
+        "name": "POISONPOWDER",
+        "type": "POISON",
+        "PP": 35,
+        "basepower": 0,
+        "accuracy": 75,
+        "description": "POISON_EFFECT",
+        "clean_description": "poison the target"
+    },
+    "78": {
+        "name": "STUN SPORE",
+        "type": "GRASS",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 75,
+        "description": "PARALYZE_EFFECT",
+        "clean_description": "paralyze the target"
+    },
+    "79": {
+        "name": "SLEEP POWDER",
+        "type": "GRASS",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 75,
+        "description": "SLEEP_EFFECT",
+        "clean_description": "put target to sleep"
+    },
+    "80": {
+        "name": "PETAL DANCE",
+        "type": "GRASS",
+        "PP": 20,
+        "basepower": 85,
+        "accuracy": 100,
+        "description": "THRASH_PETAL_DANCE_EFFECT",
+        "clean_description": "go berserk for 2-3 turns"
+    },
+    "81": {
+        "name": "STRING SHOT",
+        "type": "BUG",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SPEED_EVASION_DOWN1_EFFECT",
+        "clean_description": "decrease target speed and evasion"
+    },
+    "82": {
+        "name": "DRAGON RAGE",
+        "type": "DRAGON",
+        "PP": 10,
+        "basepower": 70,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "83": {
+        "name": "FIRE SPIN",
+        "type": "FIRE",
+        "PP": 15,
+        "basepower": 15,
+        "accuracy": 85,
+        "description": "TRAPPING_EFFECT",
+        "clean_description": "trap the target for 2-5 turns"
+    },
+    "84": {
+        "name": "THUNDERSHOCK",
+        "type": "ELECTRIC",
+        "PP": 30,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "PARALYZE_SIDE_EFFECT1",
+        "clean_description": "chance to paralyze"
+    },
+    "85": {
+        "name": "THUNDERBOLT",
+        "type": "ELECTRIC",
+        "PP": 15,
+        "basepower": 95,
+        "accuracy": 100,
+        "description": "PARALYZE_SIDE_EFFECT1",
+        "clean_description": "chance to paralyze"
+    },
+    "86": {
+        "name": "THUNDER WAVE",
+        "type": "ELECTRIC",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "PARALYZE_EFFECT",
+        "clean_description": "paralyze the target"
+    },
+    "87": {
+        "name": "THUNDER",
+        "type": "ELECTRIC",
+        "PP": 10,
+        "basepower": 120,
+        "accuracy": 70,
+        "description": "PARALYZE_SIDE_EFFECT1",
+        "clean_description": "chance to paralyze"
+    },
+    "88": {
+        "name": "ROCK THROW",
+        "type": "ROCK",
+        "PP": 15,
+        "basepower": 50,
+        "accuracy": 80,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "89": {
+        "name": "EARTHQUAKE",
+        "type": "GROUND",
+        "PP": 10,
+        "basepower": 100,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "90": {
+        "name": "FISSURE",
+        "type": "GROUND",
+        "PP": 5,
+        "basepower": 1,
+        "accuracy": 50,
+        "description": "OHKO_EFFECT",
+        "clean_description": "one-hit ko"
+    },
+    "91": {
+        "name": "DIG",
+        "type": "GROUND",
+        "PP": 10,
+        "basepower": 60,
+        "accuracy": 100,
+        "description": "CHARGE_EFFECT",
+        "clean_description": "spend one turn underground"
+    },
+    "92": {
+        "name": "TOXIC",
+        "type": "POISON",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 90,
+        "description": "POISON_EFFECT",
+        "clean_description": "poison the target"
+    },
+    "93": {
+        "name": "CONFUSION",
+        "type": "PSYCHIC",
+        "PP": 25,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "CONFUSION_SIDE_EFFECT",
+        "clean_description": "chance to confuse"
+    },
+    "94": {
+        "name": "PSYCHIC M",
+        "type": "PSYCHIC",
+        "PP": 10,
+        "basepower": 90,
+        "accuracy": 100,
+        "description": "SPECIAL_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target special"
+    },
+    "95": {
+        "name": "HYPNOSIS",
+        "type": "PSYCHIC",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 60,
+        "description": "SLEEP_EFFECT",
+        "clean_description": "put target to sleep"
+    },
+    "96": {
+        "name": "MEDITATE",
+        "type": "PSYCHIC",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ATTACK_SPECIAL_SPEED_UP1",
+        "clean_description": "increase attack, special and speed"
+    },
+    "97": {
+        "name": "AGILITY",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SPEED_UP2_EFFECT",
+        "clean_description": "sharply increase user speed"
+    },
+    "98": {
+        "name": "QUICK ATTACK",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "99": {
+        "name": "RAGE",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "RAGE_EFFECT",
+        "clean_description": "rage until knocked out or battle ends"
+    },
+    "100": {
+        "name": "TELEPORT",
+        "type": "PSYCHIC",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SWITCH_AND_TELEPORT_EFFECT",
+        "clean_description": "flee the battle"
+    },
+    "101": {
+        "name": "NIGHT SHADE",
+        "type": "GHOST",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SPECIAL_DAMAGE_EFFECT",
+        "clean_description": "deal damage equal to user level"
+    },
+    "102": {
+        "name": "MIMIC",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "MIMIC_EFFECT",
+        "clean_description": "mimic"
+    },
+    "103": {
+        "name": "SCREECH",
+        "type": "NORMAL",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 85,
+        "description": "DEFENSE_DOWN2_EFFECT",
+        "clean_description": "sharply decrease target defense"
+    },
+    "104": {
+        "name": "DOUBLE TEAM",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "EVASION_UP1_EFFECT",
+        "clean_description": "increase user evasion"
+    },
+    "105": {
+        "name": "RECOVER",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "HEAL_EFFECT",
+        "clean_description": "restore half of user hp"
+    },
+    "106": {
+        "name": "HARDEN",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ATTACK_DEFENSE_UP1_EFFECT",
+        "clean_description": "increase attack and defense"
+    },
+    "107": {
+        "name": "MINIMIZE",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "EVASION_UP1_EFFECT",
+        "clean_description": "increase user evasion"
+    },
+    "108": {
+        "name": "SMOKESCREEN",
+        "type": "POISON",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ACCURACY_DOWN1_EFFECT",
+        "clean_description": "decrease target accuracy"
+    },
+    "109": {
+        "name": "CONFUSE RAY",
+        "type": "GHOST",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "CONFUSION_EFFECT",
+        "clean_description": "confuse the target"
+    },
+    "110": {
+        "name": "WITHDRAW",
+        "type": "WATER",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "HEAL_EFFECT",
+        "clean_description": "restore half of user hp"
+    },
+    "111": {
+        "name": "DEFENSE CURL",
+        "type": "NORMAL",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "DEFENSE_SPEED_UP1_EFFECT",
+        "clean_description": "increase defense and speed"
+    },
+    "112": {
+        "name": "BARRIER",
+        "type": "PSYCHIC",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "DEFENSE_UP2_EFFECT",
+        "clean_description": "sharply increase user defense"
+    },
+    "113": {
+        "name": "LIGHT SCREEN",
+        "type": "PSYCHIC",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "LIGHT_SCREEN_EFFECT",
+        "clean_description": "set up a screen to protect against special attacks"
+    },
+    "114": {
+        "name": "HAZE",
+        "type": "POISON",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "HAZE_EFFECT",
+        "clean_description": "remove all stat changes"
+    },
+    "115": {
+        "name": "REFLECT",
+        "type": "PSYCHIC",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "REFLECT_EFFECT",
+        "clean_description": "set up a screen to protect against physical attacks"
+    },
+    "116": {
+        "name": "SHADOW BALL",
+        "type": "GHOST",
+        "PP": 20,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "DEFENSE_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target defense"
+    },
+    "117": {
+        "name": "ROLL TACKLE",
+        "type": "ROCK",
+        "PP": 15,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "ATTACK_UP_SIDE_EFFECT",
+        "clean_description": "chance to increase user attack"
+    },
+    "118": {
+        "name": "METRONOME",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "METRONOME_EFFECT",
+        "clean_description": "choose any move at random"
+    },
+    "119": {
+        "name": "MIRROR MOVE",
+        "type": "FLYING",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "MIRROR_MOVE_EFFECT",
+        "clean_description": "copy target last move"
+    },
+    "120": {
+        "name": "SELFDESTRUCT",
+        "type": "FIRE",
+        "PP": 5,
+        "basepower": 150,
+        "accuracy": 100,
+        "description": "EXPLODE_EFFECT",
+        "clean_description": "explode"
+    },
+    "121": {
+        "name": "EGG BOMB",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 100,
+        "accuracy": 75,
+        "description": "CONFUSION_SIDE_EFFECT",
+        "clean_description": "chance to confuse"
+    },
+    "122": {
+        "name": "LICK",
+        "type": "GHOST",
+        "PP": 30,
+        "basepower": 50,
+        "accuracy": 100,
+        "description": "PARALYZE_SIDE_EFFECT2",
+        "clean_description": "high chance to paralyze"
+    },
+    "123": {
+        "name": "SMOG",
+        "type": "POISON",
+        "PP": 20,
+        "basepower": 40,
+        "accuracy": 90,
+        "description": "POISON_SIDE_EFFECT2",
+        "clean_description": "high chance to poison"
+    },
+    "124": {
+        "name": "SLUDGE",
+        "type": "POISON",
+        "PP": 20,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "POISON_SIDE_EFFECT2",
+        "clean_description": "high chance to poison"
+    },
+    "125": {
+        "name": "BONE CLUB",
+        "type": "GROUND",
+        "PP": 20,
+        "basepower": 65,
+        "accuracy": 85,
+        "description": "FLINCH_SIDE_EFFECT1",
+        "clean_description": "chance to flinch"
+    },
+    "126": {
+        "name": "FIRE BLAST",
+        "type": "FIRE",
+        "PP": 5,
+        "basepower": 120,
+        "accuracy": 85,
+        "description": "BURN_SIDE_EFFECT2",
+        "clean_description": "high chance to burn"
+    },
+    "127": {
+        "name": "WATERFALL",
+        "type": "WATER",
+        "PP": 15,
+        "basepower": 80,
+        "accuracy": 100,
+        "description": "FLINCH_SIDE_EFFECT1",
+        "clean_description": "chance to flinch"
+    },
+    "128": {
+        "name": "CLAMP",
+        "type": "WATER",
+        "PP": 10,
+        "basepower": 35,
+        "accuracy": 90,
+        "description": "TRAPPING_EFFECT",
+        "clean_description": "trap the target for 2-5 turns"
+    },
+    "129": {
+        "name": "SWIFT",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 65,
+        "accuracy": 100,
+        "description": "SWIFT_EFFECT",
+        "clean_description": "does not miss"
+    },
+    "130": {
+        "name": "SKULL BASH",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 100,
+        "accuracy": 100,
+        "description": "RECOIL_EFFECT",
+        "clean_description": "take recoil damage"
+    },
+    "131": {
+        "name": "SPIKE CANNON",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 20,
+        "accuracy": 100,
+        "description": "TWO_TO_FIVE_ATTACKS_EFFECT",
+        "clean_description": "hit 2-5 times"
+    },
+    "132": {
+        "name": "CONSTRICT",
+        "type": "NORMAL",
+        "PP": 35,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "SPEED_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target speed"
+    },
+    "133": {
+        "name": "AMNESIA",
+        "type": "PSYCHIC",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SPECIAL_UP2_EFFECT",
+        "clean_description": "sharply increase user special"
+    },
+    "134": {
+        "name": "KINESIS",
+        "type": "PSYCHIC",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ACCURACY_DOWN1_EFFECT",
+        "clean_description": "decrease target accuracy"
+    },
+    "135": {
+        "name": "SOFTBOILED",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "HEAL_EFFECT",
+        "clean_description": "restore half of user hp"
+    },
+    "136": {
+        "name": "HI JUMP KICK",
+        "type": "FIGHTING",
+        "PP": 20,
+        "basepower": 90,
+        "accuracy": 90,
+        "description": "JUMP_KICK_EFFECT",
+        "clean_description": "recoil if user misses"
+    },
+    "137": {
+        "name": "GLARE",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 95,
+        "description": "PARALYZE_EFFECT",
+        "clean_description": "paralyze the target"
+    },
+    "138": {
+        "name": "DREAM EATER",
+        "type": "GHOST",
+        "PP": 15,
+        "basepower": 100,
+        "accuracy": 100,
+        "description": "DREAM_EATER_EFFECT",
+        "clean_description": "drain hp from target if it is asleep"
+    },
+    "139": {
+        "name": "POISON GAS",
+        "type": "POISON",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "POISON_EFFECT",
+        "clean_description": "poison the target"
+    },
+    "140": {
+        "name": "BARRAGE",
+        "type": "GRASS",
+        "PP": 20,
+        "basepower": 15,
+        "accuracy": 100,
+        "description": "TWO_TO_FIVE_ATTACKS_EFFECT",
+        "clean_description": "hit 2-5 times"
+    },
+    "141": {
+        "name": "LEECH LIFE",
+        "type": "BUG",
+        "PP": 15,
+        "basepower": 40,
+        "accuracy": 100,
+        "description": "DRAIN_HP_EFFECT",
+        "clean_description": "drain hp from target"
+    },
+    "142": {
+        "name": "LOVELY KISS",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 80,
+        "description": "SLEEP_EFFECT",
+        "clean_description": "put target to sleep"
+    },
+    "143": {
+        "name": "SKY ATTACK",
+        "type": "FLYING",
+        "PP": 5,
+        "basepower": 150,
+        "accuracy": 90,
+        "description": "HYPER_BEAM_EFFECT",
+        "clean_description": "must recharge next turn"
+    },
+    "144": {
+        "name": "TRANSFORM",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "TRANSFORM_EFFECT",
+        "clean_description": "transform into target"
+    },
+    "145": {
+        "name": "BUBBLE",
+        "type": "WATER",
+        "PP": 30,
+        "basepower": 20,
+        "accuracy": 100,
+        "description": "SPEED_DOWN_SIDE_EFFECT",
+        "clean_description": "chance to decrease target speed"
+    },
+    "146": {
+        "name": "DIZZY PUNCH",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 70,
+        "accuracy": 100,
+        "description": "CONFUSION_SIDE_EFFECT",
+        "clean_description": "chance to confuse"
+    },
+    "147": {
+        "name": "SPORE",
+        "type": "GRASS",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SLEEP_EFFECT",
+        "clean_description": "put target to sleep"
+    },
+    "148": {
+        "name": "FLASH",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ACCURACY_DOWN2_EFFECT",
+        "clean_description": "sharply decrease target accuracy"
+    },
+    "149": {
+        "name": "WILLOWISP",
+        "type": "FIRE",
+        "PP": 15,
+        "basepower": 0,
+        "accuracy": 0,
+        "description": "BURN_EFFECT",
+        "clean_description": "burn the target"
+    },
+    "150": {
+        "name": "SPLASH",
+        "type": "WATER",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SPLASH_EFFECT",
+        "clean_description": "flop around"
+    },
+    "151": {
+        "name": "ACID ARMOR",
+        "type": "POISON",
+        "PP": 40,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "DEFENSE_UP2_EFFECT",
+        "clean_description": "sharply increase user defense"
+    },
+    "152": {
+        "name": "CRABHAMMER",
+        "type": "WATER",
+        "PP": 10,
+        "basepower": 90,
+        "accuracy": 90,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "153": {
+        "name": "EXPLOSION",
+        "type": "FIRE",
+        "PP": 5,
+        "basepower": 180,
+        "accuracy": 100,
+        "description": "EXPLODE_EFFECT",
+        "clean_description": "explode"
+    },
+    "154": {
+        "name": "FURY SWIPES",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 25,
+        "accuracy": 90,
+        "description": "TWO_TO_FIVE_ATTACKS_EFFECT",
+        "clean_description": "hit 2-5 times"
+    },
+    "155": {
+        "name": "BONEMERANG",
+        "type": "GROUND",
+        "PP": 10,
+        "basepower": 50,
+        "accuracy": 90,
+        "description": "ATTACK_TWICE_EFFECT",
+        "clean_description": "attack twice"
+    },
+    "156": {
+        "name": "REST",
+        "type": "PSYCHIC",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "HEAL_EFFECT",
+        "clean_description": "restore half of user hp"
+    },
+    "157": {
+        "name": "ROCK SLIDE",
+        "type": "ROCK",
+        "PP": 15,
+        "basepower": 75,
+        "accuracy": 90,
+        "description": "FLINCH_SIDE_EFFECT1",
+        "clean_description": "chance to flinch"
+    },
+    "158": {
+        "name": "HYPER FANG",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 80,
+        "accuracy": 90,
+        "description": "FLINCH_SIDE_EFFECT1",
+        "clean_description": "chance to flinch"
+    },
+    "159": {
+        "name": "SHARPEN",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "ATTACK_ACCURACY_UP1_EFFECT",
+        "clean_description": "increase user attack and accuracy"
+    },
+    "160": {
+        "name": "CONVERSION",
+        "type": "NORMAL",
+        "PP": 30,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "CONVERSION_EFFECT",
+        "clean_description": "convert to target type"
+    },
+    "161": {
+        "name": "TRI ATTACK",
+        "type": "NORMAL",
+        "PP": 15,
+        "basepower": 90,
+        "accuracy": 100,
+        "description": "TRIATTACK_EFFECT",
+        "clean_description": "chance to burn, freeze, or paralyze"
+    },
+    "162": {
+        "name": "SUPER FANG",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 1,
+        "accuracy": 90,
+        "description": "SUPER_FANG_EFFECT",
+        "clean_description": "deal damage equal to half of target hp"
+    },
+    "163": {
+        "name": "SLASH",
+        "type": "NORMAL",
+        "PP": 20,
+        "basepower": 70,
+        "accuracy": 100,
+        "description": "NO_ADDITIONAL_EFFECT",
+        "clean_description": "no additional effect"
+    },
+    "164": {
+        "name": "SUBSTITUTE",
+        "type": "NORMAL",
+        "PP": 10,
+        "basepower": 0,
+        "accuracy": 100,
+        "description": "SUBSTITUTE_EFFECT",
+        "clean_description": "create a decoy with one quarter of user hp"
+    },
+    "165": {
+        "name": "STRUGGLE",
+        "type": "TYPELESS",
+        "PP": 10,
+        "basepower": 50,
+        "accuracy": 100,
+        "description": "RECOIL_EFFECT",
+        "clean_description": "take recoil damage"
+    }
+}

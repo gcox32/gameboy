@@ -79,10 +79,14 @@
   border-radius: 12px;
   padding: 1.5rem;
   width: 300px;
-  height: 300px;
   position: relative;
-  transition: transform 0.6s;
+  transition: all 0.3s ease;
+  flex: 1;
   transform-style: preserve-3d;
+  height: 300px;
+}
+
+.cursorPointer {
   cursor: pointer;
 }
 
@@ -94,6 +98,12 @@
   transform: rotateY(180deg);
 }
 
+.pokemonDetailsSection.expanded {
+  flex: 2;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
 .pokemonDetailsSection h2 {
   color: #fff;
   margin: 0 0 1rem;
@@ -103,7 +113,7 @@
 .pokemonDetailsSection h3 {
   color: #fff;
   margin: 0 0 1rem;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
 .pokemonDetailsSection h4 {
@@ -179,4 +189,23 @@
 
 .statBarFill.stat {
   background: linear-gradient(to right, #4CAF50, #8BC34A);
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: #999;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expandButton:hover {
+  color: #fff;
+}
+
+.movesetContent {
+  margin-top: 8px;
 }

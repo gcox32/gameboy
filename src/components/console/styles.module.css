@@ -11,6 +11,7 @@
     user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
+    /* @deprecated: MS Edge specific zoom control */
     user-zoom: none;
     -ms-user-zoom: none;
     -webkit-user-zoom: none;
