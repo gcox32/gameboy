@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { downloadData, remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
+import { type Schema } from '@/amplify/data/resource';
 import ConfirmModal from './ConfirmModal';
 import BaseModal from './BaseModal';
 import { assetsEndpoint, assetsEndpointPublic } from '../../../config';
@@ -77,10 +78,11 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }: Load
 	}
 	const handleDeleteConfirmed = async () => {
 		if (selectedStateForDeletion) {
-			const client = generateClient();
+			const client = generateClient<Schema>();
 			try {
 				// Call API to delete save state from DynamoDB
-				// await client.graphql({ query: deleteSaveState, variables: { input: { id: selectedStateForDeletion.id } }});
+				console.log('deleting DynamoDB save state...')
+				await client.models.SaveState.delete({ id: selectedStateForDeletion.id });
 
 				// Delete associated data from S3 if it exists
 				console.log('deleting S3 save file...')
