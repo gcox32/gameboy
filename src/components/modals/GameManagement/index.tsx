@@ -31,6 +31,12 @@ interface Game {
     series?: string;
     generation?: string;
     releaseDate?: string;
+    metadata?: {
+        description?: string;
+        series?: string;
+        generation?: string;
+        releaseDate?: string;
+    };
 }
 
 interface GameManagementProps {
@@ -107,7 +113,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             if (gameData.imageFile) {
                 const fileType = gameData.imageFile.name.split('.').pop();
                 imagePath = `protected/${user.userId}/games/${gameData.id}/cover.${fileType}`;
-                
+
                 await uploadData({
                     path: imagePath,
                     data: gameData.imageFile,
@@ -163,32 +169,24 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
     };
 
     const renderGameCard = (game: Game) => (
-        <div 
-            key={game.id} 
-            className={styles.gameCard} 
-            onClick={() => setEditingGame(game)}
-        >
-            <div 
-                className={styles.gameCardBackground}
-                style={gameImages[game.id] ? { backgroundImage: `url(${gameImages[game.id]})` } : undefined}
-            />
-            <div className={styles.gameCardContent}>
-                <Flex direction="column" gap="0.5rem">
-                    <Text fontSize="1.1em" fontWeight="bold" className={styles.gameCardTitle}>
-                        {game.title}
-                    </Text>
-                    {game.metadata?.series && (
-                        <Text fontSize="0.9em" color="white">
-                            Series: {game.metadata.series}
-                        </Text>
-                    )}
-                    {game.metadata?.generation && (
-                        <Text fontSize="0.8em" color="white">
-                            Gen: {game.metadata.generation}
-                        </Text>
-                    )}
-                </Flex>
+        <div className={styles.gameCardContainer} key={game.id}>
+            <div
+                className={styles.gameCard}
+                onClick={() => setEditingGame(game)}
+            >
+                <div
+                    className={styles.gameCardBackground}
+                    style={gameImages[game.id] ? { backgroundImage: `url(${gameImages[game.id]})` } : undefined}
+                />
+
             </div>
+            <Text
+                fontSize="1.1em"
+                fontWeight="bold"
+                className={styles.gameCardTitle}
+            >
+                {game.title}
+            </Text>
         </div>
     );
 
