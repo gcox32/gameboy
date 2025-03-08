@@ -6,7 +6,7 @@ import styles from './styles.module.css';
 
 interface ConsoleProps {
     isEmulatorOn: boolean;
-    mainCanvasRef: React.RefObject<HTMLCanvasElement>;
+    mainCanvasRef: React.RefObject<HTMLCanvasElement> | undefined;
     mobileZoom: boolean;
 }
 

@@ -9,14 +9,15 @@ import styles from './styles.module.css';
 
 interface FullScreenContainerProps {
   background: string;
-  fullscreenCanvasRef: React.RefObject<HTMLCanvasElement>;
-  fullscreenContainerRef: React.RefObject<HTMLDivElement>;
+  fullscreenCanvasRef: React.RefObject<HTMLCanvasElement> | null;
+  fullscreenContainerRef: React.RefObject<HTMLDivElement> | null;
   activeROM: any;
   activeState: any;
   inGameMemory: any;
   MBCRam: any;
   onPauseResume: () => void;
   intervalPaused: boolean;
+  isEmulatorOn: boolean;
 }
 
 export default function FullScreenContainer({
@@ -27,7 +28,8 @@ export default function FullScreenContainer({
   activeState,
   inGameMemory,
   onPauseResume,
-  intervalPaused
+  intervalPaused,
+  isEmulatorOn
 }: FullScreenContainerProps) {
   const [showActiveParty, setShowActiveParty] = useState(true);
   const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
@@ -51,11 +53,11 @@ export default function FullScreenContainer({
             showPokedex={showPokedex}
             showTeamPhoto={showTeamPhoto}
           />
-          {showActiveParty && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
-          {showGymBadgeCase && <GymBadgeCase inGameMem={inGameMemory} />}
-          {showMap && <TownMap />}
-          {showPokedex && <Pokedex />}
-          {showTeamPhoto && <TeamPhoto />}
+          {showActiveParty && isEmulatorOn && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
+          {showGymBadgeCase && isEmulatorOn && <GymBadgeCase inGameMem={inGameMemory} />}
+          {showMap && isEmulatorOn && <TownMap />}
+          {showPokedex && isEmulatorOn && <Pokedex />}
+          {showTeamPhoto && isEmulatorOn && <TeamPhoto />}
     </div>
   );
 }

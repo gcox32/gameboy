@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './styles.module.css';
 
 interface GameDisplayProps {
-    mainCanvasRef: React.RefObject<HTMLCanvasElement>;
+    mainCanvasRef: React.RefObject<HTMLCanvasElement> | undefined;
     mobileZoom: boolean;
 }
 

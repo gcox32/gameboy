@@ -1,0 +1,17 @@
+export const emulatorConfigType = {
+    sound: boolean,
+    bootWithROM: boolean,
+    prioritizeGB: boolean,
+    volumeLevel: number,
+    colorizeGB: boolean,
+    disallowTypedArrays: boolean,
+    emulatorInterval: number,
+    audioBufferMinSpan: number,
+    audioBufferMaxSpan: number,
+    forceMBC1: boolean,
+    overrideMBCRAM: boolean,
+    useGBBootROM: boolean,
+    browserScaleCanvas: boolean,
+    useImageSmoothing: boolean,
+    channelEnables: boolean[],
+}

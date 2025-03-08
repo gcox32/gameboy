@@ -10,12 +10,14 @@ import {
     Divider
 } from '@aws-amplify/ui-react';
 import { backgroundOptions } from './config';
-import styles from '../styles.module.css';
+import styles from './styles.module.css';
 
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
+const defaultBackground = 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg';
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const { uiSettings, updateUISettings } = useSettings();
@@ -33,8 +35,8 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         updateUISettings({ mobileZoom: !mobileZoom });
     };
 
-    const onBackgroundSelect = (imageRef: string | null ) => {
-        updateUISettings({ background: imageRef });
+    const onBackgroundSelect = (imageRef: string | null | undefined) => {
+        updateUISettings({ background: imageRef || defaultBackground });
     };
 
     const resetSettings = () => {
@@ -42,7 +44,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             speed: 1,
             isSoundOn: true,
             mobileZoom: false,
-            background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg'
+            background: defaultBackground
         });
     };
 
