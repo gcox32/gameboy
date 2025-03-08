@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { signIn, getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { authedRoute } from '../../../../config';
+import { authedRoute } from '@/../config';
 import styles from '../styles.module.css';
 
 export default function Login() {

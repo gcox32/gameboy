@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import BaseModal from '../BaseModal';
-import ConfirmModal from '../ConfirmModal';
+import BaseModal from '@/components/modals/BaseModal';
+import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
 import {
     Button,
     Flex,
@@ -19,18 +19,15 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import { uploadData } from 'aws-amplify/storage';
 import { getS3Url } from '@/utils/saveLoad';
+import { type AuthUser } from 'aws-amplify/auth';
 
 const client = generateClient<Schema>();
 
 interface Game {
     id: string;
     title: string;
-    description: string;
     img?: string;
     filePath: string;
-    series?: string;
-    generation?: string;
-    releaseDate?: string;
     metadata?: {
         description?: string;
         series?: string;
@@ -46,7 +43,10 @@ interface GameManagementProps {
 }
 
 export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameManagementProps) {
-    const { user } = useAuth();
+    const auth = useAuth();
+    if (!auth) throw new Error('Auth context not available');
+    const { user } = auth as { user: AuthUser | null };
+
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -90,11 +90,11 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             setError(null);
             const userGames = await client.models.Game.list({
                 filter: {
-                    owner: { eq: user.userId }
+                    owner: { eq: user?.userId }
                 }
             });
             console.log('userGames', userGames);
-            setGames(userGames.data);
+            setGames(userGames.data as unknown as Game[]);
         } catch (err) {
             setError('Failed to load games. Please try again.');
             console.error('Error loading games:', err);
@@ -112,7 +112,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             let imagePath = gameData.img || '';
             if (gameData.imageFile) {
                 const fileType = gameData.imageFile.name.split('.').pop();
-                imagePath = `protected/${user.userId}/games/${gameData.id}/cover.${fileType}`;
+                imagePath = `protected/${user?.userId}/games/${gameData.id}/cover.${fileType}`;
 
                 await uploadData({
                     path: imagePath,
@@ -126,7 +126,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             // Update game record in database
             await client.models.Game.update({
                 id: gameData.id,
-                owner: user.userId,
+                owner: user?.userId,
                 title: gameData.title,
                 img: imagePath,
                 metadata: JSON.stringify({
@@ -202,7 +202,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
         if (showImport) {
             return (
                 <ImportGame
-                    userId={user.userId}
+                    userId={user?.userId}
                     onSuccess={() => {
                         setShowImport(false);
                         loadGames();
@@ -218,7 +218,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                 <GameEditForm
                     game={editingGame}
                     gameImgRef={gameImages[editingGame.id]}
-                    onSave={handleEditGame}
+                    onSave={handleEditGame as (gameData: Game & { imageFile?: File | null }) => Promise<void>}
                     onCancel={() => setEditingGame(null)}
                     onDelete={(game) => {
                         if (skipDeleteConfirmation) {

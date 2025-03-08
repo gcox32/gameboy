@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import {
-    Flex,
-    Button
-} from '@aws-amplify/ui-react';
-import styles from './styles.module.css';
+import { Flex, Button } from '@aws-amplify/ui-react';
+import styles from '../styles.module.css';
 
 interface SaveStateModalProps {
     isOpen: boolean;

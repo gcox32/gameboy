@@ -10,7 +10,7 @@ import {
     Divider
 } from '@aws-amplify/ui-react';
 import { backgroundOptions } from './config';
-import styles from './styles.module.css';
+import styles from '../styles.module.css';
 
 interface SettingsModalProps {
     isOpen: boolean;

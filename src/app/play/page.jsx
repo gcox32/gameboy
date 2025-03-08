@@ -408,18 +408,10 @@ export default function App() {
 				toggleFullscreenMode(); // This will turn off fullscreen if the orientation isn't correct
 			}
 		};
-		const handleKeyDown = (event) => {
-			if (event.key === 'Escape' && isFullscreen) {
-				toggleFullscreenMode();
-			}
-		};
-
 		window.addEventListener('resize', checkOrientationAndFullscreen);
-		document.addEventListener('keydown', handleKeyDown);
 
 		return () => {
 			window.removeEventListener('resize', checkOrientationAndFullscreen);
-			document.removeEventListener('keydown', handleKeyDown);
 		};
 	},
 		[isFullscreen, toggleFullscreenMode]

@@ -5,23 +5,30 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSettings } from '@/contexts/SettingsContext';
 import { getS3Url } from '@/utils/saveLoad';
 import ProfileModal from '@/components/modals/ProfileModal';
 import SettingsModal from '@/components/modals/SettingsModal';
-import { signOut } from 'aws-amplify/auth';
+import { type AuthUser, signOut } from 'aws-amplify/auth';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
-import GameInterruptModal from '@/components/modals/GameInterruptModal';
+import GameInterruptModal from '@/components/modals/utilities/GameInterruptModal';
 import ProfilePopout from './ProfilePopout';
 import { FaCog } from 'react-icons/fa';
 import styles from './styles.module.css';
 
+interface Profile {
+    id: string;
+    username: string;
+    avatar: string;
+}
+
 const client = generateClient<Schema>();
 
 const Nav = () => {
-    const { user } = useAuth();
-    const { uiSettings, updateUISettings } = useSettings();
-    const [userProfile, setUserProfile] = useState(null);
+    const auth = useAuth();
+    if (!auth) throw new Error('Auth context not available');
+    
+    const { user } = auth as { user: AuthUser | null };
+    const [userProfile, setUserProfile] = useState<Profile | null>(null);
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -51,7 +58,7 @@ const Nav = () => {
             });
             if (profiles.data.length > 0) {
                 const profile = profiles.data[0];
-                setUserProfile(profile);
+                setUserProfile(profile as Profile);
                 if (profile.avatar) {
                     const url = await getS3Url(profile.avatar);
                     setAvatarUrl(url);
@@ -98,10 +105,6 @@ const Nav = () => {
     const closeSettingsModal = () => {
         setIsSettingsModalOpen(false);
     }
-
-    const handleSettingsUpdate = (newSettings) => {
-        updateUISettings(newSettings);
-    };
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -164,8 +167,6 @@ const Nav = () => {
             <SettingsModal
                 isOpen={isSettingsModalOpen}
                 onClose={closeSettingsModal}
-                settings={uiSettings}
-                onSettingsChange={handleSettingsUpdate}
             />
             <GameInterruptModal 
                 isOpen={isModalOpen}

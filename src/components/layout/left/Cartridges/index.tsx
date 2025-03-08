@@ -4,11 +4,24 @@ import { type Schema } from '@/amplify/data/resource';
 import GameManagement from '@/components/modals/GameManagement';
 import styles from './styles.module.css';
 
+interface CartridgesProps {
+    onROMSelected: (rom: any) => void;
+    isDisabled: boolean;
+    activeSaveState: any;
+    currentUser: any;
+}
+
+interface Game {
+    id: string;
+    title: string;
+    filePath: string;
+}
+
 const client = generateClient<Schema>();
-function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }) {
-    const [games, setGames] = useState([]);
+function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }: CartridgesProps) {
+    const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<Error | null>(null);
     const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
 
     const fetchGames = async () => {
@@ -18,9 +31,9 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
                     owner: { eq: currentUser.userId }
                 }
             });
-            setGames(gamesList.data);
+            setGames(gamesList.data as Game[]);
         } catch (err) {
-            setError(err);
+            setError(err as Error);
         } finally {
             setLoading(false);
         }
@@ -30,7 +43,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser })
         fetchGames();
     }, [currentUser]);
 
-    const handleROMChange = (e) => {
+    const handleROMChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = e.target.value;
         const selectedROM = games.find(game => game.filePath === selectedValue);
         // Pass the selected ROM object to the callback

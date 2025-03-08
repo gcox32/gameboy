@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Cartridges from "../Cartridges";
 import SystemControls from "../SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
@@ -11,7 +11,6 @@ interface ControlPanelProps {
     intervalPaused: boolean;
     handlePauseResume: () => void;
     handleReset: () => void;
-    speed: number;
     handlePowerToggle: () => void;
     toggleFullscreenMode: () => void;
     isRomLoaded: boolean;
@@ -30,7 +29,6 @@ function ControlPanel({
     intervalPaused,
     handlePauseResume,
     handleReset,
-    speed,
     handlePowerToggle,
     toggleFullscreenMode,
     isRomLoaded,
@@ -41,12 +39,20 @@ function ControlPanel({
     currentUser,
     isSaving
 }: ControlPanelProps) {
-    const [isPanelVisible, setIsPanelVisible] = useState(true); // Panel is visible by default
+    const [isPanelVisible, setIsPanelVisible] = useState(true);
     const togglePanel = () => {
         setIsPanelVisible(!isPanelVisible);
-        console.log(isPanelVisible);
     };
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && isPanelVisible) {
+                togglePanel();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
     return (
         <div className={`${styles.controlPanel} ${isPanelVisible ? styles.visible : styles.hidden}`}>
             <Cartridges
@@ -67,8 +73,6 @@ function ControlPanel({
                 userSaveStates={userSaveStates}
                 runFromSaveState={runFromSaveState}
                 currentROM={activeROM}
-                togglePanel={togglePanel}
-
                 isPanelVisible={isPanelVisible}
                 currentUser={currentUser}
                 isSaving={isSaving}

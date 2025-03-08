@@ -1,16 +1,26 @@
 'use client';
 import { createContext, useContext, useState } from 'react';
 
-const GameContext = createContext();
+const GameContext = createContext<{
+    gameState: any;
+    startGame: (gameData: any) => void;
+    stopGame: () => void; setGameState: (gameState: any) => void
+} | null>(null);
 
-export function GameProvider({ children }) {
-    const [gameState, setGameState] = useState({
-        isPlaying: false,
-        activeGame: null,
-        lastSaved: null
-    });
+export function GameProvider({ children }: { children: React.ReactNode }) {
+    const [gameState, setGameState] = useState<{
+        isPlaying: boolean;
+        activeGame: any;
+        lastSaved: number | null
+    }>(
+        {
+            isPlaying: false,
+            activeGame: null,
+            lastSaved: null
+        }
+    );
 
-    const startGame = (gameData) => {
+    const startGame = (gameData: any) => {
         setGameState({
             isPlaying: true,
             activeGame: gameData,

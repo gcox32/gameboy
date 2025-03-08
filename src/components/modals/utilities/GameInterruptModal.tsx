@@ -2,7 +2,7 @@
 
 import { useGame } from '@/contexts/GameContext';
 import { Button, Flex } from '@aws-amplify/ui-react';
-import BaseModal from './BaseModal';
+import BaseModal from '../BaseModal';
 
 interface GameInterruptModalProps {
     isOpen: boolean;

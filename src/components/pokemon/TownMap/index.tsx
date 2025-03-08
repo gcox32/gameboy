@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TownMapLocation from "./TownMapLocation";
 import { locations } from "@/utils/pokemon/locations";
-import LocationModal from "@/components/modals/pokemon/LocationModal";
+import LocationModal from "@/components/pokemon/TownMap/LocationModal";
 import styles from "./styles.module.css";
 
 interface Location {

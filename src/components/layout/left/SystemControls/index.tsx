@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { getUrl } from 'aws-amplify/storage';
-import ConfirmModal from '@/components/modals/ConfirmModal';
-import SaveStateModal from '@/components/modals/SaveStateModal';
-import LoadStateModal from '@/components/modals/LoadStateModal';
+import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
+import SaveStateModal from '@/components/modals/SaveStateManagement/SaveStateModal';
+import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
 import { Loader } from '@aws-amplify/ui-react';
 import styles from './styles.module.css';
 
@@ -37,7 +37,6 @@ interface SystemControlsProps {
 		filePath: string;
 	};
 	isPanelVisible: boolean;
-	togglePanel: () => void;
 	currentUser: {
 		userId: string;
 	};

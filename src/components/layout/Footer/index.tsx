@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
-import GameInterruptModal from '@/components/modals/GameInterruptModal';
+import GameInterruptModal from '@/components/modals/utilities/GameInterruptModal';
 import styles from './styles.module.css';
 const Footer = () => {
   const currentYear = new Date().getFullYear();

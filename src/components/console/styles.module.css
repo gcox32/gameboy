@@ -1,6 +1,7 @@
 /* console */
 .consoleContainer {
     position: relative;
+    margin-top: 100px;
     width: 526px;
     height: calc(526px * (928/526));
     background-image: url('/images/gameboy-bg.png');

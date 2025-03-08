@@ -28,7 +28,7 @@ function GymBadgeCase({ inGameMem }: GymBadgeCaseProps) {
         earned: false
     })));
 
-    useInGameMemoryWatcher(inGameMem, '0xD2F6', '0x5F', '0x1', (array) => {
+    useInGameMemoryWatcher(inGameMem, '0xD2F6', '0x5F', '0x1', (array: any[]) => {
         const badgesByte = array[0];
         
         // Create new badges array by mapping each bit to a badge
@@ -50,7 +50,7 @@ function GymBadgeCase({ inGameMem }: GymBadgeCaseProps) {
             {badges.map((badge, index) => (
                 <GymBadge 
                     key={index} 
-                    badge={badge}
+                    badge={{ ...badge, index }}
                     earned={badge.earned}
                     justEarned={badge.earned && !prevBadges[index].earned}
                 />

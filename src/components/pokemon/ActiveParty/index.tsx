@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import PartySlot from "./PartySlot";
 import { useInGameMemoryWatcher } from "@/utils/MemoryWatcher";
 import { parseParty } from "@/utils/pokemon/parse";
-import PokemonDetailsModal from "@/components/modals/pokemon/DetailsModal";
+import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 

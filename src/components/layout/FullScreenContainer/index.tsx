@@ -6,6 +6,7 @@ import TownMap from '@/components/pokemon/TownMap';
 import Pokedex from '@/components/pokemon/Pokedex';
 import TeamPhoto from '@/components/pokemon/TeamPhoto';
 import styles from './styles.module.css';
+
 interface FullScreenContainerProps {
   background: string;
   fullscreenCanvasRef: React.RefObject<HTMLCanvasElement>;

@@ -2,11 +2,12 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
+import { AuthUser } from 'aws-amplify/auth';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext<{ user: AuthUser | null; setUser: (user: AuthUser | null) => void; loading: boolean } | null>(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

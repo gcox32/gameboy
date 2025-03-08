@@ -26,7 +26,7 @@ interface Game {
 interface GameEditFormProps {
     game: Game;
     gameImgRef: string;
-    onSave: (gameData: Game) => Promise<void>;
+    onSave: (gameData: Game & { imageFile?: File | null }) => Promise<void>;
     onCancel: () => void;
     onDelete: (game: Game) => void;
 }
@@ -39,7 +39,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
         // Parse metadata if it exists
         let metadata;
         try {
-            metadata = game.metadata ? JSON.parse(game.metadata) : {};
+            metadata = game.metadata ? JSON.parse(game.metadata as string) : {};
         } catch (e) {
             console.error('Error parsing metadata:', e);
             metadata = {};
@@ -100,7 +100,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
                 <View>
                     <ImageUpload
                         value={gameImgRef}
-                        onChange={setImageFile}
+                        onChange={(file) => setImageFile(file as File)}
                         label="Game Cover Image"
                     />
                 </View>

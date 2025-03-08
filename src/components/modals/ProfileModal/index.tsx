@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { type Schema } from '@/amplify/data/resource';
 import Image from 'next/image';
-import BaseModal from './BaseModal';
+import BaseModal from '../BaseModal';
 import { generateClient } from 'aws-amplify/api';
 import { uploadData, remove } from 'aws-amplify/storage';
 import {
@@ -15,7 +15,7 @@ import {
     Alert
 } from '@aws-amplify/ui-react';
 import { getS3Url } from '@/utils/saveLoad';
-import styles from './styles.module.css';
+import styles from '../styles.module.css';
 
 const client = generateClient<Schema>();
 

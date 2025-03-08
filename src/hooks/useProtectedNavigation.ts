@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 export const useProtectedNavigation = () => {
     const { gameState, setGameState } = useGame();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [pendingNavigation, setPendingNavigation] = useState(null);
+    const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
     const router = useRouter();
 
-    const handleStaticPageNavigation = (e, path) => {
+    const handleStaticPageNavigation = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
         console.log('gameState', gameState);
         if (gameState.isPlaying) {
             e.preventDefault();
@@ -21,7 +21,7 @@ export const useProtectedNavigation = () => {
 
     const handleContinue = () => {
         if (pendingNavigation) {
-            setGameState(prevState => ({
+            setGameState((prevState: any) => ({
                 ...prevState,
                 isPlaying: false
             }));

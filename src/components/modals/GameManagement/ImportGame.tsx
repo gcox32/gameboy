@@ -18,7 +18,7 @@ import FileUploadZone from '@/components/common/FileUploadZone';
 const client = generateClient<Schema>();
 
 interface ImportGameProps {
-    userId: string;
+    userId: string | undefined;
     onSuccess: () => void;
     onCancel: () => void;
 }
@@ -99,7 +99,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                 options: {
                     contentType: 'application/octet-stream',
                     onProgress: ({ transferredBytes, totalBytes }) => {
-                        const progress = (transferredBytes / totalBytes) * 100;
+                        const progress = (transferredBytes / (totalBytes || 1)) * 100;
                         setUploadProgress(progress);
                     }
                 }

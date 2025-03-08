@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { downloadData, remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
-import ConfirmModal from './ConfirmModal';
-import BaseModal from './BaseModal';
-import { assetsEndpoint, assetsEndpointPublic } from '../../../config';
-import styles from './styles.module.css';
+import ConfirmModal from '../utilities/ConfirmModal';
+import BaseModal from '../BaseModal';
+import { assetsEndpoint, assetsEndpointPublic } from '../../../../config';
+import styles from '../styles.module.css';
 
 interface SaveState {
     id: string;
@@ -23,6 +23,12 @@ interface LoadStateModalProps {
     saveStates: any[];
     onConfirm: (saveState: any) => void;
     userId: string;
+}
+
+const saveStateImageStyle = {
+	width: "220px",
+	height: "auto",
+	borderRadius: "16px"
 }
 
 function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }: LoadStateModalProps) {
@@ -71,7 +77,6 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }: Load
 		}
 	}, [isOpen, saveStates]);
 	
-
 	const handleDeleteClick = (saveState: any) => {
 		setSelectedStateForDeletion(saveState);
 		setShowConfirmModal(true);
@@ -110,8 +115,8 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }: Load
 			<div className={styles.saveStateList}>
 				{updatedSaveStates.map((state) => (
 					<div className={styles.saveStateBlock} key={state.id} onClick={() => onConfirm(state)}>
-						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/beta-sprite.png`} style={{ width:"220px", height:"auto"}} />}
-						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" style={{ width:"220px", height:"auto"}} />}
+						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/beta-sprite.png`} style={saveStateImageStyle} />}
+						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" style={saveStateImageStyle} />}
 						<h3 className={styles.saveStateTitle}>{state.title}</h3>
 						<p className={styles.lastUpdateText}>{formatDate(state.createdAt, false)}</p>
 						<p className={styles.lastUpdateText}>{formatDate(state.updatedAt)}</p>
