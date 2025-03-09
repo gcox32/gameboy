@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { badgeImgPath } from '@/../config';
 import styles from '../styles.module.css';
+import Image from 'next/image';
 
 interface GymBadgeProps {
     badge: {
@@ -38,15 +39,15 @@ function GymBadge({ badge, earned, justEarned }: GymBadgeProps) {
                 className={`${styles.badgeImageWrapper} ${gleam ? styles.gleam : ''}`} 
                 onClick={handleGleam}
             >
-                <img
+                <Image
                     src={`${badgeImgPath}${badge.image}`}
                     alt={badge.name}
                     title={badge.name}
                     className={earned ? '' : styles.silhouette}
                     loading="lazy"
                     draggable="false"
-                    height={60}
                     width={60}
+                    height={60}
                     style={earned ? {} : { userSelect: 'none', pointerEvents: 'none' }}
                 />
             </div>

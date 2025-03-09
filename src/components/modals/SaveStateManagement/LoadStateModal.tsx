@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { downloadData, remove } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
@@ -115,8 +116,8 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, userId }: Load
 			<div className={styles.saveStateList}>
 				{updatedSaveStates.map((state) => (
 					<div className={styles.saveStateBlock} key={state.id} onClick={() => onConfirm(state)}>
-						{!state.imageUrl && <img src={`${assetsEndpointPublic}util/beta-sprite.png`} style={saveStateImageStyle} />}
-						{state.imageUrl && <img src={state.imageUrl} alt={state.title} loading="lazy" style={saveStateImageStyle} />}
+						{!state.imageUrl && <Image src={`${assetsEndpointPublic}util/beta-sprite.png`} alt="Beta Sprite" width={220} height={220} style={saveStateImageStyle} />}
+						{state.imageUrl && <Image src={state.imageUrl} alt={state.title} loading="lazy" width={220} height={220} style={saveStateImageStyle} />}
 						<h3 className={styles.saveStateTitle}>{state.title}</h3>
 						<p className={styles.lastUpdateText}>{formatDate(state.createdAt, false)}</p>
 						<p className={styles.lastUpdateText}>{formatDate(state.updatedAt)}</p>

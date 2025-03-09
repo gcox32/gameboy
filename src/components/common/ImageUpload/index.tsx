@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ImageIcon, Loader } from 'lucide-react';
+import Image from 'next/image';
 import styles from './styles.module.css';
 
 interface PresetImage {
@@ -96,7 +97,7 @@ export function ImageUpload({
         >
           {imagePreview ? (
             <div className={styles.preview}>
-              <img src={imagePreview} alt="Preview" />
+              <Image src={imagePreview} alt="Preview" width={220} height={220} />
               <div className={styles.overlay}>
                 <span>Click to replace image</span>
               </div>
@@ -130,7 +131,7 @@ export function ImageUpload({
                 className={`${styles.presetItem} ${selectedPreset === preset.id ? styles.selected : ''}`}
                 onClick={() => handlePresetSelect(preset)}
               >
-                <img src={preset.url} alt={preset.label} />
+                <Image src={preset.url} alt={preset.label} width={220} height={220} />
                 <span>{preset.label}</span>
               </div>
             ))}

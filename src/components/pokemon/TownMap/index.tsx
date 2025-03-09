@@ -3,7 +3,7 @@ import TownMapLocation from "./TownMapLocation";
 import { locations } from "@/utils/pokemon/locations";
 import LocationModal from "@/components/pokemon/TownMap/LocationModal";
 import styles from "./styles.module.css";
-
+import Image from "next/image";
 interface Location {
     title: string;
     slogan: string;
@@ -13,10 +13,11 @@ interface Location {
     places: string[];
 }
 
+const mapSrc = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/maps/rby-kanto-town-map.png';
+
 function TownMap() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-    const mapSrc = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/maps/rby-kanto-town-map.png';
 
     const openModal = (location: any) => {
         setSelectedLocation(location);
@@ -25,7 +26,13 @@ function TownMap() {
     return (
         <>
             <div className={styles.townMap}>
-                <img src={`${mapSrc}`} alt="Town Map" />
+                <Image 
+                    src={mapSrc} 
+                    alt="Town Map" 
+                    width={220} 
+                    height={220} 
+                    className={styles.mapImage}
+                />
                 {locations.map((loc, index) => (
                     <TownMapLocation
                         key={index}
