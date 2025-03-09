@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
 import {
@@ -56,11 +56,30 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
     const [skipDeleteConfirmation, setSkipDeleteConfirmation] = useState(false);
     const [gameImages, setGameImages] = useState<Record<string, string>>({});
 
+    const loadGames = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const userGames = await client.models.Game.list({
+                filter: {
+                    owner: { eq: user?.userId }
+                }
+            });
+            console.log('userGames', userGames);
+            setGames(userGames.data as unknown as Game[]);
+        } catch (err) {
+            setError('Failed to load games. Please try again.');
+            console.error('Error loading games:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [user]);
+
     useEffect(() => {
         if (isOpen && user) {
             loadGames();
         }
-    }, [isOpen, user]);
+    }, [isOpen, user, loadGames]);
 
     useEffect(() => {
         const loadImages = async () => {
@@ -83,25 +102,6 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             loadImages();
         }
     }, [games]);
-
-    const loadGames = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const userGames = await client.models.Game.list({
-                filter: {
-                    owner: { eq: user?.userId }
-                }
-            });
-            console.log('userGames', userGames);
-            setGames(userGames.data as unknown as Game[]);
-        } catch (err) {
-            setError('Failed to load games. Please try again.');
-            console.error('Error loading games:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleEditGame = async (gameData: Game & { imageFile?: File }) => {
         try {

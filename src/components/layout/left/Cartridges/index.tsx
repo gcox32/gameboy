@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import GameManagement from '@/components/modals/GameManagement';
@@ -24,7 +24,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }:
     const [error, setError] = useState<Error | null>(null);
     const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
 
-    const fetchGames = async () => {
+    const fetchGames = useCallback(async () => {
         try {
             const gamesList = await client.models.Game.list({
                 filter: {
@@ -37,11 +37,11 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }:
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUser]);
 
     useEffect(() => {
         fetchGames();
-    }, [currentUser]);
+    }, [fetchGames]);
 
     const handleROMChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = e.target.value;

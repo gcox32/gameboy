@@ -64,5 +64,5 @@ export const useInGameMemoryWatcher = (gameMemoryRef, baseAddressHex, offsetHex,
         const intervalId = setInterval(checkForChanges, interval);
 
         return () => clearInterval(intervalId);
-    }, [gameMemoryRef, baseAddressHex, sizeHex, onChange, interval]);
+    }, [gameMemoryRef, baseAddressHex, offsetHex, sizeHex, onChange, interval]);
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import Link from 'next/link';
@@ -41,13 +41,7 @@ const Nav = () => {
         handleClose 
     } = useProtectedNavigation();
 
-    useEffect(() => {
-        if (user) {
-            fetchUserProfile();
-        }
-    }, [user]);
-
-    const fetchUserProfile = async () => {
+    const fetchUserProfile = useCallback(async () => {
         if (!user) return;
 
         try {
@@ -67,7 +61,7 @@ const Nav = () => {
         } catch (error) {
             console.error('Error fetching user profile:', error);
         }
-    };
+    }, [user]);
 
     const handleAvatarClick = () => {
         setShowDropdown(!showDropdown);
@@ -109,6 +103,12 @@ const Nav = () => {
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+
+    useEffect(() => {
+        if (user) {
+            fetchUserProfile();
+        }
+    }, [user, fetchUserProfile]);
 
     return (
         <>

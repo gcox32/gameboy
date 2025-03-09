@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Cartridges from "../Cartridges";
 import SystemControls from "../SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
@@ -40,9 +40,10 @@ function ControlPanel({
     isSaving
 }: ControlPanelProps) {
     const [isPanelVisible, setIsPanelVisible] = useState(true);
-    const togglePanel = () => {
-        setIsPanelVisible(!isPanelVisible);
-    };
+    
+    const togglePanel = useCallback(() => {
+        setIsPanelVisible(prev => !prev);
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -52,7 +53,8 @@ function ControlPanel({
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [isPanelVisible, togglePanel]);
+    
     return (
         <div className={`${styles.controlPanel} ${isPanelVisible ? styles.visible : styles.hidden}`}>
             <Cartridges
