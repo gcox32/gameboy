@@ -1,40 +1,44 @@
 'use client';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
 const GameContext = createContext<{
     gameState: any;
     startGame: (gameData: any) => void;
-    stopGame: () => void; setGameState: (gameState: any) => void
+    stopGame: () => void;
+    setGameState: (gameState: any) => void;
 } | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
     const [gameState, setGameState] = useState<{
         isPlaying: boolean;
         activeGame: any;
-        lastSaved: number | null
-    }>(
-        {
-            isPlaying: false,
-            activeGame: null,
-            lastSaved: null
-        }
-    );
+        lastSaved: number | null;
+    }>({
+        isPlaying: false,
+        activeGame: null,
+        lastSaved: null
+    });
 
-    const startGame = (gameData: any) => {
+    const startGame = useCallback((gameData: any) => {
         setGameState({
             isPlaying: true,
             activeGame: gameData,
             lastSaved: Date.now()
         });
-    };
+    }, []);
 
-    const stopGame = () => {
-        setGameState({
-            isPlaying: false,
-            activeGame: null,
-            lastSaved: null
+    const stopGame = useCallback(() => {
+        setGameState(prev => {
+            if (prev.isPlaying) {
+                return {
+                    isPlaying: false,
+                    activeGame: null,
+                    lastSaved: null
+                };
+            }
+            return prev;
         });
-    };
+    }, []);
 
     return (
         <GameContext.Provider value={{ gameState, startGame, stopGame, setGameState }}>

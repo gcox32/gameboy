@@ -39,39 +39,10 @@ interface SaveState {
 	filePath: string;
 }
 
-function TypeSafeConsole({ mainCanvasRef, isEmulatorOn, mobileZoom }: {
-	mainCanvasRef: React.RefObject<HTMLCanvasElement>;
-	isEmulatorOn: boolean;
-	mobileZoom: boolean;
-}) {
-	return (
-		<Console
-			isEmulatorOn={isEmulatorOn}
-			mainCanvasRef={mainCanvasRef}
-			mobileZoom={mobileZoom}
-		/>
-	);
-}
-
-function TypeSafeFullScreenContainer(props: {
-	background: string;
-	fullscreenCanvasRef: React.RefObject<HTMLCanvasElement>;
-	fullscreenContainerRef: React.RefObject<HTMLDivElement>;
-	activeROM: ROM | null;
-	activeState: any;
-	inGameMemory: React.RefObject<any[]>;
-	onPauseResume: () => void;
-	intervalPaused: boolean;
-	MBCRam: any[];
-	isEmulatorOn: boolean;
-}) {
-	return <FullScreenContainer {...props} />;
-}
-
 export default function App() {
 	// Get settings from context
 	const { uiSettings } = useSettings();
-	const { speed, isSoundOn, mobileZoom } = uiSettings;	
+	const { speed, isSoundOn, mobileZoom } = uiSettings;
 
 	// Refs to access the DOM elements
 	const gameBoyInstance = useRef<any>(null);
@@ -103,7 +74,7 @@ export default function App() {
 
 	// Add hook near other hooks
 	const { saveState, isSaving } = useSaveState(
-		gameBoyInstance.current, 
+		gameBoyInstance.current,
 		activeROM || { id: '', title: '', filePath: '' },
 		currentUser?.userId || ''
 	);
@@ -118,39 +89,10 @@ export default function App() {
 		} else {
 			stopGame();
 		}
-	}, [isEmulatorPlaying, activeROM]);
+	}, [isEmulatorPlaying, activeROM, startGame, stopGame]);
 
-	// Add this effect to sync settings with the emulator
-	useEffect(() => {
-		if (gameBoyInstance.current && isEmulatorPlaying) {
-			// Update speed
-			gameBoyInstance.current.setSpeed(speed);
-			
-			// Update interval if running
-			if (runInterval.current) {
-				clearInterval(runInterval.current);
-				runInterval.current = setInterval(() => {
-					if (!document.hidden) {
-						gameBoyInstance.current.run();
-					}
-				}, settings[6]);
-			}
-			
-			// Update sound
-			if (settings[0] !== isSoundOn) {
-				settings[0] = isSoundOn;
-				if (gameBoyInstance.current.audioHandle) {
-					gameBoyInstance.current.initSound();
-				}
-			}
-		}
-	}, [speed, isSoundOn, isEmulatorPlaying]);
-
-	useEffect(() => {
-		checkAuthState();
-	}, []);
-
-	async function checkAuthState() {
+	// Move checkAuthState to be defined with useCallback before its useEffect
+	const checkAuthState = useCallback(async () => {
 		try {
 			const user = await getCurrentUser();
 			setUser(user);
@@ -160,7 +102,8 @@ export default function App() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [router]); // Add router as dependency since it's used in the function
+
 	const run = (gameboyInstance: any) => {
 		setIntervalPaused(false);
 		if (GameBoyEmulatorInitialized(gameboyInstance)) {
@@ -362,24 +305,10 @@ export default function App() {
 		setActiveSaveArray(sramArray);
 	};
 
-	// Maintain authenticated user information
 	useEffect(() => {
-		const loadUser = () => {
-			return getCurrentUser();
-		}
-		const onLoad = async () => {
-			try {
-				const user = await loadUser();
-				setUser(user);
+		checkAuthState();
+	}, [checkAuthState]);
 
-			} catch (err) {
-				console.error(err);
-			}
-		}
-		onLoad();
-	},
-		[]
-	);
 	// Register GUI events on load
 	useEffect(() => {
 		registerGUIEvents();
@@ -396,34 +325,63 @@ export default function App() {
 		[intervalPaused]
 	);
 	// Initialize gameBoyInstance with the first ROMImage on component mount
-    useEffect(() => {
-        if (ROMImage) {
-            try {
-                console.log("Clearing previous emulation...");
-                clearLastEmulation(gameBoyInstance.current, runInterval);
+	useEffect(() => {
+		if (ROMImage) {
+			try {
+				console.log("Clearing previous emulation...");
+				clearLastEmulation(gameBoyInstance.current, runInterval);
 
-                console.log("Creating new GameBoyCore instance...");
-                const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
+				console.log("Creating new GameBoyCore instance...");
+				const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
 
-                if (currentCanvas) {
-                    settings[0] = isSoundOn; // Set initial sound state
-                    gameBoyInstance.current = new GameBoyCore(ROMImage, currentCanvas);
-                    gameBoyInstance.current.setSpeed(speed); // Set initial speed
-                    console.log("GameBoyCore instance created. Waiting for start command.");
-                }
-            } catch (error) {
-                console.error("Error during GameBoy instance initialization:", error);
-            }
-        }
-        // Clear the interval when the component unmounts
-        return () => {
-            if (runInterval.current) {
-                console.log("Clearing interval during cleanup");
-                clearInterval(runInterval.current);
-            }
-        };
-    }, [ROMImage, isRomLoaded]
-	);
+				if (currentCanvas) {
+					const instance = new GameBoyCore(ROMImage, currentCanvas);
+					// Apply initial settings
+					settings[0] = isSoundOn;
+					instance.setSpeed(speed);
+					gameBoyInstance.current = instance;
+					console.log("GameBoyCore instance created. Waiting for start command.");
+				}
+			} catch (error) {
+				console.error("Error during GameBoy instance initialization:", error);
+			}
+		}
+		// Clear the interval when the component unmounts
+		return () => {
+			if (runInterval.current) {
+				console.log("Clearing interval during cleanup");
+				clearInterval(runInterval.current);
+			}
+		};
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ROMImage, isRomLoaded]); // Explicitly ignore other dependencies
+
+	// Add separate effect for handling settings changes
+	useEffect(() => {
+		if (gameBoyInstance.current && isEmulatorPlaying) {
+			// Update speed
+			gameBoyInstance.current.setSpeed(speed);
+
+			// Update interval if running
+			if (runInterval.current) {
+				clearInterval(runInterval.current);
+				runInterval.current = setInterval(() => {
+					if (!document.hidden) {
+						gameBoyInstance.current.run();
+					}
+				}, settings[6]);
+			}
+
+			// Update sound
+			if (settings[0] !== isSoundOn) {
+				settings[0] = isSoundOn;
+				if (gameBoyInstance.current.audioHandle) {
+					gameBoyInstance.current.initSound();
+				}
+			}
+		}
+	}, [speed, isSoundOn, isEmulatorPlaying]);
+	
 	// Maintain emulator-on awareness
 	useEffect(() => {
 		const isEmulatorOn = gameBoyInstance.current && (isEmulatorPlaying || intervalPaused);
@@ -515,12 +473,12 @@ export default function App() {
 	return (
 		<div className="App">
 			<ControlPanel {...controlPanelProps} />
-			<TypeSafeConsole
+			<Console
 				isEmulatorOn={isEmulatorOn}
 				mainCanvasRef={mainCanvasRef as React.RefObject<HTMLCanvasElement>}
 				mobileZoom={mobileZoom}
 			/>
-			<TypeSafeFullScreenContainer
+			<FullScreenContainer
 				background={fullscreenBackground}
 				fullscreenCanvasRef={fullscreenCanvasRef as React.RefObject<HTMLCanvasElement>}
 				fullscreenContainerRef={fullscreenContainerRef as React.RefObject<HTMLDivElement>}
