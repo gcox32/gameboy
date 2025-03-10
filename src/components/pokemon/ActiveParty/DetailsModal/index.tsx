@@ -43,6 +43,9 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalPr
     };
 
     if (!isOpen) return null;
+
+    if (!pokemon) return null;
+    
     const structure = pokemon.structure;
 
     return (

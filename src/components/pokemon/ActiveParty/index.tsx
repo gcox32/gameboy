@@ -72,7 +72,7 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }: ActivePart
             {partyData.map((pokemon: PokemonDetails, index: number) => (
                 <PartySlot key={pokemon.pokedexNo || index} pokemon={pokemon} onClick={() => handlePokemonClick(index)} />
             ))}
-            {selectedPokemonIndex !== null && (
+            {(selectedPokemonIndex !== null && partyData.length) && (
                 <PokemonDetailsModal
                     isOpen={isModalOpen}
                     onClose={handlePokemonModalClose}

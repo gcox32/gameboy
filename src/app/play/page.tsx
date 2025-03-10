@@ -429,7 +429,7 @@ export default function App() {
 	},
 		[isEmulatorOn] // Removed the refs from the dependency array
 	);
-	// Listen for window resize or escape key to exit fullscreen mode
+	// Listen for window resize to exit fullscreen mode
 	useEffect(() => {
 		const checkOrientationAndFullscreen = () => {
 			if (window.innerWidth <= window.innerHeight && isFullscreen) {
