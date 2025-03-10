@@ -32,15 +32,9 @@ interface SystemControlsProps {
 	onSaveConfirmed: (saveData: SaveModalData, isSaveAs: boolean) => Promise<void>;
 	userSaveStates: SaveState[];
 	runFromSaveState: (sramArray: number[], selectedSaveState: SaveState) => void;
-	currentROM: {
-		title: string;
-		filePath: string;
-	};
 	isPanelVisible: boolean;
-	currentUser: {
-		userId: string;
-	};
 	isSaving: boolean;
+	onDeleteSaveState: () => void;
 }
 
 export default function SystemControls({
@@ -54,9 +48,8 @@ export default function SystemControls({
 	onSaveConfirmed,
 	userSaveStates,
 	runFromSaveState,
-	currentROM,
-	currentUser,
-	isSaving
+	isSaving,
+	onDeleteSaveState
 }: SystemControlsProps) {
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [showSaveStateModal, setShowSaveStateModal] = useState(false);
@@ -235,8 +228,6 @@ export default function SystemControls({
 					}
 				}}
 				initialData={activeROMData}
-				currentROM={currentROM}
-				userId={currentUser.userId}
 			/>
 
 			<LoadStateModal
@@ -244,7 +235,7 @@ export default function SystemControls({
 				onClose={() => setShowLoadStateModal(false)}
 				saveStates={userSaveStates}
 				onConfirm={handleLoadSaveState}
-				userId={currentUser.userId}
+				onDelete={onDeleteSaveState}
 			/>
 		</div>
 	);

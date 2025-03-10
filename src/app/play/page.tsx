@@ -304,6 +304,10 @@ export default function App() {
 		setActiveState(selectedSaveState as SaveState);
 		setActiveSaveArray(sramArray);
 	};
+	const onDeleteSaveState = async () => {
+		console.log('Deleting save state...');
+		setUserSaveStates(await fetchUserSaveStates(currentUser?.userId, activeROM?.id));
+	};
 
 	useEffect(() => {
 		checkAuthState();
@@ -355,32 +359,6 @@ export default function App() {
 		};
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ROMImage, isRomLoaded]); // Explicitly ignore other dependencies
-
-	// Add separate effect for handling settings changes
-	useEffect(() => {
-		if (gameBoyInstance.current && isEmulatorPlaying) {
-			// Update speed
-			gameBoyInstance.current.setSpeed(speed);
-
-			// Update interval if running
-			if (runInterval.current) {
-				clearInterval(runInterval.current);
-				runInterval.current = setInterval(() => {
-					if (!document.hidden) {
-						gameBoyInstance.current.run();
-					}
-				}, settings[6]);
-			}
-
-			// Update sound
-			if (settings[0] !== isSoundOn) {
-				settings[0] = isSoundOn;
-				if (gameBoyInstance.current.audioHandle) {
-					gameBoyInstance.current.initSound();
-				}
-			}
-		}
-	}, [speed, isSoundOn, isEmulatorPlaying]);
 	
 	// Maintain emulator-on awareness
 	useEffect(() => {
@@ -452,27 +430,25 @@ export default function App() {
 		return null;
 	}
 
-	const controlPanelProps = {
-		handleROMSelected,
-		isEmulatorPlaying,
-		activeSaveState: activeState,
-		intervalPaused,
-		handlePauseResume,
-		handleReset,
-		handlePowerToggle,
-		toggleFullscreenMode,
-		isRomLoaded,
-		onSaveConfirmed,
-		userSaveStates,
-		runFromSaveState,
-		activeROM,
-		currentUser,
-		isSaving
-	};
-
 	return (
 		<div className="App">
-			<ControlPanel {...controlPanelProps} />
+			<ControlPanel 
+				handleROMSelected={handleROMSelected}
+				isEmulatorPlaying={isEmulatorPlaying}
+				activeSaveState={activeState}
+				intervalPaused={intervalPaused}
+				handlePauseResume={handlePauseResume}
+				handleReset={handleReset}
+				handlePowerToggle={handlePowerToggle}
+				toggleFullscreenMode={toggleFullscreenMode}
+				isRomLoaded={isRomLoaded}
+				onSaveConfirmed={onSaveConfirmed}
+				userSaveStates={userSaveStates}
+				runFromSaveState={runFromSaveState}
+				currentUser={currentUser}
+				isSaving={isSaving}
+				onDeleteSaveState={onDeleteSaveState}
+			/>
 			<Console
 				isEmulatorOn={isEmulatorOn}
 				mainCanvasRef={mainCanvasRef as React.RefObject<HTMLCanvasElement>}

@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Flex, Button } from '@aws-amplify/ui-react';
 import styles from '../styles.module.css';
-
+import { ImageUpload } from '@/components/common/ImageUpload';
+import { getS3Url } from '@/utils/saveLoad';
 interface SaveStateModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: (saveStateData: any) => void;
     initialData: any;
-    currentROM: any;
-    userId: string;
 }
 
-function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, userId }: SaveStateModalProps) {
+function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateModalProps) {
     const [title, setTitle] = useState(initialData?.title || '');
     const [description, setDescription] = useState(initialData?.description || '');
     const [imageFile, setImageFile] = useState(initialData?.img || '');
+    const [previewUrl, setPreviewUrl] = useState(initialData?.img || '');
 
     const handleSubmit = async () => {
         const saveStateData = {
@@ -32,16 +32,20 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
         setImageFile(null);
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-            console.log('File selected:', file);
-            setImageFile(file);
-        } else {
-            console.error('Invalid file type');
-            setImageFile(null);
-        }
+    const handleImageUpload = (file: File | string) => {
+        setImageFile(file);
+        setPreviewUrl(file as string);
     };
+
+    useEffect(() => {
+        const loadImageUrl = async () => {
+            if (initialData?.img) {
+                const url = await getS3Url(initialData.img);
+                setPreviewUrl(url);
+            }
+        };
+        loadImageUrl();
+    }, [initialData?.img]);
 
     if (!isOpen) return null;
 
@@ -62,10 +66,9 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData, currentROM, u
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Enter description"
                 />
-                <input
-                    type="file"
-                    onChange={handleFileChange}
-                    accept="image/*"
+                <ImageUpload
+                    onChange={handleImageUpload}
+                    value={previewUrl}
                 />
                 <Flex
                     direction="row"

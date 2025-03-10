@@ -129,6 +129,8 @@ export async function loadInGameFile(filePath) {
 
 export async function getS3Url(key) {
     if (!key) return null;
+    console.log('key', key);
+    console.log('typeof key', typeof key);
     try {
         if (key.includes('public')) {
             return key;

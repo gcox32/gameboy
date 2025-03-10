@@ -17,9 +17,9 @@ interface ControlPanelProps {
     onSaveConfirmed: (saveData: any, isSaveAs: boolean) => Promise<void>;
     userSaveStates: any[];
     runFromSaveState: (sramArray: number[], selectedSaveState: any) => void;
-    activeROM: any;
     currentUser: any;
     isSaving: boolean;
+    onDeleteSaveState: () => void;
 }
 
 function ControlPanel({
@@ -35,9 +35,9 @@ function ControlPanel({
     onSaveConfirmed,
     userSaveStates,
     runFromSaveState,
-    activeROM,
     currentUser,
-    isSaving
+    isSaving,
+    onDeleteSaveState
 }: ControlPanelProps) {
     const [isPanelVisible, setIsPanelVisible] = useState(true);
     
@@ -74,10 +74,9 @@ function ControlPanel({
                 onSaveConfirmed={onSaveConfirmed}
                 userSaveStates={userSaveStates}
                 runFromSaveState={runFromSaveState}
-                currentROM={activeROM}
                 isPanelVisible={isPanelVisible}
-                currentUser={currentUser}
                 isSaving={isSaving}
+                onDeleteSaveState={onDeleteSaveState}
             />
             <HideShowButton
                 onClick={togglePanel}
