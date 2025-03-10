@@ -281,12 +281,26 @@ export default function App() {
 		if (!gameBoyInstance.current || !activeROM || !isEmulatorPlaying) return;
 
 		try {
-			const savedState = await saveState(saveModalData, isUpdate);
-			setActiveState(savedState as SaveState);
-			mbcRamRef.current = gameBoyInstance.current.MBCRam;
-			const userSaves = await fetchUserSaveStates(currentUser?.userId, activeROM.id);
-			setUserSaveStates(userSaves);
-			setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
+			console.log('Save operation starting with:', { saveModalData, isUpdate });
+			
+			// Only treat it as an update if we have an active state and isUpdate is true
+			const saveData = isUpdate ? {
+				...saveModalData,
+				id: activeState?.id,
+				filePath: activeState?.filePath,
+			} : saveModalData;
+			
+			const savedState = await saveState(saveData, isUpdate);
+			console.log('Saved successfully.');
+			
+			if (savedState) {
+				setActiveState(savedState as SaveState);
+				const userSaves = await fetchUserSaveStates(currentUser?.userId, activeROM.id);
+				setUserSaveStates(userSaves);
+				setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
+			} else {
+				throw new Error('Save operation failed');
+			}
 		} catch (error) {
 			console.error('Save failed:', error);
 		}
@@ -360,6 +374,32 @@ export default function App() {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ROMImage, isRomLoaded]); // Explicitly ignore other dependencies
 	
+	// Add separate effect for handling settings changes
+	useEffect(() => {
+		if (gameBoyInstance.current && isEmulatorPlaying) {
+			// Update speed
+			gameBoyInstance.current.setSpeed(speed);
+
+			// Update interval if running
+			if (runInterval.current) {
+				clearInterval(runInterval.current);
+				runInterval.current = setInterval(() => {
+					if (!document.hidden) {
+						gameBoyInstance.current.run();
+					}
+				}, settings[6]);
+			}
+
+			// Update sound
+			if (settings[0] !== isSoundOn) {
+				settings[0] = isSoundOn;
+				if (gameBoyInstance.current.audioHandle) {
+					gameBoyInstance.current.initSound();
+				}
+			}
+		}
+	}, [speed, isSoundOn, isEmulatorPlaying]);
+
 	// Maintain emulator-on awareness
 	useEffect(() => {
 		const isEmulatorOn = gameBoyInstance.current && (isEmulatorPlaying || intervalPaused);
@@ -464,7 +504,6 @@ export default function App() {
 				onPauseResume={handlePauseResume}
 				intervalPaused={intervalPaused}
 				MBCRam={mbcRamRef.current}
-				isEmulatorOn={isEmulatorOn}
 			/>
 		</div>
 	);

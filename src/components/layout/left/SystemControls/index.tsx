@@ -90,6 +90,7 @@ export default function SystemControls({
 		if (!isRomLoaded || !isEmulatorPlaying) return;
 
 		if (activeROMData) {
+			console.log('Saving state...');
 			try {
 				await onSaveConfirmed(activeROMData, true);
 			} catch (error) {

@@ -17,7 +17,6 @@ interface FullScreenContainerProps {
   MBCRam: any;
   onPauseResume: () => void;
   intervalPaused: boolean;
-  isEmulatorOn: boolean;
 }
 
 export default function FullScreenContainer({
@@ -28,8 +27,7 @@ export default function FullScreenContainer({
   activeState,
   inGameMemory,
   onPauseResume,
-  intervalPaused,
-  isEmulatorOn
+  intervalPaused
 }: FullScreenContainerProps) {
   const [showActiveParty, setShowActiveParty] = useState(true);
   const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
@@ -53,11 +51,11 @@ export default function FullScreenContainer({
             showPokedex={showPokedex}
             showTeamPhoto={showTeamPhoto}
           />
-          {showActiveParty && isEmulatorOn && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
-          {showGymBadgeCase && isEmulatorOn && <GymBadgeCase inGameMem={inGameMemory} />}
-          {showMap && isEmulatorOn && <TownMap />}
-          {showPokedex && isEmulatorOn && <Pokedex />}
-          {showTeamPhoto && isEmulatorOn && <TeamPhoto />}
+          {showActiveParty && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
+          {showGymBadgeCase && <GymBadgeCase inGameMem={inGameMemory} />}
+          {showMap && <TownMap />}
+          {showPokedex && <Pokedex />}
+          {showTeamPhoto && <TeamPhoto />}
     </div>
   );
 }

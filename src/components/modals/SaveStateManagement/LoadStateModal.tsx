@@ -16,6 +16,7 @@ interface SaveState {
     img?: string;
     createdAt: string;
     updatedAt: string;
+	imgPreview?: string;
 }
 
 interface LoadStateModalProps {
@@ -57,10 +58,8 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 					if (state.img) {
 						try {
 							const key = state.img;
-							console.log('key', key);
-							const img = await getS3Url( key );
-							console.log('img', img);
-							return { ...state, img };
+							const imgPreview = await getS3Url( key );
+							return { ...state, imgPreview };
 						} catch (error) {
 							console.error(`Error downloading image for state ${state.img}:`, error);
 							return state;
@@ -88,11 +87,6 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 			const client = generateClient<Schema>();
 			try {
 				// Call API to delete save state from DynamoDB
-				console.log('deleting DynamoDB save state...')
-				const savedPath = await client.models.SaveState.get({ id: selectedStateForDeletion.id });
-				console.log('imgPath', savedPath.data?.img);
-				const path = savedPath.data?.img as string;
-				
 				await client.models.SaveState.delete({ id: selectedStateForDeletion.id });
 
 				// Delete associated data from S3 if it exists
@@ -100,7 +94,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 				await remove({ path: selectedStateForDeletion.filePath })
 				if (selectedStateForDeletion.img) {
 					console.log('deleting S3 saved associated image...')
-					await remove({ path });
+					await remove({ path:selectedStateForDeletion.img });
 				}
 
 				// Update local state to reflect the deletion
@@ -122,10 +116,10 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 			<div className={styles.saveStateList}>
 				{updatedSaveStates.map((state) => (
 					<div className={styles.saveStateBlock} key={state.id} onClick={() => onConfirm(state)}>
-						{!state.img ?
+						{!state.imgPreview ?
 							<Image src={`${assetsEndpointPublic}util/beta-sprite.png`} alt="Beta Sprite" width={220} height={220} style={saveStateImageStyle} />
 						:
-							<Image src={`${state.img}`} alt={state.title} loading="lazy" width={220} height={220} style={saveStateImageStyle} />
+							<Image src={`${state.imgPreview}`} alt={state.title} loading="lazy" width={220} height={220} style={saveStateImageStyle} />
 						}
 						<h3 className={styles.saveStateTitle}>{state.title}</h3>
 						<p className={styles.lastUpdateText}>{formatDate(state.createdAt, false)}</p>
