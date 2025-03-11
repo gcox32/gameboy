@@ -370,7 +370,7 @@ export const dexDict = {
     4: { 'name': 'clefairy', 'pokedexNo': '035' },
     5: { 'name': 'spearow', 'pokedexNo': '021' },
     6: { 'name': 'voltorb', 'pokedexNo': '100' },
-    7: { 'name': 'nidoking', 'pokedexNo': '035' },
+    7: { 'name': 'nidoking', 'pokedexNo': '034' },
     8: { 'name': 'slowbro', 'pokedexNo': '080' },
     9: { 'name': 'ivysaur', 'pokedexNo': '002' },
     10: { 'name': 'exeggutor', 'pokedexNo': '103' },
