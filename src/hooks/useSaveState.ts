@@ -86,7 +86,6 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: Game, user
           client.models.SaveState.update(saveStateInput) : 
           client.models.SaveState.create(saveStateInput))
           .then(response => {
-            console.log('Save state response:', response);
             return response;
           });
       return response.data;

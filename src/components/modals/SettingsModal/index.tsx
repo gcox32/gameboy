@@ -21,7 +21,7 @@ const defaultBackground = 'https://assets.letmedemo.com/public/gameboy/images/fu
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const { uiSettings, updateUISettings } = useSettings();
-    const { speed, isSoundOn, mobileZoom } = uiSettings;
+    const { speed, isSoundOn, mobileZoom, isDynamicBackground } = uiSettings;
 
     const onSpeedChange = (value: number) => {
         updateUISettings({ speed: value });
@@ -35,6 +35,10 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         updateUISettings({ mobileZoom: !mobileZoom });
     };
 
+    const onDynamicBackgroundToggle = () => {
+        updateUISettings({ isDynamicBackground: !isDynamicBackground });
+    };
+
     const onBackgroundSelect = (imageRef: string | null | undefined) => {
         updateUISettings({ background: imageRef || defaultBackground });
     };
@@ -44,7 +48,8 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             speed: 1,
             isSoundOn: true,
             mobileZoom: false,
-            background: defaultBackground
+            background: defaultBackground,
+            isDynamicBackground: false
         });
     };
 
@@ -80,9 +85,17 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <Divider />
 
+                <CustomSwitch
+                    label="Dynamic Background"
+                    isChecked={isDynamicBackground}
+                    onChange={onDynamicBackgroundToggle}
+                />
+
+                <Divider />
+
                 <label>Fullscreen Background</label>
                 <div className={styles.backgroundOptions}>
-                    {backgroundOptions.map((bg) => (
+                    {!isDynamicBackground && backgroundOptions.map((bg) => (
                         <button
                             key={bg.id}
                             className={`${styles.backgroundOption} ${

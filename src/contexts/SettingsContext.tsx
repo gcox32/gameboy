@@ -9,6 +9,7 @@ const SettingsContext = createContext<{
         isSoundOn: boolean;
         mobileZoom: boolean;
         background: string;
+        isDynamicBackground: boolean;
     };
     emulatorSettings: {
         sound: boolean,
@@ -32,6 +33,7 @@ const SettingsContext = createContext<{
         isSoundOn?: boolean;
         mobileZoom?: boolean;
         background?: string;
+        isDynamicBackground?: boolean;
     }) => void;
     updateEmulatorConfig: (newSettings: {
         romPath?: string;
@@ -47,7 +49,8 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
         speed: 1,
         isSoundOn: true,
         mobileZoom: false,
-        background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg'
+        background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg',
+        isDynamicBackground: false
     });
 
     // Emulator Settings
@@ -58,6 +61,7 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
         isSoundOn?: boolean;
         mobileZoom?: boolean;
         background?: string;
+        isDynamicBackground?: boolean;
     }) => {
         setUiSettings(prev => ({
             ...prev,

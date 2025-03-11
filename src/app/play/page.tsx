@@ -280,9 +280,7 @@ export default function App() {
 	const onSaveConfirmed = async (saveModalData: any, isUpdate = false) => {
 		if (!gameBoyInstance.current || !activeROM || !isEmulatorPlaying) return;
 
-		try {
-			console.log('Save operation starting with:', { saveModalData, isUpdate });
-			
+		try {			
 			// Only treat it as an update if we have an active state and isUpdate is true
 			const saveData = isUpdate ? {
 				...saveModalData,
