@@ -18,6 +18,8 @@
     height: var(--btn-height);
     text-align: center;
     font-size: 12px;
+    color: var(--foreground-color);
+    background-color: var(--background-color);
 }
 
 .romSelector:disabled {

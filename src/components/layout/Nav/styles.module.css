@@ -25,10 +25,11 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    background: var(--background-color);
 }
 
 .navMenu a {
-    color: var(--link-color);
+    color: var(--foreground-rgb);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -110,7 +111,6 @@
         right: -100%;
         top: 70px;
         flex-direction: column;
-        background-color: var(--amplify-colors-background-primary);
         width: 100%;
         height: calc(100vh - 70px);
         padding: 2rem;

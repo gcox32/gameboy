@@ -120,31 +120,31 @@
     opacity: 1;
   }
   
-  #aButton,
-  #bButton {
+  .aButton,
+  .bButton {
     border-radius: 50%;
     height: 61px;
     width: 61px;
     background-color: rgba(255, 255, 255, .1);
   }
   
-  #aButton,
-  #bButton:active {
+  .aButton:active,
+  .bButton:active {
     opacity: 0;
   }
   
-  #aButton {
+  .aButton {
     left: 423px;
     top: 558px;
   }
   
-  #bButton {
+  .bButton {
     left: 326px;
     top: 589px;
   }
   
-  #startButton,
-  #selectButton {
+  .startButton,
+  .selectButton {
     width: 46px;
     height: 17px;
     border-radius: 40%;
@@ -153,16 +153,16 @@
     background-color: rgba(255, 255, 255, .1);
   }
   
-  #startButton,
-  #selectButton:active {
+  .startButton:active,
+  .selectButton:active {
     opacity: 0;
   }
   
-  #selectButton {
+  .selectButton {
     left: 197px;
   }
   
-  #startButton {
+  .startButton {
     left: 277px;
   }
   
@@ -182,26 +182,26 @@
     border-radius: 8px;
   }
   
-  #upButton {
+  .upButton {
     background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
     top: 0;
     left: 44px;
   }
   
-  #downButton {
+  .downButton {
     background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
     top: 90px;
     left: 44px;
   }
   
-  #leftButton {
+  .leftButton {
     background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
     top: 44px;
     left: 0;
     transform: rotate(90deg)
   }
   
-  #rightButton {
+  .rightButton {
     background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
     top: 44px;
     left: 90px;
@@ -209,7 +209,7 @@
   }
   
   @media screen and (max-width: 400px) {
-    .console-container {
+    .consoleContainer {
       width: 100vw;
       /* 420px; */
       height: calc(100vw * (928/526));
@@ -226,21 +226,22 @@
     }
   
     #GameBoy {
-      left: 0 !important;
-      top: 60px !important;
+      left: 2px !important;
+      top: 56px !important;
       /* -9px !important; */
-      width: 228px;
+      width: 252px;
       /* 100vw !important; */
-      height: calc(228px * (286 / 321));
+      height: calc(252px * (286 / 321));
       /* calc(100vw * (286 / 321)) */
       position: relative;
       transition: 200ms all ease-in-out;
     }
   
     #GameBoy.zoom {
-      top: 0 !important;
+      top: 11px !important;
       width: 100vw;
       height: calc(100vw * (286 / 321));
+      left: 0 !important;
     }
   
     #onLight {
@@ -250,42 +251,46 @@
       left: 7%;
     }
   
-    .gb-btn {
+    .gbButton {
       z-index: 6;
     }
   
-    .a-b {
+    .aButton,
+    .bButton {
       height: calc(61px * 0.93);
       width: calc(61px * 0.93);
     }
   
-    #a-btn {
-      left: 78.5%;
-      top: 59.5%;
+    .aButton {
+      left: 79%;
+      top: 59.7%;
     }
   
-    #b-btn {
-      left: 59.5%;
-      top: 62.7%;
+    .bButton {
+      left: 60.2%;
+      top: 63%;
     }
   
-    .st-sel {
+    .startButton,
+    .selectButton {
       width: calc(46px * 0.93);
       height: calc(17px * 0.93);
       top: 80.5% !important;
     }
   
-    #select-btn {
+    .selectButton {
       left: 35%;
     }
   
-    #start-btn {
+    .startButton {
       left: 50.5%;
     }
   
     .joypad {
-      top: 56.5%;
-      left: 2%;
+      top: 58%;
+      left: 4.75%;
+      transform: scale(0.85);
+      background-color: red;
     }
   
     .joypad div {
@@ -293,20 +298,20 @@
       width: 45px;
     }
   
-    #down-btn {
+    .downButton {
       top: 80px;
     }
   
-    #left-btn,
-    #right-btn {
+    .leftButton,
+    .rightButton {
       top: 40px;
     }
   
-    #left-btn {
+    .leftButton {
       left: 5px;
     }
   
-    #right-btn {
+    .rightButton {
       left: 85px;
     }
   }

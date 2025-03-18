@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 interface GameButtonProps {
-    elementId: string;
     className: string;
     keyCode: string;
 }
 
-function GameButton({ elementId, className, keyCode }: GameButtonProps) {
+function GameButton({className, keyCode }: GameButtonProps) {
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
     const clickBtn = () => {
@@ -51,7 +50,6 @@ function GameButton({ elementId, className, keyCode }: GameButtonProps) {
 
     return (
         <div
-            id={elementId}
             className={className}
             onMouseDown={handleInteractionStart}
             onMouseUp={handleInteractionEnd}
