@@ -19,7 +19,7 @@ export const metadata = {
   description: "Javascript Gameboy Color",
   manifest: "/manifest.json",
   icons: {
-    icon: "/js-gbc.ico",
+    icon: "/favicon.ico",
     apple: "/gbc-homescreen-icon-192.jpeg"
   }
 };

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/layout/Footer';
 import styles from './(auth)/styles.module.css';
+import Nav from '@/components/layout/Nav';
 
 export default function Home() {
   const auth = useAuth();
@@ -11,8 +12,10 @@ export default function Home() {
   const { user } = auth;
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Welcome to JS GBC</h1>
+    <>
+      <Nav />
+      <div className={styles.container}>
+        <h1 className={styles.title}>Welcome to JS GBC</h1>
       <p className={styles.description}>Play Gameboy Color games in your browser.</p>
       {user === null ? (
         <div className={styles.buttonContainer}>
@@ -30,7 +33,9 @@ export default function Home() {
           </Link>
         </div>
       )}
+      
+      </div>
       <Footer />
-    </div>
+    </>
   );
 }
