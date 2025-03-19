@@ -50,7 +50,10 @@
     "@babel/plugin-proposal-class-properties": "npm:@babel/plugin-transform-class-properties@^7.22.5",
     "@babel/plugin-proposal-object-rest-spread": "npm:@babel/plugin-transform-object-rest-spread@^7.22.5",
     "@humanwhocodes/config-array": "npm:@eslint/config-array@latest",
-    "@humanwhocodes/object-schema": "npm:@eslint/object-schema@latest"
+    "@humanwhocodes/object-schema": "npm:@eslint/object-schema@latest",
+    "babel-runtime": {
+      "core-js": "^3.41.0"
+    }
   },
   "engines": {
     "node": ">=20.9.0"
