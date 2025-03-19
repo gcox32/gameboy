@@ -21,8 +21,6 @@
     "styled-components": "^6.1.16",
     "core-js": "^3.33.0",
     "lru-cache": "^10.0.0",
-    "@babel/plugin-transform-class-properties": "^7.22.5",
-    "@babel/plugin-transform-object-rest-spread": "^7.22.5",
     "rimraf": "^5.0.0",
     "glob": "^10.0.0"
   },
