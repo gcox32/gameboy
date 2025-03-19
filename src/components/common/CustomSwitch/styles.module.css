@@ -3,13 +3,14 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+
 }
 
 .switch {
     position: relative;
     width: 44px;
     height: 24px;
-    background-color: var(--amplify-colors-background-secondary);
+    background-color: var(--neutral-200);
     border-radius: 12px;
     padding: 2px;
     border: none;
@@ -18,7 +19,7 @@
 }
 
 .switch.checked {
-    background-color: var(--amplify-colors-brand-primary-80);
+    background-color: var(--button-primary-bg);
 }
 
 .thumb {
@@ -27,7 +28,7 @@
     top: 2px;
     width: 20px;
     height: 20px;
-    background-color: white;
+    background-color: var(--button-primary-text);
     border-radius: 50%;
     transition: transform 0.2s;
 }

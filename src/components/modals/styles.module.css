@@ -151,7 +151,7 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background-color: var(--amplify-colors-brand-primary-80);
+  background-color: var(--primary-color);
   color: white;
   display: flex;
   align-items: center;
@@ -163,7 +163,7 @@
 .profileDetail {
   padding: 0.75rem;
   border-radius: 8px;
-  background-color: var(--amplify-colors-background-secondary);
+  background-color: var(--background-secondary);
 }
 
 .avatarContainer {
@@ -232,13 +232,13 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: var(--amplify-colors-background-secondary);
+  background: var(--background-secondary);
   overflow: hidden;
 }
 
 .progressBar {
   height: 100%;
-  background: var(--amplify-colors-brand-primary-80);
+  background: var(--primary-color);
   transition: width 0.3s ease-in-out;
 }
 
@@ -246,7 +246,7 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background-color: var(--amplify-colors-brand-primary-80);
+  background-color: var(--primary-color);
   color: white;
   display: flex;
   align-items: center;
@@ -257,8 +257,8 @@
 
 /* Dark mode support */
 [data-amplify-theme='dark'] .modalContent {
-  background: var(--amplify-colors-background-primary);
-  color: var(--amplify-colors-font-primary);
+  background: var(--background-primary);
+  color: var(--text-primary);
 }
 
 /* load state modal */
@@ -368,7 +368,7 @@ h3.saveStateTitle {
   padding: 0;
   min-height: auto;
   width: 380px;
-  background: var(--amplify-colors-background-primary);
+  background: var(--background-primary);
 }
 
 .settingsModal .amplifySlider {

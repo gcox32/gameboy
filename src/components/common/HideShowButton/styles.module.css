@@ -1,7 +1,7 @@
 .toggleButton {
     position: fixed;
-    background-color: var(--amplify-colors-background-secondary);
-    border: 1px solid var(--amplify-colors-border-primary);
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -16,13 +16,13 @@
 }
 
 .toggleButton:hover {
-    background-color: var(--amplify-colors-background-tertiary);
+    background-color: var(--hover-background-color);
 }
 
 .icon {
     width: 24px;
     height: 24px;
-    color: var(--amplify-colors-font-primary);
+    color: var(--foreground-rgb);
     transition: transform 0.2s ease-in-out;
 }
 

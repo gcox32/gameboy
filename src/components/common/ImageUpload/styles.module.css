@@ -9,8 +9,8 @@
 }
 
 .uploadArea {
-  border: 2px dashed var(--amplify-colors-border-secondary);
-  border-radius: 8px; 
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -21,7 +21,7 @@
 }
 
 .uploadArea:hover {
-  border-color: var(--amplify-colors-border-primary);
+  border-color: #6200ea;
 }
 
 .placeholder {
@@ -29,7 +29,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: var(--amplify-colors-font-secondary);
+  color: var(--foreground-rgb);
 }
 
 .preview {
@@ -67,7 +67,7 @@
 
 .presetLabel {
   margin-bottom: 0.5rem;
-  color: var(--amplify-colors-font-secondary);
+  color: var(--foreground-rgb);
 }
 
 .presetGrid {
@@ -89,7 +89,7 @@
 }
 
 .presetItem.selected {
-  border-color: var(--amplify-colors-brand-primary);
+  border-color: #6200ea;
 }
 
 .presetItem img {
@@ -106,7 +106,7 @@
 }
 
 .error {
-  color: var(--amplify-colors-red-60);
+  color: #dc3545;
   margin-top: 0.5rem;
   font-size: 0.9rem;
 }

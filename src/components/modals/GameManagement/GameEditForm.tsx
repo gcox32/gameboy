@@ -7,7 +7,7 @@ import {
     Alert,
     Heading,
     View
-} from '@aws-amplify/ui-react';
+} from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 
 interface Game {
@@ -82,9 +82,9 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
 
     return (
         <form onSubmit={handleSubmit}>
-            <Flex direction="column" gap="1rem">
-                <Flex justifyContent="space-between" alignItems="center">
-                    <Heading level={5}>Edit Game Details</Heading>
+            <Flex $direction="column" $gap="1rem">
+                <Flex $justifyContent="space-between" $alignItems="center">
+                    <Heading as="h5">Edit Game Details</Heading>
                     <Button
                         variation="destructive"
                         onClick={() => onDelete(game)}
@@ -137,7 +137,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
                     onChange={e => setFormData(prev => ({ ...prev, releaseDate: e.target.value }))}
                 />
 
-                <Flex direction="row" gap="1rem" justifyContent="flex-end">
+                <Flex $direction="row" $gap="1rem" $justifyContent="flex-end">
                     <Button
                         variation="destructive"
                         onClick={onCancel}
@@ -148,7 +148,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
                     <Button
                         variation="primary"
                         type="submit"
-                        isLoading={loading}
+                        $isLoading={loading}
                     >
                         Save Changes
                     </Button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useGame } from '@/contexts/GameContext';
-import { Button, Flex } from '@aws-amplify/ui-react';
+import { Flex, Button } from '@/components/ui';
 import BaseModal from '../BaseModal';
 
 interface GameInterruptModalProps {

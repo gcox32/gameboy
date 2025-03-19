@@ -1,107 +1,8 @@
 @charset "utf-8";
 
-@import "@aws-amplify/ui-react/styles.css";
-
 @font-face {
   font-family: 'gameboy';
   src: url('/fonts/PokemonGb.ttf') format('truetype');
-}
-
-:root {
-  --max-width: 1100px;
-  --border-radius: 12px;
-  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
-    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
-    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
-
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-
-  --primary-glow: conic-gradient(from 180deg at 50% 50%,
-      #16abff33 0deg,
-      #0885ff33 55deg,
-      #54d6ff33 120deg,
-      #0071ff33 160deg,
-      transparent 360deg);
-  --secondary-glow: radial-gradient(rgba(255, 255, 255, 1),
-      rgba(255, 255, 255, 0));
-
-  --tile-start-rgb: 239, 245, 249;
-  --tile-end-rgb: 228, 232, 233;
-  --tile-border: conic-gradient(#00000080,
-      #00000040,
-      #00000030,
-      #00000020,
-      #00000010,
-      #00000010,
-      #00000080);
-
-  --callout-rgb: 238, 240, 241;
-  --callout-border-rgb: 172, 175, 176;
-  --card-rgb: 180, 185, 188;
-  --card-border-rgb: 131, 134, 135;
-
-  /* New variables */
-  --link-color: #333;
-  --background-color: white;
-  --border-color: #ccc;
-  --hover-background-color: #f5f5f5;
-
-  --btn-width: 220px;
-  --btn-height: 48px;
-
-  /* Pokemon Type Colors */
-  --normal: rgb(218, 207, 192);
-  --fighting: rgb(198, 169, 130);
-  --flying: rgb(214, 187, 187);
-  --poison: rgb(162, 137, 162);
-  --ground: rgb(205, 168, 120);
-  --rock: rgb(157, 139, 139);
-  --bug: rgb(180, 233, 180);
-  --ghost: rgb(159, 158, 158);
-  --fire: rgb(255, 181, 181);
-  --water: rgb(164, 164, 253);
-  --grass: rgb(131, 152, 131);
-  --electric: rgb(255, 255, 188);
-  --psychic: rgb(253, 210, 217);
-  --ice: rgb(186, 249, 249);
-  --dragon: rgb(255, 226, 171);
-
-  --amplify-fonts-default-variable: "Open Sans";
-  --amplify-fonts-default-static: "Open Sans";
-  --amplify-colors-brand-primary-10: var(--amplify-colors-blue-10);
-  --amplify-colors-brand-primary-20: var(--amplify-colors-blue-20);
-  --amplify-colors-brand-primary-40: var(--amplify-colors-blue-40);
-  --amplify-colors-brand-primary-60: var(--amplify-colors-blue-60);
-  --amplify-colors-brand-primary-80: var(--amplify-colors-blue-80);
-  --amplify-colors-brand-primary-90: var(--amplify-colors-blue-90);
-  --amplify-colors-brand-primary-100: var(--amplify-colors-blue-100);
-  --amplify-colors-brand-secondary-10: var(--amplify-colors-neutral-10);
-  --amplify-colors-brand-secondary-20: var(--amplify-colors-neutral-20);
-  --amplify-colors-brand-secondary-40: var(--amplify-colors-neutral-40);
-  --amplify-colors-brand-secondary-60: var(--amplify-colors-neutral-60);
-  --amplify-colors-brand-secondary-80: var(--amplify-colors-neutral-80);
-  --amplify-colors-brand-secondary-90: var(--amplify-colors-neutral-90);
-  --amplify-colors-brand-secondary-100: var(--amplify-colors-neutral-100);
-  --amplify-colors-radii-small: 0;
-  --amplify-colors-radii-medium: 2px;
-  --amplify-colors-radii-large: 4px;
-  --amplify-colors-border-primary: var(--amplify-colors-neutral-40);
-  --amplify-colors-border-secondary: var(--amplify-colors-neutral-20);
-  --amplify-colors-border-tertiary: var(--amplify-colors-neutral-10);
-  --amplify-colors-background-secondary: var(--amplify-colors-brand-primary-10);
-  --amplify-components-tabs-item-border-color: var(--amplify-colors-neutral-60);
-
-  --amplify-radii-small: 0;
-  --amplify-radii-medium: 0;
-  --amplify-radii-large: 0;
-  --amplify-space-small: 1rem;
-  --amplify-space-medium: 1.5rem;
-  --amplify-space-large: 2rem;
-  --amplify-border-widths-small: 2px;
-  --amplify-border-widths-medium: 4px;
-  --amplify-border-widths-large: 8px;
 }
 
 * {
@@ -112,30 +13,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-
-    --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
-    --secondary-glow: linear-gradient(to bottom right,
-        rgba(1, 65, 255, 0),
-        rgba(1, 65, 255, 0),
-        rgba(1, 65, 255, 0.3));
-
-    --tile-start-rgb: 2, 13, 46;
-    --tile-end-rgb: 2, 5, 19;
-    --tile-border: conic-gradient(#ffffff80,
-        #ffffff40,
-        #ffffff30,
-        #ffffff20,
-        #ffffff10,
-        #ffffff10,
-        #ffffff80);
-
-    --callout-rgb: 20, 20, 20;
-    --callout-border-rgb: 108, 108, 108;
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
-
+    
     /* Override variables for dark mode */
     --link-color: #ccc;
     --background-color: #1a1a1a;

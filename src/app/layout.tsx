@@ -8,7 +8,6 @@ import outputs from '../../amplify_outputs.json';
 import { AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { GameProvider } from '../contexts/GameContext';
-import Nav from '@/components/layout/Nav';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
 Amplify.configure(outputs);
@@ -32,7 +31,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <SettingsProvider>
             <GameProvider>
-              <Nav />
               {children}
             </GameProvider>
           </SettingsProvider>

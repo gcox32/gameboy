@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Flex, Button } from '@aws-amplify/ui-react';
+import { Flex, Button } from '@/components/ui';
 import styles from '../styles.module.css';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import { getS3Url } from '@/utils/saveLoad';

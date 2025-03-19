@@ -47,7 +47,7 @@
 }
 
 .gameCardContent {
-    border: 2px dashed var(--amplify-colors-border-secondary);
+    border: 2px dashed var(--border-color);
     border-radius: 8px;
     padding: 1rem;
     cursor: pointer;

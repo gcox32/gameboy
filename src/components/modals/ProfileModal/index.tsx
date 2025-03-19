@@ -13,7 +13,7 @@ import {
     Text,
     View,
     Alert
-} from '@aws-amplify/ui-react';
+} from '@/components/ui';
 import { getS3Url } from '@/utils/saveLoad';
 import styles from '../styles.module.css';
 
@@ -173,9 +173,9 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
 
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} className={styles.profileModal}>
-            <Flex direction="column" gap="1.5rem" padding="1.5rem">
-                <Flex justifyContent="space-between" alignItems="center">
-                    <Heading level={4}>User Profile</Heading>
+            <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
+                <Flex $justifyContent="space-between" $alignItems="center">
+                    <Heading as="h4">User Profile</Heading>
                     <Button
                         variation={isEditing ? "destructive" : "primary"}
                         onClick={handleEditToggle}
@@ -192,7 +192,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                 )}
 
                 {userProfile && (
-                    <Flex direction="column" gap="1.5rem">
+                    <Flex $direction="column" $gap="1.5rem">
                         <View className={styles.profileAvatarSection}>
                             <div className={styles.avatarContainer}>
                                 <Image
@@ -259,7 +259,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         </View>
 
                         {isEditing ? (
-                            <Flex direction="column" gap="1rem">
+                            <Flex $direction="column" $gap="1rem">
                                 <TextField
                                     label="Username"
                                     value={formData.username}
@@ -283,7 +283,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 />
                                 <Button
                                     onClick={handleSubmit}
-                                    isLoading={isSaving}
+                                    $isLoading={isSaving}
                                     loadingText="Saving..."
                                     variation="primary"
                                 >
@@ -291,7 +291,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 </Button>
                             </Flex>
                         ) : (
-                            <Flex direction="column" gap="1rem">
+                            <Flex $direction="column" $gap="1rem">
                                 <View className={styles.profileDetail}>
                                     <Text variation="secondary">Username</Text>
                                     <Text>{userProfile.username}</Text>

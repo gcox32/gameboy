@@ -35,7 +35,7 @@
 }
 
 .navMenu a:hover {
-    color: var(--amplify-colors-brand-primary-80);
+    color: var(--primary-color);
 }
 
 .hamburger {
@@ -92,7 +92,7 @@
 }
 
 .settingsButton:hover {
-    color: var(--amplify-colors-brand-primary-80);
+    color: var(--primary-color);
 }
 
 .settingsButton svg {

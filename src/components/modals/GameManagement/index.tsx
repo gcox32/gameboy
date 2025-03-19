@@ -9,7 +9,7 @@ import {
     Text,
     View,
     Loader
-} from '@aws-amplify/ui-react';
+} from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './styles.module.css';
 import ImportGame from './ImportGame';
@@ -181,8 +181,8 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
 
             </div>
             <Text
-                fontSize="1.1em"
-                fontWeight="bold"
+                $fontSize="lg"
+                $fontWeight="bold"
                 className={styles.gameCardTitle}
             >
                 {game.title}
@@ -233,12 +233,11 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
 
         if (games.length === 0) {
             return (
-                <View textAlign="center" padding="2rem">
+                <View $textAlign="center" $padding="2rem">
                     <Text>No games found. Import your first game to get started!</Text>
                     <Button
                         onClick={() => setShowImport(true)}
                         variation="primary"
-                        marginTop="1rem"
                     >
                         Import Game
                     </Button>
@@ -259,12 +258,12 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                         hasIcon={true}
                         heading="Confirm Deletion"
                     >
-                        <Flex direction="column" gap="1rem">
+                        <Flex $direction="column" $gap="1rem">
                             <Text>
                                 {`Are you sure you want to delete "${gameToDelete.title}"?
                                 This action cannot be undone and will remove all associated save states.`}
                             </Text>
-                            <Flex gap="1rem" justifyContent="flex-end">
+                            <Flex $gap="1rem" $justifyContent="flex-end">
                                 <Button
                                     size="small"
                                     onClick={() => setGameToDelete(null)}
@@ -289,9 +288,9 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
     return (
         <>
             <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modal}>
-                <Flex direction="column" gap="1.5rem" padding="1.5rem">
-                    <Flex justifyContent="space-between" alignItems="center">
-                        <Heading level={4}>
+                <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
+                    <Flex $justifyContent="space-between" $alignItems="center">
+                        <Heading as="h4">
                             {showImport ? 'Import Game' :
                                 editingGame ? `Edit ${editingGame.title}` :
                                     'Game Management'}

@@ -11,7 +11,7 @@ import {
     Alert,
     View,
     Text
-} from '@aws-amplify/ui-react';
+} from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import FileUploadZone from '@/components/common/FileUploadZone';
 
@@ -150,7 +150,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
 
     return (
         <form onSubmit={handleSubmit}>
-            <Flex direction="column" gap="1rem">
+            <Flex $direction="column" $gap="1rem">
                 {error && <Alert variation="error">{error}</Alert>}
 
                 <View>
@@ -190,7 +190,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                     </div>
                 )}
 
-                <Flex direction="row" gap="1rem" justifyContent="flex-end">
+                <Flex $direction="row" $gap="1rem" $justifyContent="flex-end">
                     <Button
                         variation="destructive"
                         onClick={onCancel}
@@ -201,7 +201,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                     <Button
                         variation="primary"
                         type="submit"
-                        isLoading={loading}
+                        $isLoading={loading}
                     >
                         Import Game
                     </Button>

@@ -8,7 +8,7 @@ import {
     Heading,
     Button,
     Divider
-} from '@aws-amplify/ui-react';
+} from '@/components/ui';
 import { backgroundOptions } from './config';
 import styles from './styles.module.css';
 
@@ -54,9 +54,9 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     };
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} className="settings-modal">
-            <Flex direction="column" gap="1.5rem" padding="1.5rem">
-                <Heading level={4}>Game Settings</Heading>
+        <BaseModal isOpen={isOpen} onClose={onClose} className={styles.settingsModal}>
+            <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
+                <Heading as="h4">Game Settings</Heading>
 
                 <CustomSlider
                     label="Game Speed"
@@ -85,15 +85,14 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <Divider />
 
+                <label>Background</label>
+
                 <CustomSwitch
-                    label="Dynamic Background"
+                    label="Dynamic"
                     isChecked={isDynamicBackground}
                     onChange={onDynamicBackgroundToggle}
                 />
 
-                <Divider />
-
-                <label>Fullscreen Background</label>
                 <div className={styles.backgroundOptions}>
                     {!isDynamicBackground && backgroundOptions.map((bg) => (
                         <button

@@ -1,6 +1,6 @@
 .manageGamesButton {
     cursor: pointer;
-    color: var(--amplify-colors-brand-primary-60);
+    color: var(--primary-color);
     font-size: 12px;
 }
 

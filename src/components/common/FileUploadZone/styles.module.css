@@ -5,7 +5,7 @@
 }
 
 .uploadArea {
-  border: 2px dashed var(--amplify-colors-border-secondary);
+  border: 2px dashed var(--border-color);
   border-radius: 8px;
   padding: 2rem;
   cursor: pointer;
@@ -13,8 +13,8 @@
 }
 
 .uploadArea:hover {
-  border-color: var(--amplify-colors-border-primary);
-  background-color: var(--amplify-colors-background-secondary);
+  border-color: #6200ea;
+  background-color: var(--hover-background-color);
 }
 
 .placeholder {
@@ -22,7 +22,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: var(--amplify-colors-font-secondary);
+  color: var(--foreground-rgb);
 }
 
 .fileInfo {
@@ -59,7 +59,7 @@
 }
 
 .error {
-  color: var(--amplify-colors-red-60);
+  color: #dc3545;
   margin-top: 0.5rem;
   font-size: 0.875rem;
 }

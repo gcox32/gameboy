@@ -3,7 +3,7 @@ import { getUrl } from 'aws-amplify/storage';
 import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
 import SaveStateModal from '@/components/modals/SaveStateManagement/SaveStateModal';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
-import { Loader } from '@aws-amplify/ui-react';
+import { Loader } from '@/components/ui';
 import styles from './styles.module.css';
 
 interface SaveState {
@@ -191,7 +191,7 @@ export default function SystemControls({
 				<button 
 					onClick={onFullscreenToggle} 
 					disabled={!isRomLoaded}
-					className={`${styles.secondaryButton} desktop`}
+					className={`${styles.secondaryButton} ${styles.desktop}`}
 				>
 					Fullscreen
 				</button>

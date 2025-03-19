@@ -5,7 +5,7 @@ import {
     Button,
     CheckboxField,
     Heading
-} from '@aws-amplify/ui-react';
+} from '@/components/ui';
 
 interface ConfirmModalProps {
     isOpen: boolean;
@@ -27,22 +27,22 @@ function ConfirmModal({
     return (
         <BaseModal isOpen={isOpen} onClose={onClose}>
             <Flex
-                direction="column"
-                gap="1.5rem"
-                padding="1.5rem"
-                alignItems="center"
+                $direction="column"
+                $gap="1.5rem"
+                $padding="1.5rem"
+                $alignItems="center"
             >
                 <Heading 
-                    level={4}
-                    textAlign="center"
+                    as="h4"
+                    $textAlign="center"
                 >
                     {children}
                 </Heading>
 
                 <Flex
-                    direction="row"
-                    gap="1rem"
-                    justifyContent="center"
+                    $direction="row"
+                    $gap="1rem"
+                    $justifyContent="center"
                 >
                     <Button
                         variation="destructive"
@@ -66,9 +66,9 @@ function ConfirmModal({
                     value="skip"
                     checked={skipConfirmation}
                     onChange={toggleSkipConfirmation}
-                    justifyContent="center"
-                    alignItems="center"
-                    labelPosition="end"
+                    $justifyContent="center"
+                    $alignItems="center"
+                    $labelPosition="end"
                 />
             </Flex>
         </BaseModal>

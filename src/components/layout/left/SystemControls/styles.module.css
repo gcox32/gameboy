@@ -14,43 +14,44 @@
 }
 
 .buttonGroup button {
-    width: 100%;
+    height: var(--btn-height);
+    width: var(--btn-width);
     padding: 0.75rem;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     transition: all 0.2s ease;
     cursor: pointer;
 }
 
 .primaryButton {
-    background-color: var(--amplify-colors-brand-primary-80);
-    color: white;
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
     border: none;
 }
 
 .primaryButton:hover:not(:disabled) {
-    background-color: var(--amplify-colors-brand-primary-90);
+    background-color: var(--button-primary-hover);
 }
 
 .secondaryButton {
-    background-color: var(--amplify-colors-background-secondary);
-    color: var(--amplify-colors-font-primary);
-    border: 1px solid var(--amplify-colors-border-primary);
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    border: 1px solid var(--button-secondary-border);
 }
 
 .secondaryButton:hover:not(:disabled) {
-    background-color: var(--amplify-colors-background-tertiary);
+    background-color: var(--button-secondary-hover);
 }
 
 .warningButton {
-    background-color: var(--amplify-colors-background-error);
-    color: var(--amplify-colors-font-primary);
+    background-color: var(--button-destructive-bg);
+    color: var(--button-destructive-text);
     border: none;
 }
 
 .warningButton:hover:not(:disabled) {
-    background-color: var(--amplify-colors-background-error-hover);
+    background-color: var(--button-destructive-hover);
 }
 
 .buttonGroup button:disabled {
@@ -66,4 +67,16 @@
     .buttonGroup button {
         padding: 0.5rem;
     }
+
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: block;
+    }
+}
+
+.mobile {
+    display: none;
 }

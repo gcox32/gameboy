@@ -11,7 +11,7 @@
 
 .value {
     font-size: 0.875rem;
-    color: var(--amplify-colors-font-secondary);
+    color: var(--foreground-rgb);
 }
 
 .slider {
@@ -19,7 +19,7 @@
     height: 4px;
     -webkit-appearance: none;
     appearance: none;
-    background: var(--amplify-colors-background-secondary);
+    background: var(--background-color);
     outline: none;
     border-radius: 2px;
     cursor: pointer;
@@ -30,7 +30,7 @@
     appearance: none;
     width: 16px;
     height: 16px;
-    background: var(--amplify-colors-brand-primary-80);
+    background: var(--button-primary-bg);
     border-radius: 50%;
     cursor: pointer;
     transition: transform 0.2s;
@@ -39,7 +39,7 @@
 .slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
-    background: var(--amplify-colors-brand-primary-80);
+    background: var(--button-primary-bg);
     border-radius: 50%;
     cursor: pointer;
     transition: transform 0.2s;
