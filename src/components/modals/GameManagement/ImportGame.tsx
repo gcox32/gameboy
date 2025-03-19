@@ -153,7 +153,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
             <Flex $direction="column" $gap="1rem">
                 {error && <Alert variation="error">{error}</Alert>}
 
-                <View>
+                <View $flexDirection="column" $alignItems="center">
                     <Text>Game ROM File</Text>
                     <FileUploadZone
                         onFileSelect={handleGameFileChange}
@@ -173,12 +173,14 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                     required
                     value={formData.title}
                     onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    orientation="vertical"
                 />
 
                 <TextAreaField
                     label="Description"
                     value={formData.description}
                     onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    orientation="vertical"
                 />
 
                 {uploadProgress > 0 && uploadProgress < 100 && (

@@ -35,11 +35,12 @@ const StyledInput = styled.input<{ isReadOnly?: boolean }>`
   border-radius: 4px;
   font-size: 1rem;
   width: 100%;
+  outline: 1px solid var(--border-color);
   background-color: ${({ isReadOnly, theme }) => 
     isReadOnly ? theme.colors.background.secondary : 'transparent'};
   
   &:focus {
-    outline: none;
+    outline: 1px solid var(--accent-color);
     border-color: ${({ theme }) => theme.colors.primary};
   }
   
@@ -147,9 +148,9 @@ export const TextArea = styled.textarea`
   width: 100%;
   min-height: 100px;
   resize: vertical;
-  
+  outline: 1px solid var(--border-color);
   &:focus {
-    outline: none;
+    outline: 1px solid var(--accent-color);
     border-color: ${({ theme }) => theme.colors.primary};
   }
 `;

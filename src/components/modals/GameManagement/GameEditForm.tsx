@@ -97,7 +97,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
 
                 {error && <Alert variation="error">{error}</Alert>}
 
-                <View>
+                <View $flexDirection="column" $alignItems="center">
                     <ImageUpload
                         value={gameImgRef}
                         onChange={(file) => setImageFile(file as File)}
@@ -110,24 +110,28 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
                     required
                     value={formData.title}
                     onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    orientation="vertical"
                 />
 
                 <TextAreaField
                     label="Description"
                     value={formData.description}
                     onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    orientation="vertical"
                 />
 
                 <TextField
                     label="Series"
                     value={formData.series}
                     onChange={e => setFormData(prev => ({ ...prev, series: e.target.value }))}
+                    orientation="vertical"
                 />
 
                 <TextField
                     label="Generation"
                     value={formData.generation}
                     onChange={e => setFormData(prev => ({ ...prev, generation: e.target.value }))}
+                    orientation="vertical"
                 />
 
                 <TextField
@@ -135,6 +139,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
                     type="date"
                     value={formData.releaseDate}
                     onChange={e => setFormData(prev => ({ ...prev, releaseDate: e.target.value }))}
+                    orientation="vertical"
                 />
 
                 <Flex $direction="row" $gap="1rem" $justifyContent="flex-end">
