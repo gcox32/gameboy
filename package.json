@@ -55,6 +55,6 @@
     "@humanwhocodes/object-schema": "npm:@eslint/object-schema@latest"
   },
   "engines": {
-    "node": ">=20.5.0"
+    "node": ">=20.9.0"
   }
 }
