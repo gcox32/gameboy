@@ -1,7 +1,12 @@
 .manageGamesButton {
     cursor: pointer;
-    color: var(--primary-color);
+    color: var(--text-primary);
     font-size: 12px;
+    transition: color 0.3s ease;
+}
+
+.manageGamesButton:hover {
+    color: var(--accent-color);
 }
 
 .mobile {

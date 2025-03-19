@@ -239,7 +239,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                         onClick={() => setShowImport(true)}
                         variation="primary"
                     >
-                        Import Game
+                        Import
                     </Button>
                 </View>
             );
@@ -301,7 +301,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                                 size="small"
                                 onClick={() => setShowImport(true)}
                             >
-                                Import Game
+                                Import
                             </Button>
                         )}
                     </Flex>

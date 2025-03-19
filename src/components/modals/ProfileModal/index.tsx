@@ -181,7 +181,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         onClick={handleEditToggle}
                         size="small"
                     >
-                        {isEditing ? 'Cancel' : 'Edit Profile'}
+                        {isEditing ? 'Cancel' : 'Edit'}
                     </Button>
                 </Flex>
 
@@ -193,7 +193,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
 
                 {userProfile && (
                     <Flex $direction="column" $gap="1.5rem">
-                        <View className={styles.profileAvatarSection}>
+                        <View className={styles.profileAvatarSection} $alignItems="center" $justifyContent="center">
                             <div className={styles.avatarContainer}>
                                 <Image
                                     src={imagePreview || defaultAvatar}
@@ -265,14 +265,16 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     value={formData.username}
                                     onChange={e => handleInputChange('username', e.target.value)}
                                     placeholder="Enter username"
+                                    orientation="vertical"
                                 />
                                 <TextField
                                     label="Email"
                                     value={formData.email}
                                     placeholder="Enter email"
                                     type="email"
-                                    isReadOnly={true}
-                                    isDisabled={true}
+                                    $isReadOnly={true}
+                                    $isDisabled={true}
+                                    orientation="vertical"
                                 />
                                 <TextAreaField
                                     label="Bio"
@@ -280,6 +282,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     onChange={e => handleInputChange('bio', e.target.value)}
                                     placeholder="Tell us about yourself"
                                     rows={3}
+                                    orientation="vertical"
                                 />
                                 <Button
                                     onClick={handleSubmit}
@@ -292,15 +295,15 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                             </Flex>
                         ) : (
                             <Flex $direction="column" $gap="1rem">
-                                <View className={styles.profileDetail}>
+                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
                                     <Text variation="secondary">Username</Text>
                                     <Text>{userProfile.username}</Text>
                                 </View>
-                                <View className={styles.profileDetail}>
+                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
                                     <Text variation="secondary">Email</Text>
                                     <Text>{userProfile.email}</Text>
                                 </View>
-                                <View className={styles.profileDetail}>
+                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
                                     <Text variation="secondary">Bio</Text>
                                     <Text>{userProfile.bio || 'No bio available'}</Text>
                                 </View>

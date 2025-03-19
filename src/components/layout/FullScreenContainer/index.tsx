@@ -77,11 +77,11 @@ export default function FullScreenContainer({
       
       const timer = setTimeout(() => {
         setIsTransitioning(false);
-      }, 1000); // Match this with CSS transition duration
+      }, 1000);
       
       return () => clearTimeout(timer);
     }
-  }, [dynamicBackground, background]);
+  }, [dynamicBackground, background, currentBackground]);
 
   return (
     <div 

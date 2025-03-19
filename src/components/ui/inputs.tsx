@@ -75,9 +75,9 @@ const ErrorMessage = styled(Text).attrs({ variation: 'error' as TextVariation })
   margin-top: 0.25rem;
 `;
 
-const InputWrapper = styled.div`
+const InputWrapper = styled.div<{ orientation?: 'horizontal' | 'vertical' }>`
   display: flex;
-  flex-direction: column;
+  flex-direction: ${({ orientation = 'vertical' }) => orientation === 'horizontal' ? 'row' : 'column'};
   gap: 0.25rem;
   width: 100%;
 `;
@@ -93,8 +93,9 @@ interface TextFieldProps {
   hasError?: boolean;
   errorMessage?: string;
   name?: string;
-  isReadOnly?: boolean;
-  isDisabled?: boolean;
+  $isReadOnly?: boolean;
+  $isDisabled?: boolean;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 // TextField Component
@@ -108,12 +109,13 @@ export const TextField: React.FC<TextFieldProps> = ({
   hasError,
   errorMessage,
   name,
-  isReadOnly,
-  isDisabled,
+  $isReadOnly,
+  $isDisabled,
+  orientation = 'horizontal',
   ...props
 }) => {
   return (
-    <InputWrapper>
+    <InputWrapper orientation={orientation}>
       {label && (
         <Label>
           {label}
@@ -127,9 +129,8 @@ export const TextField: React.FC<TextFieldProps> = ({
         required={required}
         placeholder={placeholder}
         name={name}
-        readOnly={isReadOnly}
-        isReadOnly={isReadOnly}
-        disabled={isDisabled}
+        readOnly={$isReadOnly}
+        disabled={$isDisabled}
         {...props}
       />
       {hasError && errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -163,6 +164,7 @@ interface TextAreaFieldProps {
   errorMessage?: string;
   rows?: number;
   name?: string;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 export const TextAreaField: React.FC<TextAreaFieldProps> = ({
@@ -175,10 +177,11 @@ export const TextAreaField: React.FC<TextAreaFieldProps> = ({
   errorMessage,
   rows = 3,
   name,
+  orientation = 'horizontal',
   ...props
 }) => {
   return (
-    <InputWrapper>
+    <InputWrapper orientation={orientation}>
       {label && (
         <Label>
           {label}

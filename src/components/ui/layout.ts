@@ -24,8 +24,11 @@ export const View = styled.div<{
   $backgroundColor?: string;
   $borderRadius?: number | string;
   $border?: string;
+  $flexDirection?: 'row' | 'column';
+  $alignItems?: 'center' | 'flex-start' | 'flex-end' | 'stretch';
+  $justifyContent?: 'center' | 'flex-start' | 'flex-end' | 'space-between' | 'space-around';
 }>`
-  display: block;
+  display: flex;
   text-align: ${({ $textAlign = 'left' }) => $textAlign};
   padding: ${({ $padding = 0 }) => $padding};
   margin: ${({ $margin = 0 }) => $margin};
@@ -34,6 +37,9 @@ export const View = styled.div<{
   background-color: ${({ $backgroundColor = 'transparent' }) => $backgroundColor};
   border-radius: ${({ $borderRadius = 0 }) => $borderRadius};
   border: ${({ $border = 'none' }) => $border};
+  flex-direction: ${({ $flexDirection = 'row' }) => $flexDirection};
+  align-items: ${({ $alignItems = 'stretch' }) => $alignItems};
+  justify-content: ${({ $justifyContent = 'flex-start' }) => $justifyContent};
 `;
 
 export const Divider = styled.hr`

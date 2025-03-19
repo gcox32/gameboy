@@ -161,6 +161,7 @@
 }
 
 .profileDetail {
+  display: flex;
   padding: 0.75rem;
   border-radius: 8px;
   background-color: var(--background-secondary);
