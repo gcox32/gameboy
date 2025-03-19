@@ -10,18 +10,19 @@
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.750.0",
+    "@babel/runtime": "^7.26.10",
     "aws-amplify": "^6.13.2",
     "chart.js": "^4.4.3",
     "chartjs": "^0.3.24",
+    "glob": "^10.0.0",
+    "lru-cache": "^10.0.0",
     "lucide-react": "^0.477.0",
     "next": "15.1.7",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-icons": "^5.5.0",
-    "styled-components": "^6.1.16",
-    "lru-cache": "^10.0.0",
     "rimraf": "^5.0.0",
-    "glob": "^10.0.0"
+    "styled-components": "^6.1.16"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.14.1",
@@ -39,30 +40,24 @@
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"
   },
-  "overrides": {
-    "@types/react": "19.0.10",
-    "@types/react-dom": "19.0.4",
-    "inflight": "npm:lru-cache@^10.0.0",
-    "glob": "^10.0.0",
-    "rimraf": "^5.0.0",
-    "@babel/plugin-proposal-class-properties": "npm:@babel/plugin-transform-class-properties@^7.22.5",
-    "@babel/plugin-proposal-object-rest-spread": "npm:@babel/plugin-transform-object-rest-spread@^7.22.5",
-    "@humanwhocodes/config-array": "npm:@eslint/config-array@latest",
-    "@humanwhocodes/object-schema": "npm:@eslint/object-schema@latest",
-    "babel-runtime": {
-      "core-js": "^3.41.0"
-    },
-    "@aws-amplify/graphql-types-generator": {
-      "babel-runtime": {
-        "core-js": "^3.41.0"
-      }
-    },
-    "babel-types": {
-      "babel-runtime": {
-        "core-js": "^3.41.0"
-      }
-    }
+"overrides": {
+  "@aws-amplify/graphql-types-generator": {
+    "@babel/runtime": "^7.22.5"
   },
+  "babel-types": {
+    "@babel/runtime": "^7.22.5"
+  },
+  "babel-runtime": {
+    "@babel/runtime": "^7.22.5"
+  },
+  "@babel/plugin-proposal-class-properties": "npm:@babel/plugin-transform-class-properties@^7.22.5",
+  "@babel/plugin-proposal-object-rest-spread": "npm:@babel/plugin-transform-object-rest-spread@^7.22.5",
+  "@humanwhocodes/config-array": "npm:@eslint/config-array@latest",
+  "@humanwhocodes/object-schema": "npm:@eslint/object-schema@latest",
+  "inflight": "npm:lru-cache@^10.0.0",
+  "glob": "^10.0.0",
+  "rimraf": "^5.0.0"
+},
   "engines": {
     "node": ">=20.9.0"
   }
