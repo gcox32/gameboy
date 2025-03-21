@@ -209,6 +209,14 @@ export const cssVariables = `
     --psychic: ${theme.colors.pokemon.psychic};
     --ice: ${theme.colors.pokemon.ice};
     --dragon: ${theme.colors.pokemon.dragon};
+    
+    --key-mapping-bg: ${theme.colors.surface.light};
+    --key-mapping-container-bg: ${theme.colors.neutral[100]};
+    --key-mapping-button-bg: ${theme.colors.neutral[200]};
+    --key-mapping-button-hover: ${theme.colors.neutral[300]};
+    --key-mapping-button-active: ${theme.colors.primary};
+    --key-mapping-text: ${theme.colors.text.primary};
+    --key-mapping-dot: ${theme.colors.accent};
   }
 
   [data-theme='dark'] {
@@ -223,5 +231,11 @@ export const cssVariables = `
     --background-color: #1a1a1a;
     --border-color: #555;
     --hover-background-color: #333;
+    
+    --key-mapping-bg: ${theme.colors.neutral[800]};
+    --key-mapping-container-bg: ${theme.colors.neutral[900]};
+    --key-mapping-button-bg: ${theme.colors.neutral[700]};
+    --key-mapping-button-hover: ${theme.colors.neutral[600]};
+    --key-mapping-text: ${theme.colors.text.light};
   }
 `; 

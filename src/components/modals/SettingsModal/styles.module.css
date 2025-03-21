@@ -1,38 +1,81 @@
-.backgroundOptions {
+.settingsModal {
+    max-width: 600px;
+    min-width: 320px;
+    background: var(--background-color);
+    border-radius: 12px;
+    color: var(--foreground-rgb);
+}
+
+.modalTitle {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--foreground-rgb);
+    margin-bottom: 1rem;
+}
+
+.settingsSection {
     display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 0.5rem 0;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--foreground-rgb);
+    margin-bottom: 0.5rem;
+}
+
+.backgroundOptions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
     gap: 1rem;
-    justify-content: space-between;
-    width: 100%;
-    min-height: 40px
+    padding: 1rem 0;
 }
 
 .backgroundOption {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    aspect-ratio: 1;
+    border-radius: 12px;
     cursor: pointer;
     border: 2px solid var(--border-color);
-    transition: all 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out;
     padding: 0;
 }
 
 .backgroundOption:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px var(--primary-color);
 }
 
 .backgroundOption.selected {
-    border: 3px solid var(--primary-color);
+    outline: 2px solid var(--button-secondary-border);
+    transform: scale(1.05);
+}
+
+.actionButtons {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .resetButton, .applyButton {
-    margin-top: 1rem;
-    width: 100%;
-    color: var(--foreground-rgb);
+    min-width: 120px;
+    font-weight: 500;
 }
 
-.settingsModal {
-    background-color: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
+@media (max-width: 640px) {
+    .settingsModal {
+        max-width: 100%;
+        margin: 1rem;
+    }
+
+    .actionButtons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .resetButton, .applyButton {
+        width: 100%;
+    }
 }

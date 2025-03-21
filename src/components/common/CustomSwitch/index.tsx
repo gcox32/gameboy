@@ -5,11 +5,12 @@ interface CustomSwitchProps {
     label: string;
     isChecked: boolean;
     onChange: () => void;
+    className?: string;
 }
 
-const CustomSwitch = ({ label, isChecked, onChange }: CustomSwitchProps) => {
+const CustomSwitch = ({ label, isChecked, onChange, className }: CustomSwitchProps) => {
     return (
-        <div className={styles.switchContainer}>
+        <div className={`${styles.switchContainer} ${className}`}>
             <label>{label}</label>
             <button 
                 className={`${styles.switch} ${isChecked ? styles.checked : ''}`}

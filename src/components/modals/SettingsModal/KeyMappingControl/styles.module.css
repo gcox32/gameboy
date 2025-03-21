@@ -1,34 +1,94 @@
 .keyMappingContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
     width: 100%;
+    padding: 1rem;
+    background: var(--key-mapping-container-bg);
+    border-radius: 8px;
 }
 
 .keyMappingRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem;
-    background-color: var(--background-rgb);
-    border-radius: 4px;
+    padding: 0.75rem;
+    background-color: var(--key-mapping-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.keyMappingRow:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .keyLabel {
     font-size: 0.9rem;
-    color: var(--foreground-rgb);
+    color: var(--key-mapping-text);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.keyLabel::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--key-mapping-dot);
+    border-radius: 50%;
 }
 
 .keyMappingButton {
     padding: 0.5rem 1rem;
-    background-color: var(--background-rgb);
+    background-color: var(--key-mapping-button-bg);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
-    min-width: 100px;
+    width: 140px;
     text-align: center;
+    font-family: monospace;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    color: var(--key-mapping-text);
 }
 
 .keyMappingButton:hover {
-    background-color: var(--hover-background);
+    background-color: var(--key-mapping-button-hover);
+    border-color: var(--accent-color);
+}
+
+.keyMappingButton.listening {
+    width: 140px;
+    background-color: var(--key-mapping-button-active);
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 640px) {
+    .keyMappingContainer {
+        grid-template-columns: 1fr;
+        padding: 0.5rem;
+    }
 }

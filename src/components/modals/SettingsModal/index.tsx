@@ -77,81 +77,93 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} className={styles.settingsModal}>
-            <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                <Heading as="h4">Game Settings</Heading>
+            <Flex $direction="column" $gap="2rem" $padding="2rem">
+                <Heading as="h3" className={styles.modalTitle}>Game Settings</Heading>
 
-                <CustomSlider
-                    label="Game Speed"
-                    value={tempSettings.speed}
-                    onChange={onSpeedChange}
-                    min={0.25}
-                    max={4}
-                    step={0.25}
-                />
-
-                <Divider />
-
-                <CustomSwitch
-                    label="Sound"
-                    isChecked={tempSettings.isSoundOn}
-                    onChange={onSoundToggle}
-                />
+                <section className={styles.settingsSection}>
+                    <Heading as="h4" className={styles.sectionTitle}>Game Speed</Heading>
+                    <CustomSlider
+                        label="Adjust game speed"
+                        value={tempSettings.speed}
+                        onChange={onSpeedChange}
+                        min={0.25}
+                        max={4}
+                        step={0.25}
+                    />
+                </section>
 
                 <Divider />
 
-                <CustomSwitch
-                    label="Mobile Zoom"
-                    isChecked={tempSettings.mobileZoom}
-                    onChange={onMobileZoomToggle}
-                />
-
-                <Divider />
-
-                <label>Background</label>
-
-                <CustomSwitch
-                    label="Dynamic"
-                    isChecked={tempSettings.isDynamicBackground}
-                    onChange={onDynamicBackgroundToggle}
-                />
-
-                <div className={styles.backgroundOptions}>
-                    {!tempSettings.isDynamicBackground && backgroundOptions.map((bg) => (
-                        <button
-                            key={bg.id}
-                            className={`${styles.backgroundOption} ${
-                                tempSettings.background === bg.image ? styles.selected : ''
-                            }`}
-                            style={{ backgroundColor: bg.color }}
-                            onClick={() => onBackgroundSelect(bg.image)}
+                <section className={styles.settingsSection}>
+                    <Heading as="h4" className={styles.sectionTitle}>Audio & Display</Heading>
+                    <Flex $direction="column" $gap="1rem">
+                        <CustomSwitch
+                            label="Sound Effects"
+                            isChecked={tempSettings.isSoundOn}
+                            onChange={onSoundToggle}
                         />
-                    ))}
-                </div>
+                        <CustomSwitch
+                            label="Mobile Zoom"
+                            isChecked={tempSettings.mobileZoom}
+                            onChange={onMobileZoomToggle}
+                        />
+                    </Flex>
+                </section>
 
                 <Divider />
 
-                <label>Controls</label>
-                <KeyMappingControl 
-                    mappings={tempSettings.keyMappings}
-                    onChange={onKeyMappingChange}
-                />
+                <section className={styles.settingsSection}>
+                    <Heading as="h4" className={styles.sectionTitle}>Background</Heading>
+                    <CustomSwitch
+                        label="Dynamic Background"
+                        isChecked={tempSettings.isDynamicBackground}
+                        onChange={onDynamicBackgroundToggle}
+                        className={styles.dynamicSwitch}
+                    />
+                    
+                    <div className={styles.backgroundOptions}>
+                        {backgroundOptions.map((bg) => (
+                            <button
+                                key={bg.id}
+                                className={`${styles.backgroundOption} ${
+                                    !tempSettings.isDynamicBackground && tempSettings.background === bg.image ? styles.selected : ''
+                                }`}
+                                style={{ backgroundColor: bg.color }}
+                                onClick={() => !tempSettings.isDynamicBackground && onBackgroundSelect(bg.image)}
+                                disabled={tempSettings.isDynamicBackground}
+                            />
+                        ))}
+                    </div>
+                </section>
 
                 <Divider />
 
-                <Flex $gap="1rem">
+                <section className={styles.settingsSection}>
+                    <Heading as="h4" className={styles.sectionTitle}>Controls</Heading>
+                    <KeyMappingControl 
+                        mappings={tempSettings.keyMappings}
+                        onChange={onKeyMappingChange}
+                    />
+                </section>
+
+                <Divider />
+
+                <Flex $gap="1rem" className={styles.actionButtons}>
                     <Button
                         onClick={resetSettings}
-                        size="small"
+                        size="medium"
+                        variation="destructive"
                         className={styles.resetButton}
                     >
-                        Reset
+                        Reset All
                     </Button>
                     <Button
                         onClick={applySettings}
-                        size="small"
+                        size="medium"
+                        variation="primary"
                         className={styles.applyButton}
                     >
-                        Apply
+                        Apply Changes
                     </Button>
                 </Flex>
             </Flex>

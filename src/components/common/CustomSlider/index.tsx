@@ -8,11 +8,12 @@ interface CustomSliderProps {
     min: number;
     max: number;
     step: number;
+    className?: string;
 }
 
-const CustomSlider = ({ label, value, onChange, min, max, step }: CustomSliderProps) => {
+const CustomSlider = ({ label, value, onChange, min, max, step, className }: CustomSliderProps) => {
     return (
-        <div className={styles.sliderContainer}>
+        <div className={`${styles.sliderContainer} ${className}`}>
             <div className={styles.labelContainer}>
                 <label>{label}</label>
                 <span className={styles.value}>{value}x</span>
