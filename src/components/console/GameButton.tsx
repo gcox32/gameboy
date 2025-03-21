@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { defaultKeyMappings } from '@/contexts/SettingsContext';
 
 interface GameButtonProps {
     className: string;
-    keyCode: string;
+    button: string;
 }
 
-function GameButton({className, keyCode }: GameButtonProps) {
+function GameButton({className, button }: GameButtonProps) {
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
     const clickBtn = () => {
         const keyEvent = new KeyboardEvent("keydown", {
             bubbles: true,
             cancelable: true,
-            key: 'x',
+            key: defaultKeyMappings.find(mapping => mapping.button === button)?.key,
             shiftKey: false,
-            keyCode: parseInt(keyCode)
+            keyCode: defaultKeyMappings.find(mapping => mapping.button === button)?.keyCode
         });
         document.dispatchEvent(keyEvent);
     };
@@ -23,9 +24,9 @@ function GameButton({className, keyCode }: GameButtonProps) {
         const keyEvent = new KeyboardEvent("keyup", {
             bubbles: true,
             cancelable: true,
-            key: 'x',
+            key: defaultKeyMappings.find(mapping => mapping.button === button)?.key,
             shiftKey: false,
-            keyCode: parseInt(keyCode)
+            keyCode: defaultKeyMappings.find(mapping => mapping.button === button)?.keyCode
         });
         document.dispatchEvent(keyEvent);
         if (intervalId) clearInterval(intervalId);

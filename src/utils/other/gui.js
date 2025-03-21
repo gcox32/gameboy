@@ -10,16 +10,7 @@ export var mainCanvas = null;
 export var fullscreenCanvas = null;
 export var showAsMinimal = false;
 export var intervalPaused = false;
-export var keyZones = [
-	["right", [39]],
-	["left", [37]],
-	["up", [38]],
-	["down", [40]],
-	["a", [88, 74]],
-	["b", [90, 81, 89]],
-	["select", [16]],
-	["start", [13]]
-];
+
 export function registerGUIEvents() {
 	// console.log("In registerGUIEvents() : Registering GUI Events.", -1);
 	try {
@@ -68,42 +59,30 @@ export function deleteValue(key) {
 }
 
 // key press helper functions
-export function keyDown(event, gameboyInstance) {
-	var keyCode = event.keyCode;
-	var keyMapLength = keyZones.length;
-	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
-		var keyCheck = keyZones[keyMapIndex];
-		var keysMapped = keyCheck[1];
-		var keysTotal = keysMapped.length;
-		for (var index = 0; index < keysTotal; ++index) {
-			if (keysMapped[index] === keyCode) {
-				GameBoyKeyDown(keyCheck[0], gameboyInstance);
-				try {
-					event.preventDefault();
-				}
-				catch (error) { }
-			}
+export function keyDown(event, gameboyInstance, keyMappings) {
+	const keyPressed = event.key;
+	for (const mapping of keyMappings) {
+		if (mapping.key === keyPressed) {
+			GameBoyKeyDown(mapping.button, gameboyInstance);
+			try {
+				event.preventDefault();
+			} catch (error) { }
 		}
 	}
-};
-export function keyUp(event, gameboyInstance) {
-	var keyCode = event.keyCode;
-	var keyMapLength = keyZones.length;
-	for (var keyMapIndex = 0; keyMapIndex < keyMapLength; ++keyMapIndex) {
-		var keyCheck = keyZones[keyMapIndex];
-		var keysMapped = keyCheck[1];
-		var keysTotal = keysMapped.length;
-		for (var index = 0; index < keysTotal; ++index) {
-			if (keysMapped[index] === keyCode) {
-				GameBoyKeyUp(keyCheck[0], gameboyInstance);
-				try {
-					event.preventDefault();
-				}
-				catch (error) { }
-			}
+}
+
+export function keyUp(event, gameboyInstance, keyMappings) {
+	const keyPressed = event.key;
+	for (const mapping of keyMappings) {
+		if (mapping.key === keyPressed) {
+			GameBoyKeyUp(mapping.button, gameboyInstance);
+			try {
+				event.preventDefault();
+			} catch (error) { }
 		}
 	}
-};
+}
+
 //Some wrappers and extensions for non-DOM3 browsers:
 export function isDescendantOf(ParentElement, toCheck) {
 	if (!ParentElement || !toCheck) {

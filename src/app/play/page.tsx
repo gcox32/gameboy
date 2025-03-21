@@ -191,14 +191,14 @@ export default function App() {
 	};
 	const keyDownHandler = (event: KeyboardEvent) => {
 		if (gameBoyInstance.current && !intervalPaused) {
-			keyDown(event, gameBoyInstance.current);
+			keyDown(event, gameBoyInstance.current, uiSettings.keyMappings);
 		} else {
 			// console.error("GameBoy instance is not initialized.");
 		}
 	};
 	const keyUpHandler = (event: KeyboardEvent) => {
 		if (gameBoyInstance.current && !intervalPaused) {
-			keyUp(event, gameBoyInstance.current);
+			keyUp(event, gameBoyInstance.current, uiSettings.keyMappings);
 		} else {
 			// console.error("GameBoy instance is not initialized.");
 		}

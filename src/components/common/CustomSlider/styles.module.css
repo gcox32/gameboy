@@ -19,7 +19,7 @@
     height: 4px;
     -webkit-appearance: none;
     appearance: none;
-    background: var(--background-color);
+    background: var(--neutral-500);
     outline: none;
     border-radius: 2px;
     cursor: pointer;

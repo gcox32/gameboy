@@ -1,0 +1,34 @@
+.keyMappingContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.keyMappingRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: var(--background-rgb);
+    border-radius: 4px;
+}
+
+.keyLabel {
+    font-size: 0.9rem;
+    color: var(--foreground-rgb);
+}
+
+.keyMappingButton {
+    padding: 0.5rem 1rem;
+    background-color: var(--background-rgb);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 100px;
+    text-align: center;
+}
+
+.keyMappingButton:hover {
+    background-color: var(--hover-background);
+}

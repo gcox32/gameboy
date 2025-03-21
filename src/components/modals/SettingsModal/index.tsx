@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import BaseModal from '../BaseModal';
 import { useSettings } from '@/contexts/SettingsContext';
 import CustomSlider from '@/components/common/CustomSlider';
@@ -11,6 +11,8 @@ import {
 } from '@/components/ui';
 import { backgroundOptions } from './config';
 import styles from './styles.module.css';
+import KeyMappingControl from './KeyMappingControl';
+import { KeyMapping, defaultKeyMappings } from '@/contexts/SettingsContext';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -21,37 +23,57 @@ const defaultBackground = 'https://assets.letmedemo.com/public/gameboy/images/fu
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const { uiSettings, updateUISettings } = useSettings();
-    const { speed, isSoundOn, mobileZoom, isDynamicBackground } = uiSettings;
+    const [tempSettings, setTempSettings] = React.useState(uiSettings);
 
     const onSpeedChange = (value: number) => {
-        updateUISettings({ speed: value });
+        setTempSettings(prev => ({ ...prev, speed: value }));
     };
 
     const onSoundToggle = () => {
-        updateUISettings({ isSoundOn: !isSoundOn });
+        setTempSettings(prev => ({ ...prev, isSoundOn: !prev.isSoundOn }));
     };
 
     const onMobileZoomToggle = () => {
-        updateUISettings({ mobileZoom: !mobileZoom });
+        setTempSettings(prev => ({ ...prev, mobileZoom: !prev.mobileZoom }));
     };
 
     const onDynamicBackgroundToggle = () => {
-        updateUISettings({ isDynamicBackground: !isDynamicBackground });
+        setTempSettings(prev => ({ ...prev, isDynamicBackground: !prev.isDynamicBackground }));
     };
 
     const onBackgroundSelect = (imageRef: string | null | undefined) => {
-        updateUISettings({ background: imageRef || defaultBackground });
+        setTempSettings(prev => ({ ...prev, background: imageRef || defaultBackground }));
+    };
+
+    const onKeyMappingChange = (newMappings: KeyMapping[]) => {
+        setTempSettings(prev => ({ ...prev, keyMappings: newMappings }));
+    };
+
+    const applySettings = () => {
+        updateUISettings(tempSettings);
+        localStorage.setItem('gameSettings', JSON.stringify(tempSettings));
+        onClose();
     };
 
     const resetSettings = () => {
-        updateUISettings({
+        const defaultSettings = {
             speed: 1,
             isSoundOn: true,
             mobileZoom: false,
             background: defaultBackground,
-            isDynamicBackground: false
-        });
+            isDynamicBackground: false,
+            keyMappings: defaultKeyMappings
+        };
+        setTempSettings(defaultSettings);
+        updateUISettings(defaultSettings);
+        localStorage.setItem('gameSettings', JSON.stringify(defaultSettings));
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            setTempSettings(uiSettings);
+        }
+    }, [isOpen, uiSettings]);
 
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} className={styles.settingsModal}>
@@ -60,7 +82,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <CustomSlider
                     label="Game Speed"
-                    value={speed}
+                    value={tempSettings.speed}
                     onChange={onSpeedChange}
                     min={0.25}
                     max={4}
@@ -71,7 +93,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <CustomSwitch
                     label="Sound"
-                    isChecked={isSoundOn}
+                    isChecked={tempSettings.isSoundOn}
                     onChange={onSoundToggle}
                 />
 
@@ -79,7 +101,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <CustomSwitch
                     label="Mobile Zoom"
-                    isChecked={mobileZoom}
+                    isChecked={tempSettings.mobileZoom}
                     onChange={onMobileZoomToggle}
                 />
 
@@ -89,16 +111,16 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <CustomSwitch
                     label="Dynamic"
-                    isChecked={isDynamicBackground}
+                    isChecked={tempSettings.isDynamicBackground}
                     onChange={onDynamicBackgroundToggle}
                 />
 
                 <div className={styles.backgroundOptions}>
-                    {!isDynamicBackground && backgroundOptions.map((bg) => (
+                    {!tempSettings.isDynamicBackground && backgroundOptions.map((bg) => (
                         <button
                             key={bg.id}
                             className={`${styles.backgroundOption} ${
-                                uiSettings.background === bg.image ? styles.selected : ''
+                                tempSettings.background === bg.image ? styles.selected : ''
                             }`}
                             style={{ backgroundColor: bg.color }}
                             onClick={() => onBackgroundSelect(bg.image)}
@@ -108,13 +130,30 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <Divider />
 
-                <Button
-                    onClick={resetSettings}
-                    size="small"
-                    className={styles.resetButton}
-                >
-                    Reset to Defaults
-                </Button>
+                <label>Controls</label>
+                <KeyMappingControl 
+                    mappings={tempSettings.keyMappings}
+                    onChange={onKeyMappingChange}
+                />
+
+                <Divider />
+
+                <Flex $gap="1rem">
+                    <Button
+                        onClick={resetSettings}
+                        size="small"
+                        className={styles.resetButton}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        onClick={applySettings}
+                        size="small"
+                        className={styles.applyButton}
+                    >
+                        Apply
+                    </Button>
+                </Flex>
             </Flex>
         </BaseModal>
     );

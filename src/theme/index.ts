@@ -163,6 +163,7 @@ export const cssVariables = `
   :root {
     --accent-color: ${theme.colors.accent};
     --neutral-200: ${theme.colors.neutral[200]};
+    --neutral-500: ${theme.colors.neutral[500]};
     --surface-color: ${theme.colors.surface.light};
     --text-primary: ${theme.colors.text.primary};
     --border-subtle: ${theme.colors.border.subtle};
