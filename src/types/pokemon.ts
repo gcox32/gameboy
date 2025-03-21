@@ -7,6 +7,7 @@ export interface ActivePartyProps {
     inGameMemory: any[];
     onPauseResume: () => void;
     intervalPaused: boolean;
+    activeROM: any;
 }
 
 export interface PokemonDetailsModalProps {

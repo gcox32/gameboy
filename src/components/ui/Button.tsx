@@ -6,7 +6,7 @@ type ButtonVariation = 'primary' | 'secondary' | 'destructive' | 'link';
 type ButtonSize = 'small' | 'medium' | 'large';
 
 interface ButtonProps {
-  variation?: ButtonVariation;
+  $variation?: ButtonVariation;
   size?: ButtonSize;
   isDisabled?: boolean;
   $isLoading?: boolean;
@@ -88,7 +88,7 @@ const StyledButton = styled.button.attrs<ButtonProps>(props => ({
   gap: 0.5rem;
   
   /* Variation and size styles as a lower specificity */
-  ${props => getVariationStyles(props.variation)}
+  ${props => getVariationStyles(props.$variation)}
   ${props => getSizeStyles(props.size)}
   
   &:disabled {

@@ -45,14 +45,14 @@ function ConfirmModal({
                     $justifyContent="center"
                 >
                     <Button
-                        variation="destructive"
+                        $variation="destructive"
                         onClick={onClose}
                         size="large"
                     >
                         Cancel
                     </Button>
                     <Button
-                        variation="primary"
+                        $variation="primary"
                         onClick={onConfirm}
                         size="large"
                     >

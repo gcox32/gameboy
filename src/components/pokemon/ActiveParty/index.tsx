@@ -6,26 +6,38 @@ import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 
-function ActiveParty({ inGameMemory, onPauseResume, intervalPaused }: ActivePartyProps) {
+function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
     const partyArray = useRef([])
     const [partyData, setPartyData] = useState<PokemonDetails[]>([]);
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    useInGameMemoryWatcher(inGameMemory, '0xD162', '0x00', '0x195', (array: any[]) => { // start is 0xD163 in Blue but 0xD162 in True Blue
-        if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
-            try {
-                const parsedParty = parseParty(array);
-                setPartyData(parsedParty.pokemonList);
-                partyArray.current = array as never[];
-            } catch {
-                console.log('Full party not interpretable.')
-                setPartyData([])
-                partyArray.current = []
-                handlePokemonModalClose();
+    const watcherConfig = activeROM?.metadata?.memoryWatchers?.activeParty || {
+        baseAddress: '0xD162', // default fallback for Pokemon games
+        offset: '0x00',
+        size: '0x195'
+    };
+
+    useInGameMemoryWatcher(
+        inGameMemory,
+        watcherConfig.baseAddress,
+        watcherConfig.offset,
+        watcherConfig.size,
+        (array: any[]) => {
+            if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
+                try {
+                    const parsedParty = parseParty(array);
+                    setPartyData(parsedParty.pokemonList);
+                    partyArray.current = array as never[];
+                } catch {
+                    console.log('Full party not interpretable.')
+                    setPartyData([])
+                    partyArray.current = []
+                    handlePokemonModalClose();
+                }
             }
         }
-    })
+    );
 
     const handlePokemonClick = (index: number) => {
         setSelectedPokemonIndex(index);

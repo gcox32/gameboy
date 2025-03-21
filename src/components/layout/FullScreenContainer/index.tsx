@@ -38,7 +38,6 @@ export default function FullScreenContainer({
   const [showMap, setShowMap] = useState(false);
   const [showPokedex, setShowPokedex] = useState(false);
   const [showTeamPhoto, setShowTeamPhoto] = useState(false);
-  const [currentMap, setCurrentMap] = useState(0);
   const [dynamicBackground, setDynamicBackground] = useState<string | null>(null);
   const [currentBackground, setCurrentBackground] = useState(background);
   const [previousBackground, setPreviousBackground] = useState('');
@@ -47,26 +46,38 @@ export default function FullScreenContainer({
   const { uiSettings } = useSettings();
   const { isDynamicBackground } = uiSettings;
 
-  useInGameMemoryWatcher(inGameMemory, '0xD2F6', '0x67', '0x1', async (array: number[]) => {
-    if (isDynamicBackground) {
-      const currentMapByte = array[0];
-      console.log('currentMapByte', currentMapByte);
+  // Get location watcher config from ROM metadata or use defaults
+  const watcherConfig = activeROM?.metadata?.memoryWatchers?.location || {
+    baseAddress: '0xD2F6',
+    offset: '0x67',
+    size: '0x1'
+  };
 
-      const location = await fetch(`/api/pokemon/gen-one/locations?gameId=001&locationId=${currentMapByte}`);
-      const locationData = await location.json();
-      console.log('locationData', locationData);
-    
-      setCurrentMap(currentMapByte);
-      
-      if (locationData.img) {
-        const backgroundImage = locationsImgUrl + locationData.img;
-        console.log('backgroundImage', backgroundImage);
-        setDynamicBackground(backgroundImage);
+  useInGameMemoryWatcher(
+    inGameMemory, 
+    watcherConfig.baseAddress,
+    watcherConfig.offset,
+    watcherConfig.size,
+    async (array: number[]) => {
+      if (isDynamicBackground) {
+        const currentMapByte = array[0];
+        console.log('currentMapByte', currentMapByte);
+
+        const location = await fetch(`/api/pokemon/gen-one/locations?gameId=001&locationId=${currentMapByte}`);
+        const locationData = await location.json();
+        console.log('locationData', locationData);
+
+        if (locationData.img) {
+          const backgroundImage = locationsImgUrl + locationData.img;
+          console.log('backgroundImage', backgroundImage);
+          setDynamicBackground(backgroundImage);
+        }
+      } else {
+        setDynamicBackground(null);
       }
-    } else {
-      setDynamicBackground(null);
-    }
-  }, 2000);
+    }, 
+    2000
+  );
 
   // Effect to handle background transitions
   useEffect(() => {
@@ -74,20 +85,20 @@ export default function FullScreenContainer({
       setPreviousBackground(currentBackground);
       setCurrentBackground(dynamicBackground || background);
       setIsTransitioning(true);
-      
+
       const timer = setTimeout(() => {
         setIsTransitioning(false);
       }, 1000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [dynamicBackground, background, currentBackground]);
 
   return (
-    <div 
-      id="fullscreenContainer" 
-      className={styles.fullscreenContainer} 
-      ref={fullscreenContainerRef} 
+    <div
+      id="fullscreenContainer"
+      className={styles.fullscreenContainer}
+      ref={fullscreenContainerRef}
       style={{
         backgroundImage: `url(${currentBackground})`,
         ...(isTransitioning && {
@@ -109,8 +120,20 @@ export default function FullScreenContainer({
         showPokedex={showPokedex}
         showTeamPhoto={showTeamPhoto}
       />
-      {showActiveParty && <ActiveParty inGameMemory={inGameMemory} onPauseResume={onPauseResume} intervalPaused={intervalPaused} />}
-      {showGymBadgeCase && <GymBadgeCase inGameMem={inGameMemory} />}
+      {showActiveParty &&
+        <ActiveParty
+          inGameMemory={inGameMemory}
+          onPauseResume={onPauseResume}
+          intervalPaused={intervalPaused}
+          activeROM={activeROM}
+        />
+      }
+      {showGymBadgeCase &&
+        <GymBadgeCase
+          inGameMem={inGameMemory}
+          activeROM={activeROM}
+        />
+      }
       {showMap && <TownMap />}
       {showPokedex && <Pokedex />}
       {showTeamPhoto && <TeamPhoto />}

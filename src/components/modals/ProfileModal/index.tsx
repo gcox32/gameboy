@@ -177,7 +177,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                 <Flex $justifyContent="space-between" $alignItems="center">
                     <Heading as="h4">User Profile</Heading>
                     <Button
-                        variation={isEditing ? "destructive" : "primary"}
+                        $variation={isEditing ? "destructive" : "primary"}
                         onClick={handleEditToggle}
                         size="small"
                     >
@@ -186,7 +186,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                 </Flex>
 
                 {error && (
-                    <Alert variation="error">
+                    <Alert $variation="error">
                         {error}
                     </Alert>
                 )}
@@ -217,7 +217,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                             <Button
                                                 onClick={() => fileInputRef.current?.click()}
                                                 size="small"
-                                                variation="link"
+                                                $variation="link"
                                                 className={styles.uploadButton}
                                             >
                                                 <svg 
@@ -239,7 +239,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                             <Button
                                                 onClick={handleRemoveImage}
                                                 size="small"
-                                                variation="destructive"
+                                                $variation="destructive"
                                                 className={styles.removeButton}
                                             >
                                                 Remove
@@ -288,7 +288,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     onClick={handleSubmit}
                                     $isLoading={isSaving}
                                     loadingText="Saving..."
-                                    variation="primary"
+                                    $variation="primary"
                                 >
                                     Save Changes
                                 </Button>
@@ -296,15 +296,15 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         ) : (
                             <Flex $direction="column" $gap="1rem">
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Username</Text>
+                                    <Text $variation="secondary">Username</Text>
                                     <Text>{userProfile.username}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Email</Text>
+                                    <Text $variation="secondary">Email</Text>
                                     <Text>{userProfile.email}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Bio</Text>
+                                    <Text $variation="secondary">Bio</Text>
                                     <Text>{userProfile.bio || 'No bio available'}</Text>
                                 </View>
                             </Flex>

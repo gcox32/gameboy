@@ -21,13 +21,13 @@ export default function GameInterruptModal({ isOpen, onClose, onContinue }: Game
                 
                 <Flex direction="row" gap="1rem" justifyContent="flex-end">
                     <Button 
-                        variation="destructive"
+                        $variation="destructive"
                         onClick={onClose}
                     >
                         Return
                     </Button>
                     <Button
-                        variation="primary" 
+                        $variation="primary" 
                         onClick={onContinue}
                     >
                         Continue

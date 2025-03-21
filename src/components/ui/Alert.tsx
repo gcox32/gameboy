@@ -7,7 +7,7 @@ import { DefaultTheme } from 'styled-components';
 type AlertVariation = 'error' | 'warning' | 'success' | 'info';
 
 interface AlertProps {
-  variation?: AlertVariation;
+  $variation?: AlertVariation;
   isDismissible?: boolean;
   hasIcon?: boolean;
   heading?: string;
@@ -22,20 +22,20 @@ const getVariationStyles = (variation: AlertVariation = 'info') => {
   };
 };
 
-const AlertContainer = styled.div<{ variation: AlertVariation }>`
+const AlertContainer = styled.div<{ $variation: AlertVariation }>`
   padding: 1rem;
   border-radius: ${({ theme }) => theme.borderRadius.md};
-  border: 1px solid ${({ variation }) => getVariationStyles(variation).border};
-  background-color: ${({ variation }) => getVariationStyles(variation).background};
-  color: ${({ variation }) => getVariationStyles(variation).color};
+  border: 1px solid ${({ $variation }) => getVariationStyles($variation).border};
+  background-color: ${({ $variation }) => getVariationStyles($variation).background};
+  color: ${({ $variation }) => getVariationStyles($variation).color};
   font-size: ${({ theme }) => theme.typography.fontSizes.sm};
   line-height: 1.5;
 `;
 
-export function Alert({ variation = 'info', children, isDismissible = true, heading, hasIcon = true }: AlertProps) {
+export function Alert({ $variation = 'info', children, isDismissible = true, heading, hasIcon = true }: AlertProps) {
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <AlertContainer variation={variation}>
+    <AlertContainer $variation={$variation}>
       {isOpen && (
         <>
           {heading && <H4>{heading}</H4>}
@@ -49,7 +49,7 @@ export function Alert({ variation = 'info', children, isDismissible = true, head
           {children}
           {isDismissible && (
             <Button
-          variation="link"
+          $variation="link"
           onClick={() => setIsOpen(false)}
         >
                 Dismiss

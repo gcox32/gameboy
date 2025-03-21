@@ -16,9 +16,10 @@ const badgesInfo = [
 
 interface GymBadgeCaseProps {
     inGameMem: any[];
+    activeROM: any;
 }
 
-function GymBadgeCase({ inGameMem }: GymBadgeCaseProps) {
+function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
     const [badges, setBadges] = useState(badgesInfo.map(badge => ({
         ...badge,
         earned: false
@@ -28,22 +29,35 @@ function GymBadgeCase({ inGameMem }: GymBadgeCaseProps) {
         earned: false
     })));
 
-    useInGameMemoryWatcher(inGameMem, '0xD2F6', '0x5F', '0x1', (array: any[]) => {
-        const badgesByte = array[0];
-        
-        // Create new badges array by mapping each bit to a badge
-        // Bits are ordered from LSB to MSB: Boulder (bit 0) to Earth (bit 7)
-        const newBadges = badgesInfo.map((badge, index) => {
-            const isEarned = ((badgesByte >> index) & 1) === 1;
-            return {
-                ...badge,
-                earned: isEarned
-            };
-        });
+    const watcherConfig = activeROM?.metadata?.memoryWatchers?.gymBadges || {
+        baseAddress: '0xD2F6',
+        offset: '0x5F',
+        size: '0x1'
+    };
 
-        setPrevBadges(badges);
-        setBadges(newBadges);
-    }, 3000);
+    useInGameMemoryWatcher(
+        inGameMem,
+        watcherConfig.baseAddress,
+        watcherConfig.offset,
+        watcherConfig.size,
+        (array: any[]) => {
+            const badgesByte = array[0];
+            
+            // Create new badges array by mapping each bit to a badge
+            // Bits are ordered from LSB to MSB: Boulder (bit 0) to Earth (bit 7)
+            const newBadges = badgesInfo.map((badge, index) => {
+                const isEarned = ((badgesByte >> index) & 1) === 1;
+                return {
+                    ...badge,
+                    earned: isEarned
+                };
+            });
+
+            setPrevBadges(badges);
+            setBadges(newBadges);
+        },
+        3000
+    );
 
     return (
         <div className={styles.badgesCase}>

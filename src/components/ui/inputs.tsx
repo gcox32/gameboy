@@ -29,13 +29,14 @@ const getTextVariationStyles = (variation?: TextVariation) => {
 };
 
 // Base styled components
-const StyledInput = styled.input<{ isReadOnly?: boolean }>`
+const StyledInput = styled.input<{ isReadOnly?: boolean, $flex?: string }>`
   padding: 0.5rem;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 4px;
   font-size: 1rem;
   width: 100%;
   outline: 1px solid var(--border-color);
+  flex: ${({ $flex }) => $flex || '1'};
   background-color: ${({ isReadOnly, theme }) => 
     isReadOnly ? theme.colors.background.secondary : 'transparent'};
   
@@ -97,6 +98,7 @@ interface TextFieldProps {
   $isReadOnly?: boolean;
   $isDisabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
+  $flex?: string;
 }
 
 // TextField Component
@@ -112,6 +114,7 @@ export const TextField: React.FC<TextFieldProps> = ({
   name,
   $isReadOnly,
   $isDisabled,
+  $flex,
   orientation = 'horizontal',
   ...props
 }) => {
@@ -132,6 +135,7 @@ export const TextField: React.FC<TextFieldProps> = ({
         name={name}
         readOnly={$isReadOnly}
         disabled={$isDisabled}
+        $flex={$flex}
         {...props}
       />
       {hasError && errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}

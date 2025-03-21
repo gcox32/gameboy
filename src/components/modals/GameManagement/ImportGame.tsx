@@ -32,7 +32,24 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        img: ''
+        img: '',
+        memoryWatchers: {
+            activeParty: {
+                baseAddress: '0xD162',
+                offset: '0x00',
+                size: '0x195'
+            },
+            gymBadges: {
+                baseAddress: '0xD2F6',
+                offset: '0x5F',
+                size: '0x1'
+            },
+            location: {
+                baseAddress: '0xD2F6',
+                offset: '0x67',
+                size: '0x1'
+            }
+        }
     });
 
     const presetImages = [
@@ -135,7 +152,8 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                     description: formData.description,
                     series: '',
                     generation: '',
-                    releaseDate: ''
+                    releaseDate: '',
+                    memoryWatchers: formData.memoryWatchers
                 })
             });
 
@@ -151,7 +169,7 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
     return (
         <form onSubmit={handleSubmit}>
             <Flex $direction="column" $gap="1rem">
-                {error && <Alert variation="error">{error}</Alert>}
+                {error && <Alert $variation="error">{error}</Alert>}
 
                 <View $flexDirection="column" $alignItems="center">
                     <Text>Game ROM File</Text>
@@ -194,14 +212,14 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
 
                 <Flex $direction="row" $gap="1rem" $justifyContent="flex-end">
                     <Button
-                        variation="destructive"
+                        $variation="destructive"
                         onClick={onCancel}
                         type="button"
                     >
                         Cancel
                     </Button>
                     <Button
-                        variation="primary"
+                        $variation="primary"
                         type="submit"
                         $isLoading={loading}
                     >

@@ -152,7 +152,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     <Button
                         onClick={resetSettings}
                         size="medium"
-                        variation="destructive"
+                        $variation="destructive"
                         className={styles.resetButton}
                     >
                         Reset All
@@ -160,7 +160,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     <Button
                         onClick={applySettings}
                         size="medium"
-                        variation="primary"
+                        $variation="primary"
                         className={styles.applyButton}
                     >
                         Apply Changes

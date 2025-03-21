@@ -192,11 +192,11 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
 
     const renderContent = () => {
         if (loading) {
-            return <Loader variation="linear" />;
+            return <Loader $variation="linear" />;
         }
 
         if (error) {
-            return <Alert variation="error">{error}</Alert>;
+            return <Alert $variation="error">{error}</Alert>;
         }
 
         if (showImport) {
@@ -237,7 +237,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                     <Text>No games found. Import your first game to get started!</Text>
                     <Button
                         onClick={() => setShowImport(true)}
-                        variation="primary"
+                        $variation="primary"
                     >
                         Import
                     </Button>
@@ -253,7 +253,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
 
                 {gameToDelete && (
                     <Alert
-                        variation="warning"
+                        $variation="warning"
                         isDismissible={false}
                         hasIcon={true}
                         heading="Confirm Deletion"
@@ -272,7 +272,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                                 </Button>
                                 <Button
                                     size="small"
-                                    variation="destructive"
+                                    $variation="destructive"
                                     onClick={() => handleDeleteGame(gameToDelete)}
                                 >
                                     Delete
@@ -297,7 +297,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                         </Heading>
                         {!showImport && !editingGame && games.length > 0 && (
                             <Button
-                                variation="primary"
+                                $variation="primary"
                                 size="small"
                                 onClick={() => setShowImport(true)}
                             >
