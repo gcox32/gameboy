@@ -1,4 +1,3 @@
-import Footer from '@/components/layout/Footer';
 import styles from '../styles.module.css';
 
 export default function PrivacyPolicy() {
@@ -42,7 +41,6 @@ export default function PrivacyPolicy() {
                     If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@letmedemo.com">support@letmedemo.com</a>.
                 </p>
             </section>
-            <Footer />
         </div>
     );
 }

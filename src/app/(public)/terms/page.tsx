@@ -1,4 +1,3 @@
-import Footer from '@/components/layout/Footer';
 import styles from '../styles.module.css';
 
 export default function TermsAndConditions() {
@@ -59,7 +58,6 @@ export default function TermsAndConditions() {
                     If you have any questions about these Terms of Service, please contact us at <a href="mailto:support@letmedemo.com">support@letmedemo.com</a>.
                 </p>
             </section>
-            <Footer />
         </div>
     );
 }

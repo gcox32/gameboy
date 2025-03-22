@@ -1,5 +1,4 @@
 import styles from '../styles.module.css';
-import Footer from '@/components/layout/Footer';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -28,6 +27,9 @@ const AboutPage = () => {
           <li>Game library management</li>
           <li>Game-specific features</li>
         </ul>
+        <p className={styles.paragraph}>
+          <Link href="/how-it-works" className={styles.link}>Learn more about how it works →</Link>
+        </p>
       </section>
 
       <section className={styles.section}>
@@ -36,16 +38,16 @@ const AboutPage = () => {
           {`JS GBC is an open-source project, and we welcome contributions from the community. Whether you're a developer, designer, or just want to make it better, there are ways to get involved:`}
         </p>
         <div className={styles.buttonContainer}>
-          <Link 
-            href="https://github.com/gcox32/gameboy" 
+          <Link
+            href="https://github.com/gcox32/gameboy"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.link}
           >
             Contribute
           </Link>
-          <Link 
-            href="/contact" 
+          <Link
+            href="/contact"
             className={styles.link}
           >
             Contact Us
@@ -69,8 +71,6 @@ const AboutPage = () => {
           className={styles.mascotImage}
         />
       </div>
-
-      <Footer />
     </div>
   );
 };

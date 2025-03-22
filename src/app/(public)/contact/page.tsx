@@ -1,4 +1,3 @@
-import Footer from '@/components/layout/Footer';
 import styles from '../styles.module.css';
 
 const ContactPage = () => {
@@ -37,8 +36,6 @@ const ContactPage = () => {
           </a>
         </p>
       </section>
-
-      <Footer />
     </div>
   );
 };

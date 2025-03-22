@@ -31,3 +31,9 @@ export const H4 = styled(Heading).attrs({ as: 'h4' })`
 export const H5 = styled(Heading).attrs({ as: 'h5' })`
   font-size: ${({ theme }) => theme.typography.fontSizes.md};
 `;
+
+export const Paragraph = styled.p`
+  font-size: ${({ theme }) => theme.typography.fontSizes.md};
+  line-height: 1.6;
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+`;

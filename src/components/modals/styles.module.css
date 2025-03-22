@@ -256,12 +256,6 @@
   font-weight: 500;
 }
 
-/* Dark mode support */
-[data-amplify-theme='dark'] .modalContent {
-  background: var(--background-primary);
-  color: var(--text-primary);
-}
-
 /* load state modal */
 .modalContent#loadStateContent {
   width: 800px;

@@ -47,3 +47,40 @@ export const Divider = styled.hr`
   border-top: 1px solid ${({ theme }) => theme.colors.border};
   margin: 1rem 0;
 `; 
+
+export const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+  height: 100vh;
+  overflow: scroll;
+`; 
+
+export const Card = styled.div`
+  background-color: ${({ theme }) => theme.colors.system.background};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  padding: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`;
+
+export const Section = styled.section`
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
+`;
+
+export const List = styled.ul`
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+  padding-left: ${({ theme }) => theme.spacing.xl};
+  & li {
+    margin-bottom: ${({ theme }) => theme.spacing.xs}
+  }
+`;
+
+export const OrderedList = styled.ol`
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+  padding-left: ${({ theme }) => theme.spacing.xl};
+  & li {
+    margin-bottom: ${({ theme }) => theme.spacing.xs}
+  }
+`;

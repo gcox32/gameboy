@@ -65,36 +65,3 @@ body {
   background-size: cover;
   transition: 1s ease-in-out;
 }
-
-/* Amplify overrides */
-
-[data-amplify-router] {
-  min-height: 500px;
-  border-radius: 16px;
-  max-width: 95%;
-  margin: 0 auto;
-}
-
-[data-amplify-router] form button {
-  border-radius: 8px;
-}
-
-[data-amplify-router] div div h3 {
-  text-align: center;
-  font-weight: 100;
-}
-
-h3.amplify-heading:hover,
-label.amplify-label:hover,
-p.amplify-text:hover {
-  cursor: default;
-}
-
-.amplify-flex input:not([type="file"]) {
-  border-radius: 8px;
-}
-
-.amplify-tabs__list--equal {
-  width: 92%;
-  margin: auto;
-}
