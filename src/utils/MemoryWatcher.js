@@ -66,3 +66,13 @@ export const useInGameMemoryWatcher = (gameMemoryRef, baseAddressHex, offsetHex,
         return () => clearInterval(intervalId);
     }, [gameMemoryRef, baseAddressHex, offsetHex, sizeHex, onChange, interval]);
 };
+export const parseMetadata = (activeROM, key, defaultConfig = {}) => {
+    const metadata = JSON.parse(activeROM?.metadata);
+    try {
+        const config = metadata?.memoryWatchers?.[key];
+        return config;
+    } catch (error) {
+        console.error('Error parsing metadata:', error);
+        return defaultConfig;
+    }
+};

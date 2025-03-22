@@ -3,7 +3,7 @@ import Cartridges from "../Cartridges";
 import SystemControls from "../SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
 import styles from './styles.module.css';
-
+import { Game } from "@/types/schema";
 interface ControlPanelProps {
     handleROMSelected: (rom: any) => void;
     isEmulatorPlaying: boolean;
@@ -20,6 +20,7 @@ interface ControlPanelProps {
     currentUser: any;
     isSaving: boolean;
     onDeleteSaveState: () => void;
+    activeROM: Game | null;
 }
 
 function ControlPanel({
@@ -37,7 +38,8 @@ function ControlPanel({
     runFromSaveState,
     currentUser,
     isSaving,
-    onDeleteSaveState
+    onDeleteSaveState,
+    activeROM
 }: ControlPanelProps) {
     const [isPanelVisible, setIsPanelVisible] = useState(true);
     
@@ -62,6 +64,7 @@ function ControlPanel({
                 isDisabled={isEmulatorPlaying}
                 activeSaveState={activeSaveState}
                 currentUser={currentUser}
+                activeROM={activeROM}
             />
             <SystemControls
                 intervalPaused={intervalPaused}

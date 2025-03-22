@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import GymBadge from './GymBadge';
-import { useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 import styles from './styles.module.css';
+import { MemoryWatcherConfig } from '@/types/schema';
 
 const badgesInfo = [
     { name: "Boulder Badge", image: "boulder.png" },
@@ -28,18 +29,23 @@ function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
         ...badge,
         earned: false
     })));
-
-    const watcherConfig = activeROM?.metadata?.memoryWatchers?.gymBadges || {
-        baseAddress: '0xD2F6',
-        offset: '0x5F',
-        size: '0x1'
-    };
-
+    const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
+    
+    useEffect(() => {
+        if (!activeROM) return;
+        const watcherConfig = parseMetadata(activeROM, 'gymBadges', {
+            baseAddress: '0xD2F6',
+            offset: '0x5F', // 0x60 is for original blue
+            size: '0x1'
+        });
+        setWatcherConfig(watcherConfig);
+    }, [activeROM]);
+    
     useInGameMemoryWatcher(
         inGameMem,
-        watcherConfig.baseAddress,
-        watcherConfig.offset,
-        watcherConfig.size,
+        watcherConfig?.baseAddress,
+        watcherConfig?.offset,
+        watcherConfig?.size,
         (array: any[]) => {
             const badgesByte = array[0];
             

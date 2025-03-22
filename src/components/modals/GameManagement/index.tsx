@@ -20,29 +20,18 @@ import { type Schema } from '@/amplify/data/resource';
 import { uploadData } from 'aws-amplify/storage';
 import { getS3Url } from '@/utils/saveLoad';
 import { type AuthUser } from 'aws-amplify/auth';
+import { Game } from '@/types/schema';
 
 const client = generateClient<Schema>();
-
-interface Game {
-    id: string;
-    title: string;
-    img?: string;
-    filePath: string;
-    metadata?: {
-        description?: string;
-        series?: string;
-        generation?: string;
-        releaseDate?: string;
-    };
-}
 
 interface GameManagementProps {
     isOpen: boolean;
     onClose: () => void;
-    onGameDeleted?: () => void;
+    onGameDeleted: () => void;
+    onGameEdited?: (updatedGame: Game) => void;
 }
 
-export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameManagementProps) {
+export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameEdited }: GameManagementProps) {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
     const { user } = auth as { user: AuthUser | null };
@@ -124,7 +113,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             }
 
             // Update game record in database
-            await client.models.Game.update({
+            const updatedGame = await client.models.Game.update({
                 id: gameData.id,
                 owner: user?.userId,
                 title: gameData.title,
@@ -133,12 +122,18 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                     description: gameData.metadata?.description || '',
                     series: gameData.metadata?.series || '',
                     generation: gameData.metadata?.generation || '',
-                    releaseDate: gameData.metadata?.releaseDate || ''
+                    releaseDate: gameData.metadata?.releaseDate || '',
+                    memoryWatchers: gameData.metadata?.memoryWatchers || {}
                 })
             });
 
             setEditingGame(null);
             loadGames();
+            
+            // Call the new callback with the updated game
+            if (onGameEdited && updatedGame.data) {
+                onGameEdited(updatedGame.data as Game);
+            }
         } catch (err) {
             console.error('Error updating game:', err);
             setError('Failed to update game. Please try again.');
@@ -155,7 +150,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
             setGameToDelete(null);
             setEditingGame(null);  // Close edit form if open
             loadGames();
-            onGameDeleted?.();
+            onGameDeleted();
         } catch (err) {
             console.error('Error deleting game:', err);
             setError('Failed to delete game. Please try again.');
@@ -192,7 +187,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
 
     const renderContent = () => {
         if (loading) {
-            return <Loader $variation="linear" />;
+            return <Loader variation="linear" />;
         }
 
         if (error) {
@@ -206,7 +201,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted }: GameM
                     onSuccess={() => {
                         setShowImport(false);
                         loadGames();
-                        onGameDeleted?.();
+                        onGameDeleted();
                     }}
                     onCancel={() => setShowImport(false)}
                 />

@@ -9,36 +9,7 @@ import {
     View
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
-
-interface Game {
-    id: string;
-    title: string;
-    img?: string;
-    filePath: string;
-    metadata?: {
-        description?: string;
-        series?: string;
-        generation?: string;
-        releaseDate?: string;
-        memoryWatchers?: {
-            activeParty?: {
-                baseAddress: string;
-                offset: string;
-                size: string;
-            };
-            gymBadges?: {
-                baseAddress: string;
-                offset: string;
-                size: string;
-            };
-            location?: {
-                baseAddress: string;
-                offset: string;
-                size: string;
-            };
-        };
-    };
-}
+import { Game } from '@/types/schema';
 
 interface GameEditFormProps {
     game: Game;
@@ -65,18 +36,18 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
         // Default memory watcher values
         const defaultWatchers = {
             activeParty: {
-                baseAddress: '0xD162',
+                baseAddress: '0xD163', // true blue is 0xD162
                 offset: '0x00',
                 size: '0x195'
             },
             gymBadges: {
                 baseAddress: '0xD2F6',
-                offset: '0x5F',
+                offset: '0x60', // true blue is 0x5F
                 size: '0x1'
             },
             location: {
                 baseAddress: '0xD2F6',
-                offset: '0x67',
+                offset: '0x68', // true blue is 0x67
                 size: '0x1'
             }
         };

@@ -486,6 +486,7 @@ export default function App() {
 				currentUser={currentUser}
 				isSaving={isSaving}
 				onDeleteSaveState={onDeleteSaveState}
+				activeROM={activeROM}
 			/>
 			<Console
 				isEmulatorOn={isEmulatorOn}

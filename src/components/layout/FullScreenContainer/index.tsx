@@ -6,8 +6,9 @@ import TownMap from '@/components/pokemon/TownMap';
 import Pokedex from '@/components/pokemon/Pokedex';
 import TeamPhoto from '@/components/pokemon/TeamPhoto';
 import styles from './styles.module.css';
-import { useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 import { useSettings } from '@/contexts/SettingsContext';
+import { MemoryWatcherConfig } from '@/types/schema';
 
 interface FullScreenContainerProps {
   background: string;
@@ -33,6 +34,7 @@ export default function FullScreenContainer({
   onPauseResume,
   intervalPaused
 }: FullScreenContainerProps) {
+
   const [showActiveParty, setShowActiveParty] = useState(true);
   const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
   const [showMap, setShowMap] = useState(false);
@@ -42,24 +44,30 @@ export default function FullScreenContainer({
   const [currentBackground, setCurrentBackground] = useState(background);
   const [previousBackground, setPreviousBackground] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
-
+  const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
   const { uiSettings } = useSettings();
   const { isDynamicBackground } = uiSettings;
 
   // Get location watcher config from ROM metadata or use defaults
-  const watcherConfig = activeROM?.metadata?.memoryWatchers?.location || {
-    baseAddress: '0xD2F6',
-    offset: '0x67',
-    size: '0x1'
-  };
+  useEffect(() => {
+    console.log('activeROM', activeROM);
+    if (!activeROM) return;
+    const watcherConfig = parseMetadata(activeROM, 'location', {
+      baseAddress: '0xD2F6',
+      offset: '0x67', // 0x68 is for original blue
+      size: '0x1'
+    });
+    setWatcherConfig(watcherConfig);
+  }, [activeROM]);
 
   useInGameMemoryWatcher(
-    inGameMemory, 
-    watcherConfig.baseAddress,
-    watcherConfig.offset,
-    watcherConfig.size,
+    inGameMemory,
+    watcherConfig?.baseAddress,
+    watcherConfig?.offset,
+    watcherConfig?.size,
     async (array: number[]) => {
       if (isDynamicBackground) {
+        console.log('memory watcher config', watcherConfig);
         const currentMapByte = array[0];
         console.log('currentMapByte', currentMapByte);
 
@@ -69,13 +77,12 @@ export default function FullScreenContainer({
 
         if (locationData.img) {
           const backgroundImage = locationsImgUrl + locationData.img;
-          console.log('backgroundImage', backgroundImage);
           setDynamicBackground(backgroundImage);
         }
       } else {
         setDynamicBackground(null);
       }
-    }, 
+    },
     2000
   );
 

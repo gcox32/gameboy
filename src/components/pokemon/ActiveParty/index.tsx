@@ -1,28 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
 import PartySlot from "./PartySlot";
-import { useInGameMemoryWatcher } from "@/utils/MemoryWatcher";
+import { useInGameMemoryWatcher, parseMetadata } from "@/utils/MemoryWatcher";
 import { parseParty } from "@/utils/pokemon/parse";
 import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
+import { MemoryWatcherConfig } from "@/types/schema";
 
 function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
     const partyArray = useRef([])
     const [partyData, setPartyData] = useState<PokemonDetails[]>([]);
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
 
-    const watcherConfig = activeROM?.metadata?.memoryWatchers?.activeParty || {
-        baseAddress: '0xD162', // default fallback for Pokemon games
-        offset: '0x00',
-        size: '0x195'
-    };
+    useEffect(() => {
+        if (!activeROM) return;
+        const watcherConfig = parseMetadata(activeROM, 'activeParty', {
+            baseAddress: '0xD162', // default fallback for Pokemon games
+            offset: '0x00',
+            size: '0x195'
+        });
+        setWatcherConfig(watcherConfig);
+    }, [activeROM]);
 
     useInGameMemoryWatcher(
         inGameMemory,
-        watcherConfig.baseAddress,
-        watcherConfig.offset,
-        watcherConfig.size,
+        watcherConfig?.baseAddress,
+        watcherConfig?.offset,
+        watcherConfig?.size,
         (array: any[]) => {
             if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
                 try {

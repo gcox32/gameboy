@@ -71,9 +71,9 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateMo
                     value={previewUrl}
                 />
                 <Flex
-                    direction="row"
-                    gap="1rem"
-                    justifyContent="center"
+                    $direction="row"
+                    $gap="1rem"
+                    $justifyContent="center"
                 >
                     <Button
                         $variation="destructive"

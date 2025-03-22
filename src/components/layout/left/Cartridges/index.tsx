@@ -3,22 +3,18 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import GameManagement from '@/components/modals/GameManagement';
 import styles from './styles.module.css';
+import { Game } from '@/types/schema';
 
 interface CartridgesProps {
     onROMSelected: (rom: any) => void;
     isDisabled: boolean;
     activeSaveState: any;
     currentUser: any;
-}
-
-interface Game {
-    id: string;
-    title: string;
-    filePath: string;
+    activeROM: Game | null;
 }
 
 const client = generateClient<Schema>();
-function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }: CartridgesProps) {
+function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, activeROM }: CartridgesProps) {
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -50,6 +46,13 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }:
         onROMSelected(selectedROM);
     };
 
+    const handleGameEdited = (updatedGame: Game) => {
+        // If this is the currently selected ROM, reload it
+        if (activeROM && activeROM.id === updatedGame.id) {
+            onROMSelected(updatedGame);
+        }
+    };
+
     // Handling loading and error states in the component's return statement
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
@@ -70,6 +73,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser }:
                 isOpen={isGameManagementOpen}
                 onClose={() => setIsGameManagementOpen(false)}
                 onGameDeleted={fetchGames}
+                onGameEdited={handleGameEdited}
             />  
             <div id={styles.activeGameTitle} className={activeSaveState ? "" : styles.null}>
                 { activeSaveState ? activeSaveState.title : '' }
