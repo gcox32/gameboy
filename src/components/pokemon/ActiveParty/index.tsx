@@ -17,7 +17,7 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
     useEffect(() => {
         if (!activeROM) return;
         const watcherConfig = parseMetadata(activeROM, 'activeParty', {
-            baseAddress: '0xD162', // default fallback for Pokemon games
+            baseAddress: '0xD163', // default fallback for Pokemon games
             offset: '0x00',
             size: '0x195'
         });
