@@ -1,7 +1,4 @@
-export interface PartySlotProps {
-    pokemon: PokemonDetails;
-    onClick: (pokemon: PokemonDetails) => void;
-}
+
 
 export interface ActivePartyProps {
     inGameMemory: any[];

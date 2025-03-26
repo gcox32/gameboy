@@ -6,6 +6,7 @@ import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 import { MemoryWatcherConfig } from "@/types/schema";
+import { FaExchangeAlt } from 'react-icons/fa';
 
 function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
     const partyArray = useRef([])
@@ -13,6 +14,7 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
+    const [useStadiumSprites, setUseStadiumSprites] = useState(false);
 
     useEffect(() => {
         if (!activeROM) return;
@@ -87,8 +89,20 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
 
     return (
         <div className={styles.activeParty}>
+            <button 
+                className={styles.spriteToggle}
+                onClick={() => setUseStadiumSprites(!useStadiumSprites)}
+                title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
+            >
+                <FaExchangeAlt />
+            </button>
             {partyData.map((pokemon: PokemonDetails, index: number) => (
-                <PartySlot key={pokemon.pokedexNo || index} pokemon={pokemon} onClick={() => handlePokemonClick(index)} />
+                <PartySlot 
+                    key={pokemon.pokedexNo || index} 
+                    pokemon={pokemon} 
+                    onClick={() => handlePokemonClick(index)}
+                    useStadiumSprites={useStadiumSprites}
+                />
             ))}
             {(selectedPokemonIndex !== null && partyData.length) && (
                 <PokemonDetailsModal
@@ -100,6 +114,5 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
         </div>
     );
 }
-
 
 export default ActiveParty;
