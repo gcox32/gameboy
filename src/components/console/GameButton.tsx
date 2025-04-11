@@ -33,7 +33,15 @@ function GameButton({className, button }: GameButtonProps) {
         setIntervalId(null);
     };
 
+    const triggerHaptic = () => {
+        // Check if vibration is supported and trigger a short vibration
+        if (navigator.vibrate) {
+            navigator.vibrate(50); // 50ms vibration
+        }
+    };
+
     const handleInteractionStart = () => {
+        triggerHaptic(); // Add haptic feedback on button press
         const id = setInterval(() => clickBtn(), 10);
         setIntervalId(id);
     };
