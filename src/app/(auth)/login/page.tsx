@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { signIn, getCurrentUser } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '@/../config';
 import styles from '../styles.module.css';
@@ -14,6 +14,7 @@ export default function Login() {
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const searchParams = useSearchParams();
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
     const { user, loading } = auth;
@@ -137,9 +138,20 @@ export default function Login() {
                 <button type="submit" className={styles.button}>Login</button>
             </form>
             {error && <p className={styles.error} role="alert">{error}</p>}
+            {searchParams.get('reset') === 'success' && (
+                <p className={styles.statusMessage} role="status">Password has been reset. You can sign in now.</p>
+            )}
             
             <div className={styles.signupPrompt}>
                 {`Don't have an account? `}<Link href="/signup" className={styles.signupLink}>Sign up</Link>
+            </div>
+            <div className={styles.signupPrompt}>
+                <Link
+                    href={`/reset-password${username ? `?username=${encodeURIComponent(username)}` : ''}`}
+                    className={styles.link}
+                >
+                    Forgot password?
+                </Link>
             </div>
         </div>
     );

@@ -6,6 +6,7 @@ import { Loader } from './Loader';
 import { Heading, H1, H2, H3, H4, H5, Paragraph } from './typography';
 import { View, Divider, Container, Card, Section, List, OrderedList } from './layout';
 import { TextArea, TextAreaField, TextField, Text } from './inputs';
+import { ToastProvider, useToast } from './Toast';
 
 export { 
     Flex, 
@@ -32,3 +33,5 @@ export {
     List,
     OrderedList
 };
+
+export { ToastProvider, useToast };

@@ -9,6 +9,7 @@ import { useSaveState } from '@/hooks/useSaveState';
 import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/left/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
+import { useToast } from '@/components/ui';
 import GameBoyCore from '@/utils/GameBoyCore';
 import {
 	registerGUIEvents,
@@ -71,6 +72,7 @@ export default function App() {
 	const router = useRouter();
 
 	const { startGame, stopGame } = useGame();
+	const { showToast } = useToast();
 
 	// Add hook near other hooks
 	const { saveState, isSaving } = useSaveState(
@@ -290,6 +292,10 @@ export default function App() {
 			
 			const savedState = await saveState(saveData, isUpdate);
 			console.log('Saved successfully.');
+			showToast(
+				isUpdate ? `Save updated: ${saveData.title}` : `Saved: ${saveData.title}`,
+				'success'
+			);
 			
 			if (savedState) {
 				setActiveState(savedState as SaveState);
@@ -301,6 +307,8 @@ export default function App() {
 			}
 		} catch (error) {
 			console.error('Save failed:', error);
+			const message = error instanceof Error ? error.message : 'Save operation failed';
+			showToast(`Save failed: ${message}`, 'error');
 		}
 	};
 	const runFromSaveState = (sramArray: any[], selectedSaveState: any) => {
@@ -324,7 +332,6 @@ export default function App() {
 	useEffect(() => {
 		checkAuthState();
 	}, [checkAuthState]);
-
 	// Register GUI events on load
 	useEffect(() => {
 		registerGUIEvents();
@@ -371,7 +378,6 @@ export default function App() {
 		};
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ROMImage, isRomLoaded]); // Explicitly ignore other dependencies
-	
 	// Add separate effect for handling settings changes
 	useEffect(() => {
 		if (gameBoyInstance.current && isEmulatorPlaying) {
@@ -397,7 +403,6 @@ export default function App() {
 			}
 		}
 	}, [speed, isSoundOn, isEmulatorPlaying]);
-
 	// Maintain emulator-on awareness
 	useEffect(() => {
 		const isEmulatorOn = gameBoyInstance.current && (isEmulatorPlaying || intervalPaused);

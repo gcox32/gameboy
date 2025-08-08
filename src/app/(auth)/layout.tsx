@@ -6,6 +6,7 @@ import { ThemeProvider } from 'styled-components';
 import { theme } from '@/theme';
 import Nav from '@/components/layout/Nav';
 import { GlobalStyles } from '@/theme/GlobalStyles';
+import { Suspense } from 'react';
 Amplify.configure(outputs);
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -13,7 +14,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <ThemeProvider theme={theme}>
             <GlobalStyles />
             <Nav />
-            {children}
+            <Suspense fallback={<p>Loading...</p>}>
+                {children}
+            </Suspense>
         </ThemeProvider>
     );
 }

@@ -9,6 +9,7 @@ import { Amplify } from 'aws-amplify';
 import outputs from '../../../amplify_outputs.json';
 import Nav from '@/components/layout/Nav';
 import { GlobalStyles } from '@/theme/GlobalStyles';
+import { ToastProvider } from '@/components/ui';
 
 Amplify.configure(outputs);
 
@@ -35,8 +36,10 @@ export default function PlayLayout({ children }: { children: ReactNode }) {
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyles />
-            <Nav />
-            {children}
+            <ToastProvider>
+                <Nav />
+                {children}
+            </ToastProvider>
         </ThemeProvider>
     );
 }
