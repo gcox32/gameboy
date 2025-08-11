@@ -78,7 +78,6 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                     try {
                         const url = await getS3Url(game.img);
                         imageUrls[game.id] = url;
-                        console.log(imageUrls);
                     } catch (err) {
                         console.error('Error loading image for game:', game.id, err);
                     }

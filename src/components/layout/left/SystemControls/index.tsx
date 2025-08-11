@@ -121,7 +121,11 @@ export default function SystemControls({
 			const saveDataObject = JSON.parse(await response.text());
 			const sramArray = saveDataObject.MBCRam;
 
-			if (!sramArray || !Array.isArray(sramArray) || sramArray.length !== 32768) {
+			if (!sramArray 
+				|| !Array.isArray(sramArray) 
+				// || sramArray.length !== 32768
+			) {
+				console.log(sramArray.length);
 				throw new Error('Invalid or corrupted MBCRam data in the save state.');
 			}
 

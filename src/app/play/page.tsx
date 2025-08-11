@@ -134,9 +134,9 @@ export default function App() {
 		if (selectedROM) {
 			setActiveROM(selectedROM);
 			setUserSaveStates(await fetchUserSaveStates(currentUser?.userId, selectedROM.id))
-			console.log('User save states:', userSaveStates);
-			console.log('Selected ROM:', selectedROM);
-			console.log('Current user:', currentUser);
+			// console.log('User save states:', userSaveStates);
+			// console.log('Selected ROM:', selectedROM);
+			// console.log('Current user:', currentUser);
 			try {
 				const response = await loadInGameFile(selectedROM.filePath);
 				if (!response.body) {

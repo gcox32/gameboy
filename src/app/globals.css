@@ -12,8 +12,6 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    
     /* Override variables for dark mode */
     --link-color: #ccc;
     --background-color: #1a1a1a;
@@ -51,7 +49,6 @@ html {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
   background-color: lightblue;
   width: auto;
   height: auto;
