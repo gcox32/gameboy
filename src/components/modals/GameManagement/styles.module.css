@@ -12,6 +12,40 @@
     padding: 1rem 0;
 }
 
+.modalHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .modal {
+        width: 90%;
+        min-width: 0 !important;
+    }
+    .gameList {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+    .modalHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .gameCardContainer {
+        width: 90%;
+    }
+    .gameCard {
+        padding: 0;
+    }
+}
+
 .gameCardContainer {
     position: relative;
     display: flex;

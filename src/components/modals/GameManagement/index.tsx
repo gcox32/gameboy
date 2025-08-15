@@ -283,7 +283,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         <>
             <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modal}>
                 <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                    <Flex $justifyContent="space-between" $alignItems="center">
+                    <Flex $justifyContent="space-between" $alignItems="center" className={styles.modalHeader}>
                         <Heading as="h4">
                             {showImport ? 'Import Game' :
                                 editingGame ? `Edit ${editingGame.title}` :
