@@ -1,0 +1,44 @@
+
+.settingsButton {
+    background: none;
+    border: none;
+    color: var(--link-color);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.settingsButton:hover {
+    color: var(--primary-color);
+}
+
+.settingsButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+.label {
+    display: none;
+    margin-left: 12px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .settingsButton {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .settingsButton:hover {
+        background-color: var(--hover-background-color);
+        border-radius: 8px;
+    }
+
+    .label {
+        display: inline-block;
+    }
+}

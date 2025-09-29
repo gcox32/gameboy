@@ -2,7 +2,7 @@ import styles from '../styles.module.css';
 
 const ContactPage = () => {
   return (
-    <div className={`${styles.container} ${styles.staticPage}`}>
+    <div className={`${styles.container} ${styles.staticPage} ${styles.contactPage}`}>
       <header>
         <h1 className={styles.title}>Contact Us</h1>
       </header>

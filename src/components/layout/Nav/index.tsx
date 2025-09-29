@@ -12,8 +12,10 @@ import { type AuthUser, signOut } from 'aws-amplify/auth';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import GameInterruptModal from '@/components/modals/utilities/GameInterruptModal';
 import ProfilePopout from './ProfilePopout';
-import { FaCog } from 'react-icons/fa';
 import styles from './styles.module.css';
+import Notifications from './Notifications';
+import Settings from './Settings';
+import MobileFooter from './MobileFooter';
 
 interface Profile {
     id: string;
@@ -34,9 +36,14 @@ const Nav = () => {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState<number>(0);
+    const [notifications, setNotifications] = useState<any[]>([]);
+    const [notifNextToken, setNotifNextToken] = useState<string | null>(null);
+    const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
     const { 
         isModalOpen, 
-        handleStaticPageNavigation, 
+        handleStaticPageNavigation,
         handleContinue, 
         handleClose 
     } = useProtectedNavigation();
@@ -62,6 +69,39 @@ const Nav = () => {
             console.error('Error fetching user profile:', error);
         }
     }, [user]);
+
+    const fetchNotifications = useCallback(async (nextToken?: string | null) => {
+        if (!user) return;
+        try {
+            setIsLoadingNotifs(true);
+            const resp = await client.models.Notification.list({
+                filter: { owner: { eq: user.userId } },
+                limit: 10,
+                nextToken: nextToken ?? undefined,
+                sortDirection: 'DESC'
+            } as any);
+            const items = resp.data ?? [];
+            setNotifications((prev) => nextToken ? [...prev, ...items] : items);
+            setNotifNextToken((resp as any).nextToken ?? null);
+            const unread = items.filter((n: any) => !n.readAt).length;
+            if (!nextToken) setUnreadCount(unread);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        } finally {
+            setIsLoadingNotifs(false);
+        }
+    }, [user]);
+
+    const markAllRead = useCallback(async () => {
+        try {
+            const toMark = notifications.filter((n: any) => !n.readAt);
+            await Promise.all(toMark.map((n: any) => client.models.Notification.update({ id: n.id, readAt: new Date().toISOString() })));
+            setNotifications((prev) => prev.map((n: any) => ({ ...n, readAt: n.readAt ?? new Date().toISOString() })));
+            setUnreadCount(0);
+        } catch (e) {
+            console.error('Failed to mark notifications read', e);
+        }
+    }, [notifications]);
 
     const handleAvatarClick = () => {
         setShowDropdown(!showDropdown);
@@ -104,6 +144,14 @@ const Nav = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    const toggleNotifications = () => {
+        const newOpen = !isNotifOpen;
+        setIsNotifOpen(newOpen);
+        if (newOpen) {
+            fetchNotifications();
+        }
+    };
+
     useEffect(() => {
         if (user) {
             fetchUserProfile();
@@ -124,26 +172,19 @@ const Nav = () => {
                     <span></span>
                 </button>
                 <div className={`${styles.navMenu} ${isMenuOpen ? styles.open : ''}`}>
-                    <Link href="/play">Play</Link>
-                    <Link 
-                        href="/about" 
-                        onClick={(e) => handleStaticPageNavigation(e, '/about')}
-                    >
-                        About
-                    </Link>
-                    <Link 
-                        href="/contact" 
-                        onClick={(e) => handleStaticPageNavigation(e, '/contact')}
-                    >
-                        Contact
-                    </Link>
-                    <button
-                        className={styles.settingsButton}
-                        onClick={handleSettingsClick}
-                        aria-label="Settings"
-                    >
-                        <FaCog />
-                    </button>
+                    <Settings handleSettingsClick={handleSettingsClick} />
+                    {user && (
+                        <Notifications
+                            toggleNotifications={toggleNotifications}
+                            isNotifOpen={isNotifOpen}
+                            unreadCount={unreadCount}
+                            markAllRead={markAllRead}
+                            notifications={notifications}
+                            isLoadingNotifs={isLoadingNotifs}
+                            notifNextToken={notifNextToken}
+                            fetchNotifications={fetchNotifications}
+                        />
+                    )}
                     {user ? (
                         <ProfilePopout
                             userProfile={userProfile}
@@ -156,6 +197,7 @@ const Nav = () => {
                     ) : (
                         <Link href="login" onClick={() => setIsMenuOpen(false)}>Login</Link>
                     )}
+                    <MobileFooter setIsMenuOpen={setIsMenuOpen} />
                 </div>
             </nav>
             <ProfileModal

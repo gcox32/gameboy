@@ -1,0 +1,149 @@
+.notifWrapper {
+    position: relative;
+}
+
+.notifButton {
+    position: relative;
+    background: none;
+    border: none;
+    color: var(--link-color);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notifButton:hover {
+    color: var(--primary-color);
+}
+
+.notifButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+.label {
+    display: none;
+    margin-left: 12px;
+    font-weight: 500;
+}
+
+.badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #e11d48;
+    /* rose-600 */
+    color: white;
+    border-radius: 9999px;
+    font-size: 10px;
+    line-height: 1;
+    padding: 2px 5px;
+    min-width: 16px;
+    text-align: center;
+}
+
+.notifPopover {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    width: 320px;
+    max-height: 420px;
+    background: var(--background-color);
+    border: 1px solid var(--hover-background-color);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 20;
+}
+
+.notifHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--hover-background-color);
+    font-weight: 600;
+}
+
+.markReadBtn {
+    background: none;
+    border: none;
+    color: var(--link-color);
+    cursor: pointer;
+}
+
+.markReadBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.notifList {
+    overflow-y: auto;
+    max-height: 320px;
+}
+
+.notifEmpty,
+.notifLoading {
+    padding: 1rem;
+    color: var(--muted-foreground-color);
+    text-align: center;
+}
+
+.notifItem {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--hover-background-color);
+}
+
+.notifItem.unread {
+    background: rgba(125, 211, 252, 0.08);
+    /* light cyan tint */
+}
+
+.notifTitle {
+    font-weight: 600;
+}
+
+.notifBody {
+    margin-top: 4px;
+    font-size: 0.9rem;
+}
+
+.notifMeta {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--muted-foreground-color);
+}
+
+.loadMoreBtn {
+    background: none;
+    border: none;
+    color: var(--link-color);
+    padding: 0.75rem;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .label {
+        display: inline-block;
+    }
+
+    .notifPopover {
+        position: fixed;
+        top: 70px;
+        right: 2vw;
+        left: 2vw;
+        width: 96vw;
+        max-height: calc(100vh - 70px);
+        border-radius: 8px;
+        border-left: none;
+        border-right: none;
+    }
+
+    .notifList {
+        max-height: calc(100vh - 70px - 42px - 48px);
+    }
+}

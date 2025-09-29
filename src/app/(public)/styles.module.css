@@ -116,6 +116,11 @@
     margin: 1rem auto;
   }
 
+  .aboutPage p a, .contactPage p a {
+    display: flex;
+    justify-content: center;
+  }
+
   .title {
     font-size: 2rem;
   }

@@ -19,6 +19,24 @@ const Footer = () => {
       <footer className={styles.footer}>
         <div className={styles.footerLinks}>
           <Link 
+            href="/play"
+            onClick={(e) => handleStaticPageNavigation(e, '/play')}
+          >
+            Play
+          </Link>
+          <Link 
+            href="/about"
+            onClick={(e) => handleStaticPageNavigation(e, '/about')}
+          >
+            About
+          </Link>
+          <Link 
+            href="/contact"
+            onClick={(e) => handleStaticPageNavigation(e, '/contact')}
+          >
+            Contact
+          </Link>
+          <Link 
             href="/terms"
             onClick={(e) => handleStaticPageNavigation(e, '/terms')}
           >

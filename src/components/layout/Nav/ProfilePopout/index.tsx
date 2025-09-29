@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from './styles.module.css';
 
@@ -19,8 +19,30 @@ const ProfilePopout = ({
     onLogoutClick,
     isOpen
 }: ProfilePopoutProps) => {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Node;
+            if (containerRef.current && !containerRef.current.contains(target)) {
+                onAvatarClick();
+            }
+        };
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onAvatarClick();
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onAvatarClick]);
     return (
-        <div className={styles.container}>
+        <div className={styles.container} ref={containerRef}>
             <button 
                 className={styles.avatarButton}
                 onClick={onAvatarClick}

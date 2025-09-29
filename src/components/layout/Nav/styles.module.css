@@ -44,7 +44,8 @@
     justify-content: center;
     width: 30px;
     height: 30px;
-    position: relative;
+    position: fixed;
+    right: 25px;
     cursor: pointer;
     background-color: transparent;
     border: none;
@@ -79,43 +80,26 @@
     transform: rotate(-45deg);
 }
 
-.settingsButton {
-    background: none;
-    border: none;
-    color: var(--link-color);
-    cursor: pointer;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-}
-
-.settingsButton:hover {
-    color: var(--primary-color);
-}
-
-.settingsButton svg {
-    width: 20px;
-    height: 20px;
-}
-
 @media (max-width: 768px) {
     .hamburger {
         display: flex;
+        z-index: 2;
     }
 
     .navMenu {
         position: fixed;
         right: -100%;
-        top: 70px;
+        top: 0;
         flex-direction: column;
         width: 100%;
-        height: calc(100vh - 70px);
+        height: 100vh;
         padding: 2rem;
+        padding-top: 3em;
         transition: transform 0.3s ease-in-out;
         overflow-y: auto;
         background-color: var(--background-color);
+        display: flex;
+        justify-content: flex-start;
     }
 
     .navMenu.open {
@@ -134,14 +118,5 @@
         border-radius: 8px;
     }
 
-    .settingsButton {
-        width: 100%;
-        padding: 1rem;
-        font-size: 1.2rem;
-    }
 
-    .settingsButton:hover {
-        background-color: var(--hover-background-color);
-        border-radius: 8px;
-    }
 }

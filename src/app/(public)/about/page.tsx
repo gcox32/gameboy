@@ -28,7 +28,7 @@ const AboutPage = () => {
           <li>Game-specific features</li>
         </ul>
         <p className={styles.paragraph}>
-          <Link href="/how-it-works" className={styles.link}>Learn more about how it works →</Link>
+          <Link href="/how-it-works" className={styles.link}>Learn more →</Link>
         </p>
       </section>
 
