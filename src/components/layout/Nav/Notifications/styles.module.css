@@ -36,12 +36,11 @@
     background: #e11d48;
     /* rose-600 */
     color: white;
-    border-radius: 9999px;
-    font-size: 10px;
-    line-height: 1;
-    padding: 2px 5px;
-    min-width: 16px;
-    text-align: center;
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+    min-height: 8px;
 }
 
 .notifPopover {
@@ -67,6 +66,7 @@
     padding: 0.5rem 0.75rem;
     border-bottom: 1px solid var(--hover-background-color);
     font-weight: 600;
+    cursor: default;
 }
 
 .markReadBtn {
@@ -74,11 +74,32 @@
     border: none;
     color: var(--link-color);
     cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.markReadBtn:hover:not(:disabled) {
+    background-color: var(--hover-background-color);
+    color: var(--primary-color);
 }
 
 .markReadBtn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.markReadBtn.allRead {
+    color: #10b981; /* green-500 */
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.markReadBtn svg {
+    width: 16px;
+    height: 16px;
 }
 
 .notifList {
@@ -96,6 +117,7 @@
 .notifItem {
     padding: 0.75rem;
     border-bottom: 1px solid var(--hover-background-color);
+    cursor: pointer;
 }
 
 .notifItem.unread {

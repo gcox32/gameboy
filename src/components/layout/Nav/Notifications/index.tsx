@@ -1,8 +1,11 @@
 'use client';
 
 import styles from './styles.module.css';
-import { FaBell } from 'react-icons/fa';
-import { useEffect, useRef } from 'react';
+import { FaBell, FaCheckDouble } from 'react-icons/fa';
+import { useEffect, useRef, useState } from 'react';
+import BaseModal from '@/components/modals/BaseModal';
+import { generateClient } from 'aws-amplify/api';
+import { type Schema } from '@/amplify/data/resource';
 
 interface NotificationsProps {
     toggleNotifications: () => void;
@@ -14,10 +17,15 @@ interface NotificationsProps {
     notifNextToken: string | null;
     fetchNotifications: (nextToken: string | null) => void;
 }
+
+const client = generateClient<Schema>();
+
 export default function Notifications({ toggleNotifications, isNotifOpen, unreadCount, markAllRead, notifications, isLoadingNotifs, notifNextToken, fetchNotifications }: 
     NotificationsProps
 ) {
     const wrapperRef = useRef<HTMLDivElement | null>(null);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [activeNotification, setActiveNotification] = useState<any | null>(null);
 
     useEffect(() => {
         if (!isNotifOpen) return;
@@ -40,6 +48,21 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
         };
     }, [isNotifOpen, toggleNotifications]);
 
+    const handleNotificationClick = async (n: any) => {
+        try {
+            if (!n.readAt) {
+                await client.models.Notification.update({ id: n.id, readAt: new Date().toISOString() });
+                // Refresh list and counts
+                await fetchNotifications(null);
+            }
+        } catch (e) {
+            console.error('Failed to mark notification as read', e);
+        } finally {
+            setActiveNotification(n);
+            setIsDetailOpen(true);
+        }
+    };
+
     return (
         <div className={styles.notifWrapper} ref={wrapperRef}>
         <button
@@ -51,21 +74,34 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
             <FaBell />
                 <span className={styles.label}>Notifications</span>
             {unreadCount > 0 && (
-                <span className={styles.badge} aria-label={`${unreadCount} unread notifications`}>{unreadCount}</span>
+                <span className={styles.badge} aria-label="Unread notifications"></span>
             )}
         </button>
         {isNotifOpen && (
             <div className={styles.notifPopover} role="dialog" aria-label="Notifications">
                 <div className={styles.notifHeader}>
                     <span>Notifications</span>
-                    <button className={styles.markReadBtn} onClick={markAllRead} disabled={unreadCount === 0}>Mark all read</button>
+                    <button 
+                        className={`${styles.markReadBtn} ${unreadCount === 0 ? styles.allRead : ''}`} 
+                        onClick={markAllRead} 
+                        disabled={unreadCount === 0}
+                        aria-label={unreadCount === 0 ? "All notifications read" : "Mark all as read"}
+                    >
+                        <FaCheckDouble />
+                    </button>
                 </div>
                 <div className={styles.notifList}>
                     {notifications.length === 0 && !isLoadingNotifs && (
                         <div className={styles.notifEmpty}>All caught up!</div>
                     )}
                     {notifications.map((n: any) => (
-                        <div key={n.id} className={`${styles.notifItem} ${!n.readAt ? styles.unread : ''}`}>
+                        <div
+                            key={n.id}
+                            className={`${styles.notifItem} ${!n.readAt ? styles.unread : ''}`}
+                            onClick={() => handleNotificationClick(n)}
+                            role="button"
+                            tabIndex={0}
+                        >
                             <div className={styles.notifTitle}>{n.title}</div>
                             {n.body && <div className={styles.notifBody}>{n.body}</div>}
                             {n.createdAt && <div className={styles.notifMeta}>{new Date(n.createdAt).toLocaleString()}</div>}
@@ -78,6 +114,25 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
                 )}
             </div>
         )}
+        <BaseModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)}>
+            {activeNotification && (
+                <div style={{ textAlign: 'left' }}>
+                    <h3 style={{ marginTop: 0 }}>{activeNotification.title}</h3>
+                    {activeNotification.createdAt && (
+                        <div className={styles.notifMeta}>{new Date(activeNotification.createdAt).toLocaleString()}</div>
+                    )}
+                    {activeNotification.body && (
+                        <p style={{ marginTop: '1rem', whiteSpace: 'pre-wrap' }}>{activeNotification.body}</p>
+                    )}
+                    {activeNotification.type === 'REQUEST' && (
+                        <div className="modalOptionsButtons">
+                            <button onClick={() => setIsDetailOpen(false)}>Accept</button>
+                            <button onClick={() => setIsDetailOpen(false)}>Deny</button>
+                        </div>
+                    )}
+                </div>
+            )}
+        </BaseModal>
     </div>
     );
 }

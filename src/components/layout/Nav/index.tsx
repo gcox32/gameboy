@@ -42,8 +42,7 @@ const Nav = () => {
     const [notifNextToken, setNotifNextToken] = useState<string | null>(null);
     const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
     const { 
-        isModalOpen, 
-        handleStaticPageNavigation,
+        isModalOpen,
         handleContinue, 
         handleClose 
     } = useProtectedNavigation();
@@ -155,8 +154,9 @@ const Nav = () => {
     useEffect(() => {
         if (user) {
             fetchUserProfile();
+            fetchNotifications();
         }
-    }, [user, fetchUserProfile]);
+    }, [user, fetchUserProfile, fetchNotifications]);
 
     return (
         <>
