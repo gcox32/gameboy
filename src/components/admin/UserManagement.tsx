@@ -16,6 +16,7 @@ import SearchInput from './SearchInput';
 import styles from '@/app/admin/styles.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
+import { getUrl } from 'aws-amplify/storage';
 
 interface Profile {
     id: string;
@@ -35,6 +36,7 @@ export default function UserManagement() {
     const [editingUser, setEditingUser] = useState<Profile | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+    const [avatarUrlsByUserId, setAvatarUrlsByUserId] = useState<Record<string, string>>({});
 
     const client = generateClient<Schema>();
 
@@ -55,6 +57,39 @@ export default function UserManagement() {
     useEffect(() => {
         loadUsers();
     }, [loadUsers]);
+
+    // Resolve presigned URLs for any user avatars stored in S3
+    useEffect(() => {
+        let isMounted = true;
+        const resolveAvatarUrls = async () => {
+            const nextMap: Record<string, string> = {};
+            const tasks = users.map(async (user) => {
+                if (!user.avatar) return;
+                if (user.avatar.slice(0, 4) === 'http') {
+                    nextMap[user.id] = user.avatar;
+                    return;
+                }
+                try {
+                    const { url } = await getUrl({ path: user.avatar });
+                    nextMap[user.id] = String(url);
+                } catch (e) {
+                    // ignore individual failures
+                }
+            });
+            await Promise.all(tasks);
+            if (isMounted) {
+                setAvatarUrlsByUserId(nextMap);
+            }
+        };
+
+        if (users.length > 0) {
+            resolveAvatarUrls();
+        } else {
+            setAvatarUrlsByUserId({});
+        }
+
+        return () => { isMounted = false; };
+    }, [users]);
 
     const handleSort = (key: string, direction: 'asc' | 'desc') => {
         setSortConfig({ key, direction });
@@ -131,11 +166,13 @@ export default function UserManagement() {
             sortable: true,
             render: (user: Profile) => (
                 <Flex $alignItems="center" $gap="0.75rem">
-                    {user.avatar && (
+                    {user.avatar && (user.avatar.slice(0, 4) === 'http' || avatarUrlsByUserId[user.id]) && (
                         <Image
-                            src={user.avatar}
+                            src={user.avatar.slice(0, 4) === 'http' ? user.avatar : avatarUrlsByUserId[user.id]}
                             alt={user.username}
                             className={styles.avatar}
+                            width={32}
+                            height={32}
                         />
                     )}
                     <Text $fontWeight="medium">{user.username}</Text>

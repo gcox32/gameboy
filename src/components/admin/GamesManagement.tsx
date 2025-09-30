@@ -15,6 +15,7 @@ import SearchInput from './SearchInput';
 import styles from '@/app/admin/styles.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
+import { getUrl } from 'aws-amplify/storage';
 
 interface Game {
     id: string;
@@ -37,6 +38,7 @@ export default function GamesManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingGame, setEditingGame] = useState<Game | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+    const [imageUrlsByGameId, setImageUrlsByGameId] = useState<Record<string, string>>({});
 
     const client = generateClient<Schema>();
 
@@ -57,6 +59,41 @@ export default function GamesManagement() {
     useEffect(() => {
         loadGames();
     }, [loadGames]);
+
+    // Resolve presigned URLs for any game images that are stored in S3
+    useEffect(() => {
+        let isMounted = true;
+        const resolveImageUrls = async () => {
+            const nextMap: Record<string, string> = {};
+            const tasks = games.map(async (game) => {
+                if (!game.img) return;
+                if (game.img.slice(0, 4) === 'http') {
+                    nextMap[game.id] = game.img;
+                    return;
+                }
+                try {
+                    const { url } = await getUrl({ path: game.img });
+                    nextMap[game.id] = String(url);
+                } catch (e) {
+                    // ignore failures for individual images
+                }
+            });
+            await Promise.all(tasks);
+            if (isMounted) {
+                setImageUrlsByGameId(nextMap);
+            }
+        };
+
+        if (games.length > 0) {
+            resolveImageUrls();
+        } else {
+            setImageUrlsByGameId({});
+        }
+
+        return () => {
+            isMounted = false;
+        };
+    }, [games]);
 
     const handleSort = (key: string, direction: 'asc' | 'desc') => {
         setSortConfig({ key, direction });
@@ -131,11 +168,13 @@ export default function GamesManagement() {
             sortable: true,
             render: (game: Game) => (
                 <Flex $alignItems="center" $gap="0.75rem">
-                    {game.img && (
+                    {game.img && (game.img.slice(0, 4) === 'http' || imageUrlsByGameId[game.id]) && (
                         <Image
-                            src={game.img}
+                            src={game.img.slice(0, 4) === 'http' ? game.img : imageUrlsByGameId[game.id]}
                             alt={game.title}
                             className={styles.gameImage}
+                            width={32}
+                            height={32}
                         />
                     )}
                     <Flex $direction="column">
