@@ -16,14 +16,35 @@
 .buttonGroup button {
     height: var(--btn-height);
     width: var(--btn-width);
-    padding: 0.75rem;
-    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px; /* Pill shape */
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     transition: all 0.2s ease;
     cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
 }
 
+.primaryButton {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
+    border: none;
+}
+
+/* Common hover and active states for all buttons */
+.buttonGroup button:hover:not(:disabled) {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.buttonGroup button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Button variants - only define unique properties */
 .primaryButton {
     background-color: var(--button-primary-bg);
     color: var(--button-primary-text);
@@ -57,6 +78,38 @@
 .buttonGroup button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Ripple effect for active state */
+.buttonGroup button:active:not(:disabled)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    animation: ripple 0.3s ease-out;
+}
+
+@keyframes ripple {
+    to {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+/* Responsive display utilities */
+.mobile {
+    display: none;
+}
+
+.desktop {
+    display: block;
 }
 
 @media (max-width: 768px) {
@@ -75,8 +128,4 @@
     .mobile {
         display: block;
     }
-}
-
-.mobile {
-    display: none;
 }
