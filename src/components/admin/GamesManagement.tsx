@@ -52,7 +52,7 @@ export default function GamesManagement() {
         } finally {
             setLoading(false);
         }
-    }, [client.models.Game]);
+    }, []);
 
     useEffect(() => {
         loadGames();

@@ -50,7 +50,7 @@ export default function UserManagement() {
         } finally {
             setLoading(false);
         }
-    }, [client.models.Profile]);
+    }, []);
 
     useEffect(() => {
         loadUsers();

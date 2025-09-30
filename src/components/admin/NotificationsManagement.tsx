@@ -55,7 +55,7 @@ export default function NotificationsManagement() {
         } finally {
             setLoading(false);
         }
-    }, [client.models.Notification]);
+    }, []);
 
     useEffect(() => {
         loadNotifications();
