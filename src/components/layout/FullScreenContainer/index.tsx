@@ -50,7 +50,6 @@ export default function FullScreenContainer({
 
   // Get location watcher config from ROM metadata or use defaults
   useEffect(() => {
-    console.log('activeROM', activeROM);
     if (!activeROM) return;
     const watcherConfig = parseMetadata(activeROM, 'location', {
       baseAddress: '0xD2F6',
@@ -66,7 +65,7 @@ export default function FullScreenContainer({
     watcherConfig?.offset,
     watcherConfig?.size,
     async (array: number[]) => {
-      if (isDynamicBackground) {
+      if (isDynamicBackground && activeROM && activeState) {
         console.log('memory watcher config', watcherConfig);
         const currentMapByte = array[0];
         console.log('currentMapByte', currentMapByte);
