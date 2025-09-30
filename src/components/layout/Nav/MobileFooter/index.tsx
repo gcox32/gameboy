@@ -1,6 +1,7 @@
 import styles from './styles.module.css';
 import Link from 'next/link';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
+import { footerConfig } from '@/components/layout/Footer/config';
 
 interface MobileFooterProps {
     setIsMenuOpen: (isOpen: boolean) => void;
@@ -11,46 +12,18 @@ export default function MobileFooter({ setIsMenuOpen }: MobileFooterProps) {
     
     return (
         <div className={styles.mobileFooterLinks}>
-        <Link 
-            href="/play"
-            onClick={(e) => {
-                setIsMenuOpen(false);
-            }}
-        >
-            Play
-        </Link>
-        <Link 
-            href="/about" 
-            onClick={(e) => { 
-                setIsMenuOpen(false);
-                handleStaticPageNavigation(e, '/about'); 
-            }}
-        >
-            About
-        </Link>
-        <Link 
-            href="/contact" 
-            onClick={(e) => { 
-                setIsMenuOpen(false);
-                handleStaticPageNavigation(e, '/contact'); 
-            }}>
-            Contact
-        </Link>
-        <Link 
-            href="/privacy-policy" 
-            onClick={(e) => {
-                setIsMenuOpen(false);
-                handleStaticPageNavigation(e, '/privacy-policy');
-            }}
-        >
-            Privacy Policy
-        </Link>
-        <Link href="/terms" onClick={(e) => {
-            setIsMenuOpen(false);
-            handleStaticPageNavigation(e, '/terms');
-        }}>
-            Terms
-        </Link>
+            {footerConfig.links.map((link) => (
+                <Link 
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => {
+                        handleStaticPageNavigation(e, link.href);
+                        setIsMenuOpen(false);
+                    }}
+                >
+                    {link.label}
+                </Link>
+            ))}
     </div>
     );
 }

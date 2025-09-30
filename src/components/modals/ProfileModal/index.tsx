@@ -296,15 +296,15 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         ) : (
                             <Flex $direction="column" $gap="1rem">
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text $variation="secondary">Username</Text>
+                                    <Text variation="secondary">Username</Text>
                                     <Text>{userProfile.username}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text $variation="secondary">Email</Text>
+                                    <Text variation="secondary">Email</Text>
                                     <Text>{userProfile.email}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text $variation="secondary">Bio</Text>
+                                    <Text variation="secondary">Bio</Text>
                                     <Text>{userProfile.bio || 'No bio available'}</Text>
                                 </View>
                             </Flex>

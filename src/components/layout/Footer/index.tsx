@@ -5,56 +5,37 @@ import Link from 'next/link';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import GameInterruptModal from '@/components/modals/utilities/GameInterruptModal';
 import styles from './styles.module.css';
-const Footer = () => {
+import { footerConfig } from './config';
+
+export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const { 
-    isModalOpen, 
-    handleStaticPageNavigation, 
-    handleContinue, 
-    handleClose 
+  const {
+    isModalOpen,
+    handleStaticPageNavigation,
+    handleContinue,
+    handleClose
   } = useProtectedNavigation();
 
   return (
     <>
       <footer className={styles.footer}>
         <div className={styles.footerLinks}>
-          <Link 
-            href="/play"
-            onClick={(e) => handleStaticPageNavigation(e, '/play')}
-          >
-            Play
-          </Link>
-          <Link 
-            href="/about"
-            onClick={(e) => handleStaticPageNavigation(e, '/about')}
-          >
-            About
-          </Link>
-          <Link 
-            href="/contact"
-            onClick={(e) => handleStaticPageNavigation(e, '/contact')}
-          >
-            Contact
-          </Link>
-          <Link 
-            href="/terms"
-            onClick={(e) => handleStaticPageNavigation(e, '/terms')}
-          >
-            Terms
-          </Link>
-          <Link 
-            href="/privacy-policy"
-            onClick={(e) => handleStaticPageNavigation(e, '/privacy-policy')}
-          >
-            Privacy Policy
-          </Link>
+          {footerConfig.links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={(e) => handleStaticPageNavigation(e, link.href)}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
         <div className={styles.footerCopyright}>
-          © {currentYear} letmedemo.com. All rights reserved.
+          {currentYear} {footerConfig.copyright}
         </div>
       </footer>
 
-      <GameInterruptModal 
+      <GameInterruptModal
         isOpen={isModalOpen}
         onClose={handleClose}
         onContinue={handleContinue}
@@ -62,5 +43,3 @@ const Footer = () => {
     </>
   );
 };
-
-export default Footer;

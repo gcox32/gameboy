@@ -1,3 +1,5 @@
+'use client';
+
 import styled, { css } from 'styled-components';
 import React from 'react';
 import { Loader } from './Loader';
@@ -117,11 +119,13 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   $isLoading,
   loadingText,
+  isDisabled,
   ...props
 }) => {
   return (
     <StyledButton
       $isLoading={$isLoading}
+      isDisabled={isDisabled}
       {...props}
     >
       {$isLoading ? (

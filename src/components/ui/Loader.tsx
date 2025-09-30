@@ -1,3 +1,5 @@
+'use client';
+
 import styled, { keyframes } from 'styled-components';
 
 type LoaderVariation = 'circular' | 'linear';

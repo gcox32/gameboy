@@ -8,6 +8,7 @@ export const ProfileSchema = a
         email: a.string(),
         avatar: a.string(),
         bio: a.string(),
+        admin: a.boolean(),
     })
     .authorization((allow) => [
         allow.owner().to(['create', 'read', 'update', 'delete']),

@@ -1,0 +1,321 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import {
+    Button,
+    Flex,
+    Text,
+    Alert,
+    Heading
+} from '@/components/ui';
+import { generateClient } from 'aws-amplify/api';
+import { type Schema } from '@/amplify/data/resource';
+import DataTable from './DataTable';
+import SearchInput from './SearchInput';
+import styles from '@/app/admin/styles.module.css';
+import { FaTrash } from 'react-icons/fa';
+
+interface Notification {
+    id: string;
+    owner: string;
+    sender: string;
+    type: string;
+    title: string;
+    body: string;
+    readAt?: string;
+    createdAt?: string;
+}
+
+export default function NotificationsManagement() {
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showQuickNotification, setShowQuickNotification] = useState(false);
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+    const [quickNotificationData, setQuickNotificationData] = useState({
+        title: '',
+        body: '',
+        type: 'SYSTEM'
+    });
+
+    const client = generateClient<Schema>();
+
+    const loadNotifications = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await client.models.Notification.list();
+            setNotifications(response.data as unknown as Notification[]);
+        } catch (err) {
+            setError('Failed to load notifications. Please try again.');
+            console.error('Error loading notifications:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadNotifications();
+    }, [loadNotifications]);
+
+    const handleSort = (key: string, direction: 'asc' | 'desc') => {
+        setSortConfig({ key, direction });
+    };
+
+    const filteredNotifications = notifications.filter(notification =>
+        notification.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.body?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.type?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const sortedNotifications = [...filteredNotifications].sort((a, b) => {
+        if (!sortConfig) return 0;
+
+        const aValue = a[sortConfig.key as keyof Notification];
+        const bValue = b[sortConfig.key as keyof Notification];
+
+        if (aValue && bValue && aValue < bValue) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue && bValue && aValue > bValue) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
+    const handleCreateNotification = async () => {
+        if (!quickNotificationData.title.trim() || !quickNotificationData.body.trim()) {
+            setError('Please fill in both title and body');
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            // Create a system notification that goes to all users
+            // Note: This would need backend modification to support broadcasting
+            await client.models.Notification.create({
+                sender: 'SYSTEM',
+                type: quickNotificationData.type,
+                title: quickNotificationData.title,
+                body: quickNotificationData.body,
+                // For system notifications, we might want to set owner to null or a system user
+            });
+
+            setQuickNotificationData({ title: '', body: '', type: 'SYSTEM' });
+            setShowQuickNotification(false);
+            loadNotifications();
+        } catch (err) {
+            setError('Failed to create notification. Please try again.');
+            console.error('Error creating notification:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteNotification = async (notificationId: string, notificationTitle: string) => {
+        if (!confirm(`Are you sure you want to delete "${notificationTitle}"?`)) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await client.models.Notification.delete({ id: notificationId });
+            loadNotifications();
+        } catch (err) {
+            setError('Failed to delete notification. Please try again.');
+            console.error('Error deleting notification:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getTypeColor = (type: string) => {
+        switch (type.toUpperCase()) {
+            case 'SYSTEM':
+                return styles.statusBadgeActive;
+            case 'FRIEND_REQUEST':
+                return styles.statusBadgeInfo;
+            default:
+                return styles.statusBadgeInactive;
+        }
+    };
+
+    const columns = [
+        {
+            key: 'title',
+            header: 'Title',
+            sortable: true,
+            render: (notification: Notification) => (
+                <Flex $direction="column">
+                    <Text $fontWeight="medium">{notification.title}</Text>
+                    <Text $fontSize="sm" variation="secondary">
+                        {notification.type}
+                    </Text>
+                </Flex>
+            )
+        },
+        {
+            key: 'body',
+            header: 'Message',
+            sortable: false,
+            render: (notification: Notification) => (
+                <Text $fontSize="sm">
+                    {notification.body.length > 100
+                        ? `${notification.body.substring(0, 100)}...`
+                        : notification.body
+                    }
+                </Text>
+            )
+        },
+        {
+            key: 'owner',
+            header: 'Recipient',
+            sortable: true,
+            render: (notification: Notification) => (
+                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                    {notification.owner.substring(0, 8)}...
+                </Text>
+            )
+        },
+        {
+            key: 'sender',
+            header: 'Sender',
+            sortable: true,
+        },
+        {
+            key: 'readAt',
+            header: 'Status',
+            sortable: true,
+            render: (notification: Notification) => (
+                <span className={`${styles.statusBadge} ${notification.readAt ? styles.statusBadgeActive : styles.statusBadgeInactive}`}>
+                    {notification.readAt ? 'Read' : 'Unread'}
+                </span>
+            )
+        },
+        {
+            key: 'actions',
+            header: 'Actions',
+            sortable: false,
+            render: (notification: Notification) => (
+                <Flex $gap="0.5rem">
+                    <button
+                        onClick={() => handleDeleteNotification(notification.id, notification.title)}
+                        className={`${styles.actionButton} destructive`}
+                        title="Delete notification"
+                    >
+                        <FaTrash />
+                    </button>
+                </Flex>
+            )
+        }
+    ];
+
+    return (
+        <div className={styles.notificationsManagement}>
+            <Flex $justifyContent="space-between" $alignItems="center" className={styles.adminHeader}>
+                <Heading as="h2">Notifications Management</Heading>
+                <Flex $gap="1rem" $alignItems="center" className={styles.adminActions}>
+                    <SearchInput
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder="Search notifications..."
+                    />
+                    <Button
+                        $variation="primary"
+                        onClick={() => setShowQuickNotification(true)}
+                    >
+                        Quick Notification
+                    </Button>
+                </Flex>
+            </Flex>
+
+            {/* Quick App-Level Notification Creator */}
+            {showQuickNotification && (
+                <div className={styles.quickNotification}>
+                    <Heading as="h3">🚀 Create App Notification</Heading>
+                    <Text $fontSize="sm" variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
+                        Send a notification to all users with minimal clicks
+                    </Text>
+
+                    <div className={styles.quickForm}>
+                        <div className={styles.formGroup}>
+                            <input
+                                type="text"
+                                placeholder="Notification title..."
+                                value={quickNotificationData.title}
+                                onChange={(e) => setQuickNotificationData({
+                                    ...quickNotificationData,
+                                    title: e.target.value
+                                })}
+                                className={styles.formInput}
+                                style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <textarea
+                                placeholder="Notification message..."
+                                value={quickNotificationData.body}
+                                onChange={(e) => setQuickNotificationData({
+                                    ...quickNotificationData,
+                                    body: e.target.value
+                                })}
+                                className={styles.formInput}
+                                rows={2}
+                                style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
+                            />
+                        </div>
+
+                        <Flex $gap="0.5rem" className={styles.formActions}>
+                            <Button
+                                $variation="secondary"
+                                size="small"
+                                onClick={() => setShowQuickNotification(false)}
+                                className={styles.cancelButton}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                $variation="primary"
+                                size="small"
+                                onClick={handleCreateNotification}
+                                isDisabled={loading}
+                                className={styles.sendButton}
+                            >
+                                {loading ? 'Sending...' : 'Send to All'}
+                            </Button>
+                        </Flex>
+                    </div>
+                </div>
+            )}
+
+            {error && (
+                <Alert $variation="error" isDismissible>
+                    {error}
+                </Alert>
+            )}
+
+            <DataTable
+                data={sortedNotifications}
+                columns={columns}
+                loading={loading}
+                emptyMessage="No notifications found"
+                onSort={handleSort}
+                currentSort={sortConfig}
+            />
+
+            <Flex $justifyContent="space-between" $alignItems="center" style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
+                <Text $fontSize="sm" variation="secondary">
+                    Total notifications: {notifications.length}
+                </Text>
+                <Text $fontSize="sm" variation="secondary">
+                    Unread: {notifications.filter(n => !n.readAt).length}
+                </Text>
+            </Flex>
+        </div>
+    );
+}
