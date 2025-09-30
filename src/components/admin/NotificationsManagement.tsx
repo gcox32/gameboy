@@ -10,6 +10,7 @@ import {
 } from '@/components/ui';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
+import { getUsernamesForSubs } from '@/utils/usernames';
 import DataTable from './DataTable';
 import SearchInput from './SearchInput';
 import styles from '@/app/admin/styles.module.css';
@@ -35,10 +36,12 @@ export default function NotificationsManagement() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showQuickNotification, setShowQuickNotification] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+    const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
     const [quickNotificationData, setQuickNotificationData] = useState({
         title: '',
         body: '',
-        type: 'SYSTEM'
+        type: 'SYSTEM',
+        owner: '*'
     });
 
     const client = generateClient<Schema>();
@@ -48,7 +51,15 @@ export default function NotificationsManagement() {
             setLoading(true);
             setError(null);
             const response = await client.models.Notification.list();
-            setNotifications(response.data as unknown as Notification[]);
+            const data = response.data as unknown as Notification[];
+            setNotifications(data);
+
+            // Load usernames for owners
+            const owners = data.map((n) => n.owner).filter(Boolean);
+            if (owners.length > 0) {
+                const mapping = await getUsernamesForSubs(owners);
+                setUsernameBySub((prev) => ({ ...prev, ...mapping }));
+            }
         } catch (err) {
             setError('Failed to load notifications. Please try again.');
             console.error('Error loading notifications:', err);
@@ -95,17 +106,15 @@ export default function NotificationsManagement() {
         try {
             setLoading(true);
 
-            // Create a system notification that goes to all users
-            // Note: This would need backend modification to support broadcasting
-            await client.models.Notification.create({
+            const resp = await client.models.Notification.create({
                 sender: 'SYSTEM',
                 type: quickNotificationData.type,
                 title: quickNotificationData.title,
                 body: quickNotificationData.body,
-                // For system notifications, we might want to set owner to null or a system user
             });
+            console.log(resp);
 
-            setQuickNotificationData({ title: '', body: '', type: 'SYSTEM' });
+            setQuickNotificationData({ title: '', body: '', type: 'SYSTEM', owner: '*' });
             setShowQuickNotification(false);
             loadNotifications();
         } catch (err) {
@@ -173,18 +182,31 @@ export default function NotificationsManagement() {
         },
         {
             key: 'owner',
-            header: 'Recipient',
+            header: 'Owner',
             sortable: true,
-            render: (notification: Notification) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                    {notification.owner.substring(0, 8)}...
-                </Text>
-            )
+            render: (notification: Notification) => {
+                const sub = notification.owner;
+                const username = usernameBySub[sub];
+                return (
+                    <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                        {username || `${sub.substring(0, 8)}...`}
+                    </Text>
+                );
+            }
         },
         {
             key: 'sender',
             header: 'Sender',
             sortable: true,
+            render: (notification: Notification) => {
+                const sub = notification.sender;
+                const username = usernameBySub[sub];
+                return (
+                    <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                        {username || sub}
+                    </Text>
+                );
+            }
         },
         {
             key: 'readAt',
@@ -217,7 +239,7 @@ export default function NotificationsManagement() {
     return (
         <div className={styles.notificationsManagement}>
             <Flex $justifyContent="space-between" $alignItems="center" className={styles.adminHeader}>
-                <Heading as="h2">Notifications Management</Heading>
+                <Heading as="h2">Notifications</Heading>
                 <Flex $gap="1rem" $alignItems="center" className={styles.adminActions}>
                     <SearchInput
                         value={searchTerm}
@@ -233,10 +255,9 @@ export default function NotificationsManagement() {
                 </Flex>
             </Flex>
 
-            {/* Quick App-Level Notification Creator */}
             {showQuickNotification && (
                 <div className={styles.quickNotification}>
-                    <Heading as="h3">🚀 Create App Notification</Heading>
+                    <Heading as="h3">Create App Notification</Heading>
                     <Text $fontSize="sm" variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
                         Send a notification to all users with minimal clicks
                     </Text>
@@ -283,7 +304,7 @@ export default function NotificationsManagement() {
                                 $variation="primary"
                                 size="small"
                                 onClick={handleCreateNotification}
-                                isDisabled={loading}
+                                $isDisabled={loading}
                                 className={styles.sendButton}
                             >
                                 {loading ? 'Sending...' : 'Send to All'}

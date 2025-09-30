@@ -16,6 +16,7 @@ import styles from '@/app/admin/styles.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
 import { getUrl } from 'aws-amplify/storage';
+import { getUsernamesForSubs } from '@/utils/usernames';
 
 interface Game {
     id: string;
@@ -39,6 +40,7 @@ export default function GamesManagement() {
     const [editingGame, setEditingGame] = useState<Game | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
     const [imageUrlsByGameId, setImageUrlsByGameId] = useState<Record<string, string>>({});
+    const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
 
     const client = generateClient<Schema>();
 
@@ -47,7 +49,14 @@ export default function GamesManagement() {
             setLoading(true);
             setError(null);
             const response = await client.models.Game.list();
-            setGames(response.data as unknown as Game[]);
+            const data = response.data as unknown as Game[];
+            setGames(data);
+
+            const owners = data.map((n) => n.owner).filter(Boolean);
+            if (owners.length > 0) {
+                const mapping = await getUsernamesForSubs(owners);
+                setUsernameBySub((prev) => ({ ...prev, ...mapping }));
+            }
         } catch (err) {
             setError('Failed to load games. Please try again.');
             console.error('Error loading games:', err);
@@ -192,11 +201,15 @@ export default function GamesManagement() {
             key: 'owner',
             header: 'Owner',
             sortable: true,
-            render: (game: Game) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                    {game.owner.substring(0, 8)}...
-                </Text>
-            )
+            render: (game: Game) => {
+                const sub = game.owner;
+                const username = usernameBySub[sub];
+                return (
+                    <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                        {username || `${sub.substring(0, 8)}...`}
+                    </Text>
+                );
+            }
         },
         {
             key: 'metadata',

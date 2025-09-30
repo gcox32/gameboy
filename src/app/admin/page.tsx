@@ -56,7 +56,6 @@ function Admin() {
                     });
 
                     const userProfile = profileResponse.data[0];
-                    console.log('userProfile', userProfile);
                     if (userProfile?.admin) {
                         setIsAdmin(true);
                     } else {

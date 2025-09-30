@@ -74,7 +74,12 @@ const Nav = () => {
         try {
             setIsLoadingNotifs(true);
             const resp = await client.models.Notification.list({
-                filter: { owner: { eq: user.userId } },
+                filter: { 
+                    or: [
+                        {owner: { eq: user.userId }}, 
+                        {sender: { eq: 'SYSTEM' }}
+                    ]
+                },
                 limit: 10,
                 nextToken: nextToken ?? undefined,
                 sortDirection: 'DESC'

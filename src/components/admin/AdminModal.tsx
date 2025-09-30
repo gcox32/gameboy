@@ -60,7 +60,7 @@ export default function AdminModal({
                     <Button
                         $variation="secondary"
                         onClick={handleCancel}
-                        isDisabled={loading}
+                        $isDisabled={loading}
                     >
                         {cancelText}
                     </Button>
@@ -68,7 +68,7 @@ export default function AdminModal({
                         <Button
                             $variation="primary"
                             onClick={handleSave}
-                            isDisabled={loading}
+                            $isDisabled={loading}
                         >
                             {loading ? 'Saving...' : saveText}
                         </Button>

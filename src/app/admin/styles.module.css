@@ -93,6 +93,14 @@
     background-color: var(--color-hover);
 }
 
+/* Zebra striping for table rows */
+.dataTable tbody tr:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+.dataTable tbody tr:nth-child(even) {
+    background-color: transparent;
+}
+
 .emptyState {
     text-align: center;
     padding: 3rem;
@@ -118,10 +126,12 @@
     border-radius: 4px;
     transition: background-color 0.2s ease;
     margin-right: 0.5rem;
+    color: var(--neutral-500);
 }
 
 .actionButton:hover {
-    background-color: var(--color-hover);
+    color: var(--text-primary);
+    background-color: var(--hover-background-color);
 }
 
 .actionButton.destructive:hover {

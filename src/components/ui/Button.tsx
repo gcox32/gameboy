@@ -10,7 +10,8 @@ type ButtonSize = 'small' | 'medium' | 'large';
 interface ButtonProps {
   $variation?: ButtonVariation;
   size?: ButtonSize;
-  isDisabled?: boolean;
+  
+  $isDisabled?: boolean;
   $isLoading?: boolean;
   loadingText?: string;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -76,7 +77,7 @@ const getSizeStyles = (size: ButtonSize = 'medium') => {
 
 const StyledButton = styled.button.attrs<ButtonProps>(props => ({
   type: props.type || 'button',
-  disabled: props.isDisabled || props.$isLoading,
+  disabled: props.$isDisabled || props.$isLoading,
 }))<ButtonProps>`
   /* Base styles */
   border: none;
@@ -119,13 +120,14 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   $isLoading,
   loadingText,
-  isDisabled,
+  
+  $isDisabled,
   ...props
 }) => {
   return (
     <StyledButton
       $isLoading={$isLoading}
-      isDisabled={isDisabled}
+      $isDisabled={$isDisabled}
       {...props}
     >
       {$isLoading ? (
