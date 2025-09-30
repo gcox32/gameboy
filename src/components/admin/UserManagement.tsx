@@ -15,6 +15,7 @@ import AdminModal from './AdminModal';
 import SearchInput from './SearchInput';
 import styles from '@/app/admin/styles.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface Profile {
     id: string;
@@ -49,7 +50,7 @@ export default function UserManagement() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [client.models.Profile]);
 
     useEffect(() => {
         loadUsers();
@@ -131,7 +132,7 @@ export default function UserManagement() {
             render: (user: Profile) => (
                 <Flex $alignItems="center" $gap="0.75rem">
                     {user.avatar && (
-                        <img
+                        <Image
                             src={user.avatar}
                             alt={user.username}
                             className={styles.avatar}

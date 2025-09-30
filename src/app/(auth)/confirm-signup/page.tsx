@@ -72,7 +72,8 @@ function ConfirmSignUpComponent() {
                         username: email,
                         email: email,
                         avatar: 'https://assets.letmedemo.com/public/gameboy/images/users/default-avatar.png',
-                        bio: ''
+                        bio: '',
+                        admin: false
                     });
                     setMessage('Profile created. Redirecting to game...');
                 } catch (profileError) {

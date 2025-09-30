@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     Heading,
     Flex,
@@ -12,7 +13,9 @@ import UserManagement from '@/components/admin/UserManagement';
 import GamesManagement from '@/components/admin/GamesManagement';
 import NotificationsManagement from '@/components/admin/NotificationsManagement';
 import styles from './styles.module.css';
-
+import { useAuth } from '@/contexts/AuthContext';
+import { generateClient } from 'aws-amplify/api';
+import { type Schema } from '@/amplify/data/resource';
 import { ThemeProvider } from 'styled-components';
 import { theme } from '@/theme';
 import { GlobalStyles } from '@/theme/GlobalStyles';
@@ -24,6 +27,74 @@ type TabType = 'users' | 'games' | 'notifications';
 
 function Admin() {
     const [activeTab, setActiveTab] = useState<TabType>('users');
+    const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+    const [checkingAdmin, setCheckingAdmin] = useState(true);
+
+    const auth = useAuth();
+    const router = useRouter();
+    const client = generateClient<Schema>();
+
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            if (auth) {
+                const { user, loading } = auth;
+
+                if (loading) {
+                    return;
+                }
+
+                if (!user) {
+                    router.push('/login');
+                    return;
+                }
+
+                try {
+                    const profileResponse = await client.models.Profile.list({
+                        filter: {
+                            owner: { eq: user.userId }
+                        }
+                    });
+
+                    const userProfile = profileResponse.data[0];
+                    console.log('userProfile', userProfile);
+                    if (userProfile?.admin) {
+                        setIsAdmin(true);
+                    } else {
+                        setIsAdmin(false);
+                        router.push('/play'); // Redirect non-admin users
+                    }
+                } catch (error) {
+                    console.error('Error checking admin status:', error);
+                    setIsAdmin(false);
+                    router.push('/play');
+                } finally {
+                    setCheckingAdmin(false);
+                }
+            }
+        };
+
+        checkAdminStatus();
+    }, [auth, router, client]);
+
+    // Show loading while checking admin status
+    if (checkingAdmin || !auth) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                fontSize: '1.2rem',
+                color: '#666'
+            }}>
+                Checking admin privileges...
+            </div>
+        );
+    }
+
+    if (!isAdmin) {
+        return null;
+    }
 
     const tabs = [
         { id: 'users' as TabType, label: 'Users', count: null },
@@ -73,9 +144,9 @@ function Admin() {
                 {/* Tab Content */}
                 <Card className={styles.tabContent}>
                     {renderTabContent()}
-                    </Card>
-                </Flex>
-            </div>
+                </Card>
+            </Flex>
+        </div>
     );
 }
 

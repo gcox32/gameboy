@@ -14,6 +14,7 @@ import AdminModal from './AdminModal';
 import SearchInput from './SearchInput';
 import styles from '@/app/admin/styles.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface Game {
     id: string;
@@ -51,7 +52,7 @@ export default function GamesManagement() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [client.models.Game]);
 
     useEffect(() => {
         loadGames();
@@ -131,7 +132,7 @@ export default function GamesManagement() {
             render: (game: Game) => (
                 <Flex $alignItems="center" $gap="0.75rem">
                     {game.img && (
-                        <img
+                        <Image
                             src={game.img}
                             alt={game.title}
                             className={styles.gameImage}
