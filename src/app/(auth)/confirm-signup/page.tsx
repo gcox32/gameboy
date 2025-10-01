@@ -128,7 +128,7 @@ function ConfirmSignUpComponent() {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles.buttonGroup}`}>
             <h2 className={styles.title}>Confirm Sign Up</h2>
             <form onSubmit={handleConfirmSignUp} className={styles.form}>
                 <input
@@ -139,12 +139,12 @@ function ConfirmSignUpComponent() {
                     required
                     className={styles.input}
                 />
-                <button type="submit" className={styles.button}>Confirm</button>
+                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Confirm</button>
             </form>
             <button 
                 onClick={handleResendCode} 
                 disabled={isResending}
-                className="button secondary"
+                className={styles.secondaryButton}
                 style={{ marginTop: '1rem' }}
             >
                 {isResending ? 'Sending...' : 'Resend Code'}

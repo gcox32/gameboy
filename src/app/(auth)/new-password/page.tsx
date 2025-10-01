@@ -4,7 +4,7 @@ import styles from '../styles.module.css';
 
 export default function NewPassword() {
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles.buttonGroup}`}>
             <h1 className={styles.title}>Set New Password</h1>
             <p className={styles.paragraph}>You need to set a new password.</p>
             <form className={styles.form}>
@@ -20,7 +20,7 @@ export default function NewPassword() {
                     required
                     className={styles.input}
                 />
-                <button type="submit" className={styles.button}>Submit</button>
+                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Submit</button>
             </form>
         </div>
     );

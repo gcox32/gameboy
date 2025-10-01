@@ -47,7 +47,7 @@ export default function SignUp() {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles.buttonGroup}`}>
             <h1 className={styles.title}>Sign Up</h1>
             <form onSubmit={handleSignUp} className={styles.form}>
                 <input
@@ -79,7 +79,7 @@ export default function SignUp() {
                     />
                     I agree to the <Link href="/terms" className={styles.link}>Terms and Conditions</Link> and <Link href="/privacy-policy" className={styles.link}>Privacy Policy</Link>
                 </label>
-                <button type="submit" className={styles.button}>Sign Up</button>
+                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Sign Up</button>
             </form>
             {error && <p className={styles.error} role="alert">{error}</p>}
             

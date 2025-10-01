@@ -107,7 +107,7 @@ export default function Login() {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles.buttonGroup}`}>
             <h1 className={styles.title}>Login</h1>
             <form onSubmit={handleLogin} className={styles.form}>
                 <input
@@ -135,7 +135,7 @@ export default function Login() {
                     />
                     Remember Me
                 </label>
-                <button type="submit" className={styles.button}>Login</button>
+                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Login</button>
             </form>
             {error && <p className={styles.error} role="alert">{error}</p>}
             {searchParams.get('reset') === 'success' && (

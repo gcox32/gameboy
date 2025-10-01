@@ -64,7 +64,7 @@ export default function ResetPassword() {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles.buttonGroup}`}>
             <h1 className={styles.title}>Reset Password</h1>
 
             {step === 'request' && (
@@ -77,7 +77,7 @@ export default function ResetPassword() {
                         required
                         className={styles.input}
                     />
-                    <button type="submit" className={styles.button} disabled={isRequesting}>
+                    <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }} disabled={isRequesting}>
                         {isRequesting ? 'Sending…' : 'Send Reset Code'}
                     </button>
                 </form>
@@ -101,12 +101,12 @@ export default function ResetPassword() {
                         required
                         className={styles.input}
                     />
-                    <button type="submit" className={styles.button} disabled={isConfirming}>
+                    <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }} disabled={isConfirming}>
                         {isConfirming ? 'Confirming…' : 'Confirm Reset'}
                     </button>
                     <button
                         type="button"
-                        className={`${styles.button} ${styles.secondary}`}
+                        className={`${styles.button} ${styles.secondaryButton}`}
                         onClick={() => setStep('request')}
                         disabled={isConfirming}
                     >

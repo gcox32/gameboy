@@ -22,12 +22,12 @@ export default function Home() {
           <h1 className={styles.title}>Welcome to JS GBC</h1>
       <p className={styles.description}>Play Gameboy Color games in your browser.</p>
       {user === null ? (
-        <div className={styles.buttonContainer}>
+        <div className={styles.buttonGroup}>
           <Link href="login">
-            <button className={styles.button}>Login</button>
+            <button className={styles.primaryButton}>Login</button>
           </Link>
           <Link href="signup">
-            <button className={styles.button}>Sign Up</button>
+            <button className={styles.secondaryButton}>Sign Up</button>
           </Link>
       </div>
       ) : (
