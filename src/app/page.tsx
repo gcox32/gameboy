@@ -31,9 +31,9 @@ export default function Home() {
           </Link>
       </div>
       ) : (
-        <div className={styles.buttonContainer}>
+        <div className={styles.buttonGroup}>
           <Link href="/play">
-            <button className={styles.button}>Play</button>
+            <button className={styles.primaryButton}>Play</button>
           </Link>
         </div>
       )}

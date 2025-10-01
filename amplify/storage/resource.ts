@@ -7,19 +7,11 @@ export const storage = defineStorage({
       allow.guest.to(['read']),
       allow.authenticated.to(['read', 'write', 'delete']),
     ],
-    // 'protected/{entity_id}/*': [
-    //   allow.authenticated.to(['read', 'write', 'delete']),
-    //   allow.entity('identity').to(['read', 'write', 'delete'])
-    // ],
-    // 'private/{entity_id}/*': [
-    //   allow.authenticated.to(['read', 'write', 'delete']),
-    //   allow.entity('identity').to(['read', 'write', 'delete'])
-    // ],
-    'protected/*': [
+    'protected/{entity_id}/*': [
       allow.authenticated.to(['read', 'write', 'delete']),
       allow.entity('identity').to(['read', 'write', 'delete'])
     ],
-    'private/*': [
+    'private/{entity_id}/*': [
       allow.authenticated.to(['read', 'write', 'delete']),
       allow.entity('identity').to(['read', 'write', 'delete'])
     ]
