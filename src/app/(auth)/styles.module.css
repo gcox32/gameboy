@@ -154,12 +154,13 @@
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.3);
     transform: translate(-50%, -50%);
-    animation: ripple 0.3s ease-out;
+    animation: ripple 0.3s ease-in-out;
 }
 
 @keyframes ripple {
     to {
         width: 200px;
         height: 200px;
+        opacity: 0;
     }
 }

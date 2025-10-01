@@ -5,7 +5,7 @@
     padding: 1rem;
     position: fixed;
     top: 0;
-    right: 0;
+    right: 2em;
     z-index: 10;
     height: 70px;
 }

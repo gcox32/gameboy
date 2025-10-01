@@ -177,28 +177,29 @@ const Nav = () => {
                     <span></span>
                 </button>
                 <div className={`${styles.navMenu} ${isMenuOpen ? styles.open : ''}`}>
-                    <Settings handleSettingsClick={handleSettingsClick} />
-                    {user && (
-                        <Notifications
-                            toggleNotifications={toggleNotifications}
-                            isNotifOpen={isNotifOpen}
-                            unreadCount={unreadCount}
-                            markAllRead={markAllRead}
-                            notifications={notifications}
-                            isLoadingNotifs={isLoadingNotifs}
-                            notifNextToken={notifNextToken}
-                            fetchNotifications={fetchNotifications}
-                        />
-                    )}
+                    
                     {user ? (
-                        <ProfilePopout
-                            userProfile={userProfile}
-                            avatarUrl={avatarUrl}
-                            onAvatarClick={handleAvatarClick}
-                            onProfileClick={handleProfileOptionClick}
-                            onLogoutClick={handleLogout}
-                            isOpen={showDropdown}
-                        />
+                        <>
+                            <Settings handleSettingsClick={handleSettingsClick} />
+                            <Notifications
+                                toggleNotifications={toggleNotifications}
+                                isNotifOpen={isNotifOpen}
+                                unreadCount={unreadCount}
+                                markAllRead={markAllRead}
+                                notifications={notifications}
+                                isLoadingNotifs={isLoadingNotifs}
+                                notifNextToken={notifNextToken}
+                                fetchNotifications={fetchNotifications}
+                            />
+                            <ProfilePopout
+                                userProfile={userProfile}
+                                avatarUrl={avatarUrl}
+                                onAvatarClick={handleAvatarClick}
+                                onProfileClick={handleProfileOptionClick}
+                                onLogoutClick={handleLogout}
+                                isOpen={showDropdown}
+                            />
+                        </>
                     ) : (
                         <Link href="login" onClick={() => setIsMenuOpen(false)}>Login</Link>
                     )}
