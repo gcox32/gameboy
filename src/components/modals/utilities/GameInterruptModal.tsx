@@ -3,6 +3,7 @@
 import { useGame } from '@/contexts/GameContext';
 import { Flex, Button } from '@/components/ui';
 import BaseModal from '../BaseModal';
+import buttons from '@/styles/buttons.module.css';
 
 interface GameInterruptModalProps {
     isOpen: boolean;
@@ -19,20 +20,20 @@ export default function GameInterruptModal({ isOpen, onClose, onContinue }: Game
                 <h2>Active Game Warning</h2>
                 <p>You have an active game of {gameState.activeGame?.title}. Continuing will turn off the emulator.</p>
                 
-                <Flex $direction="row" $gap="1rem" $justifyContent="flex-end">
-                    <Button 
-                        $variation="destructive"
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
+                    <button 
+                        className={buttons.warningButton}
                         onClick={onClose}
                     >
                         Return
-                    </Button>
-                    <Button
-                        $variation="primary" 
+                    </button>
+                    <button
+                        className={buttons.primaryButton} 
                         onClick={onContinue}
                     >
                         Continue
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
             </Flex>
         </BaseModal>
     );

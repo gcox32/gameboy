@@ -1,6 +1,7 @@
 'use client';
 
 import styles from '../styles.module.css';
+import buttons from '@/styles/buttons.module.css';
 
 export default function NewPassword() {
     return (
@@ -20,7 +21,7 @@ export default function NewPassword() {
                     required
                     className={styles.input}
                 />
-                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Submit</button>
+                <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }}>Submit</button>
             </form>
         </div>
     );

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import styles from '../styles.module.css';
+import buttons from '@/styles/buttons.module.css';
 
 export default function ResetPassword() {
     const searchParams = useSearchParams();
@@ -77,7 +78,7 @@ export default function ResetPassword() {
                         required
                         className={styles.input}
                     />
-                    <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }} disabled={isRequesting}>
+                    <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }} disabled={isRequesting}>
                         {isRequesting ? 'Sending…' : 'Send Reset Code'}
                     </button>
                 </form>
@@ -101,12 +102,12 @@ export default function ResetPassword() {
                         required
                         className={styles.input}
                     />
-                    <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }} disabled={isConfirming}>
+                    <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }} disabled={isConfirming}>
                         {isConfirming ? 'Confirming…' : 'Confirm Reset'}
                     </button>
                     <button
                         type="button"
-                        className={`${styles.button} ${styles.secondaryButton}`}
+                        className={`${buttons.button} ${buttons.secondaryButton}`}
                         onClick={() => setStep('request')}
                         disabled={isConfirming}
                     >

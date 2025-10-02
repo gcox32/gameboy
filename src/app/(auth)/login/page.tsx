@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '@/../config';
 import styles from '../styles.module.css';
+import buttons from '@/styles/buttons.module.css';
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -135,7 +136,7 @@ export default function Login() {
                     />
                     Remember Me
                 </label>
-                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Login</button>
+                <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }}>Login</button>
             </form>
             {error && <p className={styles.error} role="alert">{error}</p>}
             {searchParams.get('reset') === 'success' && (

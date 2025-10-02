@@ -2,10 +2,10 @@ import React from "react";
 import BaseModal from "../BaseModal";
 import {
     Flex,
-    Button,
     CheckboxField,
     Heading
 } from '@/components/ui';
+import buttons from '@/styles/buttons.module.css';
 
 interface ConfirmModalProps {
     isOpen: boolean;
@@ -39,26 +39,20 @@ function ConfirmModal({
                     {children}
                 </Heading>
 
-                <Flex
-                    $direction="row"
-                    $gap="1rem"
-                    $justifyContent="center"
-                >
-                    <Button
-                        $variation="destructive"
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row' }}>
+                    <button
+                        className={buttons.warningButton}
                         onClick={onClose}
-                        size="large"
                     >
                         Cancel
-                    </Button>
-                    <Button
-                        $variation="primary"
+                    </button>
+                    <button
+                        className={buttons.primaryButton}
                         onClick={onConfirm}
-                        size="large"
                     >
                         Confirm
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
 
                 <CheckboxField
                     label="Don't ask me again"

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Flex, Button } from '@/components/ui';
 import styles from '../styles.module.css';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import { getS3Url } from '@/utils/saveLoad';
+import buttons from '@/styles/buttons.module.css';
+
 interface SaveStateModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -70,26 +71,20 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateMo
                     onChange={handleImageUpload}
                     value={previewUrl}
                 />
-                <Flex
-                    $direction="row"
-                    $gap="1rem"
-                    $justifyContent="center"
-                >
-                    <Button
-                        $variation="destructive"
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row' }}>
+                    <button
+                        className={buttons.warningButton}
                         onClick={onClose}
-                        size="large"
                     >
                         Cancel
-                    </Button>
-                    <Button
-                        $variation="primary"
+                    </button>
+                    <button
+                        className={buttons.primaryButton}
                         onClick={handleSubmit}
-                        size="large"
                     >
                         Confirm
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
             </div>
         </div>
     );

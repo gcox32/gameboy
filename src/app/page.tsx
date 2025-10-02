@@ -8,6 +8,7 @@ import Nav from '@/components/layout/Nav';
 import { ThemeProvider } from 'styled-components';
 import { theme } from '@/theme';
 import { GlobalStyles } from '@/theme/GlobalStyles';
+import buttons from '@/styles/buttons.module.css';
 
 export default function Home() {
   const auth = useAuth();
@@ -24,16 +25,16 @@ export default function Home() {
       {user === null ? (
         <div className={styles.buttonGroup}>
           <Link href="login">
-            <button className={styles.primaryButton}>Login</button>
+            <button className={buttons.primaryButton}>Login</button>
           </Link>
           <Link href="signup">
-            <button className={styles.secondaryButton}>Sign Up</button>
+            <button className={buttons.secondaryButton}>Sign Up</button>
           </Link>
       </div>
       ) : (
         <div className={styles.buttonGroup}>
           <Link href="/play">
-            <button className={styles.primaryButton}>Play</button>
+            <button className={buttons.primaryButton}>Play</button>
           </Link>
         </div>
       )}

@@ -126,7 +126,7 @@ export default function FullScreenContainer({
         showPokedex={showPokedex}
         showTeamPhoto={showTeamPhoto}
       />
-      {showActiveParty &&
+      {showActiveParty && activeROM && activeState &&
         <ActiveParty
           inGameMemory={inGameMemory}
           onPauseResume={onPauseResume}
@@ -134,15 +134,15 @@ export default function FullScreenContainer({
           activeROM={activeROM}
         />
       }
-      {showGymBadgeCase &&
+      {showGymBadgeCase && activeROM && activeState &&
         <GymBadgeCase
           inGameMem={inGameMemory}
           activeROM={activeROM}
         />
       }
-      {showMap && <TownMap />}
-      {showPokedex && <Pokedex />}
-      {showTeamPhoto && <TeamPhoto />}
+      {showMap && activeROM && activeState && <TownMap />}
+      {showPokedex && activeROM && activeState && <Pokedex />}
+      {showTeamPhoto && activeROM && activeState && <TeamPhoto />}
     </div>
   );
 }

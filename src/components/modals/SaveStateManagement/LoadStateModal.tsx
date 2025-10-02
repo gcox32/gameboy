@@ -8,23 +8,24 @@ import BaseModal from '../BaseModal';
 import { assetsEndpointPublic } from '@/../config';
 import styles from '../styles.module.css';
 import { getS3Url } from '@/utils/saveLoad';
+import buttons from '@/styles/buttons.module.css';
 
 interface SaveState {
-    id: string;
-    title: string;
-    filePath: string;
-    img?: string;
-    createdAt: string;
-    updatedAt: string;
+	id: string;
+	title: string;
+	filePath: string;
+	img?: string;
+	createdAt: string;
+	updatedAt: string;
 	imgPreview?: string;
 }
 
 interface LoadStateModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    saveStates: any[];
-    onConfirm: (saveState: any) => void;
-    onDelete: () => void;
+	isOpen: boolean;
+	onClose: () => void;
+	saveStates: any[];
+	onConfirm: (saveState: any) => void;
+	onDelete: () => void;
 }
 
 const saveStateImageStyle = {
@@ -58,7 +59,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 					if (state.img) {
 						try {
 							const key = state.img;
-							const imgPreview = await getS3Url( key );
+							const imgPreview = await getS3Url(key);
 							return { ...state, imgPreview };
 						} catch (error) {
 							console.error(`Error downloading image for state ${state.img}:`, error);
@@ -72,12 +73,12 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 				console.error('Error fetching image URLs:', error);
 			}
 		};
-	
+
 		if (isOpen) {
 			fetchImageUrls();
 		}
 	}, [isOpen, saveStates]);
-	
+
 	const handleDeleteClick = (saveState: any) => {
 		setSelectedStateForDeletion(saveState);
 		setShowConfirmModal(true);
@@ -94,7 +95,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 				await remove({ path: selectedStateForDeletion.filePath })
 				if (selectedStateForDeletion.img) {
 					console.log('deleting S3 saved associated image...')
-					await remove({ path:selectedStateForDeletion.img });
+					await remove({ path: selectedStateForDeletion.img });
 				}
 
 				// Update local state to reflect the deletion
@@ -118,16 +119,18 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 					<div className={styles.saveStateBlock} key={state.id} onClick={() => onConfirm(state)}>
 						{!state.imgPreview ?
 							<Image src={`${assetsEndpointPublic}util/beta-sprite.png`} alt="Beta Sprite" width={220} height={220} style={saveStateImageStyle} />
-						:
+							:
 							<Image src={`${state.imgPreview}`} alt={state.title} loading="lazy" width={220} height={220} style={saveStateImageStyle} />
 						}
 						<h3 className={styles.saveStateTitle}>{state.title}</h3>
 						<p className={styles.lastUpdateText}>{formatDate(state.createdAt, false)}</p>
 						<p className={styles.lastUpdateText}>{formatDate(state.updatedAt)}</p>
-						<button className={styles.deleteBtn} onClick={(e) => {
-							e.stopPropagation();
-							handleDeleteClick(state);
-						}}>Delete</button>
+						<div className={buttons.buttonGroup}>
+							<button className={buttons.warningButton} onClick={(e) => {
+								e.stopPropagation();
+								handleDeleteClick(state);
+							}}>Delete</button>
+						</div>
 					</div>
 				))}
 			</div>
@@ -136,7 +139,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 				onClose={() => setShowConfirmModal(false)}
 				onConfirm={handleDeleteConfirmed}
 				skipConfirmation={false}
-				toggleSkipConfirmation={() => {}}
+				toggleSkipConfirmation={() => { }}
 			>
 				Are you sure you want to delete this save state?
 			</ConfirmModal>

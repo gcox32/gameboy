@@ -6,120 +6,6 @@
     padding: 1rem;
 }
 
-.buttonGroup {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    width: 100%;
-}
-
-.buttonGroup button {
-    height: var(--btn-height);
-    width: var(--btn-width);
-    padding: 0.75rem 1.5rem;
-    border-radius: 9999px; /* Pill shape */
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    transition: all 50ms ease;
-    cursor: pointer;
-    /* Variant-aware thin outline via inset layer */
-    --btn-outline-color: rgba(255, 255, 255, 0.15);
-    --btn-outline-active: rgba(255, 255, 255, 0.35);
-    box-shadow: 0 0 0 1px var(--btn-outline-color) inset, 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-    position: relative;
-    overflow: hidden;
-}
-
-.primaryButton {
-    background-color: var(--button-primary-bg);
-    color: var(--button-primary-text);
-    border: none;
-    /* Outline tuned to primary bg */
-    --btn-outline-color: color-mix(in srgb, var(--button-primary-bg), black 20%);
-    --btn-outline-active: color-mix(in srgb, var(--button-primary-bg), black 35%);
-}
-
-/* Common hover and active states for all buttons */
-.buttonGroup button:hover:not(:disabled) {
-    box-shadow: 0 0 0 1px var(--btn-outline-color) inset, 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
-}
-
-.buttonGroup button:active:not(:disabled) {
-    transform: translateY(0);
-    /* Intensify outline on active */
-    --btn-outline-color: var(--btn-outline-active);
-    box-shadow: 0 0 0 1px var(--btn-outline-color) inset, 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Button variants - only define unique properties */
-.primaryButton {
-    background-color: var(--button-primary-bg);
-    color: var(--button-primary-text);
-    border: none;
-}
-
-.primaryButton:hover:not(:disabled) {
-    background-color: var(--button-primary-hover);
-}
-
-.secondaryButton {
-    background-color: var(--button-secondary-bg);
-    color: var(--button-secondary-text);
-    border: none;
-    /* Outline tuned to secondary border */
-    --btn-outline-color: var(--button-secondary-border);
-    --btn-outline-active: color-mix(in srgb, var(--button-secondary-border), black 20%);
-}
-
-.secondaryButton:hover:not(:disabled) {
-    background-color: var(--button-secondary-hover);
-}
-
-.warningButton {
-    background-color: var(--button-destructive-bg);
-    color: var(--button-destructive-text);
-    border: none;
-    /* Outline tuned to destructive bg */
-    --btn-outline-color: color-mix(in srgb, var(--button-destructive-bg), black 20%);
-    --btn-outline-active: color-mix(in srgb, var(--button-destructive-bg), black 35%);
-}
-
-.warningButton:hover:not(:disabled) {
-    background-color: var(--button-destructive-hover);
-}
-
-.buttonGroup button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* Ripple effect for active state */
-.buttonGroup button:active:not(:disabled)::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    animation: ripple 150ms ease-in-out;
-}
-
-@keyframes ripple {
-    to {
-        width: 200px;
-        height: 200px;
-        opacity: 0;
-        
-    }
-}
-
 /* Responsive display utilities */
 .mobile {
     display: none;
@@ -133,10 +19,6 @@
     .controlsContainer {
         padding: 0.5rem;
         margin: 0 2rem
-    }
-
-    .buttonGroup button {
-        padding: 0.5rem;
     }
 
     .desktop {

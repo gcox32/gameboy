@@ -5,6 +5,7 @@ import { signUp } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../styles.module.css';
+import buttons from '@/styles/buttons.module.css';
 
 export default function SignUp() {
     const [username, setUsername] = useState('');
@@ -79,7 +80,7 @@ export default function SignUp() {
                     />
                     I agree to the <Link href="/terms" className={styles.link}>Terms and Conditions</Link> and <Link href="/privacy-policy" className={styles.link}>Privacy Policy</Link>
                 </label>
-                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Sign Up</button>
+                <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }}>Sign Up</button>
             </form>
             {error && <p className={styles.error} role="alert">{error}</p>}
             

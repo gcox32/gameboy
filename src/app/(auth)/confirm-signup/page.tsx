@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import styles from '../styles.module.css';
+import buttons from '@/styles/buttons.module.css';
 
 const authedRoute = '/play';
 
@@ -139,12 +140,12 @@ function ConfirmSignUpComponent() {
                     required
                     className={styles.input}
                 />
-                <button type="submit" className={styles.primaryButton} style={{ margin: '0 auto' }}>Confirm</button>
+                <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }}>Confirm</button>
             </form>
             <button 
                 onClick={handleResendCode} 
                 disabled={isResending}
-                className={styles.secondaryButton}
+                className={buttons.secondaryButton}
                 style={{ marginTop: '1rem' }}
             >
                 {isResending ? 'Sending...' : 'Resend Code'}
