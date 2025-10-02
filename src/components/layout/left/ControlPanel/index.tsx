@@ -7,6 +7,7 @@ import { Game } from "@/types/schema";
 import ConfirmModal from "@/components/modals/utilities/ConfirmModal";
 import SaveStateModal from "@/components/modals/SaveStateManagement/SaveStateModal";
 import LoadStateModal from "@/components/modals/SaveStateManagement/LoadStateModal";
+import GameManagement from "@/components/modals/GameManagement";
 import { getUrl } from 'aws-amplify/storage';
 interface ControlPanelProps {
     handleROMSelected: (rom: any) => void;
@@ -53,6 +54,7 @@ function ControlPanel({
     const [confirmModalMessage, setConfirmModalMessage] = useState('');
     const [skipConfirmation, setSkipConfirmation] = useState(false);
     const [activeROMData, setActiveROMData] = useState<any | null>(null);
+    const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
 
     const togglePanel = useCallback(() => {
         setIsPanelVisible(prev => !prev);
@@ -133,6 +135,19 @@ function ControlPanel({
         }
     };
 
+    const handleGameEdited = (updatedGame: Game) => {
+        // If this is the currently selected ROM, reload it
+        if (activeROM && activeROM.id === updatedGame.id) {
+            handleROMSelected(updatedGame);
+        }
+    };
+
+    const handleGameDeleted = () => {
+        // This will trigger a refresh of the games list in Cartridges
+        // The Cartridges component will handle the refresh internally
+        // We could add a ref to Cartridges to call fetchGames if needed
+    };
+
     return (
         <>
             <div className={`${styles.controlPanel} ${isPanelVisible ? '' : styles.hidden}`}>
@@ -142,6 +157,7 @@ function ControlPanel({
                     activeSaveState={activeSaveState}
                     currentUser={currentUser}
                     activeROM={activeROM}
+                    onOpenGameManagement={() => setIsGameManagementOpen(true)}
                 />
                 <SystemControls
                     intervalPaused={intervalPaused}
@@ -205,6 +221,13 @@ function ControlPanel({
                 saveStates={userSaveStates}
                 onConfirm={handleLoadSaveState}
                 onDelete={onDeleteSaveState}
+            />
+
+            <GameManagement
+                isOpen={isGameManagementOpen}
+                onClose={() => setIsGameManagementOpen(false)}
+                onGameDeleted={handleGameDeleted}
+                onGameEdited={handleGameEdited}
             />
             
         </>

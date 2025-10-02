@@ -4,7 +4,6 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import { v4 as uuidv4 } from 'uuid';
 import {
-    Button,
     Flex,
     TextField,
     TextAreaField,
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import FileUploadZone from '@/components/common/FileUploadZone';
+import buttons from '@/styles/buttons.module.css';
 
 const client = generateClient<Schema>();
 
@@ -210,22 +210,22 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
                     </div>
                 )}
 
-                <Flex $direction="row" $gap="1rem" $justifyContent="flex-end">
-                    <Button
-                        $variation="destructive"
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
+                    <button
+                        className={buttons.warningButton}
                         onClick={onCancel}
                         type="button"
                     >
                         Cancel
-                    </Button>
-                    <Button
-                        $variation="primary"
+                    </button>
+                    <button
+                        className={buttons.primaryButton}
                         type="submit"
-                        $isLoading={loading}
+                        disabled={loading}
                     >
                         Import Game
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
             </Flex>
         </form>
     );

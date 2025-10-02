@@ -39,7 +39,7 @@ function ConfirmModal({
                     {children}
                 </Heading>
 
-                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row' }}>
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem' }}>
                     <button
                         className={buttons.warningButton}
                         onClick={onClose}

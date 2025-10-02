@@ -21,6 +21,7 @@ import { uploadData } from 'aws-amplify/storage';
 import { getS3Url } from '@/utils/saveLoad';
 import { type AuthUser } from 'aws-amplify/auth';
 import { Game } from '@/types/schema';
+import buttons from '@/styles/buttons.module.css';
 
 const client = generateClient<Schema>();
 
@@ -229,12 +230,12 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             return (
                 <View $textAlign="center" $padding="2rem">
                     <Text>No games found. Import your first game to get started!</Text>
-                    <Button
+                    <button
                         onClick={() => setShowImport(true)}
-                        $variation="primary"
+                        className={buttons.primaryButton}
                     >
                         Import
-                    </Button>
+                    </button>
                 </View>
             );
         }
@@ -257,21 +258,20 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                                 {`Are you sure you want to delete "${gameToDelete.title}"?
                                 This action cannot be undone and will remove all associated save states.`}
                             </Text>
-                            <Flex $gap="1rem" $justifyContent="flex-end">
-                                <Button
-                                    size="small"
+                            <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                <button
+                                    className={buttons.secondaryButton}
                                     onClick={() => setGameToDelete(null)}
                                 >
                                     Cancel
-                                </Button>
-                                <Button
-                                    size="small"
-                                    $variation="destructive"
+                                </button>
+                                <button
+                                    className={buttons.warningButton}
                                     onClick={() => handleDeleteGame(gameToDelete)}
                                 >
                                     Delete
-                                </Button>
-                            </Flex>
+                                </button>
+                            </div>
                         </Flex>
                     </Alert>
                 )}
@@ -283,22 +283,24 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         <>
             <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modal}>
                 <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                    <Flex $justifyContent="space-between" $alignItems="center" className={styles.modalHeader}>
+                    <div 
+                        className={`${buttons.buttonGroup} ${styles.modalHeader}`} 
+                        style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                    >
                         <Heading as="h4">
                             {showImport ? 'Import Game' :
                                 editingGame ? `Edit ${editingGame.title}` :
                                     'Game Management'}
                         </Heading>
                         {!showImport && !editingGame && games.length > 0 && (
-                            <Button
-                                $variation="primary"
-                                size="small"
+                            <button
+                                className={buttons.primaryButton}
                                 onClick={() => setShowImport(true)}
                             >
                                 Import
-                            </Button>
+                            </button>
                         )}
-                    </Flex>
+                    </div>
 
                     {renderContent()}
                 </Flex>

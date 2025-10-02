@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
-import GameManagement from '@/components/modals/GameManagement';
 import styles from './styles.module.css';
 import { Game } from '@/types/schema';
 
@@ -11,14 +10,14 @@ interface CartridgesProps {
     activeSaveState: any;
     currentUser: any;
     activeROM: Game | null;
+    onOpenGameManagement: () => void;
 }
 
 const client = generateClient<Schema>();
-function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, activeROM }: CartridgesProps) {
+function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, activeROM, onOpenGameManagement }: CartridgesProps) {
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
-    const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
 
     const fetchGames = useCallback(async () => {
         try {
@@ -46,12 +45,6 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, a
         onROMSelected(selectedROM);
     };
 
-    const handleGameEdited = (updatedGame: Game) => {
-        // If this is the currently selected ROM, reload it
-        if (activeROM && activeROM.id === updatedGame.id) {
-            onROMSelected(updatedGame);
-        }
-    };
 
     // Handling loading and error states in the component's return statement
     if (loading) return <div>Loading...</div>;
@@ -68,13 +61,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, a
                 ))}
             </select>
 
-            <div className={styles.manageGamesButton} onClick={() => setIsGameManagementOpen(true)}>Manage Games</div>
-            <GameManagement
-                isOpen={isGameManagementOpen}
-                onClose={() => setIsGameManagementOpen(false)}
-                onGameDeleted={fetchGames}
-                onGameEdited={handleGameEdited}
-            />  
+            <div className={styles.manageGamesButton} onClick={onOpenGameManagement}>Manage Games</div>
             <div id={styles.activeGameTitle} className={activeSaveState ? "" : styles.null}>
                 { activeSaveState ? activeSaveState.title : '' }
             </div>
