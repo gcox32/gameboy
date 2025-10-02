@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-    Button,
     Flex,
     TextField,
     TextAreaField,
@@ -10,16 +9,16 @@ import {
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import { Game } from '@/types/schema';
+import buttons from '@/styles/buttons.module.css';
 
 interface GameEditFormProps {
     game: Game;
     gameImgRef: string;
     onSave: (gameData: Game & { imageFile?: File | null }) => Promise<void>;
-    onCancel: () => void;
     onDelete: (game: Game) => void;
 }
 
-export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDelete }: GameEditFormProps) {
+export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: GameEditFormProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -141,14 +140,6 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
             <Flex $direction="column" $gap="1rem">
                 <Flex $justifyContent="space-between" $alignItems="center">
                     <Heading as="h5">Edit Game Details</Heading>
-                    <Button
-                        $variation="destructive"
-                        onClick={() => onDelete(game)}
-                        type="button"
-                        size="small"
-                    >
-                        Delete Game
-                    </Button>
                 </Flex>
 
                 {error && <Alert $variation="error">{error}</Alert>}
@@ -206,22 +197,22 @@ export default function GameEditForm({ game, gameImgRef, onSave, onCancel, onDel
                 {renderWatcherFields('gymBadges', 'Gym Badges')}
                 {renderWatcherFields('location', 'Location')}
 
-                <Flex $direction="row" $gap="1rem" $justifyContent="flex-end">
-                    <Button
-                        $variation="destructive"
-                        onClick={onCancel}
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <button
+                        className={buttons.warningButton}
+                        onClick={() => onDelete(game)}
                         type="button"
                     >
-                        Cancel
-                    </Button>
-                    <Button
-                        $variation="primary"
+                        Delete Game
+                    </button>
+                    <button
+                        className={buttons.primaryButton}
                         type="submit"
-                        $isLoading={loading}
+                        disabled={loading}
                     >
                         Save Changes
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
             </Flex>
         </form>
     );

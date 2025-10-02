@@ -55,6 +55,7 @@ function ControlPanel({
     const [skipConfirmation, setSkipConfirmation] = useState(false);
     const [activeROMData, setActiveROMData] = useState<any | null>(null);
     const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
+    const [editingGame, setEditingGame] = useState<Game | null>(null);
 
     const togglePanel = useCallback(() => {
         setIsPanelVisible(prev => !prev);
@@ -143,9 +144,9 @@ function ControlPanel({
     };
 
     const handleGameDeleted = () => {
-        // This will trigger a refresh of the games list in Cartridges
-        // The Cartridges component will handle the refresh internally
-        // We could add a ref to Cartridges to call fetchGames if needed
+        // this will trigger a refresh of the games list in Cartridges
+        // the Cartridges component will handle the refresh internally
+        // we could add a ref to Cartridges to call fetchGames if needed
     };
 
     return (
@@ -225,9 +226,14 @@ function ControlPanel({
 
             <GameManagement
                 isOpen={isGameManagementOpen}
-                onClose={() => setIsGameManagementOpen(false)}
+                onClose={() => {
+                    setIsGameManagementOpen(false);
+                    setEditingGame(null);
+                }}
                 onGameDeleted={handleGameDeleted}
                 onGameEdited={handleGameEdited}
+                editingGame={editingGame}
+                setEditingGame={setEditingGame}
             />
             
         </>

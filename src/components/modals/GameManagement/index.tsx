@@ -30,9 +30,11 @@ interface GameManagementProps {
     onClose: () => void;
     onGameDeleted: () => void;
     onGameEdited?: (updatedGame: Game) => void;
+    editingGame: Game | null;
+    setEditingGame: (game: Game | null) => void;
 }
 
-export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameEdited }: GameManagementProps) {
+export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameEdited, editingGame, setEditingGame }: GameManagementProps) {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
     const { user } = auth as { user: AuthUser | null };
@@ -41,7 +43,6 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showImport, setShowImport] = useState(false);
-    const [editingGame, setEditingGame] = useState<Game | null>(null);
     const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
     const [skipDeleteConfirmation, setSkipDeleteConfirmation] = useState(false);
     const [gameImages, setGameImages] = useState<Record<string, string>>({});
