@@ -13,7 +13,7 @@
     height: 100vh;
     gap: 2em;
     transition: left 200ms ease-in-out;
-    background-color: color-mix(in srgb, var(--background-color), transparent 25%);
+    background-color: var(--background-color);
   }
 
   .controlPanel.hidden {

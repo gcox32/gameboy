@@ -58,7 +58,7 @@ function ControlPanel({
     }, [isPanelVisible, togglePanel]);
     
     return (
-        <div className={`${styles.controlPanel} ${isPanelVisible ? styles.visible : styles.hidden}`}>
+        <div className={`${styles.controlPanel} ${isPanelVisible ? '' : styles.hidden}`}>
             <Cartridges
                 onROMSelected={handleROMSelected}
                 isDisabled={isEmulatorPlaying}

@@ -56,10 +56,12 @@ const AboutPage = () => {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Legal Notice</h2>
-        <p className={styles.paragraph}>
-          JS GBC is an emulator only - we do not provide or host any game ROMs. Users are responsible for providing their own game files.
-        </p>
+        <h2 className={styles.sectionTitle}>Legal</h2>
+        <ul className={styles.featureList}>
+          <li>Game Boy and Game Boy Color are trademarks of Nintendo Co., Ltd.. All rights reserved.</li>
+          <li>Downloading copied ROMs is illegal: only use images you have created from ROMs you own yourself.</li>
+          <li>JS GBC and Grant Cox are in no way affiliated with Nintendo Co., Ltd..</li>
+        </ul>
       </section>
 
       <div className={styles.imageContainer}>
