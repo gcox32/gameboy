@@ -215,7 +215,6 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                     game={editingGame}
                     gameImgRef={gameImages[editingGame.id]}
                     onSave={handleEditGame as (gameData: Game & { imageFile?: File | null }) => Promise<void>}
-                    onCancel={() => setEditingGame(null)}
                     onDelete={(game) => {
                         if (skipDeleteConfirmation) {
                             handleDeleteGame(game);
