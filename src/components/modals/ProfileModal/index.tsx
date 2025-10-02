@@ -16,6 +16,7 @@ import {
 } from '@/components/ui';
 import { getS3Url } from '@/utils/saveLoad';
 import styles from '../styles.module.css';
+import buttons from '@/styles/buttons.module.css';
 
 const client = generateClient<Schema>();
 
@@ -174,16 +175,16 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} className={styles.profileModal}>
             <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                <Flex $justifyContent="space-between" $alignItems="center">
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Heading as="h4">User Profile</Heading>
-                    <Button
-                        $variation={isEditing ? "destructive" : "primary"}
+                    <button
+                        className={isEditing ? buttons.warningButton : buttons.primaryButton}
                         onClick={handleEditToggle}
-                        size="small"
+                        style={{ width: '100px' }}
                     >
                         {isEditing ? 'Cancel' : 'Edit'}
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
 
                 {error && (
                     <Alert $variation="error">
@@ -259,7 +260,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         </View>
 
                         {isEditing ? (
-                            <Flex $direction="column" $gap="1rem">
+                            <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'column', gap: '1rem' }}>
                                 <TextField
                                     label="Username"
                                     value={formData.username}
@@ -284,15 +285,14 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     rows={3}
                                     orientation="vertical"
                                 />
-                                <Button
+                                <button
                                     onClick={handleSubmit}
-                                    $isLoading={isSaving}
-                                    loadingText="Saving..."
-                                    $variation="primary"
+                                    className={buttons.primaryButton}
+                                    disabled={isSaving}
                                 >
                                     Save Changes
-                                </Button>
-                            </Flex>
+                                </button>
+                            </div>
                         ) : (
                             <Flex $direction="column" $gap="1rem">
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">

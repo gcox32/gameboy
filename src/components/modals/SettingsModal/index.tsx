@@ -13,6 +13,7 @@ import { backgroundOptions } from './config';
 import styles from './styles.module.css';
 import KeyMappingControl from './KeyMappingControl';
 import { KeyMapping, defaultKeyMappings } from '@/contexts/SettingsContext';
+import buttons from '@/styles/buttons.module.css';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -120,14 +121,13 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                         onChange={onDynamicBackgroundToggle}
                         className={styles.dynamicSwitch}
                     />
-                    
+
                     <div className={styles.backgroundOptions}>
                         {backgroundOptions.map((bg) => (
                             <button
                                 key={bg.id}
-                                className={`${styles.backgroundOption} ${
-                                    !tempSettings.isDynamicBackground && tempSettings.background === bg.image ? styles.selected : ''
-                                }`}
+                                className={`${styles.backgroundOption} ${!tempSettings.isDynamicBackground && tempSettings.background === bg.image ? styles.selected : ''
+                                    }`}
                                 style={{ backgroundColor: bg.color }}
                                 onClick={() => !tempSettings.isDynamicBackground && onBackgroundSelect(bg.image)}
                                 disabled={tempSettings.isDynamicBackground}
@@ -140,7 +140,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <section className={styles.settingsSection}>
                     <Heading as="h4" className={styles.sectionTitle}>Controls</Heading>
-                    <KeyMappingControl 
+                    <KeyMappingControl
                         mappings={tempSettings.keyMappings}
                         onChange={onKeyMappingChange}
                     />
@@ -148,24 +148,20 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
                 <Divider />
 
-                <Flex $gap="1rem" className={styles.actionButtons}>
-                    <Button
-                        onClick={resetSettings}
-                        size="medium"
-                        $variation="destructive"
-                        className={styles.resetButton}
-                    >
-                        Reset All
-                    </Button>
-                    <Button
+                <div className={buttons.buttonGroup} style={{ marginTop: '1rem' }}>
+                    <button
                         onClick={applySettings}
-                        size="medium"
-                        $variation="primary"
-                        className={styles.applyButton}
+                        className={buttons.primaryButton}
                     >
                         Apply Changes
-                    </Button>
-                </Flex>
+                    </button>
+                    <button
+                        onClick={resetSettings}
+                        className={buttons.warningButton}
+                    >
+                        Reset All
+                    </button>
+                </div>
             </Flex>
         </BaseModal>
     );
