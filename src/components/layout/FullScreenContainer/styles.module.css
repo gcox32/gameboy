@@ -28,8 +28,9 @@
   }
   
   .fullscreen {
-    width: 525px;
-    height: calc(525px * (286 / 321));
+    width: 46%;
+    height: 58%;
+    transform: translateX(-2px);
     box-sizing: border-box;
     border-radius: 8px;
     border: 3px solid;
