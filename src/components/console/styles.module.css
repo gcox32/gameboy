@@ -1,317 +1,332 @@
 /* console */
 .consoleContainer {
-    position: relative;
-    margin-top: 100px;
-    width: 526px;
-    height: calc(526px * (928/526));
-    background-image: url('/images/gameboy-bg.png');
-    background-size: cover;
-    border: 4px rgba(255, 255, 255, .5) solid;
-    border-radius: 20px 20px 50% 50% / 48px 48px;
-    transition: 500ms ease-in-out;
-    user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    /* @deprecated: MS Edge specific zoom control */
-    user-zoom: none;
-    -ms-user-zoom: none;
-    -webkit-user-zoom: none;
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    /* disable the IOS popup when long-press on a link */
+  position: relative;
+  margin-top: 100px;
+  width: 526px;
+  height: calc(526px * (928/526));
+  background-image: url('/images/gameboy-bg.png');
+  background-size: cover;
+  border: 4px rgba(255, 255, 255, .5) solid;
+  border-radius: 20px 20px 50% 50% / 48px 48px;
+  transition: 500ms ease-in-out;
+  user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  /* @deprecated: MS Edge specific zoom control */
+  user-zoom: none;
+  -ms-user-zoom: none;
+  -webkit-user-zoom: none;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  /* disable the IOS popup when long-press on a link */
+}
+
+.menubar,
+#GameBoy>#gfx {
+  -webkit-text-size-adjust: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+}
+
+.window {
+  visibility: visible;
+  position: absolute;
+  overflow: hidden;
+  margin: 0 auto;
+  padding: 10px 0px 0px 0px;
+  top: 0;
+  left: 0;
+  color: rgb(0, 0, 0);
+  font-size: 12px;
+  -webkit-border-radius: 3px 3px 3px 3px;
+  border-radius: 3px 3px 3px 3px;
+  -webkit-box-shadow: 5px 5px 10px rgb(30, 30, 30);
+  box-shadow: 5px 5px 10px rgb(30, 30, 30);
+  background-color: rgb(200, 200, 200);
+  z-index: 2;
+  opacity: 1;
+}
+
+#GameBoy {
+  height: 286px;
+  width: 321px;
+  height: calc(321px * (286 / 321));
+  top: 78px !important;
+  left: 104px !important;
+}
+
+#gfx {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  bottom: 3px;
+  left: 3px;
+  right: 3px;
+  top: 3px;
+  background-color: rgb(39, 39, 39);
+  background-repeat: repeat-x;
+  background-attachment: scroll;
+}
+
+#GameBoy>#gfx>canvas {
+  position: absolute;
+  z-index: 5;
+  visibility: hidden;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0);
+}
+
+#gfx+image {
+  z-index: 1;
+  padding: 0;
+}
+
+#onLight {
+  position: absolute;
+  background-color: red;
+  height: 11px;
+  width: 11px;
+  border-radius: 50%;
+  top: 162px;
+  left: 44px;
+  opacity: 0;
+  transition: 1s ease-out;
+}
+
+.gbButton {
+  position: absolute;
+  opacity: 0.7;
+}
+
+.gbButton:hover {
+  cursor: pointer;
+}
+
+.gbButton:active {
+  opacity: 1;
+}
+
+.aButton,
+.bButton {
+  border-radius: 50%;
+  height: 61px;
+  width: 61px;
+  background-color: rgba(255, 255, 255, .1);
+}
+
+.aButton:active,
+.bButton:active {
+  opacity: 0;
+}
+
+.aButton {
+  left: 423px;
+  top: 558px;
+}
+
+.bButton {
+  left: 326px;
+  top: 589px;
+}
+
+.startButton,
+.selectButton {
+  width: 46px;
+  height: 17px;
+  border-radius: 40%;
+  top: 747px;
+  margin: 3px;
+  background-color: rgba(255, 255, 255, .1);
+}
+
+.startButton:active,
+.selectButton:active {
+  opacity: 0;
+}
+
+.selectButton {
+  left: 197px;
+}
+
+.startButton {
+  left: 277px;
+}
+
+.joypad {
+  position: absolute;
+  top: 536px;
+  left: 38px;
+}
+
+.joypad div:active {
+  opacity: 0;
+}
+
+.joypad div {
+  height: 45px;
+  width: 49px;
+  border-radius: 8px;
+}
+
+.upButton {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
+  top: 0;
+  left: 44px;
+}
+
+.downButton {
+  background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
+  top: 90px;
+  left: 44px;
+}
+
+.leftButton {
+  background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
+  top: 44px;
+  left: 0;
+  transform: rotate(90deg)
+}
+
+.rightButton {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
+  top: 44px;
+  left: 90px;
+  transform: rotate(90deg)
+}
+
+
+
+@media screen and (max-width: 568px) {
+  #GameBoy.zoom {
+
+    width: 100vw;
+    height: calc(100vw * (286 / 321));
+    /* left: 0 !important; */
+    left: 44px !important;
+    /* top: 11px !important; */
+    top: 34px !important;
   }
-  
-  .menubar,
-  #GameBoy>#gfx {
-    -webkit-text-size-adjust: none;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    user-select: none;
-  }
-  
-  .window {
-    visibility: visible;
-    position: absolute;
+}
+
+@media screen and (max-width: 400px) {
+  .consoleContainer {
+    width: 100vw;
+    /* 420px; */
+    height: calc(100vw * (928/526));
     overflow: hidden;
-    margin: 0 auto;
-    padding: 10px 0px 0px 0px;
-    top: 0;
-    left: 0;
-    color: rgb(0, 0, 0);
-    font-size: 12px;
-    -webkit-border-radius: 3px 3px 3px 3px;
-    border-radius: 3px 3px 3px 3px;
-    -webkit-box-shadow: 5px 5px 10px rgb(30, 30, 30);
-    box-shadow: 5px 5px 10px rgb(30, 30, 30);
-    background-color: rgb(200, 200, 200);
-    z-index: 2;
-    opacity: 1;
+    background-position: center;
   }
-  
+
+  .mobile {
+    display: block;
+  }
+
+  .desktop {
+    display: none;
+  }
+
   #GameBoy {
-    height: 286px;
-    width: 321px;
-    height: calc(321px * (286 / 321));
-    top: 78px !important;
-    left: 104px !important;
+    left: 2px !important;
+    top: 56px !important;
+    /* -9px !important; */
+    width: 252px;
+    /* 100vw !important; */
+    height: calc(252px * (286 / 321));
+    /* calc(100vw * (286 / 321)) */
+    position: relative;
+    transition: 200ms all ease-in-out;
   }
-  
-  #gfx {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: auto;
-    width: auto;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    bottom: 3px;
-    left: 3px;
-    right: 3px;
-    top: 3px;
-    background-color: rgb(39, 39, 39);
-    background-repeat: repeat-x;
-    background-attachment: scroll;
+
+  #GameBoy.zoom {
+
+    width: 100vw;
+    height: calc(100vw * (286 / 321));
+    left: 0 !important;
+    top: 11px !important;
   }
-  
-  #GameBoy>#gfx>canvas {
-    position: absolute;
-    z-index: 5;
-    visibility: hidden;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0);
-  }
-  
-  #gfx+image {
-    z-index: 1;
-    padding: 0;
-  }
-  
+
   #onLight {
-    position: absolute;
-    background-color: red;
-    height: 11px;
-    width: 11px;
-    border-radius: 50%;
-    top: 162px;
-    left: 44px;
-    opacity: 0;
-    transition: 1s ease-out;
+    height: 10px;
+    width: 10px;
+    top: 17.3%;
+    left: 7%;
   }
-  
+
   .gbButton {
-    position: absolute;
-    opacity: 0.7;
+    z-index: 6;
   }
-  
-  .gbButton:hover {
-    cursor: pointer;
-  }
-  
-  .gbButton:active {
-    opacity: 1;
-  }
-  
+
   .aButton,
   .bButton {
-    border-radius: 50%;
-    height: 61px;
-    width: 61px;
-    background-color: rgba(255, 255, 255, .1);
+    height: calc(61px * 0.93);
+    width: calc(61px * 0.93);
   }
-  
-  .aButton:active,
-  .bButton:active {
-    opacity: 0;
-  }
-  
+
   .aButton {
-    left: 423px;
-    top: 558px;
+    left: 79%;
+    top: 59.7%;
   }
-  
+
   .bButton {
-    left: 326px;
-    top: 589px;
+    left: 60.2%;
+    top: 63%;
   }
-  
+
   .startButton,
   .selectButton {
-    width: 46px;
-    height: 17px;
-    border-radius: 40%;
-    top: 747px;
-    margin: 3px;
-    background-color: rgba(255, 255, 255, .1);
+    width: calc(46px * 0.93);
+    height: calc(17px * 0.93);
+    top: 80.5% !important;
   }
-  
-  .startButton:active,
-  .selectButton:active {
-    opacity: 0;
-  }
-  
+
   .selectButton {
-    left: 197px;
+    left: 35%;
   }
-  
+
   .startButton {
-    left: 277px;
+    left: 50.5%;
   }
-  
+
   .joypad {
-    position: absolute;
-    top: 536px;
-    left: 38px;
+    top: 58%;
+    left: 4.75%;
+    transform: scale(0.85);
+    background-color: red;
   }
-  
-  .joypad div:active {
-    opacity: 0;
-  }
-  
+
   .joypad div {
-    height: 45px;
-    width: 49px;
-    border-radius: 8px;
+    height: 42px;
+    width: 45px;
   }
-  
-  .upButton {
-    background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-    top: 0;
-    left: 44px;
-  }
-  
+
   .downButton {
-    background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-    top: 90px;
-    left: 44px;
+    top: 80px;
   }
-  
-  .leftButton {
-    background: linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-    top: 44px;
-    left: 0;
-    transform: rotate(90deg)
-  }
-  
+
+  .leftButton,
   .rightButton {
-    background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .0));
-    top: 44px;
-    left: 90px;
-    transform: rotate(90deg)
+    top: 40px;
   }
-  
-  @media screen and (max-width: 400px) {
-    .consoleContainer {
-      width: 100vw;
-      /* 420px; */
-      height: calc(100vw * (928/526));
-      overflow: hidden;
-      background-position: center;
-    }
-  
-    .mobile {
-      display: block;
-    }
-  
-    .desktop {
-      display: none;
-    }
-  
-    #GameBoy {
-      left: 2px !important;
-      top: 56px !important;
-      /* -9px !important; */
-      width: 252px;
-      /* 100vw !important; */
-      height: calc(252px * (286 / 321));
-      /* calc(100vw * (286 / 321)) */
-      position: relative;
-      transition: 200ms all ease-in-out;
-    }
-  
-    #GameBoy.zoom {
-      top: 11px !important;
-      width: 100vw;
-      height: calc(100vw * (286 / 321));
-      left: 0 !important;
-    }
-  
-    #onLight {
-      height: 10px;
-      width: 10px;
-      top: 17.3%;
-      left: 7%;
-    }
-  
-    .gbButton {
-      z-index: 6;
-    }
-  
-    .aButton,
-    .bButton {
-      height: calc(61px * 0.93);
-      width: calc(61px * 0.93);
-    }
-  
-    .aButton {
-      left: 79%;
-      top: 59.7%;
-    }
-  
-    .bButton {
-      left: 60.2%;
-      top: 63%;
-    }
-  
-    .startButton,
-    .selectButton {
-      width: calc(46px * 0.93);
-      height: calc(17px * 0.93);
-      top: 80.5% !important;
-    }
-  
-    .selectButton {
-      left: 35%;
-    }
-  
-    .startButton {
-      left: 50.5%;
-    }
-  
-    .joypad {
-      top: 58%;
-      left: 4.75%;
-      transform: scale(0.85);
-      background-color: red;
-    }
-  
-    .joypad div {
-      height: 42px;
-      width: 45px;
-    }
-  
-    .downButton {
-      top: 80px;
-    }
-  
-    .leftButton,
-    .rightButton {
-      top: 40px;
-    }
-  
-    .leftButton {
-      left: 5px;
-    }
-  
-    .rightButton {
-      left: 85px;
-    }
+
+  .leftButton {
+    left: 5px;
   }
+
+  .rightButton {
+    left: 85px;
+  }
+}

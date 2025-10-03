@@ -7,6 +7,7 @@ interface GameDisplayProps {
 }
 
 function GameDisplay({ mainCanvasRef, mobileZoom }: GameDisplayProps) {
+    console.log('mobileZoom', mobileZoom);
     return (
         <div id={styles.GameBoy} className={`${styles.window} ${mobileZoom ? styles.zoom : ''}`}>
             <div id={styles.gfx}>
