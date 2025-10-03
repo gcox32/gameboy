@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import styles from './styles.module.css';
 import ImportGame from './ImportGame';
 import GameEditForm from './GameEditForm';
+import { useToast } from '@/components/ui';
 
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
@@ -38,6 +39,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
     const { user } = auth as { user: AuthUser | null };
+    const { showToast } = useToast();
 
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
@@ -135,9 +137,13 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             if (onGameEdited && updatedGame.data) {
                 onGameEdited(updatedGame.data as Game);
             }
+
+            // Success toast
+            showToast(`Saved changes to "${gameData.title}"`, 'success');
         } catch (err) {
             console.error('Error updating game:', err);
             setError('Failed to update game. Please try again.');
+            showToast('Failed to update game', 'error');
         } finally {
             setLoading(false);
         }
@@ -152,9 +158,13 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             setEditingGame(null);  // Close edit form if open
             loadGames();
             onGameDeleted();
+
+            // Success toast
+            showToast(`Deleted "${game.title}"`, 'success');
         } catch (err) {
             console.error('Error deleting game:', err);
             setError('Failed to delete game. Please try again.');
+            showToast('Failed to delete game', 'error');
         }
     };
 

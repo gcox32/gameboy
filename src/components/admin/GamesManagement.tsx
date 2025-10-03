@@ -17,6 +17,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
 import { getUrl } from 'aws-amplify/storage';
 import { getUsernamesForSubs } from '@/utils/usernames';
+import { useToast } from '@/components/ui';
 
 interface Game {
     id: string;
@@ -43,6 +44,7 @@ export default function GamesManagement() {
     const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
 
     const client = generateClient<Schema>();
+    const { showToast } = useToast();
 
     const loadGames = useCallback(async () => {
         try {
@@ -145,9 +147,12 @@ export default function GamesManagement() {
 
             setEditingGame(null);
             loadGames();
+
+            showToast(`Saved changes to "${editingGame.title}"`, 'success');
         } catch (err) {
             setError('Failed to update game. Please try again.');
             console.error('Error updating game:', err);
+            showToast('Failed to update game', 'error');
         } finally {
             setLoading(false);
         }
@@ -162,9 +167,11 @@ export default function GamesManagement() {
             setLoading(true);
             await client.models.Game.delete({ id: gameId });
             loadGames();
+            showToast(`Deleted "${gameTitle}"`, 'success');
         } catch (err) {
             setError('Failed to delete game. Please try again.');
             console.error('Error deleting game:', err);
+            showToast('Failed to delete game', 'error');
         } finally {
             setLoading(false);
         }

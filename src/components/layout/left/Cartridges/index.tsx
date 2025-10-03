@@ -3,6 +3,7 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import styles from './styles.module.css';
 import { Game } from '@/types/schema';
+import buttons from '@/styles/buttons.module.css';
 
 interface CartridgesProps {
     onROMSelected: (rom: any) => void;
@@ -60,10 +61,11 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, a
                     </option>
                 ))}
             </select>
-
-            <div className={styles.manageGamesButton} onClick={onOpenGameManagement}>Manage Games</div>
-            <div id={styles.activeGameTitle} className={activeSaveState ? "" : styles.null}>
-                { activeSaveState ? activeSaveState.title : '' }
+            <div className={buttons.buttonGroup}>
+            <button className={buttons.primaryButton} onClick={onOpenGameManagement}>Manage Games</button>
+                <div id={styles.activeGameTitle} className={activeSaveState ? "" : styles.null}>
+                    { activeSaveState ? activeSaveState.title : '' }
+                </div>
             </div>
         </>
     );
