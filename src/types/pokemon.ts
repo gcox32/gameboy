@@ -14,13 +14,14 @@ export interface PokemonDetailsModalProps {
 }
 
 export interface PokemonDetails {
-    nickname: string;
-    speciesName: string;
-    pokedexNo: number;
-    otName: string;
+    speciesIndex: number;
+    nickname?: string;
+    speciesName?: string;
+    pokedexNo: string;
+    otName?: string;
     structure: {
-        type1: string;
-        type2: string;
+        type1?: string;
+        type2?: string;
         moves: Move[];
         level: number;
         levelStats: {
@@ -48,7 +49,26 @@ export interface PokemonDetails {
     }
 }
 
+export interface PartyDataStructure {
+    numberOfPokemon: number;
+    pokemonList: PokemonDetails[];
+}
+
 export interface Move {
     id: number;
     pp: number;
+}
+
+export interface Location {
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    locType?: string;
+    title: string;
+    slogan?: string;
+    img?: string;
+    desc?: string;
+    persons?: string[];
+    places?: string[];
 }

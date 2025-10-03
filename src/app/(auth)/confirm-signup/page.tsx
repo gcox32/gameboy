@@ -8,6 +8,7 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
+import { AuthUser } from 'aws-amplify/auth';
 
 const authedRoute = '/play';
 
@@ -24,7 +25,7 @@ function ConfirmSignUpComponent() {
     const searchParams = useSearchParams();
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
-    const { setUser }: { setUser: (user: any) => void } = auth;
+    const { setUser }: { setUser: (user: AuthUser) => void } = auth;
     
     const [isResending, setIsResending] = useState(false);
 

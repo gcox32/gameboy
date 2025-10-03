@@ -1,6 +1,8 @@
+import { Location } from "@/types/pokemon";
+
 const imgUrl = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/locations/'
 
-export const locations = [
+export const locations: Location[] = [
     {
         title: 'Pallet Town',
         x: 72,

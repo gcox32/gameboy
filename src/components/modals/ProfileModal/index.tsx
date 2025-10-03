@@ -17,13 +17,14 @@ import {
 import { getS3Url } from '@/utils/saveLoad';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
+import { ProfileModel } from '@/types/models';
 
 const client = generateClient<Schema>();
 
 interface ProfileModalProps {
     isOpen: boolean;
     onClose: () => void;
-    userProfile: any;
+    userProfile: ProfileModel;
     onUpdate?: () => void;
 }
 
@@ -34,11 +35,13 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     const [uploadProgress, setUploadProgress] = useState(0);
     const [imagePreview, setImagePreview] = useState<string | null>(userProfile?.avatar || null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<ProfileModel>({
         username: userProfile?.username || '',
         email: userProfile?.email || '',
         bio: userProfile?.bio || '',
-        avatar: userProfile?.avatar || ''
+        avatar: userProfile?.avatar || '',
+        createdAt: userProfile?.createdAt || '',
+        updatedAt: userProfile?.updatedAt || ''
     });
 
     const defaultAvatar = 'https://assets.letmedemo.com/public/gameboy/images/users/default-avatar.png';

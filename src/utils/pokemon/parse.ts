@@ -1,8 +1,10 @@
 import { translateIntegerArray } from "../MemoryWatcher";
 import { typeDict, statusDict, dexDict } from "./dicts";
-export function parseParty(dataArray) {
+import { PokemonDetails, PartyDataStructure } from "@/types/pokemon";
+
+export function parseParty(dataArray: number[]) {
     const numberOfPokemon = dataArray[0]; // Number of Pokémon in party
-    const partyData = {
+    const partyData: PartyDataStructure = {
         numberOfPokemon: numberOfPokemon,
         pokemonList: []
     };
@@ -13,7 +15,7 @@ export function parseParty(dataArray) {
         const otNameOffset = 0x110 + i * 11;
         const nicknameOffset = 0x152 + i * 11;
 
-        const pokemonData = {
+        const pokemonData: PokemonDetails = {
             speciesIndex: dataArray[0x01 + i],
             pokedexNo: dexDict[dataArray[0x01 + i]].pokedexNo,
             structure: parsePokemonStructure(dataArray.slice(baseOffset, baseOffset + 44)),
@@ -26,7 +28,7 @@ export function parseParty(dataArray) {
     return partyData;
 }
 
-function parsePokemonStructure(structureData) {
+function parsePokemonStructure(structureData: number[]) {
     return {
         pokedexNo: dexDict[structureData[0x00]].pokedexNo,
         currentHP: structureData[0x02],
@@ -60,7 +62,7 @@ function parsePokemonStructure(structureData) {
     };
 }
 
-function calculateIVs(ivNumber) {
+function calculateIVs(ivNumber: number) {
     // Extract individual IVs (each IV is 4 bits)
     const attackIV = (ivNumber >> 12) & 0xF;
     const defenseIV = (ivNumber >> 8) & 0xF;

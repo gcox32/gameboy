@@ -1,23 +1,16 @@
-export interface Game {
-    id: string;
-    title: string;
-    img?: string;
-    filePath: string;
-    metadata?: {
-        description?: string;
-        series?: string;
-        generation?: string;
-        releaseDate?: string;
-        memoryWatchers?: {
-            activeParty?: MemoryWatcherConfig;
-            gymBadges?: MemoryWatcherConfig;
-            location?: MemoryWatcherConfig;
-        };
-    };
-}
+import { AuthenticatedUser } from "./auth";
 
 export interface MemoryWatcherConfig {
     baseAddress?: string;
     offset?: string;
     size?: string;
 }
+
+export interface CartridgesProps {
+    onROMSelected: (rom: any) => void;
+    isDisabled: boolean;
+    activeSaveState: any;
+    currentUser: AuthenticatedUser;
+    onOpenGameManagement: () => void;
+}
+

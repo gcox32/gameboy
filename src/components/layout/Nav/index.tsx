@@ -17,12 +17,7 @@ import Notifications from './Notifications';
 import Settings from './Settings';
 import MobileFooter from './MobileFooter';
 import Friends from './Friends';
-
-interface Profile {
-    id: string;
-    username: string;
-    avatar: string;
-}
+import { Profile } from '@/types/auth';
 
 const client = generateClient<Schema>();
 

@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '@/../config';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
+import { AuthUser } from 'aws-amplify/auth';
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -19,7 +20,7 @@ export default function Login() {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
     const { user, loading } = auth;
-    const { setUser }: { setUser: (user: any) => void } = auth;
+    const { setUser }: { setUser: (user: AuthUser) => void } = auth;
 
     useEffect(() => {
         if (!loading && user) {

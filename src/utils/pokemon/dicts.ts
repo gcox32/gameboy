@@ -1,4 +1,4 @@
-export const statusDict = {
+export const statusDict: Record<number, string> = {
     0: 'HEALTHY',
     3: 'ASLEEP',
     4: 'POISON',
@@ -7,7 +7,7 @@ export const statusDict = {
     7: 'PARALYZED'
 };
 
-export const typeDict = {
+export const typeDict: Record<number, string> = {
     0: 'NORMAL',
     1: 'FIGHTING',
     2: 'FLYING',
@@ -25,7 +25,7 @@ export const typeDict = {
     26: 'DRAGON'
 };
 
-export const dexDict = {
+export const dexDict: Record<number, { name: string, pokedexNo: string }> = {
     1: { 'name': 'rhydon', 'pokedexNo': '112' },
     2: { 'name': 'kangaskhan', 'pokedexNo': '115' },
     3: { 'name': 'nidoran_m', 'pokedexNo': '032' },
@@ -218,7 +218,7 @@ export const dexDict = {
     190: { 'name': 'victreebel', 'pokedexNo': '071' },
 };
 
-export const charMap = {
+export const charMap: Record<number, string> = {
     // Control characters
     0x00: "<NULL>",
     0x49: "<PAGE>",

@@ -3,12 +3,15 @@ import Cartridges from "../Cartridges";
 import SystemControls from "../SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
 import styles from './styles.module.css';
-import { Game } from "@/types/schema";
+import { GameModel } from "@/types/models";
 import ConfirmModal from "@/components/modals/utilities/ConfirmModal";
 import SaveStateModal from "@/components/modals/SaveStateManagement/SaveStateModal";
 import LoadStateModal from "@/components/modals/SaveStateManagement/LoadStateModal";
 import GameManagement from "@/components/modals/GameManagement";
 import { getUrl } from 'aws-amplify/storage';
+import { AuthenticatedUser } from '@/types/auth';
+import { SaveStateModel } from "@/types/models";
+
 interface ControlPanelProps {
     handleROMSelected: (rom: any) => void;
     isEmulatorPlaying: boolean;
@@ -21,11 +24,11 @@ interface ControlPanelProps {
     isRomLoaded: boolean;
     onSaveConfirmed: (saveData: any, isSaveAs: boolean) => Promise<void>;
     userSaveStates: any[];
-    runFromSaveState: (sramArray: number[], selectedSaveState: any) => void;
-    currentUser: any;
+    runFromSaveState: (sramArray: number[], selectedSaveState: SaveStateModel) => void;
+    currentUser: AuthenticatedUser;
     isSaving: boolean;
     onDeleteSaveState: () => void;
-    activeROM: Game | null;
+    activeROM: GameModel | null;
 }
 
 function ControlPanel({
@@ -55,7 +58,7 @@ function ControlPanel({
     const [skipConfirmation, setSkipConfirmation] = useState(false);
     const [activeROMData, setActiveROMData] = useState<any | null>(null);
     const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
-    const [editingGame, setEditingGame] = useState<Game | null>(null);
+    const [editingGame, setEditingGame] = useState<GameModel | null>(null);
 
     const togglePanel = useCallback(() => {
         setIsPanelVisible(prev => !prev);
@@ -116,7 +119,7 @@ function ControlPanel({
         setShowSaveStateModal(true);
     };
 
-    const handleLoadSaveState = async (selectedSaveState: any) => {
+    const handleLoadSaveState = async (selectedSaveState: SaveStateModel) => {
         try {
             const signedUrl = await getUrl({ path: selectedSaveState.filePath });
             const response = await fetch(signedUrl.url);
@@ -136,7 +139,7 @@ function ControlPanel({
         }
     };
 
-    const handleGameEdited = (updatedGame: Game) => {
+    const handleGameEdited = (updatedGame: GameModel) => {
         // If this is the currently selected ROM, reload it
         if (activeROM && activeROM.id === updatedGame.id) {
             handleROMSelected(updatedGame);
@@ -157,7 +160,6 @@ function ControlPanel({
                     isDisabled={isEmulatorPlaying}
                     activeSaveState={activeSaveState}
                     currentUser={currentUser}
-                    activeROM={activeROM}
                     onOpenGameManagement={() => setIsGameManagementOpen(true)}
                 />
                 <SystemControls
@@ -233,7 +235,7 @@ function ControlPanel({
                 onGameDeleted={handleGameDeleted}
                 onGameEdited={handleGameEdited}
                 editingGame={editingGame}
-                setEditingGame={setEditingGame}
+                setEditingGame={(game) => setEditingGame(game)}
             />
             
         </>

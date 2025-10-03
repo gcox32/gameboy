@@ -1,7 +1,9 @@
 import React from "react";
 import styles from "./styles.module.css";
+import { Location } from "@/types/pokemon";
 
-function TownMapLocation({ locData, onClick }: { locData: any, onClick: () => void }) {
+function TownMapLocation({ locData, onClick }: { locData: Location | null, onClick: () => void }) {
+    if (!locData) return null;
     const { x, y, height, width, locType, title } = locData;
     const locStyle = {
         left: `${x}px`, 

@@ -2,21 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import styles from './styles.module.css';
-import { Game } from '@/types/schema';
+import { GameModel } from '@/types/models';
 import buttons from '@/styles/buttons.module.css';
-
-interface CartridgesProps {
-    onROMSelected: (rom: any) => void;
-    isDisabled: boolean;
-    activeSaveState: any;
-    currentUser: any;
-    activeROM: Game | null;
-    onOpenGameManagement: () => void;
-}
+import { CartridgesProps } from '@/types/schema';
 
 const client = generateClient<Schema>();
-function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, activeROM, onOpenGameManagement }: CartridgesProps) {
-    const [games, setGames] = useState<Game[]>([]);
+function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, onOpenGameManagement }: CartridgesProps) {
+    const [games, setGames] = useState<GameModel[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -27,7 +19,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, a
                     owner: { eq: currentUser.userId }
                 }
             });
-            setGames(gamesList.data as Game[]);
+            setGames(gamesList.data as GameModel[]);
         } catch (err) {
             setError(err as Error);
         } finally {

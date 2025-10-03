@@ -4,14 +4,7 @@ import { locations } from "@/utils/pokemon/locations";
 import LocationModal from "@/components/pokemon/TownMap/LocationModal";
 import styles from "./styles.module.css";
 import Image from "next/image";
-interface Location {
-    title: string;
-    slogan: string;
-    img: string;
-    desc: string;
-    persons: string[];
-    places: string[];
-}
+import { Location } from "@/types/pokemon";
 
 const mapSrc = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/maps/rby-kanto-town-map.png';
 
@@ -19,7 +12,8 @@ function TownMap() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 
-    const openModal = (location: any) => {
+    const openModal = (location: Location) => {
+        if (!location) return;
         setSelectedLocation(location);
         setModalOpen(true);
     };
@@ -46,11 +40,11 @@ function TownMap() {
                     isOpen={modalOpen}
                     onClose={() => setModalOpen(false)}
                     title={selectedLocation.title}
-                    slogan={selectedLocation.slogan}
-                    img={selectedLocation.img}
-                    desc={selectedLocation.desc}
-                    persons={selectedLocation.persons}
-                    places={selectedLocation.places}
+                    slogan={selectedLocation.slogan || ''}
+                    img={selectedLocation.img || ''} // TODO: add default image
+                    desc={selectedLocation.desc || ''}
+                    persons={selectedLocation.persons || []}
+                    places={selectedLocation.places || []}
                 />
             )}
         </>

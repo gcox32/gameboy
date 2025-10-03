@@ -18,27 +18,14 @@ import Image from 'next/image';
 import { getUrl } from 'aws-amplify/storage';
 import { getUsernamesForSubs } from '@/utils/usernames';
 import { useToast } from '@/components/ui';
-
-interface Game {
-    id: string;
-    owner: string;
-    title: string;
-    img?: string;
-    filePath: string;
-    metadata?: {
-        description?: string;
-        series?: string;
-        generation?: string;
-        releaseDate?: string;
-    };
-}
+import { GameModel } from '@/types/models';
 
 export default function GamesManagement() {
-    const [games, setGames] = useState<Game[]>([]);
+    const [games, setGames] = useState<GameModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [editingGame, setEditingGame] = useState<Game | null>(null);
+    const [editingGame, setEditingGame] = useState<GameModel | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
     const [imageUrlsByGameId, setImageUrlsByGameId] = useState<Record<string, string>>({});
     const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
@@ -51,7 +38,7 @@ export default function GamesManagement() {
             setLoading(true);
             setError(null);
             const response = await client.models.Game.list();
-            const data = response.data as unknown as Game[];
+            const data = response.data as unknown as GameModel[];
             setGames(data);
 
             const owners = data.map((n) => n.owner).filter(Boolean);
@@ -118,8 +105,8 @@ export default function GamesManagement() {
     const sortedGames = [...filteredGames].sort((a, b) => {
         if (!sortConfig) return 0;
 
-        const aValue = a[sortConfig.key as keyof Game];
-        const bValue = b[sortConfig.key as keyof Game];
+        const aValue = a[sortConfig.key as keyof GameModel];
+        const bValue = b[sortConfig.key as keyof GameModel];
 
         if (aValue && bValue && aValue < bValue) {
             return sortConfig.direction === 'asc' ? -1 : 1;
@@ -130,7 +117,7 @@ export default function GamesManagement() {
         return 0;
     });
 
-    const handleEditGame = (game: Game) => {
+    const handleEditGame = (game: GameModel) => {
         setEditingGame(game);
     };
 
@@ -182,7 +169,7 @@ export default function GamesManagement() {
             key: 'title',
             header: 'Game',
             sortable: true,
-            render: (game: Game) => (
+            render: (game: GameModel) => (
                 <Flex $alignItems="center" $gap="0.75rem">
                     {game.img && (game.img.slice(0, 4) === 'http' || imageUrlsByGameId[game.id]) && (
                         <Image
@@ -196,7 +183,7 @@ export default function GamesManagement() {
                     <Flex $direction="column">
                         <Text $fontWeight="medium">{game.title}</Text>
                         {game.metadata?.series && (
-                            <Text $fontSize="sm" variation="secondary">
+                            <Text $fontSize="sm" $variation="secondary">
                                 {game.metadata.series}
                             </Text>
                         )}
@@ -208,7 +195,7 @@ export default function GamesManagement() {
             key: 'owner',
             header: 'Owner',
             sortable: true,
-            render: (game: Game) => {
+            render: (game: GameModel) => {
                 const sub = game.owner;
                 const username = usernameBySub[sub];
                 return (
@@ -222,18 +209,18 @@ export default function GamesManagement() {
             key: 'metadata',
             header: 'Details',
             sortable: false,
-            render: (game: Game) => (
+            render: (game: GameModel) => (
                 <Flex $direction="column" $gap="0.25rem">
                     {game.metadata?.generation && (
                         <Text $fontSize="sm">Gen: {game.metadata.generation}</Text>
                     )}
                     {game.metadata?.releaseDate && (
-                        <Text $fontSize="sm" variation="secondary">
+                        <Text $fontSize="sm" $variation="secondary">
                             {new Date(game.metadata.releaseDate).getFullYear()}
                         </Text>
                     )}
                     {game.metadata?.description && (
-                        <Text $fontSize="sm" variation="secondary">
+                        <Text $fontSize="sm" $variation="secondary">
                             {game.metadata.description.substring(0, 50)}...
                         </Text>
                     )}
@@ -244,7 +231,7 @@ export default function GamesManagement() {
             key: 'filePath',
             header: 'File',
             sortable: false,
-            render: (game: Game) => (
+            render: (game: GameModel) => (
                 <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
                     {game.filePath.split('/').pop()}
                 </Text>
@@ -254,7 +241,7 @@ export default function GamesManagement() {
             key: 'actions',
             header: 'Actions',
             sortable: false,
-            render: (game: Game) => (
+            render: (game: GameModel) => (
                 <Flex $gap="0.5rem">
                     <button
                         onClick={() => handleEditGame(game)}
@@ -285,7 +272,7 @@ export default function GamesManagement() {
                         onChange={setSearchTerm}
                         placeholder="Search games..."
                     />
-                    <Text $fontSize="sm" variation="secondary">
+                    <Text $fontSize="sm" $variation="secondary">
                         Total: {games.length} games
                     </Text>
                 </Flex>

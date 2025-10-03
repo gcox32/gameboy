@@ -22,23 +22,8 @@ import {
 	settings,
 	clearLastEmulation
 } from '@/utils/GameBoyIO';
-
-interface ROM {
-	id: string;
-	title: string;
-	backgroundImg?: string;
-	filePath: string;
-}
-
-interface AuthenticatedUser {
-	userId: string;
-}
-
-interface SaveState {
-	id: string;
-	title: string;
-	filePath: string;
-}
+import { AuthenticatedUser } from '@/types/auth';
+import { GameModel, SaveStateModel } from '@/types/models';
 
 export default function App() {
 	// Get settings from context
@@ -57,9 +42,9 @@ export default function App() {
 	// Maintain states
 	const [currentUser, setUser] = useState<AuthenticatedUser | null>(null);
 	const [ROMImage, setROMImage] = useState<string | null>(null);
-	const [activeROM, setActiveROM] = useState<ROM | null>(null);
+	const [activeROM, setActiveROM] = useState<GameModel | null>(null);
 	const [userSaveStates, setUserSaveStates] = useState<any[]>([]);
-	const [activeState, setActiveState] = useState<SaveState | null>(null);
+	const [activeState, setActiveState] = useState<SaveStateModel | null>(null);
 	const [activeSaveArray, setActiveSaveArray] = useState<any[]>([]);
 	const [isRomLoaded, setIsRomLoaded] = useState(false);
 	const [intervalPaused, setIntervalPaused] = useState(false);
@@ -75,9 +60,9 @@ export default function App() {
 	const { showToast } = useToast();
 
 	// Add hook near other hooks
-	const { saveState, isSaving } = useSaveState(
+	const { saveThisState, isSaving } = useSaveState(
 		gameBoyInstance.current,
-		activeROM || { id: '', title: '', filePath: '' },
+		activeROM || { id: '', owner: '', title: '', filePath: '', metadata: {} },
 		currentUser?.userId || ''
 	);
 
@@ -130,7 +115,7 @@ export default function App() {
 			console.log("GameBoy core cannot run while it has not been initialized.");
 		}
 	};
-	const handleROMSelected = async (selectedROM: ROM) => {
+	const handleROMSelected = async (selectedROM: GameModel) => {
 		if (selectedROM) {
 			setActiveROM(selectedROM);
 			setUserSaveStates(await fetchUserSaveStates(currentUser?.userId, selectedROM.id))
@@ -279,18 +264,18 @@ export default function App() {
 		console.log('Setting fullscreen state to:', !isFullscreen);
 		setIsFullscreen(!isFullscreen);
 	}, [isFullscreen, gameBoyInstance]);
-	const onSaveConfirmed = async (saveModalData: any, isUpdate = false) => {
+	const onSaveConfirmed = async (saveModalData: SaveStateModel, isUpdate = false) => {
 		if (!gameBoyInstance.current || !activeROM || !isEmulatorPlaying) return;
 
 		try {			
 			// Only treat it as an update if we have an active state and isUpdate is true
-			const saveData = isUpdate ? {
+			const saveData: SaveStateModel = isUpdate ? {
 				...saveModalData,
 				id: activeState?.id,
-				filePath: activeState?.filePath,
+				filePath: activeState?.filePath || '',
 			} : saveModalData;
 			
-			const savedState = await saveState(saveData, isUpdate);
+			const savedState = await saveThisState(saveData, isUpdate);
 			console.log('Saved successfully.');
 			showToast(
 				isUpdate ? `Save updated: ${saveData.title}` : `Saved: ${saveData.title}`,
@@ -298,7 +283,7 @@ export default function App() {
 			);
 			
 			if (savedState) {
-				setActiveState(savedState as SaveState);
+				setActiveState(savedState);
 				const userSaves = await fetchUserSaveStates(currentUser?.userId, activeROM.id);
 				setUserSaveStates(userSaves);
 				setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
@@ -311,7 +296,7 @@ export default function App() {
 			showToast(`Save failed: ${message}`, 'error');
 		}
 	};
-	const runFromSaveState = (sramArray: any[], selectedSaveState: any) => {
+	const runFromSaveState = (sramArray: any[], selectedSaveState: SaveStateModel) => {
 		console.log('Initiating state from load...');
 
 		const currentCanvas = isFullscreen ? fullscreenCanvasRef.current : mainCanvasRef.current;
@@ -321,7 +306,7 @@ export default function App() {
 		gameBoyInstance.current.start();
 		run(gameBoyInstance.current);
 		setIsEmulatorPlaying(true);
-		setActiveState(selectedSaveState as SaveState);
+		setActiveState(selectedSaveState as SaveStateModel);
 		setActiveSaveArray(sramArray);
 	};
 	const onDeleteSaveState = async () => {
@@ -458,9 +443,7 @@ export default function App() {
 	);
 	// Watch for background changes in settings
 	useEffect(() => {
-		if (!activeROM?.backgroundImg) {
-			setFullscreenBackground(uiSettings.background);
-		}
+		setFullscreenBackground(uiSettings.background);
 	}, [uiSettings.background, activeROM]);
 
 	// Loading screen

@@ -4,33 +4,20 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import { uploadData } from 'aws-amplify/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { GameModel, SaveStateModel } from '@/types/models';
 
 // Define types for the hook parameters and state
 interface GameInstance {
   saveSRAMState: () => number[];
 }
 
-interface Game {
-  id: string;
-  title: string;
-}
-
-interface SaveData {
-  id?: string;
-  title: string;
-  description?: string;
-  img?: string;
-  imgFile?: File;
-  filePath?: string;
-}
-
 const client = generateClient<Schema>();
 
-export const useSaveState = (gameInstance: GameInstance, currentGame: Game, userId: string) => {
+export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel, userId: string) => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const saveState = async (saveData: SaveData, isUpdate: boolean) => {
+  const saveThisState = async (saveData: SaveStateModel, isUpdate: boolean) => {
     setIsSaving(true);
     setError(null);
     
@@ -78,17 +65,30 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: Game, user
         description: saveData.description || '',
         img: imagePath,
         gameId: currentGame.id,
+        game: currentGame,
         owner: userId
       };
 
       const response = await (
         isUpdate ? 
           client.models.SaveState.update(saveStateInput) : 
-          client.models.SaveState.create(saveStateInput))
-          .then(response => {
-            return response;
-          });
-      return response.data;
+          client.models.SaveState.create(saveStateInput));
+      
+      // Transform response to match SaveStateModel
+      const saveStateData: SaveStateModel = {
+        id: response.data?.id || '',
+        owner: response.data?.owner || '',
+        gameId: response.data?.gameId || '',
+        game: response.data?.game as unknown as GameModel,
+        filePath: response.data?.filePath || '',
+        title: response.data?.title || '',
+        description: response.data?.description || '',
+        img: response.data?.img || '',
+        createdAt: response.data?.createdAt || '',
+        updatedAt: response.data?.updatedAt
+      };
+      
+      return saveStateData;
 
     } catch (err) {
       const error = err instanceof Error ? err : new Error('An unknown error occurred');
@@ -100,7 +100,7 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: Game, user
   };
 
   return {
-    saveState,
+    saveThisState,
     isSaving,
     error
   };

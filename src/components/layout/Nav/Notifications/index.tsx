@@ -6,13 +6,14 @@ import { useEffect, useRef, useState } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
+import { NotificationModel } from '@/types/models';
 
 interface NotificationsProps {
     toggleNotifications: () => void;
     isNotifOpen: boolean;
     unreadCount: number;
     markAllRead: () => void;
-    notifications: any[];
+    notifications: NotificationModel[];
     isLoadingNotifs: boolean;
     notifNextToken: string | null;
     fetchNotifications: (nextToken: string | null) => void;
@@ -25,7 +26,7 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
 ) {
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
-    const [activeNotification, setActiveNotification] = useState<any | null>(null);
+    const [activeNotification, setActiveNotification] = useState<NotificationModel | null>(null);
 
     useEffect(() => {
         if (!isNotifOpen) return;
@@ -48,7 +49,7 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
         };
     }, [isNotifOpen, toggleNotifications]);
 
-    const handleNotificationClick = async (n: any) => {
+    const handleNotificationClick = async (n: NotificationModel) => {
         try {
             if (!n.readAt) {
                 await client.models.Notification.update({ id: n.id, readAt: new Date().toISOString() });
@@ -94,7 +95,7 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
                     {notifications.length === 0 && !isLoadingNotifs && (
                         <div className={styles.notifEmpty}>All caught up!</div>
                     )}
-                    {notifications.map((n: any) => (
+                    {notifications.map((n: NotificationModel) => (
                         <div
                             key={n.id}
                             className={`${styles.notifItem} ${!n.readAt ? styles.unread : ''}`}

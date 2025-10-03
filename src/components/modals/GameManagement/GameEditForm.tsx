@@ -8,14 +8,14 @@ import {
     View
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
-import { Game } from '@/types/schema';
+import { GameModel } from '@/types/models';
 import buttons from '@/styles/buttons.module.css';
 
 interface GameEditFormProps {
-    game: Game;
+    game: GameModel;
     gameImgRef: string;
-    onSave: (gameData: Game & { imageFile?: File | null }) => Promise<void>;
-    onDelete: (game: Game) => void;
+    onSave: (gameData: GameModel & { imageFile?: File | null }) => Promise<void>;
+    onDelete: (game: GameModel) => void;
 }
 
 export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: GameEditFormProps) {

@@ -21,7 +21,7 @@ import { type Schema } from '@/amplify/data/resource';
 import { uploadData } from 'aws-amplify/storage';
 import { getS3Url } from '@/utils/saveLoad';
 import { type AuthUser } from 'aws-amplify/auth';
-import { Game } from '@/types/schema';
+import { GameModel } from '@/types/models';
 import buttons from '@/styles/buttons.module.css';
 
 const client = generateClient<Schema>();
@@ -30,9 +30,9 @@ interface GameManagementProps {
     isOpen: boolean;
     onClose: () => void;
     onGameDeleted: () => void;
-    onGameEdited?: (updatedGame: Game) => void;
-    editingGame: Game | null;
-    setEditingGame: (game: Game | null) => void;
+    onGameEdited?: (updatedGame: GameModel) => void;
+    editingGame: GameModel | null;
+    setEditingGame: (game: GameModel | null) => void;
 }
 
 export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameEdited, editingGame, setEditingGame }: GameManagementProps) {
@@ -41,11 +41,11 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
     const { user } = auth as { user: AuthUser | null };
     const { showToast } = useToast();
 
-    const [games, setGames] = useState<Game[]>([]);
+    const [games, setGames] = useState<GameModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showImport, setShowImport] = useState(false);
-    const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
+    const [gameToDelete, setGameToDelete] = useState<GameModel | null>(null);
     const [skipDeleteConfirmation, setSkipDeleteConfirmation] = useState(false);
     const [gameImages, setGameImages] = useState<Record<string, string>>({});
 
@@ -59,7 +59,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                 }
             });
             console.log('userGames', userGames);
-            setGames(userGames.data as unknown as Game[]);
+            setGames(userGames.data as unknown as GameModel[]);
         } catch (err) {
             setError('Failed to load games. Please try again.');
             console.error('Error loading games:', err);
@@ -95,7 +95,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         }
     }, [games]);
 
-    const handleEditGame = async (gameData: Game & { imageFile?: File }) => {
+    const handleEditGame = async (gameData: GameModel & { imageFile?: File }) => {
         try {
             setLoading(true);
             setError(null);
@@ -135,7 +135,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             
             // Call the new callback with the updated game
             if (onGameEdited && updatedGame.data) {
-                onGameEdited(updatedGame.data as Game);
+                onGameEdited(updatedGame.data as GameModel);
             }
 
             // Success toast
@@ -149,7 +149,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         }
     };
 
-    const handleDeleteGame = async (game: Game) => {
+    const handleDeleteGame = async (game: GameModel) => {
         try {
             await client.models.Game.delete({
                 id: game.id
@@ -174,7 +174,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         }
     };
 
-    const renderGameCard = (game: Game) => (
+    const renderGameCard = (game: GameModel) => (
         <div className={styles.gameCardContainer} key={game.id}>
             <div
                 className={styles.gameCard}
@@ -224,7 +224,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                 <GameEditForm
                     game={editingGame}
                     gameImgRef={gameImages[editingGame.id]}
-                    onSave={handleEditGame as (gameData: Game & { imageFile?: File | null }) => Promise<void>}
+                    onSave={handleEditGame as (gameData: GameModel & { imageFile?: File | null }) => Promise<void>}
                     onDelete={(game) => {
                         if (skipDeleteConfirmation) {
                             handleDeleteGame(game);
