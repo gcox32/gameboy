@@ -16,6 +16,7 @@ import styles from './styles.module.css';
 import Notifications from './Notifications';
 import Settings from './Settings';
 import MobileFooter from './MobileFooter';
+import Friends from './Friends';
 
 interface Profile {
     id: string;
@@ -41,6 +42,8 @@ const Nav = () => {
     const [notifications, setNotifications] = useState<any[]>([]);
     const [notifNextToken, setNotifNextToken] = useState<string | null>(null);
     const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
+    const [isFriendsOpen, setIsFriendsOpen] = useState(false);
+    
     const { 
         isModalOpen,
         handleContinue, 
@@ -144,6 +147,10 @@ const Nav = () => {
         setIsSettingsModalOpen(false);
     }
 
+    const handleFriendsClick = () => {
+        setIsFriendsOpen(true);
+    };
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
@@ -180,6 +187,7 @@ const Nav = () => {
                     
                     {user ? (
                         <>
+                            <Friends handleFriendsClick={handleFriendsClick} />
                             <Settings handleSettingsClick={handleSettingsClick} />
                             <Notifications
                                 toggleNotifications={toggleNotifications}

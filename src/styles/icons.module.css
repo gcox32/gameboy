@@ -1,5 +1,5 @@
 
-.settingsButton {
+.navIconButton {
     background: none;
     border: none;
     color: var(--link-color);
@@ -11,11 +11,11 @@
     transition: color 0.2s ease;
 }
 
-.settingsButton:hover {
+.navIconButton:hover {
     color: var(--primary-color);
 }
 
-.settingsButton svg {
+.navIconButton svg {
     width: 20px;
     height: 20px;
 }
@@ -27,13 +27,13 @@
 }
 
 @media (max-width: 768px) {
-    .settingsButton {
+    .navIconButton {
         width: 100%;
         padding: 1rem;
         font-size: 1.2rem;
     }
 
-    .settingsButton:hover {
+    .navIconButton:hover {
         background-color: var(--hover-background-color);
         border-radius: 8px;
     }

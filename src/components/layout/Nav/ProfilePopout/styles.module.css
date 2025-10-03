@@ -20,6 +20,7 @@
 
 .avatarButton:hover .avatar {
     border: 1px solid var(--accent-color);
+    transform: scale(1.1);
 }
 
 .avatarPlaceholder {

@@ -1,15 +1,15 @@
 import { FaCog } from "react-icons/fa";
-import styles from "./styles.module.css";
+import iconStyles from "@/styles/icons.module.css";
 
 export default function Settings({ handleSettingsClick }: { handleSettingsClick: () => void }) {
     return (
         <button
-            className={styles.settingsButton}
+            className={iconStyles.navIconButton}
             onClick={handleSettingsClick}
             aria-label="Settings"
         >
             <FaCog />
-            <span className={styles.label}>Settings</span>
+            <span className={iconStyles.label}>Settings</span>
         </button>
     );
 }
