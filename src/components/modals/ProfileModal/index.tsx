@@ -79,8 +79,8 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
         }));
     };
 
-    const handleImageSelect = async (event: any) => {
-        const file = event.target.files[0];
+    const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event?.target?.files?.[0];
         if (!file) return;
 
         // Validate file type
@@ -177,13 +177,6 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
             <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Heading as="h4">User Profile</Heading>
-                    <button
-                        className={isEditing ? buttons.warningButton : buttons.primaryButton}
-                        onClick={handleEditToggle}
-                        style={{ width: '100px' }}
-                    >
-                        {isEditing ? 'Cancel' : 'Edit'}
-                    </button>
                 </div>
 
                 {error && (
@@ -221,12 +214,12 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                                 $variation="link"
                                                 className={styles.uploadButton}
                                             >
-                                                <svg 
-                                                    width="24" 
-                                                    height="24" 
-                                                    viewBox="0 0 24 24" 
-                                                    fill="none" 
-                                                    stroke="currentColor" 
+                                                <svg
+                                                    width="24"
+                                                    height="24"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
                                                     strokeWidth="2"
                                                 >
                                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -260,7 +253,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         </View>
 
                         {isEditing ? (
-                            <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'column', gap: '1rem' }}>
+                            <Flex $direction="column" $gap="1.5rem">
                                 <TextField
                                     label="Username"
                                     value={formData.username}
@@ -285,28 +278,44 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     rows={3}
                                     orientation="vertical"
                                 />
-                                <button
-                                    onClick={handleSubmit}
-                                    className={buttons.primaryButton}
-                                    disabled={isSaving}
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
+                                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', gap: '1rem' }}>
+                                    <button
+                                        className={buttons.warningButton}
+                                        onClick={handleEditToggle}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSubmit}
+                                        className={buttons.primaryButton}
+                                        disabled={isSaving}
+                                    >
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </Flex>
                         ) : (
                             <Flex $direction="column" $gap="1rem">
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Username</Text>
+                                    <Text $variation="secondary">Username</Text>
                                     <Text>{userProfile.username}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Email</Text>
+                                    <Text $variation="secondary">Email</Text>
                                     <Text>{userProfile.email}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Bio</Text>
+                                    <Text $variation="secondary">Bio</Text>
                                     <Text>{userProfile.bio || 'No bio available'}</Text>
                                 </View>
+                                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'column', gap: '1rem' }}>
+                                    <button
+                                        className={buttons.primaryButton}
+                                        onClick={handleEditToggle}
+                                    >
+                                        Edit
+                                    </button>
+                                </div>
                             </Flex>
                         )}
                     </Flex>

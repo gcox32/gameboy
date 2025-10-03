@@ -60,7 +60,7 @@ const Label = styled.label`
 `;
 
 interface TextProps {
-  variation?: keyof typeof theme.colors.text;
+  $variation?: keyof typeof theme.colors.text;
   $fontSize?: keyof typeof theme.typography.fontSizes;
   $fontWeight?: keyof typeof theme.typography.fontWeights;
   $textAlign?: 'left' | 'center' | 'right' | 'justify';
@@ -68,13 +68,13 @@ interface TextProps {
 }
 
 export const Text = styled.span<TextProps>`
-  color: ${({ theme, variation = 'primary' }) => theme.colors.text[variation]};
+  color: ${({ theme, $variation = 'primary' }) => theme.colors.text[$variation]};
   font-size: ${({ theme, $fontSize = 'md' }) => theme.typography.fontSizes[$fontSize]};
   font-weight: ${({ theme, $fontWeight = 'normal' }) => theme.typography.fontWeights[$fontWeight]};
   text-align: ${({ $textAlign }) => $textAlign || 'left'};
 `;
 
-const ErrorMessage = styled(Text).attrs({ variation: 'error' as TextVariation })`
+const ErrorMessage = styled(Text).attrs({ $variation: 'error' as TextVariation })`
   font-size: 0.75rem;
   margin-top: 0.25rem;
 `;
