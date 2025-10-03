@@ -129,7 +129,7 @@ function ConfirmSignUpComponent() {
     };
 
     return (
-        <div className={`${styles.container} ${styles.buttonGroup}`}>
+        <div className={`${styles.container} ${buttons.buttonGroup}`}>
             <h2 className={styles.title}>Confirm Sign Up</h2>
             <form onSubmit={handleConfirmSignUp} className={styles.form}>
                 <input

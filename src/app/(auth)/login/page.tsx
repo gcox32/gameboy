@@ -108,7 +108,7 @@ export default function Login() {
     }
 
     return (
-        <div className={`${styles.container} ${styles.buttonGroup}`}>
+        <div className={`${styles.container} ${buttons.buttonGroup}`}>
             <h1 className={styles.title}>Login</h1>
             <form onSubmit={handleLogin} className={styles.form}>
                 <input

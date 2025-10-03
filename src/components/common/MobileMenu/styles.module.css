@@ -1,0 +1,74 @@
+.screenMenu {
+    transition: background-color 150ms ease-in-out;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.screenMenu.hidden {
+    transition: background-color 150ms ease-in-out;
+    background-color: rgba(0, 0, 0, 0.0);
+}
+
+.menu {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    transition: transform 200ms ease-in-out, height 150ms ease-in-out, background-color 150ms ease-in-out;
+    overflow: hidden;
+    height: 188px;
+    transform: translateY(0);
+    will-change: transform, height;
+}
+
+.menuShort {
+    height: 132px;
+}
+
+.menu.hidden {
+    transition: transform 200ms ease-in-out, height 150ms ease-in-out;
+    height: 0;
+    transform: translateY(100%);
+}
+
+.menu ul {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu li {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-sizing: border-box;
+    width: 100%;
+    text-align: center;
+    height: 56px;
+    line-height: 56px;
+    margin: 0 10px;
+    flex-grow: 1;
+    color: #0076ff;
+    font-size: 18px;
+    border-bottom: 1px solid #aaa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.menu li.default {
+    font-weight: bold;
+}
+
+.menu li.pressed {
+    background-color: rgba(144, 142, 144, 0.9);
+}
+
+.menu li:first-child {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.menu li:last-child {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    margin-bottom: 10px;
+    border-bottom: 0;
+}
+

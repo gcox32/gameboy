@@ -5,7 +5,7 @@ import buttons from '@/styles/buttons.module.css';
 
 export default function NewPassword() {
     return (
-        <div className={`${styles.container} ${styles.buttonGroup}`}>
+        <div className={`${styles.container} ${buttons.buttonGroup}`}>
             <h1 className={styles.title}>Set New Password</h1>
             <p className={styles.paragraph}>You need to set a new password.</p>
             <form className={styles.form}>

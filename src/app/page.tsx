@@ -23,7 +23,7 @@ export default function Home() {
           <h1 className={styles.title}>Welcome to JS GBC</h1>
       <p className={styles.description}>Play Gameboy Color games in your browser.</p>
       {user === null ? (
-        <div className={styles.buttonGroup}>
+        <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
           <Link href="login">
             <button className={buttons.primaryButton}>Login</button>
           </Link>
@@ -32,7 +32,7 @@ export default function Home() {
           </Link>
       </div>
       ) : (
-        <div className={styles.buttonGroup}>
+        <div className={buttons.buttonGroup}>
           <Link href="/play">
             <button className={buttons.primaryButton}>Play</button>
           </Link>

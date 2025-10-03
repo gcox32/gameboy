@@ -1,6 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import Image from 'next/image';
 import styles from './styles.module.css';
+import dynamic from 'next/dynamic';
+
+const MobileMenu = dynamic(() => import('@/components/common/MobileMenu'), { ssr: false });
 
 interface ProfilePopoutProps {
     userProfile: any;
@@ -20,32 +23,26 @@ const ProfilePopout = ({
     isOpen
 }: ProfilePopoutProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node;
-            if (containerRef.current && !containerRef.current.contains(target)) {
-                onAvatarClick();
-            }
-        };
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                onAvatarClick();
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('keydown', handleKeyDown);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isOpen, onAvatarClick]);
+    // crude mobile detection via window width; can be swapped for CSS/Context
+    const isMobile = useMemo(() => {
+        if (typeof window === 'undefined') return false;
+        return window.innerWidth <= 768; // tailwind md breakpoint equivalent
+    }, []);
+
+
     return (
         <div className={styles.container} ref={containerRef}>
             <button 
                 className={styles.avatarButton}
-                onClick={onAvatarClick}
+                onClick={() => {
+                    if (isMobile) {
+                        setIsMobileMenuOpen(true);
+                    } else {
+                        onAvatarClick();
+                    }
+                }}
                 aria-expanded={isOpen}
                 aria-haspopup="true"
             >
@@ -65,7 +62,7 @@ const ProfilePopout = ({
                 )}
             </button>
 
-            {isOpen && (
+            {!isMobile && isOpen && (
                 <div 
                     className={styles.dropdown}
                     role="menu"
@@ -86,6 +83,20 @@ const ProfilePopout = ({
                         Logout
                     </button>
                 </div>
+            )}
+            {isMobile && (
+                <MobileMenu
+                    isOpen={isMobileMenuOpen}
+                    onClose={() => setIsMobileMenuOpen(false)}
+                    onProfile={() => {
+                        onProfileClick();
+                        setIsMobileMenuOpen(false);
+                    }}
+                    onLogout={() => {
+                        onLogoutClick();
+                        setIsMobileMenuOpen(false);
+                    }}
+                />
             )}
         </div>
     );

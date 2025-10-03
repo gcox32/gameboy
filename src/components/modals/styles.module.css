@@ -128,7 +128,7 @@
   text-align: center;
 }
 
-.modalContent input,
+.modalContent input:not([type='range']),
 .modalContent textarea {
   font-size: 20px;
   margin-bottom: 1em;
@@ -364,6 +364,14 @@ h3.saveStateTitle {
       min-width: 100px;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .modalContent {
+    width: 90vw;
+    margin: 0 auto;
+  }
+}
+
 
 .settingsModal .modalContent {
   padding: 0;

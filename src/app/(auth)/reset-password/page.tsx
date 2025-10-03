@@ -65,7 +65,7 @@ export default function ResetPassword() {
     };
 
     return (
-        <div className={`${styles.container} ${styles.buttonGroup}`}>
+        <div className={`${styles.container} ${buttons.buttonGroup}`}>
             <h1 className={styles.title}>Reset Password</h1>
 
             {step === 'request' && (

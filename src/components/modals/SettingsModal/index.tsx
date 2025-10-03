@@ -6,7 +6,6 @@ import CustomSwitch from '@/components/common/CustomSwitch';
 import {
     Flex,
     Heading,
-    Button,
     Divider
 } from '@/components/ui';
 import { backgroundOptions } from './config';

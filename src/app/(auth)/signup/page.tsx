@@ -48,7 +48,7 @@ export default function SignUp() {
     };
 
     return (
-        <div className={`${styles.container} ${styles.buttonGroup}`}>
+        <div className={`${styles.container} ${buttons.buttonGroup}`}>
             <h1 className={styles.title}>Sign Up</h1>
             <form onSubmit={handleSignUp} className={styles.form}>
                 <input
