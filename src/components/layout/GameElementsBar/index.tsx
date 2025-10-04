@@ -68,7 +68,7 @@ function GameElementsBar({
         title="Pokedex" 
         className={`${styles.iconButton} ${showPokedex ? styles.active : ''}`}
         onClick={onPokedexClick}
-        disabled={true}
+        disabled={!elementsEnabled}
       >
         <FaBook size={24} />
       </button>

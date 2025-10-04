@@ -16,7 +16,8 @@ interface FullScreenContainerProps {
   fullscreenContainerRef: React.RefObject<HTMLDivElement> | null;
   activeROM: GameModel | null;
   activeState: SaveStateModel | null;
-  inGameMemory: SRAMArray | number[];
+  inGameMemory: number[];
+  mbcRam: SRAMArray | number[];
   onPauseResume: () => void;
   intervalPaused: boolean;
 }
@@ -30,6 +31,7 @@ export default function FullScreenContainer({
   activeROM,
   activeState,
   inGameMemory,
+  mbcRam,
   onPauseResume,
   intervalPaused
 }: FullScreenContainerProps) {
@@ -139,7 +141,12 @@ export default function FullScreenContainer({
         />
       }
       {showMap && activeROM && activeState && <TownMap />}
-      {showPokedex && activeROM && activeState && <Pokedex />}
+      {showPokedex && activeROM && activeState && inGameMemory &&
+        <Pokedex
+          inGameMemory={mbcRam}
+          activeROM={activeROM}
+        />
+      }
       {showTeamPhoto && activeROM && activeState && <TeamPhoto />}
     </div>
   );

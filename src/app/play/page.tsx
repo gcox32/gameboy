@@ -502,6 +502,7 @@ export default function App() {
 				activeROM={activeROM}
 				activeState={activeState}
 				inGameMemory={inGameMemory.current}
+				mbcRam={mbcRamRef.current}
 				onPauseResume={handlePauseResume}
 				intervalPaused={intervalPaused}
 			/>
