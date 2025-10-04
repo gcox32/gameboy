@@ -42,7 +42,6 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 		};
 		return `${update ? 'Last Saved' : 'Created'}: ${date.toLocaleString('en-US', options)}`;
 	};
-	console.log(saveStates);
 
 	useEffect(() => {
 		const fetchImageUrls = async () => {
