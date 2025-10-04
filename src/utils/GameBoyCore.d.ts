@@ -3,7 +3,7 @@
  * This provides type information for the JavaScript GameBoyCore class
  */
 
-import { IGameBoyCore, ROMImage, CanvasElement } from '../types/gameboy';
+import { IGameBoyCore, ROMImage, CanvasElement, XAudioServer } from '../types/gameboy';
 
 declare class GameBoyCore implements IGameBoyCore {
   // Constructor
@@ -107,7 +107,7 @@ declare class GameBoyCore implements IGameBoyCore {
 
   // Audio properties
   soundMasterEnabled: boolean;
-  audioHandle: any;
+  audioHandle: XAudioServer | null;
   audioDestinationPosition: number;
   numSamplesTotal: number;
   audioIndex: number;

@@ -9,22 +9,13 @@ import { assetsEndpointPublic } from '@/../config';
 import styles from '../styles.module.css';
 import { getS3Url } from '@/utils/saveLoad';
 import buttons from '@/styles/buttons.module.css';
-
-interface SaveState {
-	id: string;
-	title: string;
-	filePath: string;
-	img?: string;
-	createdAt: string;
-	updatedAt: string;
-	imgPreview?: string;
-}
+import { SaveStateModel } from '@/types';
 
 interface LoadStateModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	saveStates: any[];
-	onConfirm: (saveState: any) => void;
+	saveStates: SaveStateModel[];
+	onConfirm: (saveState: SaveStateModel) => void;
 	onDelete: () => void;
 }
 
@@ -36,9 +27,9 @@ const saveStateImageStyle = {
 }
 
 function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: LoadStateModalProps) {
-	const [updatedSaveStates, setUpdatedSaveStates] = useState<SaveState[]>([]);
+	const [updatedSaveStates, setUpdatedSaveStates] = useState<SaveStateModel[]>([]);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
-	const [selectedStateForDeletion, setSelectedStateForDeletion] = useState<SaveState | null>(null);
+	const [selectedStateForDeletion, setSelectedStateForDeletion] = useState<SaveStateModel | null>(null);
 
 	const formatDate = (dateString: string, update = true) => {
 		const date = new Date(dateString);
@@ -51,6 +42,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 		};
 		return `${update ? 'Last Saved' : 'Created'}: ${date.toLocaleString('en-US', options)}`;
 	};
+	console.log(saveStates);
 
 	useEffect(() => {
 		const fetchImageUrls = async () => {
@@ -60,7 +52,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 						try {
 							const key = state.img;
 							const imgPreview = await getS3Url(key);
-							return { ...state, imgPreview };
+							return { ...state, img: imgPreview };
 						} catch (error) {
 							console.error(`Error downloading image for state ${state.img}:`, error);
 							return state;
@@ -79,7 +71,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 		}
 	}, [isOpen, saveStates]);
 
-	const handleDeleteClick = (saveState: any) => {
+	const handleDeleteClick = (saveState: SaveStateModel) => {
 		setSelectedStateForDeletion(saveState);
 		setShowConfirmModal(true);
 	}
@@ -117,14 +109,14 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 			<div className={styles.saveStateList}>
 				{updatedSaveStates.map((state) => (
 					<div className={styles.saveStateBlock} key={state.id} onClick={() => onConfirm(state)}>
-						{!state.imgPreview ?
+						{!state.img ?
 							<Image src={`${assetsEndpointPublic}util/beta-sprite.png`} alt="Beta Sprite" width={220} height={220} style={saveStateImageStyle} />
 							:
-							<Image src={`${state.imgPreview}`} alt={state.title} loading="lazy" width={220} height={220} style={saveStateImageStyle} />
+							<Image src={`${state.img}`} alt={state.title || ''} loading="lazy" width={220} height={220} style={saveStateImageStyle} />
 						}
 						<h3 className={styles.saveStateTitle}>{state.title}</h3>
-						<p className={styles.lastUpdateText}>{formatDate(state.createdAt, false)}</p>
-						<p className={styles.lastUpdateText}>{formatDate(state.updatedAt)}</p>
+						<p className={styles.lastUpdateText}>{state.createdAt ? formatDate(state.createdAt, false) : ''}</p>
+						<p className={styles.lastUpdateText}>{state.updatedAt ? formatDate(state.updatedAt) : ''}</p>
 						<div className={buttons.buttonGroup}>
 							<button className={buttons.warningButton} onClick={(e) => {
 								e.stopPropagation();

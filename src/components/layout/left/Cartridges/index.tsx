@@ -2,10 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import styles from './styles.module.css';
-import { GameModel, CartridgesProps } from '@/types';
+import { GameModel, SaveStateModel, AuthenticatedUser } from '@/types';
 import buttons from '@/styles/buttons.module.css';
 
+export interface CartridgesProps {
+    onROMSelected: (rom: GameModel) => void;
+    isDisabled: boolean;
+    activeSaveState: SaveStateModel | null;
+    currentUser: AuthenticatedUser;
+    onOpenGameManagement: () => void;
+}
+
 const client = generateClient<Schema>();
+
 function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, onOpenGameManagement }: CartridgesProps) {
     const [games, setGames] = useState<GameModel[]>([]);
     const [loading, setLoading] = useState(false);
@@ -34,7 +43,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
         const selectedValue = e.target.value;
         const selectedROM = games.find(game => game.filePath === selectedValue);
         // Pass the selected ROM object to the callback
-        onROMSelected(selectedROM);
+        onROMSelected(selectedROM as GameModel);
     };
 
 

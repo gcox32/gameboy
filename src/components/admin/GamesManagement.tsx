@@ -20,6 +20,8 @@ import { getUsernamesForSubs } from '@/utils/usernames';
 import { useToast } from '@/components/ui';
 import { GameModel } from '@/types';
 
+const client = generateClient<Schema>();
+
 export default function GamesManagement() {
     const [games, setGames] = useState<GameModel[]>([]);
     const [loading, setLoading] = useState(true);
@@ -30,7 +32,6 @@ export default function GamesManagement() {
     const [imageUrlsByGameId, setImageUrlsByGameId] = useState<Record<string, string>>({});
     const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
 
-    const client = generateClient<Schema>();
     const { showToast } = useToast();
 
     const loadGames = useCallback(async () => {

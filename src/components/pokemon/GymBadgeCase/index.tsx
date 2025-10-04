@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import GymBadge from './GymBadge';
 import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 import styles from './styles.module.css';
-import { MemoryWatcherConfig } from '@/types';
+import { GameModel, MemoryWatcherConfig } from '@/types';
+import { SRAMArray } from '@/types';
 
 const badgesInfo = [
     { name: "Boulder Badge", image: "boulder.png" },
@@ -16,8 +17,8 @@ const badgesInfo = [
 ];
 
 interface GymBadgeCaseProps {
-    inGameMem: any[];
-    activeROM: any;
+    inGameMem: SRAMArray;
+    activeROM: GameModel;
 }
 
 function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
@@ -46,7 +47,7 @@ function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
         watcherConfig?.baseAddress,
         watcherConfig?.offset,
         watcherConfig?.size,
-        (array: any[]) => {
+        (array: number[]) => {
             const badgesByte = array[0];
             
             // Create new badges array by mapping each bit to a badge

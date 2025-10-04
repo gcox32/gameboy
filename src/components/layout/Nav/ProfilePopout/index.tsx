@@ -7,7 +7,7 @@ import { ProfileModel } from '@/types';
 const MobileMenu = dynamic(() => import('@/components/common/MobileMenu'), { ssr: false });
 
 interface ProfilePopoutProps {
-    userProfile: ProfileModel;
+    userProfile: ProfileModel | null;
     avatarUrl: string | null;
     onAvatarClick: () => void;
     onProfileClick: () => void;
@@ -47,7 +47,7 @@ const ProfilePopout = ({
                 aria-expanded={isOpen}
                 aria-haspopup="true"
             >
-                {avatarUrl ? (
+                {userProfile && avatarUrl ? (
                     <Image
                         src={avatarUrl}
                         alt={userProfile.username}

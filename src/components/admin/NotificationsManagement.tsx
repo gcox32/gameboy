@@ -27,6 +27,8 @@ interface Notification {
     createdAt?: string;
 }
 
+const client = generateClient<Schema>();
+
 export default function NotificationsManagement() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
@@ -44,7 +46,6 @@ export default function NotificationsManagement() {
         owner: '*'
     });
 
-    const client = generateClient<Schema>();
 
     const loadNotifications = useCallback(async () => {
         try {
@@ -161,7 +162,7 @@ export default function NotificationsManagement() {
             render: (notification: Notification) => (
                 <Flex $direction="column">
                     <Text $fontWeight="medium">{notification.title}</Text>
-                    <Text $fontSize="sm" variation="secondary">
+                    <Text $fontSize="sm" $variation="secondary">
                         {notification.type}
                     </Text>
                 </Flex>
@@ -258,7 +259,7 @@ export default function NotificationsManagement() {
             {showQuickNotification && (
                 <div className={styles.quickNotification}>
                     <Heading as="h3">Create App Notification</Heading>
-                    <Text $fontSize="sm" variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
+                    <Text $fontSize="sm" $variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
                         Send a notification to all users with minimal clicks
                     </Text>
 
@@ -330,10 +331,10 @@ export default function NotificationsManagement() {
             />
 
             <Flex $justifyContent="space-between" $alignItems="center" style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
-                <Text $fontSize="sm" variation="secondary">
+                <Text $fontSize="sm" $variation="secondary">
                     Total notifications: {notifications.length}
                 </Text>
-                <Text $fontSize="sm" variation="secondary">
+                <Text $fontSize="sm" $variation="secondary">
                     Unread: {notifications.filter(n => !n.readAt).length}
                 </Text>
             </Flex>

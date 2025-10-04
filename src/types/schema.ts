@@ -7,13 +7,7 @@ export interface MemoryWatcherConfig {
     size?: string;
 }
 
-export interface CartridgesProps {
-    onROMSelected: (rom: GameModel) => void;
-    isDisabled: boolean;
-    activeSaveState: SaveStateModel;
-    currentUser: AuthenticatedUser;
-    onOpenGameManagement: () => void;
-}
+
 
 export interface GameState {
     activeGame: GameModel;

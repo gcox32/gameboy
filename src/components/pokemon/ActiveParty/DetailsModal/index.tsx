@@ -56,11 +56,11 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalPr
                     <p>Lv.{pokemon.structure.level}</p>
                     <p>#{pokemon.pokedexNo.toString().padStart(3, '0')}</p>
                     <div>
-                        <span className={`${styles.typeTag} ${styles[structure.type1.toLowerCase() + 'Type']}`}>
+                        <span className={`${styles.typeTag} ${styles[structure.type1?.toLowerCase() + 'Type']}`}>
                             {structure.type1}
                         </span>
                         {structure.type2 !== structure.type1 && (
-                            <span className={`${styles.typeTag} ${styles[structure.type2.toLowerCase() + 'Type']}`}>
+                            <span className={`${styles.typeTag} ${styles[structure.type2?.toLowerCase() + 'Type']}`}>
                                 {structure.type2}
                             </span>
                         )}

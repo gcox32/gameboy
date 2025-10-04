@@ -14,7 +14,7 @@ import { PartialSaveStateModel } from "@/components/modals/SaveStateManagement/S
 interface ControlPanelProps {
     handleROMSelected: (rom: GameModel) => void;
     isEmulatorPlaying: boolean;
-    activeSaveState: SaveStateModel;
+    activeSaveState: SaveStateModel | null;
     intervalPaused: boolean;
     handlePauseResume: () => void;
     handleReset: () => void;

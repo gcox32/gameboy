@@ -31,7 +31,7 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
         watcherConfig?.baseAddress,
         watcherConfig?.offset,
         watcherConfig?.size,
-        (array: any[]) => {
+        (array: number[]) => {
             if (JSON.stringify(partyArray.current) !== JSON.stringify(array)) {
                 try {
                     const parsedParty = parseParty(array);

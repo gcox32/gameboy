@@ -3,6 +3,13 @@
  * This provides type safety for the GameBoy emulator throughout the application
  */
 
+// XAudioServer interface for audio handling
+export interface XAudioServer {
+  changeVolume(volume: number): void;
+  remainingBuffer(): number;
+  writeAudioNoCallback(buffer: number[]): void;
+}
+
 // Canvas and DOM types
 export type CanvasElement = HTMLCanvasElement | null;
 export type CanvasContext = CanvasRenderingContext2D | null;
@@ -88,7 +95,7 @@ export interface MBCState {
 // Audio and sound types
 export interface AudioState {
   soundMasterEnabled: boolean;
-  audioHandle: any;
+  audioHandle: XAudioServer | null;
   audioDestinationPosition: number;
   numSamplesTotal: number;
   audioIndex: number;
@@ -216,7 +223,7 @@ export interface IGameBoyCore {
 
   // Audio properties
   soundMasterEnabled: boolean;
-  audioHandle: any;
+  audioHandle: XAudioServer | null;
   audioDestinationPosition: number;
   numSamplesTotal: number;
   audioIndex: number;
@@ -297,7 +304,21 @@ export interface EmulatorSettings {
   soundEnabled: boolean;
   speed: number;
   mobileZoom: number;
-  [key: string]: any;
+  sound: boolean;
+  bootWithROM: boolean;
+  prioritizeGB: boolean;
+  volumeLevel: number;
+  colorizeGB: boolean;
+  disallowTypedArrays: boolean;
+  emulatorInterval: number;
+  audioBufferMinSpan: number;
+  audioBufferMaxSpan: number;
+  forceMBC1: boolean;
+  overrideMBCRAM: boolean;
+  useGBBootROM: boolean;
+  browserScaleCanvas: boolean;
+  useImageSmoothing: boolean;
+  channelEnables: boolean[];
 }
 
 // Event handler types

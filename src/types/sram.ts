@@ -66,8 +66,8 @@ export interface Bank1Data {
 
 // Main data structure (most comprehensive)
 export interface MainData {
-  pokedexOwned: PokedexData; // 0x25A3-0x25B5 (0x13 bytes)
-  pokedexSeen: PokedexData; // 0x25B6-0x25C8 (0x13 bytes)
+  pokedexOwned: SRAMArray; // 0x25A3-0x25B5 (0x13 bytes)
+  pokedexSeen: SRAMArray; // 0x25B6-0x25C8 (0x13 bytes)
   bagItems: ItemList; // 0x25C9-0x25F2 (0x2A bytes)
   money: Money; // 0x25F3-0x25F5 (0x3 bytes)
   rivalName: NameString; // 0x25F6-0x2600 (0xB bytes)

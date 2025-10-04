@@ -71,7 +71,10 @@ export default function App() {
 		if (isEmulatorPlaying && activeROM) {
 			startGame({
 				id: activeROM.id,
-				title: activeROM.title
+				title: activeROM.title || 'title',
+				owner: activeROM.owner,
+				filePath: activeROM.filePath,
+				metadata: activeROM.metadata
 			});
 		} else {
 			stopGame();

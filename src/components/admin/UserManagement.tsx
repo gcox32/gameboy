@@ -28,6 +28,8 @@ interface Profile {
     admin: boolean;
 }
 
+const client = generateClient<Schema>();
+
 export default function UserManagement() {
     const [users, setUsers] = useState<Profile[]>([]);
     const [loading, setLoading] = useState(true);
@@ -38,7 +40,6 @@ export default function UserManagement() {
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
     const [avatarUrlsByUserId, setAvatarUrlsByUserId] = useState<Record<string, string>>({});
 
-    const client = generateClient<Schema>();
 
     const loadUsers = useCallback(async () => {
         try {

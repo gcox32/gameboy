@@ -151,7 +151,7 @@ export class SRAMParser {
       currentBoxData: this.parsePokemonBox(this.data.slice(0x30C0, 0x3522)),
       tilesetType: this.data[0x3522],
       mainDataChecksum: this.data[0x3523],
-      unused: this.data.slice(0x3524, 0x4000)
+      unused2: this.data.slice(0x3524, 0x4000)
     };
   }
 
@@ -405,11 +405,8 @@ export class SRAMParser {
     return this.parseItemList(data);
   }
 
-  parsePokedexData(data: SRAMArray): PokedexData {
-    return {
-      owned: data.slice(0, 19),
-      seen: data.slice(19, 38)
-    };
+  parsePokedexData(data: SRAMArray): number[] {
+    return data;
   }
 
   parseMoney(data: SRAMArray): Money {
