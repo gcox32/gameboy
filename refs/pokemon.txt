@@ -1,0 +1,82 @@
+Pokémon
+Pokémon data structures is quite large and comprehensive and there are actually 2 kinds of Pokémon data structures.
+
+When a Pokémon is in a PC or in the Day Care (Since the Daycare follows the same PC Box data structure), it's given the base data structure which is 33 bytes and contains base information needed to calculate other information (To save space).
+
+When you withdraw a Pokémon out of the PC that information is calculated and placed in an extended data structure that's a total of 44 bytes from the original 33 so it's immediately ready when needed. This calculated information gets destroyed when the Pokémon is placed back into the PC.
+
+Lists of Pokémon in the save data follow the same basic format, but there are slight variations of the list that are found in the save data. These types differ in their maximum capacity and in the way they store the main Pokémon data.
+
+The player's party and has a capacity of 6 and uses the full Pokémon data structure (with a size of 44 bytes).
+A PC Box and has a capacity of 20 and uses a truncated version of the Pokémon data structure (only the first 33 bytes).
+The Daycare is treated as a single Pokémon capacity box and thus contains only the Pokémon Data structure and none of the "list" aspects to it.
+Full Box Data
+Pokémon Box Data Structures is sometimes used alone such as at the Daycare however when dealing with a PC that can handle 20 Pokémon per box, there is some additional data around that.
+
+Offset	Size	Contents	Amount
+0x00	0x1	Pokémon Count	
+0x01	0x1	Species ID	20
+0x15	0x1	Unused Padding	
+0x16	0x21	Pokémon Box Data	20
+0x2AA	0xB	Original Trainer Names	20
+0x386	0xB	Pokémon Names	20
+Pokémon count This is the number of Pokémon entries actually being used in the list.
+
+Species ID
+
+This is a list of species indexes for each Pokémon in this list, 1 byte per index, with a 0xFF terminator following the last used entry in the list.
+
+This list of species is used by the party screen and the PC's Box management interface.
+
+Pokémon Box Data This is the Pokémon data structure for each Pokémon in this list, 44 or 33 bytes per index depending on if the whole list is for the party or a PC Box.
+
+OT names This is a list of text strings for the Original Trainer of each Pokémon in this list, 11 bytes per name. Each name can contain from 1 to 10 characters, terminated by 0x50.
+
+Name
+
+Pokémon Nicknames is any name given to the Pokémon, if the name perfectly matches up with the species name (case-sensitive) it will be treated as if it had no nickname.
+
+This is a list of text strings for the name of each Pokémon in this list, 11 bytes per name. Each name can contain from 1 to 10 characters, terminated by 0x50.
+
+A Pokémon's name is a nickname if it does not perfectly match the default name for a Pokémon (typically all uppercase) with any unused bytes of the entry's 11-byte capacity filled with 0x50 terminators.
+
+Full Party Data
+This is exactly the same as the Full Box data but formatted for a party of up to 6.
+
+Offset	Size	Contents	Amount
+0x00	0x1	Pokémon Count	
+0x01	0x1	Species ID	6
+0x7	0x1	Unused Padding	
+0x8	0x2C	Pokémon Party Data	6
+0x110	0xB	Original Trainer Names	6
+0x152	0xB	Pokémon Names	6
+Pokémon Party Data This is the Pokémon data structure for each Pokémon in this list, 44 or 33 bytes per index depending on if the whole list is for the party or a PC Box.
+
+OT names This is a list of text strings for the Original Trainer of each Pokémon in this list, 11 bytes per name. Each name can contain from 1 to 10 characters, terminated by 0x50.
+
+Name
+
+Pokémon Nicknames is any name given to the Pokémon, if the name perfectly matches up with the species name (case-sensitive) it will be treated as if it had no nickname.
+
+This is a list of text strings for the name of each Pokémon in this list, 11 bytes per name. Each name can contain from 1 to 10 characters, terminated by 0x50.
+
+A Pokémon's name is a nickname if it does not perfectly match the default name for a Pokémon (typically all uppercase) with any unused bytes of the entry's 11-byte capacity filled with 0x50 terminators.
+
+Partial Party Data
+There does exist one area which features a stripped down full party data. It's mostly just missing much of the upper data.
+
+Offset	Size	Contents	Amount
+0x0	0x21	Pokémon Party Data	6
+0xC6	0xB	Original Trainer Names	6
+0x108	0xB	Pokémon Names	6
+Pokémon Party Data This is the Pokémon data structure for each Pokémon in this list, 44 or 33 bytes per index depending on if the whole list is for the party or a PC Box.
+
+OT names This is a list of text strings for the Original Trainer of each Pokémon in this list, 11 bytes per name. Each name can contain from 1 to 10 characters, terminated by 0x50.
+
+Name
+
+Pokémon Nicknames is any name given to the Pokémon, if the name perfectly matches up with the species name (case-sensitive) it will be treated as if it had no nickname.
+
+This is a list of text strings for the name of each Pokémon in this list, 11 bytes per name. Each name can contain from 1 to 10 characters, terminated by 0x50.
+
+A Pokémon's name is a nickname if it does not perfectly match the default name for a Pokémon (typically all uppercase) with any unused bytes of the entry's 11-byte capacity filled with 0x50 terminators.

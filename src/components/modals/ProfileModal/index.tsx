@@ -17,7 +17,7 @@ import {
 import { getS3Url } from '@/utils/saveLoad';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
-import { ProfileModel } from '@/types/models';
+import { ProfileModel } from '@/types';
 
 const client = generateClient<Schema>();
 

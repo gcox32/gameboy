@@ -1,10 +1,10 @@
-
+import { GameModel } from "./models";
 
 export interface ActivePartyProps {
-    inGameMemory: any[];
+    inGameMemory: number[];
     onPauseResume: () => void;
     intervalPaused: boolean;
-    activeROM: any;
+    activeROM: GameModel;
 }
 
 export interface PokemonDetailsModalProps {

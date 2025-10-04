@@ -5,7 +5,7 @@ import { parseParty } from "@/utils/pokemon/parse";
 import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
-import { MemoryWatcherConfig } from "@/types/schema";
+import { MemoryWatcherConfig } from "@/types";
 import { FaExchangeAlt } from 'react-icons/fa';
 
 function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {

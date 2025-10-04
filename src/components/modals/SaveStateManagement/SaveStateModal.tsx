@@ -4,11 +4,18 @@ import { ImageUpload } from '@/components/common/ImageUpload';
 import { getS3Url } from '@/utils/saveLoad';
 import buttons from '@/styles/buttons.module.css';
 
+export interface PartialSaveStateModel {
+    title?: string;
+    description?: string;
+    img?: string;
+    imgFile?: File;
+}
+
 interface SaveStateModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (saveStateData: any) => void;
-    initialData: any;
+    onConfirm: (saveStateData: PartialSaveStateModel) => void;
+    initialData: PartialSaveStateModel;
 }
 
 function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateModalProps) {
@@ -22,7 +29,7 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateMo
             title: title,
             description: description,
             img: initialData?.img || '',
-            imgFile: imageFile
+            imgFile: imageFile as unknown as File
         };
 
         console.log('Submitting save state with data:', saveStateData);
@@ -30,12 +37,12 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateMo
         onClose();
         setTitle('');
         setDescription('');
-        setImageFile(null);
+        setImageFile('');
     };
 
     const handleImageUpload = (file: File | string) => {
-        setImageFile(file);
-        setPreviewUrl(file as string);
+        setImageFile(file as unknown as string);
+        setPreviewUrl(file as unknown as string);
     };
 
     useEffect(() => {

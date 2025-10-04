@@ -7,7 +7,7 @@
     align-items: center;
     justify-content: center;
     position: absolute;
-    z-index: 3;
+    z-index: 4;
     left: 0;
     top: 0;
     height: 100vh;
@@ -21,11 +21,6 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20), 0 2px 8px rgba(0,0,0,0.08);
     border-radius: 0 16px 16px 0;
   }
-
-  /* Make children align and add subtle separators */
-  /* .controlPanel > * { 
-    width: 100%;
-  } */
 
   .controlPanel > * + * {
     border-top: 1px solid color-mix(in srgb, var(--foreground-color), transparent 88%);

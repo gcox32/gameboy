@@ -17,7 +17,7 @@ interface CheckboxFieldProps {
   $justifyContent?: 'center' | 'flex-start' | 'flex-end';
   $alignItems?: 'center' | 'flex-start' | 'flex-end';
   size?: CheckboxSize;
-  variation?: CheckboxVariation;
+  $variation?: CheckboxVariation;
   disabled?: boolean;
   hasError?: boolean;
   errorMessage?: string;
@@ -129,7 +129,7 @@ const HiddenInput = styled.input`
 const CustomCheckbox = styled.div<{
   checked: boolean;
   size: CheckboxSize;
-  variation: CheckboxVariation;
+  $variation: CheckboxVariation;
   disabled?: boolean;
   $hasError?: boolean;
 }>`
@@ -144,7 +144,7 @@ const CustomCheckbox = styled.div<{
   opacity: ${({ disabled }) => disabled ? 0.6 : 1};
   
   ${({ size }) => getSizeStyles(size)}
-  ${({ variation, checked }) => getVariationStyles(variation, checked)}
+  ${({ $variation, checked }) => getVariationStyles($variation, checked)}
   
   ${({ $hasError, theme }) => $hasError && css`
     border-color: ${theme.colors.danger} !important;
@@ -256,7 +256,7 @@ export function CheckboxField({
   $justifyContent,
   $alignItems,
   size = 'medium',
-  variation = 'default',
+  $variation = 'default',
   disabled = false,
   hasError = false,
   errorMessage,
@@ -294,7 +294,7 @@ export function CheckboxField({
         <CustomCheckbox
           checked={checked}
           size={size}
-          variation={variation}
+          $variation={$variation}
           disabled={disabled}
           $hasError={hasError}
           onClick={() => !disabled && onChange()}

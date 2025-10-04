@@ -2,14 +2,7 @@ import React from 'react';
 import { Loader } from '@/components/ui';
 import styles from './styles.module.css';
 import buttons from '@/styles/buttons.module.css';
-
-interface SaveState {
-	id: string;
-	title: string;
-	description?: string;
-	filePath: string;
-	imageUrl?: string;
-}
+import { SaveStateModel } from '@/types';
 
 interface SystemControlsProps {
 	intervalPaused: boolean;
@@ -19,7 +12,7 @@ interface SystemControlsProps {
 	onPowerToggle: () => void;
 	onFullscreenToggle: () => void;
 	isRomLoaded: boolean;
-    userSaveStates: SaveState[];
+    userSaveStates: SaveStateModel[];
     isPanelVisible: boolean;
     isSaving: boolean;
     onOpenLoadStateModal: () => void;

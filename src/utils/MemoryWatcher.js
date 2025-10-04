@@ -42,7 +42,7 @@ export function translateIntegerArray(integerArray, breakInt = 80) {
 }
 export const useInGameMemoryWatcher = (gameMemoryRef, baseAddressHex, offsetHex, sizeHex, onChange, interval = 1000) => {
     useEffect(() => {
-        if (!gameMemoryRef.current) {
+        if (!gameMemoryRef) {
             console.warn('gameMemoryRef.current is not initialized.');
             return;
         }
@@ -54,7 +54,7 @@ export const useInGameMemoryWatcher = (gameMemoryRef, baseAddressHex, offsetHex,
         
         let previousSlice = null;
         const checkForChanges = () => {
-            const currentSlice = gameMemoryRef.current.slice(inGameMemoryAddress, inGameMemoryAddress + size);
+            const currentSlice = gameMemoryRef.slice(inGameMemoryAddress, inGameMemoryAddress + size);
             if (JSON.stringify(previousSlice) !== JSON.stringify(currentSlice)) {
                 previousSlice = currentSlice;
                 onChange(currentSlice);

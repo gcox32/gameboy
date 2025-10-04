@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import GymBadge from './GymBadge';
 import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 import styles from './styles.module.css';
-import { MemoryWatcherConfig } from '@/types/schema';
+import { MemoryWatcherConfig } from '@/types';
 
 const badgesInfo = [
     { name: "Boulder Badge", image: "boulder.png" },

@@ -8,7 +8,7 @@ import {
     View
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
-import { GameModel } from '@/types/models';
+import { GameModel } from '@/types';
 import buttons from '@/styles/buttons.module.css';
 
 interface GameEditFormProps {

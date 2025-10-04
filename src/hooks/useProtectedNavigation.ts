@@ -21,10 +21,10 @@ export const useProtectedNavigation = () => {
 
     const handleContinue = () => {
         if (pendingNavigation) {
-            setGameState((prevState: any) => ({
-                ...prevState,
+            setGameState({
+                ...gameState,
                 isPlaying: false
-            }));
+            });
             router.push(pendingNavigation);
         }
         setIsModalOpen(false);

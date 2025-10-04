@@ -3,27 +3,26 @@ import Cartridges from "../Cartridges";
 import SystemControls from "../SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
 import styles from './styles.module.css';
-import { GameModel } from "@/types/models";
 import ConfirmModal from "@/components/modals/utilities/ConfirmModal";
 import SaveStateModal from "@/components/modals/SaveStateManagement/SaveStateModal";
 import LoadStateModal from "@/components/modals/SaveStateManagement/LoadStateModal";
 import GameManagement from "@/components/modals/GameManagement";
 import { getUrl } from 'aws-amplify/storage';
-import { AuthenticatedUser } from '@/types/auth';
-import { SaveStateModel } from "@/types/models";
+import { AuthenticatedUser, GameModel, SaveStateModel } from '@/types';
+import { PartialSaveStateModel } from "@/components/modals/SaveStateManagement/SaveStateModal";
 
 interface ControlPanelProps {
-    handleROMSelected: (rom: any) => void;
+    handleROMSelected: (rom: GameModel) => void;
     isEmulatorPlaying: boolean;
-    activeSaveState: any;
+    activeSaveState: SaveStateModel;
     intervalPaused: boolean;
     handlePauseResume: () => void;
     handleReset: () => void;
     handlePowerToggle: () => void;
     toggleFullscreenMode: () => void;
     isRomLoaded: boolean;
-    onSaveConfirmed: (saveData: any, isSaveAs: boolean) => Promise<void>;
-    userSaveStates: any[];
+    onSaveConfirmed: (saveData: SaveStateModel, isSaveAs: boolean) => Promise<void>;
+    userSaveStates: SaveStateModel[];
     runFromSaveState: (sramArray: number[], selectedSaveState: SaveStateModel) => void;
     currentUser: AuthenticatedUser;
     isSaving: boolean;
@@ -56,7 +55,7 @@ function ControlPanel({
     const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
     const [confirmModalMessage, setConfirmModalMessage] = useState('');
     const [skipConfirmation, setSkipConfirmation] = useState(false);
-    const [activeROMData, setActiveROMData] = useState<any | null>(null);
+    const [activeROMData, setActiveROMData] = useState<SaveStateModel | null>(null);
     const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
     const [editingGame, setEditingGame] = useState<GameModel | null>(null);
 
@@ -206,16 +205,16 @@ function ControlPanel({
                     setShowSaveStateModal(false);
                     if (intervalPaused) handlePauseResume();
                 }}
-                onConfirm={async (saveData: any) => {
+                onConfirm={async (saveData: PartialSaveStateModel) => {
                     try {
-                        await onSaveConfirmed(saveData, false);
-                        setActiveROMData(saveData);
+                        await onSaveConfirmed(saveData as SaveStateModel, false);
+                        setActiveROMData(saveData as SaveStateModel);
                         setShowSaveStateModal(false);
                     } catch (error) {
                         console.error('Error during save:', error);
                     }
                 }}
-                initialData={activeROMData}
+                initialData={activeROMData as PartialSaveStateModel}
             />
 
             <LoadStateModal

@@ -1,25 +1,27 @@
 'use client';
+
 import { createContext, useContext, useState, useCallback } from 'react';
+import { GameModel, GameState, nullGameState } from '@/types';
 
 const GameContext = createContext<{
-    gameState: any;
-    startGame: (gameData: any) => void;
+    gameState: GameState;
+    startGame: (gameData: GameModel) => void;
     stopGame: () => void;
-    setGameState: (gameState: any) => void;
+    setGameState: (gameState: GameState) => void;
 } | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
     const [gameState, setGameState] = useState<{
         isPlaying: boolean;
-        activeGame: any;
+        activeGame: GameModel;
         lastSaved: number | null;
     }>({
         isPlaying: false,
-        activeGame: null,
+        activeGame: nullGameState.activeGame,
         lastSaved: null
     });
 
-    const startGame = useCallback((gameData: any) => {
+    const startGame = useCallback((gameData: GameModel) => {
         setGameState({
             isPlaying: true,
             activeGame: gameData,
@@ -32,7 +34,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             if (prev.isPlaying) {
                 return {
                     isPlaying: false,
-                    activeGame: null,
+                    activeGame: nullGameState.activeGame,
                     lastSaved: null
                 };
             }

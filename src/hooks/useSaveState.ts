@@ -4,7 +4,7 @@ import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import { uploadData } from 'aws-amplify/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { GameModel, SaveStateModel } from '@/types/models';
+import { GameModel, SaveStateModel } from '@/types';
 
 // Define types for the hook parameters and state
 interface GameInstance {

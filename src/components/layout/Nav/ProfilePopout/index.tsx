@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import Image from 'next/image';
 import styles from './styles.module.css';
 import dynamic from 'next/dynamic';
+import { ProfileModel } from '@/types';
 
 const MobileMenu = dynamic(() => import('@/components/common/MobileMenu'), { ssr: false });
 
 interface ProfilePopoutProps {
-    userProfile: any;
+    userProfile: ProfileModel;
     avatarUrl: string | null;
     onAvatarClick: () => void;
     onProfileClick: () => void;

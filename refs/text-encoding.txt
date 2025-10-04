@@ -1,0 +1,127 @@
+Rendering
+Due to how text is rendered in the Generation I core series games, all non-control characters take up the exact same amount of space (i.e. the games effectively use a monospaced font). In Western languages, some ligature characters exist to display two characters within the width of one (e.g. the character 's is the same width as s).
+
+These same code points are used for both rendering text and other elements. For example, codepoints 0x01 to 0x48 are used for rendering map elements in the overworld, codepoints 0x79-0x7E are box-drawing characters used to draw the boundaries of text boxes, etc.
+
+Some codepoints are used for different characters in different contexts. For example, 0xF0 usually represents the Pokémon Dollar symbol, but on the text entry interface it displays as ED instead.
+
+English
+The following represents the baseline values of these characters. In some contexts, many of these characters have their values overwritten.
+
+Undefined characters simply print as spaces.
+
+-0	-1	-2	-3	-4	-5	-6	-7	-8	-9	-A	-B	-C	-D	-E	-F
+0-	␀	
+1-	Map tiles
+2-
+3-
+4-				
+5-	Control characters
+6-	A	B	C	D	E	F	G	H	I	V	S	L	M	:	ぃ	ぅ
+7-	‘	’	“	”	・	…	ぁ	ぇ	ぉ	╔	═	╗	║	╚	╝	␠
+8-	A	B	C	D	E	F	G	H	I	J	K	L	M	N	O	P
+9-	Q	R	S	T	U	V	W	X	Y	Z	(	)	:	;	[	]
+A-	a	b	c	d	e	f	g	h	i	j	k	l	m	n	o	p
+B-	q	r	s	t	u	v	w	x	y	z	é	'd	'l	's	't	'v
+C-	Blanks
+D-
+E-	'	PK	MN	-	'r	'm	?	!	.	ァ	ゥ	ェ	▷	▶	▼	♂
+F-	Poké Dollar	×	.	/	,	♀	0	1	2	3	4	5	6	7	8	9
+Legend
+Standard text characters
+Variable text characters
+Control characters
+Map tiles
+Variable text characters are characters whose values are overwritten in certain contexts to render different characters. Their default values are displayed in the table above; alternate possible values are detailed below.
+Control characters are special code points that either print a particular multi-character string or serve some functional purpose (such as marking the end of a line of text).
+Map tiles are sprites loaded from the current map's tileset. They are usually graphical rather than text.
+The full list of characters that are available for user input are: A-Z and a-z, space, and the following: ×():;[]PKMN-?!♂♀/.,.
+
+Notes
+0x00 is a null character, used to mark null values and occasionally used as a delimiter.
+0x60-0x6C are bold letters leftover from the Japanese version. Only V and S are used in the English version, appearing on the VS screen at the start of a link battle.
+0x6D (default value) and 0x9C are both colon, but are visually distinct: 0x9C is bold relative to 0x6D. 0x9C is used in almost all cases (including in user input), except in the display of total playtime.
+0x6E-0x6F, 0x76-0x78, and 0xE9-0xEB are Japanese hiragana and katakana leftover in the character table from the Japanese version. They are not used in the English version.
+0x74 is an interpunct leftover from the Japanese version. It is not used in the English version.
+0x79-0x7E are box-drawing characters used to draw the boundaries of text boxes. In the games themselves, they are rendered with Poké Balls in the corners.
+0x7F is a space.
+0xBB-0xBF and 0xE4-0xE5 represent an apostrophe followed by a letter. These characters are used to render contractions and possessives in dialogue, so that the apostrophe does not take up an entire character-width of space.
+0xC0-0xDF are usually blank, although some parts of the game may load characters in these code points.
+Letters with umlauts that are user-enterable in the German version (ÄÖÜäöü) are located at 0xC0-0xC5 in Western languages other than English.
+0xE8 and 0xF2 are both periods that render identically, though 0xF2 is horizontally offset by one pixel to the right as compared to 0xE8.
+In the Japanese games, the two code points represent visually distinct characters: 0xF2 is a decimal point and 0xE8 is punctuation.
+0xF2 is used for user input; 0xE8 is used in the name of Mr. Mime.
+Control characters
+Code points within the 0x49-0x5F range (with the exception of code point 0x4D, which defaults to tile 0x4D) are control characters. Instead of loading the tile they would correspond to from VRAM, they execute a piece of code. Additionally, the null code point 0x00 (which is not in this range) can be considered a control character.
+
+There are three main categories of control character:
+
+Functional: Performs some function other than simply displaying text
+Static display: Prints a fixed string (which may contain multiple characters)
+Variable display: Prints the value of a text variable (which may contain multiple characters)
+The static display control character 0x5D "TRAINER" is used as the Original Trainer of Pokémon obtained in in-game trades. Due to being a control character, this means that if the Pokémon is traded to a game in a different language, the Original Trainer is automatically updated to display "TRAINER" in that game's own language.
+
+Code point	Short name	Control type	Description
+0x00	null	none	Marks a null value
+0x49	page	Functional	Begins a new Pokédex page
+0x4A	pkmn	Static display	Prints "PKMN"
+0x4B	_cont	Functional	Stops and waits for confirmation before scrolling the dialogue down by 1
+0x4C	autocont	Functional	Scroll dialogue down 1 without waiting for confirmation
+0x4E	next line	Functional	Move 1 line down in dialogue
+0x4F	bottom line	Functional	Write at the last line of dialogue
+0x50	end	Functional	Marks the end of a string
+0x51	paragraph	Functional	Begin a new dialogue page with button confirmation
+0x52	players name	Variable display	Prints the player's name
+0x53	rivals name	Variable display	Prints the rival's name
+0x54	poke	Static display	Prints "POKé"
+0x55	cont	Functional	A variation of 0x4B and 0x4C
+0x56	……	Static display	Prints "……"
+0x57	done	Functional	Ends text box
+0x58	prompt	Functional	Prompts to end textbox
+0x59	target	Variable display	Prints the target of a move. If referring to the opponent's Pokémon, "Enemy " is prepended to the Pokémon's name. Used in battle; outside of battle, it will retain the last value that it stored.
+0x5A	user	Variable display	Prints the user of a move. If referring to the opponent's Pokémon, "Enemy " is prepended to the Pokémon's name. Used in battle; outside of battle, it will retain the last value that it stored.
+0x5B	pc	Static display	Prints "PC"
+0x5C	tm	Static display	Prints "TM"
+0x5D	trainer	Static display	Prints "TRAINER"
+0x5E	rocket	Static display	Prints "ROCKET"
+0x5F	dex	Functional	Prints "." and ends the Pokédex entry
+Variable characters
+Code points in the 0x60-0x7E range vary depending on the context in which they are rendered. Normally these code points contain the characters listed in the table above, but in certain contexts different characters overwrite them. Even when some characters from this set are replaced, others may remain as their default values.
+
+The alternate tilesets listed below are some of the alternate characters that use these codepoints. They are not necessarily a complete list of all cases in which these codepoints are overwritten.
+
+HP bar tileset
+This tileset is loaded when the game needs to draw HP bars, such as in battle and on status screens. (Note that screens that load this tileset may load additional tilesets that override some of these characters as well.)
+
+Code point	Original
+character	New
+character	Notes
+0x62	C	HP: (right half)	Right half of HP: (looks like ↄ:), with left tip of an HP bar
+0x63	D	HP bar segment (empty)	HP bar segment (empty)
+0x64	E	HP bar segment (1/8)	HP bar segment (1/8)
+0x65	F	HP bar segment (1/4)	HP bar segment (1/4)
+0x66	G	HP bar segment (3/8)	HP bar segment (3/8)
+0x67	H	HP bar segment (1/2)	HP bar segment (1/2)
+0x68	I	HP bar segment (5/8)	HP bar segment (5/8)
+0x69	V	HP bar segment (3/4)	HP bar segment (3/4)
+0x6A	S	HP bar segment (7/8)	HP bar segment (7/8)
+0x6B	L	HP bar segment (full)	HP bar segment (full)
+0x6C	M	HP bar right tip	Right tip of an HP bar.
+0x6D	:	║	Vertical text box boundary, with the right tip of an HP bar
+0x6E	ぃ	:L	Abbreviation for "Level"
+0x6F	ぅ	◢	Upper half arrow pointing left. Used to draw a half box pointing left, such as around the player's Pokémon's HP bar.
+0x70	‘	to	Used on the Pokémon summary screen in the experience to next level display.
+0x71	’	HP: (left half)	Left half of HP: (looks like HI)
+0x72	“	『	Japanese thick left quotation mark. Leftover from the Japanese version; unused in the English version.
+0x73	”	ID	Used on the Pokémon summary screen in the Trainer ID number header.
+0x74	・	№	Used for Pokédex numbers and in the Trainer ID number header.
+0x75	⋯	Unchanged
+0x76	ぁ	─	Box-drawing character
+0x77	ぇ	─
+0x78	ぉ	◣	Upper half arrow pointing right. Used to draw a half box pointing right, such as around the opposing Pokémon's HP bar.
+0x79	╔	Unchanged
+0x7A	═
+0x7B	╗
+0x7C	║
+0x7D	╚
+0x7E	╝

@@ -8,16 +8,15 @@ import TeamPhoto from '@/components/pokemon/TeamPhoto';
 import styles from './styles.module.css';
 import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 import { useSettings } from '@/contexts/SettingsContext';
-import { MemoryWatcherConfig } from '@/types/schema';
+import { SRAMArray, SaveStateModel, GameModel, MemoryWatcherConfig } from '@/types';
 
 interface FullScreenContainerProps {
   background: string;
   fullscreenCanvasRef: React.RefObject<HTMLCanvasElement> | null;
   fullscreenContainerRef: React.RefObject<HTMLDivElement> | null;
-  activeROM: any;
-  activeState: any;
-  inGameMemory: any;
-  MBCRam: any;
+  activeROM: GameModel | null;
+  activeState: SaveStateModel | null;
+  inGameMemory: SRAMArray | number[];
   onPauseResume: () => void;
   intervalPaused: boolean;
 }
@@ -66,13 +65,10 @@ export default function FullScreenContainer({
     watcherConfig?.size,
     async (array: number[]) => {
       if (isDynamicBackground && activeROM && activeState) {
-        console.log('memory watcher config', watcherConfig);
         const currentMapByte = array[0];
-        console.log('currentMapByte', currentMapByte);
 
         const location = await fetch(`/api/pokemon/gen-one/locations?gameId=001&locationId=${currentMapByte}`);
         const locationData = await location.json();
-        console.log('locationData', locationData);
 
         if (locationData.img) {
           const backgroundImage = locationsImgUrl + locationData.img;
@@ -113,8 +109,10 @@ export default function FullScreenContainer({
       }}
     >
       <canvas id="fullscreen" className={styles.fullscreen} ref={fullscreenCanvasRef}></canvas>
+      
+      {activeROM && activeState && inGameMemory && 
       <GameElementsBar
-        elementsEnabled={activeROM && activeState}
+        elementsEnabled={true}
         onActivePartyClick={() => setShowActiveParty(!showActiveParty)}
         onGymBadgeCaseClick={() => setShowGymBadgeCase(!showGymBadgeCase)}
         onMapClick={() => setShowMap(!showMap)}
@@ -125,8 +123,8 @@ export default function FullScreenContainer({
         showMap={showMap}
         showPokedex={showPokedex}
         showTeamPhoto={showTeamPhoto}
-      />
-      {showActiveParty && activeROM && activeState &&
+      />}
+      {showActiveParty && activeROM && activeState && inGameMemory &&
         <ActiveParty
           inGameMemory={inGameMemory}
           onPauseResume={onPauseResume}
@@ -134,7 +132,7 @@ export default function FullScreenContainer({
           activeROM={activeROM}
         />
       }
-      {showGymBadgeCase && activeROM && activeState &&
+      {showGymBadgeCase && activeROM && activeState && inGameMemory &&
         <GymBadgeCase
           inGameMem={inGameMemory}
           activeROM={activeROM}

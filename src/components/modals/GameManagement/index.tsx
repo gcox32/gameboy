@@ -21,7 +21,7 @@ import { type Schema } from '@/amplify/data/resource';
 import { uploadData } from 'aws-amplify/storage';
 import { getS3Url } from '@/utils/saveLoad';
 import { type AuthUser } from 'aws-amplify/auth';
-import { GameModel } from '@/types/models';
+import { GameModel } from '@/types';
 import buttons from '@/styles/buttons.module.css';
 
 const client = generateClient<Schema>();

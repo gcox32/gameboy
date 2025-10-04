@@ -17,7 +17,7 @@ import Notifications from './Notifications';
 import Settings from './Settings';
 import MobileFooter from './MobileFooter';
 import Friends from './Friends';
-import { Profile } from '@/types/auth';
+import { NotificationModel, ProfileModel } from '@/types';
 
 const client = generateClient<Schema>();
 
@@ -26,7 +26,7 @@ const Nav = () => {
     if (!auth) throw new Error('Auth context not available');
     
     const { user } = auth as { user: AuthUser | null };
-    const [userProfile, setUserProfile] = useState<Profile | null>(null);
+    const [userProfile, setUserProfile] = useState<ProfileModel | null>(null);
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -56,7 +56,7 @@ const Nav = () => {
             });
             if (profiles.data.length > 0) {
                 const profile = profiles.data[0];
-                setUserProfile(profile as Profile);
+                setUserProfile(profile as ProfileModel);
                 if (profile.avatar) {
                     const url = await getS3Url(profile.avatar);
                     setAvatarUrl(url);
@@ -79,13 +79,12 @@ const Nav = () => {
                     ]
                 },
                 limit: 10,
-                nextToken: nextToken ?? undefined,
-                sortDirection: 'DESC'
-            } as any);
+                nextToken: nextToken ?? undefined
+            });
             const items = resp.data ?? [];
             setNotifications((prev) => nextToken ? [...prev, ...items] : items);
-            setNotifNextToken((resp as any).nextToken ?? null);
-            const unread = items.filter((n: any) => !n.readAt).length;
+            setNotifNextToken(resp.nextToken ?? null);
+            const unread = items.filter((n) => !n.readAt).length;
             if (!nextToken) setUnreadCount(unread);
         } catch (error) {
             console.error('Error fetching notifications:', error);
@@ -96,9 +95,9 @@ const Nav = () => {
 
     const markAllRead = useCallback(async () => {
         try {
-            const toMark = notifications.filter((n: any) => !n.readAt);
-            await Promise.all(toMark.map((n: any) => client.models.Notification.update({ id: n.id, readAt: new Date().toISOString() })));
-            setNotifications((prev) => prev.map((n: any) => ({ ...n, readAt: n.readAt ?? new Date().toISOString() })));
+            const toMark = notifications.filter((n: NotificationModel) => !n.readAt);
+            await Promise.all(toMark.map((n: NotificationModel) => client.models.Notification.update({ id: n.id, readAt: new Date().toISOString() })));
+            setNotifications((prev) => prev.map((n: NotificationModel) => ({ ...n, readAt: n.readAt ?? new Date().toISOString() })));
             setUnreadCount(0);
         } catch (e) {
             console.error('Failed to mark notifications read', e);
@@ -212,7 +211,7 @@ const Nav = () => {
             <ProfileModal
                 isOpen={isProfileModalOpen}
                 onClose={closeProfileModal}
-                userProfile={userProfile}
+                userProfile={userProfile as ProfileModel}
                 onUpdate={fetchUserProfile}
             />
             <SettingsModal

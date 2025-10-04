@@ -18,7 +18,7 @@ import Image from 'next/image';
 import { getUrl } from 'aws-amplify/storage';
 import { getUsernamesForSubs } from '@/utils/usernames';
 import { useToast } from '@/components/ui';
-import { GameModel } from '@/types/models';
+import { GameModel } from '@/types';
 
 export default function GamesManagement() {
     const [games, setGames] = useState<GameModel[]>([]);

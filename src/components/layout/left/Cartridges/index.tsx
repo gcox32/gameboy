@@ -2,9 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import styles from './styles.module.css';
-import { GameModel } from '@/types/models';
+import { GameModel, CartridgesProps } from '@/types';
 import buttons from '@/styles/buttons.module.css';
-import { CartridgesProps } from '@/types/schema';
 
 const client = generateClient<Schema>();
 function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, onOpenGameManagement }: CartridgesProps) {

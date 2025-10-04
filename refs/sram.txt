@@ -1,0 +1,787 @@
+Save Data Structure
+Banks Overview
+Note: These values apply to the North American Pokémon Red, Blue, and Yellow games. They could be different for other releases.
+
+The 32KiB save data, equal to 0x8000 bytes, is divided into 4 banks, each 8KiB in size, equal to 0x2000 bytes.
+
+Bank	Offset	Name
+0	0x0000	Scratch and Hall of Fame
+1	0x2000	Main
+2	0x4000	Boxes 1-6
+3	0x6000	Boxes 7-12
+Bank 0 - Scratch and Hall of Fame
+
+Consists of 3 sprite decompression buffers which seem to contain misc or varying data and the Hall of Fame because of its size (4,800 bytes).
+
+Bank 1 - Main
+
+The primary bank for just about all data across the game, most is directly loaded into the in-game memory byte-by-byte. It contains hundreds of variables including a full byte-by-byte copy of the current PC box.
+
+Bank 2 - Boxes 1-6
+
+Storage for PC boxes 1-6
+
+Bank 3 - Boxes 7-12
+
+Storage for PC Boxes 7-12
+
+Loading
+When it comes to loading, the game only mainly focuses on bank #1, and much of it's contents are directly loaded byte-by-byte directly into WRAM at different addresses, as such, different offsets can be applied to convert from WRAM to the save data and back. Those are provided where possible.
+
+Other banks are loaded either on certain game states, on certain events, or as needed. Upon switching Pokémon boxes, for example, the contents of the new bank are copied to bank 1 from either bank 2 or 3 and events that use hall of fame data causes either one of or the latest Hall of Fame record to be loaded into WRAM.
+
+Checksum
+Used to validate the integrity of saved data.
+
+The checksum in Generation I is only 8 bits and has a single copy of it. If this value is incorrect, the error message "The file data is destroyed!" will appear after the title screen, and the continue option will not appear in the menu.
+
+The algorithm used to calculate the checksum is as follows:
+
+Initialize the checksum to 0
+For every byte from 0x2598 to 0x3522, inclusive, add its value to the checksum
+Invert the bits of the result
+An equivalent way to achieve the same result is:
+
+Initialize the checksum to 255
+For every byte from 0x2598 to 0x3522, inclusive, subtract its value from the checksum
+The checksum neatly validates the data it encompasses but there are several checksums for different sections of data in different banks. Those are all described below.
+
+Bank 0
+This is the Hall of Fame and scratch bank. It can essentially be regarded mostly as a misc bank with some large data, various scratch buffers used only occasionally during run-time, and lots and lots of unused space. None of the data in this bank is validated or checked for corruption.
+
+The bank starts at address 0x0000 and is 0x2000 in size.
+
+Offset	Size	Contents
+0x0000	0x188	Sprite Buffer 0
+0x0188	0x188	Sprite Buffer 1
+0x0310	0x188	Sprite Buffer 2
+0x0498	0x100	Unused
+0x0598	0x12C0	Hall of Fame
+0x1858	0x7A8	Unused
+Scratch Buffers
+
+During gameplay, the game sometimes uses these buffers as extra graphical buffers for misc stuff. As far as has been observed, they can safely be cleared, although they are used occasionally during gameplay so anything cleared or written to them will just be overwritten.
+
+Unused
+
+Unused here refers to data that the game completely does not touch in any way. Also none of the data is ever loaded from or saved to. The only way the game can ever be made to wipe or do anything to these areas is by invoking the hidden "Clear Save File" dialog manually yourself at the title screen.
+
+Hall of Fame
+
+Refer to the Hall of Fame data structure above which goes into all the detail. The Hall of Fame code is a bit messy and it's memory structure the same, memory load addresses can't be provided well.
+
+Bank 1
+This is the prime bank that all of the information is stored in that's ever needed or used in gameplay. Bank 2 and 3 really pull into data into Bank 1 when needed or are occasionally updated.
+
+Furthermore most sections in this bank directly correspond byte-by-byte to their counterparts in in-game memory meaning you can apply a simple offset to translate the save data address to and from the in-game memory address. It also means unused areas in such sections will be loaded and available in-game and even saved back to save data.
+
+As such, this is a mammoth of a bank and contains hundreds of variables.
+
+The bank starts at address 0x2000 and is 0x2000 in size.
+
+Offset	Size	Contents	Copied To	Diff
+0x2000	0x598	Unused		
+0x2598	0xB	Player Name	0xD158	0xABC0
+0x25A3	0x789	Main Data	0xD2F7	0xAD54
+0x2D2C	0x200	Sprite Data	0xC100	0x93D4
+0x2F2C	0x194	Party Data	0xD163	0xA237
+0x30C0	0x462	Current Box Data	0xDA80	0xA9C0
+0x3522	0x1	Tileset Type	0xD0D4	0x9BB2
+0x3523	0x1	Main Data Checksum		
+0x3524	0xADC	Unused		
+Unused
+
+Unused here refers to data that the game completely does not touch in any way. Also none of the data is ever loaded from or saved to. The only way the game can ever be made to wipe or do anything to these areas is by invoking the hidden "Clear Save File" dialog manually yourself at the title screen.
+
+Player Name
+
+Player name, even though the game allocates space for 10 characters + Terminator, oddly enough, the in-game prompt only allows typing 7 possibly to fit within certain dialogue maybe.
+
+Main Data
+
+This area contains most of the entire memory state from WRAM and is copied byte-by-byte.
+
+Sprite Data
+
+This area contains detailed sprite information in 2 section for the map and is copied byte-by-byte. It's not the only sprite information, there are actually 2 other areas which contain more sprite information for the current map located in "Main Data"
+
+Party Data
+
+Contains information on the players current party and is copied byte-by-byte
+
+Current box data
+
+A byte-by-byte copy of the current PC box from either bank 2 or 3 and is byte-by-byte copied to memory on each load. In this way, the game only deals with 1 PC box in-memory at anytime and that PC box is copied here for easy and quick transfer back to memory on each load.
+
+Tileset Type
+
+The current tileset of where you are such as a specific place, store, dungeon, or just in the outside world.
+
+Main Data Checksum
+
+This checksum is calculated from Player Name through Tileset Type.
+
+Main Data
+Goes over all the elements inside of Main Data, one of the most comprehensive areas in the save data. To translate the offset to in-game memory and/or back simply use the difference number mentioned in the above table, 0xAD54.
+
+Offset	Size	Contents
+0x25A3	0x13	Pokédex Owned
+0x25B6	0x13	Pokédex Seen
+0x25C9	0x2A	Bag Items
+0x25F3	0x3	Money
+0x25F6	0xB	Rival Name
+0x2601	0x1	Game Options
+0x2602	0x1	Badges
+0x2603	0x1	Padding
+0x2604	0x1	Letter Delay
+0x2605	0x2	Player ID
+0x2607	0x1	Music ID
+0x2608	0x1	Music Bank
+0x2609	0x1	Contrast ID
+0x260A	0x1	Current Map
+0x260B	0x2	UL Corner Cur View Tile Block Map Ptr
+0x260D	0x1	Y Coord
+0x260E	0x1	X Coord
+0x260F	0x1	Y Block Coord
+0x2610	0x1	X Block Coord
+0x2611	0x1	Last Map
+0x2612	0x1	Unused
+0x2613	0x1	Current Tileset
+0x2614	0x1	Map Height Blocks
+0x2615	0x1	Map Width Block
+0x2616	0x2	Map Data Pointer
+0x2618	0x2	Map Text Pointer
+0x261A	0x2	Map Script Pointer
+0x261C	0x1	Map Connections
+0x261D	0xB	Map Connections North
+0x2628	0xB	Map Connections South
+0x2633	0xB	Map Connections West
+0x263E	0xB	Map Connections East
+0x2649	0xB	Sprite Set IDs
+0x2654	0x1	Sprite Set ID
+0x2655	0x4	Object Data Pointers Tmp
+0x2659	0x1	Out of Bounds Tile
+0x265A	0x1	Warp Count
+0x265B	0x80	Warp Entries
+0x26DB	0x1	Warp Destination ID
+0x271C	0x1	Pikachu FriendshipY
+0x275B	0x80	Padding
+0x275C	0x1	Sign Count
+0x275D	0x20	Sign Coords
+0x277D	0x10	Sign Text IDs
+0x278D	0x1	Sprite Count
+0x278E	0x1	Y Offset since last special warp
+0x278F	0x1	X Offset since last special warp
+0x2790	0x20	Sprite Data
+0x27B0	0x20	Sprite Extra Data
+0x27D0	0x1	Map 2×2 Meta Height
+0x27D1	0x1	Map 2×2 Meta Width
+0x27D2	0x2	Map View VRAM Pointer
+0x27D4	0x1	Player Movement Direction
+0x27D5	0x1	Player Last Stop Direction
+0x27D6	0x1	Player Direction
+0x27D7	0x1	Tileset Bank
+0x27D8	0x2	Tileset Block Pointer
+0x27DA	0x2	Tileset GFX Pointer
+0x27DC	0x2	Tileset Collision Pointer
+0x27DE	0x3	Tileset Talking over Tiles
+0x27E1	0x5	Tileset Grass Tiles
+0x27E6	0x68	Box Items
+0x284C	0x2	Current Box Number
+0x284E	0x1	Hall of Fame Record Count
+0x284F	0x1	Unused
+0x2850	0x2	Slot Coins
+0x2852	0x20	Missable Objects
+0x2872	0x7	Padding
+0x2879	0x1	Scratch
+0x287A	0x22	Missable List
+0x289C	0x100	Completed Scripts
+0x299C	0xE	Owned Hidden Items
+0x29AA	0x2	Owned Hidden Coins
+0x29AC	0x1	Walking, Biking, or Surfing
+0x29AD	0x10	Padding
+0x29B7	0x2	Towns visited
+0x29B9	0x2	Safari Steps
+0x29BB	0x1	Fossil Item Given ID
+0x29BC	0x3	Fossil Pokémon Result ID
+0x29BF	0x1	Enemy Pokémon or Trainer Class
+0x29C0	0x1	Player Jumping Y Screen Coords
+0x29C1	0x1	Rival first partner Pokémon
+0x29C2	0x1	Padding
+0x29C3	0x1	Player first partner Pokémon
+0x29C4	0x1	Boulder Sprite Index
+0x29C5	0x1	Last Blackout Map
+0x29C6	0x1	Destination Map
+0x29C7	0x1	Unused
+0x29C8	0x1	Tile in front of Boulder or Collision
+0x29C9	0x1	Dungeon Warp Destination
+0x29CA	0x1	Which Dungeon Warp Used
+0x29CB	0x9	Unused
+0x29D4	0x1	Various Flags 1
+0x29D5	0x1	Padding
+0x29D6	0x1	Defeated Gyms
+0x29D7	0x1	Padding
+0x29D8	0x1	Various Flags 2
+0x29D9	0x1	Various Flags 3
+0x29DA	0x1	Various Flags 4
+0x29DB	0x1	Padding
+0x29DC	0x1	Various Flags 5
+0x29DD	0x1	Padding
+0x29DE	0x1	Various Flags 6
+0x29DF	0x1	Various Flags 7
+0x29E0	0x2	Defeated Lorelei
+0x29E2	0x1	Various Flags 8
+0x29E3	0x2	In-Game Trades
+0x29E5	0x1	Padding
+0x29E7	0x1	Warped from Warp
+0x29E8	0x1	Warped from Map
+0x29E9	0x2	Padding
+0x29EB	0x1	Card key door Y
+0x29EC	0x1	Card key door X
+0x29ED	0x2	Padding
+0x29EF	0x1	First Trash Can Lock
+0x29F0	0x1	Second Trash Can Lock
+0x29F1	0x2	Padding
+0x29F3	0x140	Completed Game Events
+0x2B33 (U)	0x1	Grass Rate
+0x2B33 (U)	0x1	Link Trainer
+0x2B34	0xB	Grass Pokémon
+0x2B3F (U)	0x9	Grass Pokémon
+0x293F (U)	0x9	Link Data
+0x2B48	0x1	Enemy Party Count
+0x2B49	0x7	Enemy Party Pokémon
+0x2B50 (U)	0x1	Water Rate
+0x2B51 (U)	0x1	Water Pokémon
+0x2B50 (U)	0x1	Enemy Partial Party Data
+0x2CDC	0x2	Trainer Header Pointer
+0x2CDE	0x6	Padding
+0x2CE4	0x1	Opponent ID after wrong answer
+0x2CE5	0x1	Current Map Script
+0x2CE6	0x7	Padding
+0x2CED	0x1	Play Time Hours
+0x2CEE	0x1	Play Time Maxed
+0x2CEF	0x1	Play Time Minutes
+0x2CF0	0x1	Play Time Seconds
+0x2CF1	0x1	Play Time Frames
+0x2CF2	0x1	Safari Game Over
+0x2CF3	0x1	Safari Ball Count
+0x2CF4	0x1	Daycare In-Use
+0x2CF5	0xB	Daycare Pokémon Name
+0x2D00	0xB	Daycare Original Trainer
+0x2D0B	0x1	Daycare Pokémon
+Padding
+
+Padding is essentially extra space assigned to an area in memory. In other words, the space is larger than the variables makeup and it could be at the start, end, middle, or some combination. It's unknown truly if the padding is ever used, there are certainly many ways for it to be used such as in various game unions with shared space. Therefore it could be considered possibly unused.
+
+Pokédex Seen/Owned
+
+Represents the specific Pokédex entries that have been either seen or owned during gameplay.
+
+Pokémon are indexed by their usual Pokédex order, meaning the order is the same as in the National Pokédex. However, indexes begin counting at 0, rather than 1.
+
+1 bit is used to represent whether a given Pokémon has been seen/owned. Bits are ordered within bytes from lowest to highest, starting with the first byte. Therefore, the exact bit can be extracted from the list using the following formula:
+
+Bit = ( Data[ RoundDown(PokéNum / 8) ] / 2 ^ (PokéNum Mod 8) ) AND 1
+
+Or in C-style code (shift occurs before other bitwise operations):
+
+Bit = Data[PokéNum >> 3] >> (PokéNum & 7) & 1;
+
+Example:
+
+Let us say that we want to know whether #120 Staryu has been seen/owned:
+
+PokéNum becomes 119, since it is 0-based.
+The byte of the list in which bit 119 is located is = 119 / 8 = 14
+The bit within that byte is = 119 Mod 8 = 7
+Dividing the byte value by 2 ^ Bit, or shifting right by Bit, moves the bit to the least-significant position
+Performing a bitwise AND with 1 will remove all but the least-significant bit
+Entry #152:
+
+As the bit lists are packed into 19 bytes, there is actually space for 152 entries. The last entry, bit 7 of byte 18, does in fact represent an entry #152 in the Pokédex. However, it is simply a copy of Kangaskhan.
+
+Bag Items
+
+Follows Item List Data Structure with a capacity of 20.
+
+Money
+
+This is in Binary Coded Decimal, in other words, it's interpreted as decimal even if viewed as hexadecimal so don't use Hexadecimal A-F.
+
+Represents how much money the character has. The figure is a 6-digit number, 2 digits per byte, encoded as binary-coded decimal, where each digit is allocated a full 4 bits.
+
+This figure is still big-endian.
+
+Essentially it's interpreted as decimal even if viewed as hexadecimal so don't use Hexadecimal A-F.
+
+Rival Name
+
+Rival name, even though the game allocates space for 10 characters + Terminator, oddly enough, the in-game prompt only allows typing 7 possibly to fit within certain dialogue maybe.
+
+Game Options
+
+Options are stored in one byte:
+
+bit 7 (MSB): battle effects ('1' for No, '0' for Yes)
+bit 6: battle style ('1' for Set, '0' for Switch)
+bit 4: sound ('0' for Mono, '1' for Stereo)
+bit 2-0: text speed ('001' for Fast, '011' for Normal, '101' for Slow)
+In Pokémon Yellow:
+
+bit 5-4: sound ('00' for Mono, '01' for Earphone1, '10' for Earphone2, '11' for Earphone3)
+Badges
+
+The eight badges are stored on eight bits, one bit for each badge, being '1' is the badge is acquired, '0' otherwise.
+
+From MSB to LSB, badges are in this order: Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth.
+
+Pikachu Friendship
+
+Represents the friendship level of the partner Pikachu. For Red and Blue, this value is unused.
+
+Letter Delay
+
+bit 0: If 0, limit the delay to 1 frame. Note that this has no effect if
+       the delay has been disabled entirely through bit 1 of this variable
+       or bit 6 of Various Flags 5
+bit 1: If 0, no delay.
+Player ID
+
+Randomly generated 16-bit id for the player and their Pokémon most used in Trades and whatnot.
+
+Music ID
+
+Which music or sound plays in this map
+
+Music Bank
+
+Which bank the music or sound is in
+
+Contrast ID
+
+The game contrast, really it's ever only used for the one cave that requires flash because without flash in the cave the contrast would be really bad.
+
+ Offset subtracted from FadePal4 to get the background and object palettes for the current map. Normally, it is 0. it is 6 when Flash is needed, causing FadePal2 to be used instead of FadePal4 
+
+Current Map
+
+Current Map ID the player was last at
+
+UL Corner Cur View Tile Block Ptr
+
+pointer to the upper left corner of the current view in the tile block map
+
+X/Y Coord
+
+Player X & Y Coordinates
+
+X/Y Block Coord
+
+Same as X & Y Coord but in blocks instead
+
+Last Map
+
+Last map the player visited
+
+Current Tileset
+
+Current tileset in map
+
+Map Height/Width Blocks
+
+Height and width of the map in blocks
+
+Map Data/Text/Script Pointers
+
+Pointers to various code for the current map to function as expected
+
+Map Connections and NSEW Connections
+
+A bit field describing the connections for the current map, are there any connecting maps to the map your on?
+
+If there are, the details will be in the specific connection data mentioned in the connection data structure.
+
+I must forewarn that maps and map connections can be a very complicated subject and often requiring some specific math formulas.
+
+Sprite Set ID(s)
+
+ Sprite set for the current map (11 sprite picture ID's)  followed by sprite set ID for the current map
+
+Object Data Pointers Tmp
+
+Unknown, most likely just a scratch 16-bit value for various object pointers.
+
+Out of Bounds Tile
+
+You have a map defined and then you have the are outside the map that will crash the game if moved to. This is the tile used to fill in all invalid areas of the current map.
+
+The tile shown outside the boundaries of the map
+
+Warp Count
+
+Number of warps on the current map
+
+Warp Entries
+
+List of warp entries on the current map, specific format unknown
+
+Warp Destination ID
+
+Unknown but here's the description which talks about a particular value of this id.
+
+If $ff, the player's coordinates are not updated when entering the map
+
+Sign Count
+
+Number of signs on the map, up to 16
+
+Coordinates of the signs
+
+Follows sign coordinate data structure, allows for up to 16 signs.
+
+Sign Text Ids
+
+Text ID of each sign, format is unknown but there are 16 bytes so it's assumed that each byte refers to a single text block.
+
+Sprite Count
+
+Number of sprites on the current map
+
+X/Y Offset since last special warp
+
+These two variables track the X and Y offset in blocks from the last special warp used they don't seem to be used for anything
+
+Sprite Data/Extra
+
+Various sprite data for up to 16 sprites, follows data structure on sprite data.
+
+Map 2×2 Meta Height and Width
+
+Map height and width in 2×2 meta tiles
+
+Map View VRAM Pointer
+
+The address of the upper left corner of the visible portion of the BG tile map in VRAM
+
+Player Direction
+
+"moving" refers to both walking and changing facing direction without taking a step.
+
+Player Moving
+
+if the player is moving, the current direction. If the player is not moving, zero. Map scripts write to this in order to change the player's facing direction
+
+Plater Last Stop Direction
+
+The direction in which the player was moving before the player last stopped
+
+Player Direction
+
+If the player is moving, the current direction, if the player is not moving, the last the direction in which the player moved
+
+Tileset Bank
+
+Bank current tileset can be found in
+
+Tileset Pointers
+
+Various pointers to how the tiles should be managed and treated in-game. Some extra descriptions are quoted below:
+
+Tileset Block Pointer
+
+Maps blocks (4×4 tiles) to tiles
+
+Tileset Collision Pointer
+
+List of all walkable tiles
+
+Tileset Talking over Tiles
+
+Tiles that can be talked over, as in, a tile between you and an NPC where you can still interact with the NPC even though your not directly in front of them. List of such valid tiles.
+
+Tileset Grass Tiles
+
+Unknown, presumably tiles where wild Pokémon can be found and which engages in a battle since more than just grass triggers a wild battle such as the mansion floor or cave floor.
+
+Box Items
+
+Items found in your PC's item box, follows the item box data structure and has a capacity of 50.
+
+Current PC Box
+
+Indicates which PC box is currently selected, minus 1. That is to say, box 1 is represented as 0, and box 12 is represented as 11.
+
+bits 0-6: box number
+bit 7: whether the player has changed boxes before
+Hall of Fame Record Count
+
+Hall many hall of fame victories you've had in this save file. The game can have up to 50 before it starts over and begins erasing the oldest records.
+
+When loading the hall of fame record data it only pulls this record number temporarily into RAM and clears it out when done since it shares data space with important variables.
+
+Slot Coins
+
+How much coins player has left to gamble with
+
+Represents how much coins the character has. The figure is a 4-digit number, 2 digits per byte, encoded as binary-coded decimal, where each digit is allocated a full 4 bits.
+
+This figure is still big-endian.
+
+Essentially it's interpreted as decimal even if viewed as hexadecimal so don't use Hexadecimal A-F.
+
+Missable Objects
+
+bit array of missable objects. set = removed
+
+Scratch
+
+Temp copy of c1×2 (sprite facing/anim)
+
+Missable List
+
+Follows the missable list data structure
+
+Completed Scripts
+
+Long array of completed scripts for all maps and even some NPCs, broken down further below.
+
+Owned Hidden Items/Coins
+
+Bit array of hidden items and coins player has found
+
+Walking, Biking, or Surfing
+
+Is the player walking, biking, or surfing currently?
+
+Towns visited
+
+Bit array of towns player has ever visited
+
+Safari Steps
+
+Number of steps for the safari zone taken so far
+
+Starts at 502
+
+Fossil Given and Result
+
+Item given to cinnabar lab and Pokémon that will result from the item
+
+Enemy Pokémon or Trainer Class
+
+Shared space between 2 variables
+
+Enemy Pokémon ID in Wild Pokémon Battle
+Trainer class of Trainer Battle
+Player Jumping Y Screen Coords
+
+Unknown really, pertains to the sections of code that deal with the jumping mechanic.
+
+Rival First Partner Pokémon
+
+Pokémon Rival Picked
+
+Player First Partner Pokémon
+
+Pokémon Player Picked
+
+Boulder Sprite Index
+
+Sprite index of the boulder the player is trying to push
+
+Last Blackout Map
+
+Unknown
+
+Destination Map
+
+Destination map (for certain types of special warps, not ordinary walking) 
+
+Tile in front of Boulder or Collision
+
+Used to store the tile in front of the boulder when trying to push a boulder. Also used to store the result of the collision check ($ff for a collision and $00 for no collision)
+
+Dungeon Warp Destination
+
+Destination map for dungeon warps
+
+Which dungeon warp used
+
+Which dungeon warp within the source map was used
+
+Various Flags 1
+
+bit 0: using Strength outside of battle
+bit 1: set by IsSurfingAllowed when surfing's allowed, but the caller resets it after checking the result
+bit 3: received Old Rod
+bit 4: received Good Rod
+bit 5: received Super Rod
+bit 6: gave one of the Saffron guards a drink
+bit 7: set by ItemUseCardKey, which is leftover code from a previous implementation of the Card Key
+Defeated Gyms
+
+Redundant because it matches Earned Badges used to determine whether to show name on statue and in two NPC text scripts
+
+Various Flags 2
+
+Bit 0: if not set, the 3 minimum steps between random battles have passed
+Bit 1: prevent audio fade out
+Various Flags 3
+
+This variable is used for temporary flags and as the destination map when
+warping to the Trade Center or Colosseum.
+
+bit 0: sprite facing directions have been initialised in the Trade Center
+bit 3: do scripted warp (used to warp back to Lavender Town from the top of the Pokémon tower)
+bit 4: on a dungeon warp
+bit 5: don't make NPCs face the player when spoken to
+Bits 6 and 7 are set by scripts when starting major battles in the storyline,
+but they do not appear to affect anything. Bit 6 is reset after all battles
+and bit 7 is reset after trainer battles (but it's only set before trainer
+battles anyway).
+Various Flags 4
+
+bit 0: the player has received Lapras in the Silph Co. building
+bit 1: set in various places, but doesn't appear to have an effect
+bit 2: the player has healed Pokémon at a Pokémon center at least once
+bit 3: the player has a received a Pokémon from Prof. Oak
+bit 4: disable battles
+bit 5: set when a battle ends and when the player blacks out in the overworld due to poison
+bit 6: using the link feature
+bit 7: set if scripted NPC movement has been initialised
+Various Flags 5
+
+bit 0: NPC sprite being moved by script
+bit 5: ignore joypad input
+bit 6: print text with no delay between each letter
+bit 7: set if joypad states are being simulated in the overworld or an NPC's movement is being scripted
+Various Flags 6
+
+bit 0: play time being counted
+bit 1: remnant of debug mode? not set by the game code.
+if it is set
+1. skips most of Prof. Oak's speech, and uses NINTEN as the player's name and SONY as the rival's name
+2. does not have the player start in floor two of the player's house (instead sending them to Last Map)
+3. allows wild battles to be avoided by holding down B
+bit 2: the target warp is a fly warp (bit 3 set or blacked out) or a dungeon warp (bit 4 set)
+bit 3: used warp pad, escape rope, dig, teleport, or fly, so the target warp is a "fly warp"
+bit 4: jumped into hole (Pokémon Mansion, Seafoam Islands, Victory Road) or went down waterfall (Seafoam Islands), so the target warp is a "dungeon warp"
+bit 5: currently being forced to ride bike (cycling road)
+bit 6: map destination is Last Blackout Map (usually the last used Pokémon center, but could be the player's house)
+I will say don't get your hopes up with debug mode, it may work by setting it here given the timeline it loads the save data but the game may try to unset it since there are numerous measures in place particular when starting the game to ensure it's not set.
+
+Various flags 7
+
+bit 0: running a test battle
+bit 1: prevent music from changing when entering new map
+bit 2: skip the joypad check in CheckWarpsNoCollision (used for the forced warp down the waterfall in the Seafoam Islands)
+bit 3: trainer wants to battle
+bit 4: use variable Current Map Script instead of the provided index for next frame's map script (used to start battle when talking to trainers)
+bit 7: used fly out of battle
+Defeated Lorelei
+
+Bit 1: set when you beat Lorelei and reset in Indigo Plateau lobby, the game uses this to tell when Elite 4 events need to be reset
+
+Various Flags 8
+
+bit 0: check if the player is standing on a door and make him walk down a step if so
+bit 1: the player is currently stepping down from a door
+bit 2: standing on a warp
+bit 6: jumping down a ledge / fishing animation
+bit 7: player sprite spinning due to spin tiles (Rocket hideout / Viridian Gym)
+In-Game Trades
+
+Bitset of completed in-game trades
+
+Warped from warp/map
+
+The warp or map you warped from
+
+Card key door x/y
+
+Unknown
+
+First/Second Trash Can Lock
+
+Lt. Surge Trash Can lock puzzle to battle surge, these are where the switches are located. It's unknown the data format or even if they'll regenerate upon reloading the game.
+
+Completed Game Events
+
+Bitfield of game events completed
+
+Grass Rate
+
+Wild Pokémon encounter rate for the "grass" areas of the game
+
+Link Trainer
+
+Unknown
+
+Grass Pokémon
+
+This is actually a 20 byte list of Wild Pokémon in order from most common to least common (Rarest) but the last 9 bytes cross-over into a shared space used for link battles using the game link since you're obviously not going to find wild battles there.
+
+Link Data
+
+Unknown
+
+Enemy Party Count
+
+How many Pokémon does the enemy have
+
+Enemy Party Pokémon
+
+Unknown since it's only 7 bytes. Perhaps the Species ID's
+
+Water Rate
+
+Chance of running into a wild Pokémon battle in the water areas of the current map.
+
+Water Pokémon
+
+Unknown since it's only 1 byte
+
+Enemy partial party data
+
+This follows the enemy partial party data structure
+
+Trainer Header Pointer
+
+Unknown
+
+Opponent ID after wrong answer
+
+The trainer the player must face after getting a wrong answer in the Cinnabar gym quiz
+
+Current Map Script
+
+Index of current map script, mostly used as index for function pointer array and mostly copied from map-specific map script pointer and written back later.
+
+Playtime
+
+Counts Hours, Minutes, Seconds, and Frames of playtime and includes a byte that determines whether the counter has hit the maximum time and therefore no longer counts. The maximum time countable is
+
+255 Hours, 59 Minutes, 59 Seconds, and 59 Frames or
+10 days, 15 hours, 59 minutes, 59 seconds, and 59 frames.
+The maximum byte can be any number, if the game detects it's not zero it essentially disables the counter entirely. Internally the game sets it to 255 when the timer has reached the maximum count. Whatever value set here only effects enabling or disabling the playtime and is not calculated into the playtime.
+
+Setting Minutes, Seconds, or Frames 60 or above will simply increment the next byte by 1 and reset the value. In other words setting seconds to 120 will only increment minutes by 1, not 2.
+
+It's also important to note that the timer is always ticking even on the initial load/new game menu or when it's paused.
+
+Safari Game Over
+
+Safari Game over or not, the format and any further details are unknown
+
+Safari Ball Count
+
+Amount of Safari Balls the player has
+
+Daycare
+
+The daycare has 4 variables
+
+In-Use to determine if it's in use or not
+Pokémon Name following standard naming
+Original Trainer name - follow standard naming of the Original Trainer
+Pokémon - Pokémon stored in the daycare, just uses the Box Data format alone

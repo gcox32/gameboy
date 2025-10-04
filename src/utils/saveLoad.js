@@ -114,11 +114,8 @@ export async function uploadImageToS3(file, filePath) {
 
 export async function loadInGameFile(filePath) {
     try {
-        console.log('Loading in-game file:', filePath);
         const linkUrl = (await getUrl({ path: filePath })).url.href;
-        console.log('Link URL:', linkUrl);
         const fileData = await downloadData({ path: filePath }).result;
-        console.log('File data:', fileData);
         return fileData;
     } catch (error) {
         console.error('Error loading in-game file', error);

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
-import { NotificationModel } from '@/types/models';
+import { NotificationModel } from '@/types';
 
 interface NotificationsProps {
     toggleNotifications: () => void;
