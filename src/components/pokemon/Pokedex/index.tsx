@@ -5,6 +5,8 @@ import styles from './styles.module.css';
 import { FaEye, FaEyeSlash, FaCheck, FaVenus, FaUndo } from 'react-icons/fa';
 import Divider from './Divider';
 import PokedexButton from './PokedexButton';
+import LeftPanel from './LeftPanel';
+import RightPanel from './RightPanel';
 import Image from 'next/image';
 
 interface PokedexProps {
@@ -188,24 +190,10 @@ export default function Pokedex({ inGameMemory, activeROM }: PokedexProps) {
             // Load moves
             setMoves(data.moves);
             setCurrentMoveIndex(0);
-            if (data.moves.length > 0) {
-                loadMoveData(data.moves[0].move.url);
-            }
         } catch (error) {
             console.error('Error loading Pokemon data:', error);
         } finally {
             setLoading(false);
-        }
-    }, []);
-
-    // Load move data
-    const loadMoveData = useCallback(async (moveUrl: string) => {
-        try {
-            const response = await fetch(moveUrl);
-            const data = await response.json();
-            setCurrentMove(data);
-        } catch (error) {
-            console.error('Error loading move data:', error);
         }
     }, []);
 
@@ -227,24 +215,6 @@ export default function Pokedex({ inGameMemory, activeROM }: PokedexProps) {
     const toggleFront = useCallback(() => {
         setSpriteState(prev => ({ ...prev, front: !prev.front }));
     }, []);
-
-    // Move navigation
-    const nextMove = useCallback(() => {
-        if (moves.length > 0) {
-            const nextIndex = Math.min(currentMoveIndex + 1, moves.length - 1);
-            setCurrentMoveIndex(nextIndex);
-            loadMoveData(moves[nextIndex].move.url);
-        }
-    }, [moves, currentMoveIndex, loadMoveData]);
-
-    const prevMove = useCallback(() => {
-        if (moves.length > 0) {
-            const prevIndex = Math.max(currentMoveIndex - 1, 0);
-            setCurrentMoveIndex(prevIndex);
-            loadMoveData(moves[prevIndex].move.url);
-        }
-    }, [moves, currentMoveIndex, loadMoveData]);
-
     // Build sprite image path
     const buildSpritePath = useCallback(() => {
         if (!pokemonData) return '';
@@ -254,6 +224,14 @@ export default function Pokedex({ inGameMemory, activeROM }: PokedexProps) {
         const key = dir + shiny + gender;
         return pokemonData.sprites[key as keyof typeof pokemonData.sprites] || pokemonData.sprites.front_default;
     }, [pokemonData, spriteState]);
+
+    // Pre-select a default Pokémon when expanded
+    useEffect(() => {
+        if (isExpanded && !pokemonData && !loading) {
+            const defaultId = selectedPokemon || 1;
+            handlePokemonSelect(defaultId);
+        }
+    }, [isExpanded, pokemonData, loading, selectedPokemon, handlePokemonSelect]);
 
     if (isLoading) {
         return (
@@ -278,177 +256,35 @@ export default function Pokedex({ inGameMemory, activeROM }: PokedexProps) {
             {isExpanded ? (
             <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
                 <div className={styles.content}>
-                    {selectedPokemon && pokemonData ? (
+                    { pokemonData ? (
                         // Detailed Pokemon view
                         <div className={styles.detailedView}>
-                            <PokedexButton className={styles.toggleButton} onClick={() => setIsExpanded(!isExpanded)} />
-                            <div className={styles.leftPanel}>
-                                <div className={styles.pokemonName}>
-                                    {pokemonData.name}
-                                    <span className={styles.nameNo}>no. {pokemonData.id}</span>
-                                </div>
-                                <div className={styles.pokemonSprite}>
-                                    <Image src={buildSpritePath()} alt="pokemon" className={styles.spriteImage} width={300} height={300} />
-                                    <div className={styles.spriteControls}>
-                                        <div
-                                            className={`${styles.spriteControl} ${spriteState.female ? styles.selected : ''}`}
-                                            onClick={toggleGender}
-                                        >
-                                            <FaVenus />
-                                        </div>
-                                        <div
-                                            className={`${styles.spriteControl} ${spriteState.shiny ? styles.selected : ''}`}
-                                            onClick={toggleShiny}
-                                        >
-                                            <span>shiny</span>
-                                        </div>
-                                        <div
-                                            className={`${styles.spriteControl} ${!spriteState.front ? styles.selected : ''}`}
-                                            onClick={toggleFront}
-                                        >
-                                            <FaUndo />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className={styles.pokemonDescription}>
-                                    {description}
-                                </div>
-                            </div>
+                            <LeftPanel
+                                pokemonId={selectedPokemon || 1}
+                                isOwned={isPokemonOwned((selectedPokemon || 1) - 1)}
+                                isSeen={isPokemonSeen((selectedPokemon || 1) - 1)}
+                                pokemonData={pokemonData}
+                                description={description}
+                                buildSpritePath={buildSpritePath}
+                                spriteState={spriteState}
+                                toggleGender={toggleGender}
+                                toggleShiny={toggleShiny}
+                                toggleFront={toggleFront}
+                            />
 
                             <Divider />
 
-                            <div className={styles.rightPanel}>
-                                <div className={styles.panelRow}>
-                                    <div className={styles.stats}>
-                                        {pokemonData.stats.map(stat => (
-                                            <div key={stat.stat.name} className={styles.statLine}>
-                                                {padStats(stat.stat.name, stat.base_stat, ".", 18)}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className={styles.typeList}>
-                                        <div className={styles.panelHeader}>Types</div>
-                                        <div className={styles.typeBox}>
-                                            {pokemonData.types.map(type => (
-                                                <div key={type.type.name} className={`${styles.type} ${styles[type.type.name]}`}>
-                                                    {type.type.name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className={styles.panelRow}>
-                                    <div className={styles.evolution}>
-                                        {evoSprites.map((sprite, index) => (
-                                            <div key={index} className={styles.evoPokemon}>
-                                                <div className={styles.evoNum}>{index + 1}</div>
-                                                {sprite ? (
-                                                    <Image src={sprite} alt="pokemon" className={styles.evoSprite} width={120} height={120} />
-                                                ) : (
-                                                    <div className={styles.pokeBall}></div>
-                                                )}
-                                                <div className={styles.evoName}>{evoNames[index] || "No Data"}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className={styles.moveList}>
-                                    {currentMove ? (
-                                        <div className={styles.moveBody}>
-                                            <div className={styles.moveLeft}>
-                                                <div className={styles.moveName}>{currentMove.name}</div>
-                                                <div className={styles.moveStat}>{padStats("Accuracy", currentMove.accuracy, ".", 16)}</div>
-                                                <div className={styles.moveStat}>{padStats("Power", currentMove.power, ".", 16)}</div>
-                                                <div className={styles.moveStat}>{padStats("PP", currentMove.pp, ".", 16)}</div>
-                                            </div>
-                                            <div className={styles.moveRight}>
-                                                <div className={styles.moveType}>Type: {currentMove.type.name}</div>
-                                                <div className={styles.moveLearn}>Learn: Lvl {moves[currentMoveIndex]?.version_group_details[0]?.level_learned_at || 'xx'}</div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.moveBody}>
-                                            <div className={styles.moveLeft}>
-                                                <div className={styles.moveName}>xxxxx xxxxx</div>
-                                                <div className={styles.moveStat}>{padStats("Accuracy", "xx", ".", 16)}</div>
-                                                <div className={styles.moveStat}>{padStats("Power", "xx", ".", 16)}</div>
-                                                <div className={styles.moveStat}>{padStats("PP", "xx", ".", 16)}</div>
-                                            </div>
-                                            <div className={styles.moveRight}>
-                                                <div className={styles.moveType}>Type: xxxxx</div>
-                                                <div className={styles.moveLearn}>Learn: Lvl xx</div>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div className={styles.moveControls}>
-                                        <PokedexButton onClick={prevMove}>
-                                            <i className="fas fa-caret-up" />
-                                        </PokedexButton>
-                                        <PokedexButton onClick={nextMove}>
-                                            <i className="fas fa-caret-down" />
-                                        </PokedexButton>
-                                    </div>
-                                </div>
-                            </div>
+                            <RightPanel
+                                pokemonIds={pokemonList}
+                                isPokemonOwned={isPokemonOwned}
+                                isPokemonSeen={isPokemonSeen}
+                                onSelect={handlePokemonSelect}
+                                isExpanded={isExpanded}
+                                setIsExpanded={setIsExpanded}
+                            />
                         </div>
                     ) : (
-                        // Pokemon list view
-                        <>
-                            {/* Controls */}
-                            <div className={styles.controls}>
-                                <div className={styles.searchContainer}>
-                                    <input
-                                        type="text"
-                                        placeholder="Search by number..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className={styles.searchInput}
-                                    />
-                                </div>
-
-                                <select
-                                    value={filterType}
-                                    onChange={(e) => setFilterType(e.target.value as any)}
-                                    className={styles.filterSelect}
-                                >
-                                    <option value="all">All</option>
-                                    <option value="owned">Owned</option>
-                                    <option value="seen">Seen</option>
-                                    <option value="unseen">Not Seen</option>
-                                </select>
-                            </div>
-
-                            {/* Pokemon Grid */}
-                            <div className={styles.pokemonGrid}>
-                                {filteredPokemon.map((pokemonId) => {
-                                    const owned = isPokemonOwned(pokemonId - 1);
-                                    const seen = isPokemonSeen(pokemonId - 1);
-
-                                    return (
-                                        <div
-                                            key={pokemonId}
-                                            className={`${styles.pokemonCard} ${owned ? styles.owned : seen ? styles.seen : styles.unseen}`}
-                                            onClick={() => handlePokemonSelect(pokemonId)}
-                                        >
-                                            <div className={styles.pokemonNumber}>
-                                                #{pokemonId.toString().padStart(3, '0')}
-                                            </div>
-                                            <div className={styles.pokemonStatus}>
-                                                {owned ? (
-                                                    <FaCheck className={styles.statusIcon} title="Owned" />
-                                                ) : seen ? (
-                                                    <FaEye className={styles.statusIcon} title="Seen" />
-                                                ) : (
-                                                    <FaEyeSlash className={styles.statusIcon} title="Not Seen" />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </>
+                        <div className={styles.loading}>Loading Pokédex...</div>
                     )}
                 </div>
             </div>
