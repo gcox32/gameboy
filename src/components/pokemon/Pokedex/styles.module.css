@@ -296,7 +296,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 2em;
-  margin-top: 10px;
+  /* margin-top: 10px; */
   width: 100%;
 }
 
@@ -355,8 +355,8 @@
   flex: 1;
   margin-top: 10px;
   overflow-y: scroll;
+  scrollbar-width: none;
 }
-
 
 .panelHeader {
   text-transform: capitalize;
@@ -389,6 +389,7 @@
   padding: 4px;
   max-height: 360px;
   overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .pokemonList {
@@ -585,6 +586,17 @@
   background-color: #ffffff;
   border-color: #ffffff;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.cryButton {
+  background: linear-gradient(14deg, #460f0f 0, #891313 30%, #b31818 45%, #fd5555 65%, #b31818 95%);
+  border: groove #e61515 3px;
+  border-width: 3px 2px;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 /* Responsive Design */

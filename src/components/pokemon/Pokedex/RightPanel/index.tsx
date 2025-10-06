@@ -1,6 +1,6 @@
 import React from 'react';
-import styles from './styles.module.css';
-import PokedexButton from './PokedexButton';
+import styles from '../styles.module.css';
+import PokedexButton from '../PokedexButton';
 import BlueButtons from './BlueButtons';
 import { dexDict } from '@/utils/pokemon/dicts';
 

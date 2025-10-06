@@ -1,10 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
-import { FaVenus, FaUndo } from 'react-icons/fa';
-import styles from './styles.module.css';
+import styles from '../styles.module.css';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { Pokemon as PokemonData } from '@/types/pokeapi/root';
 import SpriteControls from './SpriteControls';
+import CryButton from './CryButton';
 
 interface LeftPanelProps {
     pokemonId: number | null;
@@ -108,12 +108,15 @@ export default function LeftPanel({
                             e.currentTarget.src = '/images/pokemon/unknown.png';
                         }} />
                 )}
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: '10px' }}>
+                <CryButton pokemonId={pokemonId} owned={isOwned} />
                 <SpriteControls 
                     spriteState={spriteState}  
                     toggleGender={toggleGender} 
                     toggleShiny={toggleShiny} 
                     toggleFront={toggleFront} 
                 />
+                </div>
             </div>
             <div className={styles.pokemonDescription}>
                 {showFullDetails && (

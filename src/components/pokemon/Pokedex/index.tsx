@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSRAMData } from '@/hooks/useSRAMData';
-import { SRAMArray, GameModel } from '@/types';
+import { SRAMArray } from '@/types';
 import styles from './styles.module.css';
-import Divider from './Divider';
+import Hinge from './Hinge';
 import PokedexButton from './PokedexButton';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
@@ -69,36 +69,27 @@ export default function Pokedex({ inGameMemory }: PokedexProps) {
         return Array.from({ length: 151 }, (_, i) => i + 1);
     }, []);
 
-    // Load Pokemon data from PokeAPI
+    // Load Pokemon data via internal API route
     const loadPokemonData = useCallback(async (pokemonId: number) => {
         
         // Start the API calls and minimum processing time in parallel
-        const [apiData] = await Promise.all([
-            // API calls
-            (async () => {
-                try {
-                    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}/`, {
-                        cache: "force-cache"
-                    });
-                    const data = await response.json();
-                    // Load species data
-                    const speciesResponse = await fetch(data.species.url);
-                    const speciesData = await speciesResponse.json();
-                    console.log(speciesData);
+        const apiData = await (async () => {
+            try {
+                const response = await fetch(`/api/pokeapi/pokemon/${pokemonId}`, { cache: 'force-cache' });
+                const { pokemon, species } = await response.json();
 
-                    // Set description
-                    const englishEntries = speciesData.flavor_text_entries.filter((e: any) => e.language.name === "en");
-                    if (englishEntries.length > 0) {
-                        setDescription(pickRandom(englishEntries.map((e: any) => e.flavor_text)));
-                    }
-
-                    return data;
-                } catch (error) {
-                    console.error('Error loading Pokemon data:', error);
-                    throw error;
+                // Set description from species
+                const englishEntries = (species?.flavor_text_entries || []).filter((e: any) => e.language.name === "en");
+                if (englishEntries.length > 0) {
+                    setDescription(pickRandom(englishEntries.map((e: any) => e.flavor_text)));
                 }
-            })()
-        ]);
+
+                return pokemon;
+            } catch (error) {
+                console.error('Error loading Pokemon data:', error);
+                throw error;
+            }
+        })();
 
         setPokemonData(apiData);
     }, []);
@@ -137,12 +128,10 @@ export default function Pokedex({ inGameMemory }: PokedexProps) {
         return (typeof spriteUrl === 'string' ? spriteUrl : pokemonData.sprites.front_default) || '/images/missingNo.png';
     }, [pokemonData, spriteState]);
 
-
     const handleClose = useCallback(() => {
         setIsExpanded(false);
         setUseDefault(true);
     }, []);
-
 
     return (
         <>
@@ -164,7 +153,7 @@ export default function Pokedex({ inGameMemory }: PokedexProps) {
                             useDefault={useDefault}
                         />
 
-                        <Divider />
+                        <Hinge />
 
                         <RightPanel
                             pokemonIds={pokemonList}

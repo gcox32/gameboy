@@ -1,4 +1,4 @@
-import styles from './styles.module.css';
+import styles from '../styles.module.css';
 import { FaVenus, FaUndo } from 'react-icons/fa';
 
 interface SpriteControlsProps {

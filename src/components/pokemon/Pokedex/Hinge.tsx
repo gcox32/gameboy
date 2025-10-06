@@ -1,7 +1,7 @@
 import styles from './styles.module.css';
 
 
-export default function Divider() {
+export default function Hinge() {
     return (
         <div className={styles.divider}>
             <div className={styles.gap} />
