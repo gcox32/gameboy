@@ -1,6 +1,7 @@
 import styles from '../styles.module.css';
 import Image from 'next/image';
 import Link from 'next/link';
+import buttons from '@/styles/buttons.module.css';
 
 const AboutPage = () => {
   return (
@@ -27,8 +28,10 @@ const AboutPage = () => {
           <li>Game library management</li>
           <li>Game-specific features</li>
         </ul>
-        <p className={styles.paragraph}>
-          <Link href="/how-it-works" className={styles.link}>Learn more →</Link>
+        <p className={buttons.buttonGroup}>
+          <button className= {buttons.primaryButton}>
+            <Link style={{ color: 'white', textDecoration: 'none' }} href="/how-it-works">Learn more →</Link>
+          </button>
         </p>
       </section>
 
@@ -37,21 +40,13 @@ const AboutPage = () => {
         <p className={styles.paragraph}>
           {`JS GBC is an open-source project, and we welcome contributions from the community. Whether you're a developer, designer, or just want to make it better, there are ways to get involved:`}
         </p>
-        <div className={styles.buttonContainer}>
-          <Link
-            href="https://github.com/gcox32/gameboy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.link}
-          >
-            Contribute
-          </Link>
-          <Link
-            href="/contact"
-            className={styles.link}
-          >
-            Contact Us
-          </Link>
+        <div className={buttons.buttonGroup} style={{ justifyContent: 'center', flexDirection: 'row' }}>
+          <button className={buttons.secondaryButton}>
+            <Link style={{ textDecoration: 'none' }} href="https://github.com/gcox32/gameboy" target="_blank" rel="noopener noreferrer">Contribute</Link>
+          </button>
+          <button className={buttons.primaryButton}>
+            <Link style={{ color: 'white', textDecoration: 'none' }} href="/contact">Contact Us</Link>
+          </button>
         </div>
       </section>
 
