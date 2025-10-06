@@ -3,7 +3,9 @@ import { a } from "@aws-amplify/backend";
 export const ProfileSchema = a
     .model({
         id: a.id(),
-        owner: a.string(), // cognito sub
+        owner: a.string().authorization((allow) => [
+            allow.owner().to(['read', 'create', 'delete']),
+        ]), // cognito sub
         username: a.string(),
         email: a.string(),
         avatar: a.string(),

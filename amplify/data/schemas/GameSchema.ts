@@ -3,7 +3,9 @@ import { a } from "@aws-amplify/backend";
 export const GameSchema = a
     .model({
         id: a.id(),
-        owner: a.string(), // cognito sub
+        owner: a.string().authorization((allow) => [
+            allow.owner().to(['read', 'create', 'delete']),
+        ]), // cognito sub
         title: a.string(),
         img: a.string(),
         filePath: a.string(),
