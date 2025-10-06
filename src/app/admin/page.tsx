@@ -12,7 +12,7 @@ import {
 import UserManagement from '@/components/admin/UserManagement';
 import GamesManagement from '@/components/admin/GamesManagement';
 import NotificationsManagement from '@/components/admin/NotificationsManagement';
-import styles from './styles.module.css';
+import styles from '@/styles/admin.module.css';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';

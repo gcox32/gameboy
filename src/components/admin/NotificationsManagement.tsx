@@ -13,8 +13,9 @@ import { type Schema } from '@/amplify/data/resource';
 import { getUsernamesForSubs } from '@/utils/usernames';
 import DataTable from './DataTable';
 import SearchInput from './SearchInput';
-import styles from '@/app/admin/styles.module.css';
+import styles from '@/styles/admin.module.css';
 import { FaTrash } from 'react-icons/fa';
+import buttons from '@/styles/buttons.module.css';
 
 interface Notification {
     id: string;
@@ -241,19 +242,19 @@ export default function NotificationsManagement() {
         <div className={styles.notificationsManagement}>
             <Flex $justifyContent="space-between" $alignItems="center" className={styles.adminHeader}>
                 <Heading as="h2">Notifications</Heading>
-                <Flex $gap="1rem" $alignItems="center" className={styles.adminActions}>
+                <div className={`${styles.adminActions} ${buttons.buttonGroup}`} style={{ flexDirection: 'row', gap: '1rem' }}>
                     <SearchInput
                         value={searchTerm}
                         onChange={setSearchTerm}
                         placeholder="Search notifications..."
                     />
-                    <Button
-                        $variation="primary"
+                    <button
+                        className={buttons.primaryButton}
                         onClick={() => setShowQuickNotification(true)}
                     >
                         Quick Notification
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
             </Flex>
 
             {showQuickNotification && (

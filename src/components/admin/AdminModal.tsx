@@ -1,7 +1,7 @@
 import React from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import { Button, Heading, Flex } from '@/components/ui';
-import styles from '@/app/admin/styles.module.css';
+import styles from '@/styles/admin.module.css';
 
 interface AdminModalProps {
     isOpen: boolean;

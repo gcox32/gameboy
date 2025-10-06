@@ -12,7 +12,7 @@ import { type Schema } from '@/amplify/data/resource';
 import DataTable from './DataTable';
 import AdminModal from './AdminModal';
 import SearchInput from './SearchInput';
-import styles from '@/app/admin/styles.module.css';
+import styles from '@/styles/admin.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
 import { getUrl } from 'aws-amplify/storage';

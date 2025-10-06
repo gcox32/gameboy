@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text } from '@/components/ui';
-import styles from '@/app/admin/styles.module.css';
+import styles from '@/styles/admin.module.css';
 
 interface Column<T> {
     key: keyof T | string;

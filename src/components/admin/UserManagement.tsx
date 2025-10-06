@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-    Button,
     Flex,
     Text,
     Alert,
@@ -13,10 +12,11 @@ import { type Schema } from '@/amplify/data/resource';
 import DataTable from './DataTable';
 import AdminModal from './AdminModal';
 import SearchInput from './SearchInput';
-import styles from '@/app/admin/styles.module.css';
+import styles from '@/styles/admin.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
 import { getUrl } from 'aws-amplify/storage';
+import buttons from '@/styles/buttons.module.css';
 
 interface Profile {
     id: string;
@@ -234,19 +234,19 @@ export default function UserManagement() {
         <div className={styles.userManagement}>
             <Flex $justifyContent="space-between" $alignItems="center" className={styles.adminHeader}>
                 <Heading as="h2">User Management</Heading>
-                <Flex $gap="1rem" $alignItems="center" className={styles.adminActions}>
+                <div className={`${styles.adminActions} ${buttons.buttonGroup}`} style={{ flexDirection: 'row', gap: '1rem' }}>
                     <SearchInput
-                        value={searchTerm}
+                        value={searchTerm}  
                         onChange={setSearchTerm}
                         placeholder="Search users..."
                     />
-                    <Button
-                        $variation="primary"
+                    <button
+                        className={buttons.primaryButton}
                         onClick={() => setShowCreateModal(true)}
                     >
                         Create User
-                    </Button>
-                </Flex>
+                    </button>
+                </div>
             </Flex>
 
             {error && (
