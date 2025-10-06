@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaEye, FaEyeSlash, FaCheck } from 'react-icons/fa';
 import styles from './styles.module.css';
 import PokedexButton from './PokedexButton';
 import BlueButtons from './BlueButtons';
@@ -10,22 +9,24 @@ interface RightPanelProps {
     isPokemonOwned: (index: number) => boolean;
     isPokemonSeen: (index: number) => boolean;
     onSelect: (pokemonId: number) => void;
-    isExpanded: boolean;
-    setIsExpanded: (isExpanded: boolean) => void;
+    isProcessing?: boolean;
+    onClose: () => void;
 }
+
+const PADDING_LENGTH = 18;
 
 // Helper function to find Pokemon name by pokedexNo
 function getPokemonNameByPokedexNo(pokedexNo: number): string | null {
     const pokedexNoStr = pokedexNo.toString().padStart(3, '0');
     for (const [index, data] of Object.entries(dexDict)) {
         if (data.pokedexNo === pokedexNoStr) {
-            return data.name.toUpperCase().padStart(18, '.');
+            return data.name.toUpperCase().padStart(PADDING_LENGTH, '.');
         }
     }
     return null;
 }
 
-export default function RightPanel({ pokemonIds, isPokemonOwned, isPokemonSeen, onSelect, isExpanded, setIsExpanded }: RightPanelProps) {
+export default function RightPanel({ pokemonIds, isPokemonOwned, isPokemonSeen, onSelect, isProcessing = false, onClose }: RightPanelProps) {
     return (
         <div className={styles.rightPanel}>
             <div className={styles.pokemonListScreen}>
@@ -40,12 +41,12 @@ export default function RightPanel({ pokemonIds, isPokemonOwned, isPokemonSeen, 
                         return (
                             <div
                                 key={pokemonId}
-                                className={`${styles.pokemonListItem} ${owned ? styles.owned : seen ? styles.seen : styles.unseen}`}
+                                className={`${styles.pokemonListItem}`}
                                 onClick={() => onSelect(pokemonId)}
                             >
                                 <div className={styles.pokemonListInfo}>
                                     <div className={styles.pokemonListNumber}>
-                                        {`#${pokemonId.toString().padStart(3, '0')}`} {pokemonName ? ` ${pokemonName}` : '.'.repeat(18)} 
+                                        {`#${pokemonId.toString().padStart(3, '0')}`} {pokemonName ? ` ${pokemonName}` : '.'.repeat(PADDING_LENGTH)} 
                                     </div>
                                 </div>
                             </div>
@@ -53,9 +54,9 @@ export default function RightPanel({ pokemonIds, isPokemonOwned, isPokemonSeen, 
                     })}
                 </div>
             </div>
-            <BlueButtons />
+            <BlueButtons isProcessing={isProcessing} />
             <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'end', alignItems: 'end' }}>
-                <PokedexButton className={styles.toggleButton} onClick={() => setIsExpanded(!isExpanded)} />
+                <PokedexButton onClick={onClose} />
             </div>
         </div>
     );

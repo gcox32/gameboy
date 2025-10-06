@@ -7,14 +7,12 @@
   border: double #891313 8px;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  font-family: 'VT323', monospace;
   color: #000;
   z-index: 1000;
   transition: all 0.3s ease;
   max-width: 300px;
   min-width: 200px;
   z-index: 4;
-  padding: 1em;
 }
 
 .pokedexContainer.expanded {
@@ -27,7 +25,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 160px;
+  height: 180px;
   align-items: flex-end;
   padding: 0.75rem 1rem;
   background: var(--background-secondary);
@@ -61,7 +59,6 @@
 .statLine {
   font-size: 17px;
   text-transform: capitalize;
-  font-family: "VT323";
 }
 
 .title {
@@ -81,7 +78,7 @@
 .stats {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
   font-size: 0.75rem;
 }
@@ -96,28 +93,77 @@
   font-weight: 700;
 }
 
-.toggleButton {
-  float: right;
+.dexButton {
   transition: all 100ms ease;
+  padding: 5px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: outset rgb(248, 187, 187) 6px;
+  transform: rotate(60deg);
+  background: radial-gradient(
+      circle farthest-corner at 40% 25%,
+      rgb(218, 237, 241) 9%,
+      rgb(124, 214, 237) 20%,
+      rgb(64, 90, 165) 62%,
+      rgb(43, 125, 196) 100%
+  );
   cursor: pointer;
 }
 
-.toggleButton:hover,
-.dexButton:hover {
-  border-color: #891313;
-  background-color: #b31818;
+.dexButton>* {
+  transform: rotate(-60deg);
 }
 
-.toggleButton:active,
+.dexButton:hover {
+  background: radial-gradient(
+      circle farthest-corner at 40% 25%,
+      rgb(233, 241, 218) 9%,
+      rgb(184, 237, 124) 20%,
+      rgb(64, 165, 106) 62%,
+      rgb(43, 196, 145) 100%
+  );
+}
 .dexButton:active {
-  background-color: #891313;
+  background: radial-gradient(
+      circle farthest-corner at 40% 25%,
+      rgb(229, 255, 181) 9%,
+      rgb(204, 237, 124) 20%,
+      rgb(103, 165, 64) 62%,
+      rgb(66, 204, 40) 100%
+  );
+}
+.dexButton::after {
+  border: groove #460f0f 5px;
+  content: "";
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  border-radius: 50%;
+  left: -10px;
+  top: -10px;
+  border-style: double;
+  opacity: 0.75;
 }
 
 /* Content - only visible when expanded */
 .content {
-  padding: 1rem;
+  padding: 2rem;
   overflow-y: auto;
   flex: 1;
+  position: relative;
+}
+
+.content::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #a0a88a;
+  transform: translateX(-50%);
+  z-index: 1;
 }
 
 /* Detailed View Layout */
@@ -127,29 +173,6 @@
   gap: 20px;
   position: relative;
   height: 600px;
-}
-
-.backButton {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: #460f0f;
-  color: white;
-  border: groove #e61515 3px;
-  border-radius: 5px;
-  padding: 5px 10px;
-  font-family: "VT323", monospace;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  z-index: 10;
-}
-
-.backButton:hover {
-  background: #891313;
-  border-color: #fd5555;
 }
 
 .leftPanel {
@@ -195,6 +218,8 @@
   border: inset #460f0f 4px;
   border-radius: 4px;
   background: #460f0f;
+  position: relative;
+  z-index: 2;
 }
 
 .divider>* {
@@ -234,7 +259,6 @@
   padding-left: 5px;
   padding-top: 10px;
   border-radius: 3px;
-  font-family: "VT323";
   border: inset #879a65 3px;
   font-size: 28px;
   letter-spacing: 4px;
@@ -270,8 +294,8 @@
 
 .spriteControls {
   display: flex;
-  justify-content: space-around;
-  font-family: "Staatliches", cursive;
+  justify-content: flex-end;
+  gap: 2em;
   margin-top: 10px;
   width: 100%;
 }
@@ -323,7 +347,6 @@
   background: linear-gradient(14deg, rgb(165, 205, 83) 60%, rgb(193, 217, 144) 65%);
   padding: 5px;
   border-radius: 3px;
-  font-family: "VT323";
   border: inset #879a65 3px;
   font-size: 18px;
   letter-spacing: 0;
@@ -339,7 +362,6 @@
   text-transform: capitalize;
   font-size: 1.25em;
   padding: 5px;
-  font-family: "Staatliches", cursive;
   letter-spacing: 2px;
   display: flex;
   justify-content: center;
@@ -349,50 +371,6 @@
   border-width: 3px 2px;
   text-shadow: #fd5555 -1px 1px;
   color: white;
-}
-
-.pokeBall {
-  height: 120px;
-  width: 120px;
-  margin: 3px 0;
-  background: linear-gradient(15deg, #83887b 64%, #8b8f81 70%, #8b8f81 81%, #babfb1 86%, #8b8f81 89%, #8b8f81 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: inset #9aa28b 3px;
-  border-radius: 5px;
-}
-
-.evoName {
-  background: linear-gradient(14deg, rgb(165, 205, 83) 60%, rgb(193, 217, 144) 65%);
-  padding: 3px;
-  border-radius: 3px;
-  font-family: "VT323";
-  border: inset #879a65 3px;
-  width: auto;
-  padding: 3px;
-  margin-bottom: 3px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.dexButton {
-  height: 40px;
-  width: 40px;
-  font-size: 37px;
-  border: groove grey 3px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-shadow: #e78181 -1px 1px;
-  cursor: pointer;
-  transform: rotate(60deg);
-  margin: 5px 0;
-}
-
-.dexButton>* {
-  transform: rotate(-60deg);
 }
 
 /* Controls */
@@ -427,29 +405,15 @@
   padding: 8px 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: var(--background-secondary);
-  cursor: pointer;
+  /* background: var(--background-secondary); */
+  cursor: pointer !important;
   transition: background 120ms ease, transform 120ms ease;
+  background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(76, 175, 80, 0.08) 100%);
+  border-color: #9e9e9e
 }
 
 .pokemonListItem:hover {
-  transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.pokemonListItem.owned {
-  border-color: #4CAF50;
-  background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(76, 175, 80, 0.08) 100%);
-}
-
-.pokemonListItem.seen {
-  border-color: #FF9800;
-  background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(255, 152, 0, 0.08) 100%);
-}
-
-.pokemonListItem.unseen {
-  border-color: #9E9E9E;
-  opacity: 0.75;
 }
 
 .pokemonListInfo {
@@ -503,7 +467,15 @@
   font-size: 48px;
   font-weight: bold;
   color: #666;
-  font-family: "VT323", monospace;
+}
+
+/* Default Pokemon Sprite */
+.defaultSprite {
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(15deg, #cad5b5 64%, #dde2d4 70%, #dde2d4 81%, #fff 86%, #dde2d4 89%, #dde2d4 100%);
+  border: inset #9aa28b 3px;
+  border-radius: 5px;
 }
 
 .pokemonCard {
@@ -587,16 +559,32 @@
   border: groove #6c96e6 3px;
   border-radius: 5px;
   background: linear-gradient(
-      15deg,
-      rgba(128, 128, 128, 0.5) 64%,
-      rgba(138, 138, 138, 0.5) 70%,
-      rgba(230, 230, 230, 0.5) 81%,
-      rgba(255, 255, 255, 0.5) 86%,
-      rgba(220, 220, 220, 0.5) 89%,
-      rgba(230, 230, 230, 0.5) 100%
+    15deg,
+    rgba(128, 128, 128, 0.5) 64%,
+    rgba(138, 138, 138, 0.5) 70%,
+    rgba(230, 230, 230, 0.5) 81%,
+    rgba(255, 255, 255, 0.5) 86%,
+    rgba(220, 220, 220, 0.5) 89%,
+    rgba(230, 230, 230, 0.5) 100%
   );
   background-blend-mode: hard-light;
   background-color: #09a8ff;
+  transition: all 0.2s ease;
+}
+
+.blueButtonActive {
+  background: linear-gradient(
+    15deg,
+    rgba(255, 255, 255, 0.8) 64%,
+    rgba(255, 255, 255, 0.9) 70%,
+    rgba(255, 255, 255, 1) 81%,
+    rgba(255, 255, 255, 1) 86%,
+    rgba(255, 255, 255, 0.9) 89%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  background-color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
 /* Responsive Design */

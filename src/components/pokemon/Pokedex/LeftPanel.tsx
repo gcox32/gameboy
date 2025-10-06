@@ -3,18 +3,21 @@ import Image from 'next/image';
 import { FaVenus, FaUndo } from 'react-icons/fa';
 import styles from './styles.module.css';
 import { dexDict } from '@/utils/pokemon/dicts';
+import { Pokemon as PokemonData } from '@/types/pokeapi/root';
+import SpriteControls from './SpriteControls';
 
 interface LeftPanelProps {
-    pokemonId: number;
+    pokemonId: number | null;
     isOwned: boolean;
     isSeen: boolean;
-    pokemonData: any; // PokeAPI data
+    pokemonData: PokemonData | null; // PokeAPI data
     description: string;
     buildSpritePath: () => string;
     spriteState: { front: boolean; shiny: boolean; female: boolean };
     toggleGender: () => void;
     toggleShiny: () => void;
     toggleFront: () => void;
+    useDefault: boolean;
 }
 
 // Helper function to find Pokemon name by pokedexNo
@@ -39,6 +42,15 @@ function UnknownPokemonSprite() {
     );
 }
 
+// Default/blank Pokemon sprite component
+function DefaultPokemonSprite() {
+    return (
+        <div className={styles.defaultSprite}>
+            {/* Empty div to maintain shape */}
+        </div>
+    );
+}
+
 export default function LeftPanel({
     pokemonId,
     isOwned,
@@ -49,11 +61,29 @@ export default function LeftPanel({
     spriteState,
     toggleGender,
     toggleShiny,
-    toggleFront
+    toggleFront,
+    useDefault
 }: LeftPanelProps) {
-    // Get Pokemon name from dexDict using pokedexNo
-    const pokemonName = getPokemonNameByPokedexNo(pokemonId) || 'Unknown';
+    // Handle default view
+    if (useDefault) {
+        return (
+            <div className={styles.leftPanel}>
+                <div className={styles.pokemonName}>
+                    {/* Empty div to maintain shape */}
+                </div>
+                <div className={styles.pokemonSprite}>
+                    <DefaultPokemonSprite />
+                </div>
+                <div className={styles.pokemonDescription}>
+                    {/* Empty div to maintain shape */}
+                </div>
+            </div>
+        );
+    }
 
+    // Get Pokemon name from dexDict using pokedexNo
+    const pokemonName = pokemonId ? getPokemonNameByPokedexNo(pokemonId) || 'Unknown' : 'Unknown';
+    
     // Show different levels of detail based on ownership
     const showFullDetails = isOwned;
     const showBasicDetails = isSeen || isOwned;
@@ -62,34 +92,28 @@ export default function LeftPanel({
     return (
         <div className={styles.leftPanel}>
             <div className={styles.pokemonName}>
-                {showBasicDetails ? pokemonName : '?????'}
+                {showBasicDetails ? pokemonName : ''}
             </div>
             <div className={styles.pokemonSprite}>
                 {showUnknownSprite ? (
                     <UnknownPokemonSprite />
                 ) : (
-                    <Image src={buildSpritePath()} alt="pokemon" className={styles.spriteImage} width={300} height={300} />
+                    <Image 
+                        src={buildSpritePath()} 
+                        alt="pokemon" 
+                        className={styles.spriteImage} 
+                        width={300} 
+                        height={300} 
+                        onError={(e) => {
+                            e.currentTarget.src = '/images/pokemon/unknown.png';
+                        }} />
                 )}
-                <div className={styles.spriteControls}>
-                    <div
-                        className={`${styles.spriteControl} ${spriteState.female ? styles.selected : ''}`}
-                        onClick={toggleGender}
-                    >
-                        <FaVenus />
-                    </div>
-                    <div
-                        className={`${styles.spriteControl} ${spriteState.shiny ? styles.selected : ''}`}
-                        onClick={toggleShiny}
-                    >
-                        <span>shiny</span>
-                    </div>
-                    <div
-                        className={`${styles.spriteControl} ${!spriteState.front ? styles.selected : ''}`}
-                        onClick={toggleFront}
-                    >
-                        <FaUndo />
-                    </div>
-                </div>
+                <SpriteControls 
+                    spriteState={spriteState}  
+                    toggleGender={toggleGender} 
+                    toggleShiny={toggleShiny} 
+                    toggleFront={toggleFront} 
+                />
             </div>
             <div className={styles.pokemonDescription}>
                 {showFullDetails && (
