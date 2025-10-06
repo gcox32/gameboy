@@ -1,12 +1,56 @@
 .activeParty {
     display: flex;
     flex-direction: row;
+    align-items: center;
     justify-content: center;
-    min-width: 1000px;
+    min-width: 1050px;
+    min-height: 158px;
     position: absolute;
-    bottom: 10px;
+    margin: 0 auto;
+    bottom: 40px;
     z-index: 3;
-    margin-top: 20px;
+    padding-left: 56px; /* ensure centered slots do not overlap left controls */
+    border: 2px rgba(255, 255, 255, 0.5) solid;
+    border-radius: 25px;
+}
+
+.partyControls {
+    position: absolute;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding-top: 8px;
+    gap: 8px;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.5);
+    height: 100%;
+    width: 56px;
+}
+
+.partyControlButton {
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: gray;
+    transition: 0.2s ease-in-out;
+}
+
+.partyControlButton:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+
+.partySlots {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
 
 .partySlot {
@@ -36,24 +80,4 @@
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-.spriteToggle {
-    position: absolute;
-    top: -40px;
-    left: 180px;
-    background: rgba(255, 255, 255, 0.5);
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: gray;
-    transition: 0.2s ease-in-out;
-}
-
-.spriteToggle:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: scale(1.1);
-}
+/* removed old absolute-positioned .spriteToggle in favor of .partyControlButton */

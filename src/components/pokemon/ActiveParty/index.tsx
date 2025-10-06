@@ -6,7 +6,7 @@ import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 import { MemoryWatcherConfig } from "@/types";
-import { FaExchangeAlt } from 'react-icons/fa';
+import { FaCamera, FaExchangeAlt } from 'react-icons/fa';
 
 function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
     const partyArray = useRef([])
@@ -89,21 +89,32 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
 
     return (
         <div className={styles.activeParty}>
-            <button 
-                className={styles.spriteToggle}
-                onClick={() => setUseStadiumSprites(!useStadiumSprites)}
-                title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
-            >
-                <FaExchangeAlt />
-            </button>
-            {partyData.map((pokemon: PokemonDetails, index: number) => (
-                <PartySlot 
-                    key={pokemon.pokedexNo || index} 
-                    pokemon={pokemon} 
-                    onClick={() => handlePokemonClick(index)}
-                    useStadiumSprites={useStadiumSprites}
-                />
-            ))}
+            <div className={styles.partyControls}>
+                <button 
+                    className={styles.partyControlButton}
+                    onClick={() => setUseStadiumSprites(!useStadiumSprites)}
+                    title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
+                >
+                    <FaExchangeAlt />
+                </button>
+                <button
+                    className={styles.partyControlButton}
+                    onClick={() => {}}
+                    title={`Take a photo of your team`}
+                >
+                    <FaCamera />
+                </button>
+            </div>
+            <div className={styles.partySlots}>
+                {partyData.map((pokemon: PokemonDetails, index: number) => (
+                    <PartySlot 
+                        key={pokemon.pokedexNo || index} 
+                        pokemon={pokemon} 
+                        onClick={() => handlePokemonClick(index)}
+                        useStadiumSprites={useStadiumSprites}
+                    />
+                ))}
+            </div>
             {(selectedPokemonIndex !== null && partyData.length) && (
                 <PokemonDetailsModal
                     isOpen={isModalOpen}
