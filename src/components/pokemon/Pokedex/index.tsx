@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useSRAMData } from '@/hooks/useSRAMData';
 import { SRAMArray } from '@/types';
 import styles from './styles.module.css';
 import Hinge from './Hinge';
@@ -7,9 +6,11 @@ import PokedexButton from './PokedexButton';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import { Pokemon as PokemonData } from '@/types/pokeapi/root';
+import { useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 
 interface PokedexProps {
     inGameMemory: SRAMArray | number[];
+    mbcRam?: SRAMArray | number[];
 }
 
 // Utility functions from the example
@@ -17,52 +18,108 @@ function pickRandom<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export default function Pokedex({ inGameMemory }: PokedexProps) {
+export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [selectedPokemon, setSelectedPokemon] = useState<number | null>(null);
     const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
     const [description, setDescription] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [useDefault, setUseDefault] = useState(false);
+    const [loadingPokedex, setLoadingPokedex] = useState(true);
+    const [ownedIds, setOwnedIds] = useState<Set<number>>(new Set());
+    const [seenIds, setSeenIds] = useState<Set<number>>(new Set());
     const [spriteState, setSpriteState] = useState({
         front: true,
         shiny: false,
         female: false
     });
 
-    const {
-        sramData,
-        pokedex,
-        isPokemonOwned,
-        isPokemonSeen,
-        isLoading,
-        error,
-        loadSRAM
-    } = useSRAMData();
-
-    // Load SRAM data when component mounts
+    // Watch Pokédex bytes via in-game memory (SRAM window starts at 0xA000 on GB)
+    // Detect Pokédex block offset in inGameMemory using a snapshot from mbcRam (owned 0x25A3, seen 0x25B6)
+    const [pokedexOffset, setPokedexOffset] = useState<number | null>(null);
     useEffect(() => {
-        if (inGameMemory && inGameMemory.length > 0) {
-            const sramArray = Array.isArray(inGameMemory) ? inGameMemory as SRAMArray : [];
-            loadSRAM(sramArray);
+        const ram = mbcRam as number[];
+        const expected: number[] = [
+            ...ram.slice(0x25A3, 0x25A3 + 19),
+            ...ram.slice(0x25B6, 0x25B6 + 19)
+        ];
+        if (expected.length !== 38) return;
+
+        const haystack = inGameMemory as number[];
+        const limit = haystack.length - expected.length;
+
+        const popcount = (v: number) => {
+            v &= 0xFF;
+            v = v - ((v >> 1) & 0x55);
+            v = (v & 0x33) + ((v >> 2) & 0x33);
+            return (((v + (v >> 4)) & 0x0F) * 0x01) & 0xFF;
+        };
+
+        let bestIndex = -1;
+        let bestBits = Number.POSITIVE_INFINITY;
+        for (let i = 0; i <= limit; i++) {
+            let diffBits = 0;
+            for (let j = 0; j < 38; j++) {
+                const a = haystack[i + j] ?? 0;
+                const b = expected[j] ?? 0;
+                diffBits += popcount(a ^ b);
+                if (diffBits >= bestBits) break;
+            }
+            if (diffBits < bestBits) {
+                bestBits = diffBits;
+                bestIndex = i;
+                if (bestBits === 0) break;
+            }
         }
-    }, [inGameMemory, loadSRAM]);
+
+        // Accept if close enough (<= 8 differing bits across 38 bytes)
+        console.log('bestIndex', bestIndex);
+        console.log('bestBits', bestBits);
+        if (bestIndex >= 0 && bestBits <= 8) {
+            setPokedexOffset(bestIndex);
+            setLoadingPokedex(false);
+        }
+    }, [inGameMemory, mbcRam]);
+
+    useInGameMemoryWatcher(
+        inGameMemory,
+        '0x0000',
+        pokedexOffset !== null ? `0x${pokedexOffset.toString(16).toUpperCase()}` : undefined, // 0xD257 or 54007
+        pokedexOffset !== null ? '0x26' : undefined,
+        (slice: number[]) => {
+            if (!slice || slice.length < 0x26) return;
+            const ownedBytes = slice.slice(0, 19);
+            const seenBytes = slice.slice(19, 38);
+            const nextOwned = new Set<number>();
+            const nextSeen = new Set<number>();
+            for (let speciesId = 0; speciesId < 151; speciesId++) {
+                const byteIndex = Math.floor(speciesId / 8);
+                const bitIndex = speciesId % 8;
+                const ownedInMemory = ((ownedBytes[byteIndex] >> bitIndex) & 1) === 1;
+                const seenInMemory = ((seenBytes[byteIndex] >> bitIndex) & 1) === 1;
+                if (ownedInMemory) nextOwned.add(speciesId + 1);
+                if (seenInMemory) nextSeen.add(speciesId + 1);
+            }
+            if (pokedexOffset) {
+                console.log(`0x${pokedexOffset.toString(16).toUpperCase()}`)
+                console.log(slice.length);
+            }
+            setOwnedIds(nextOwned);
+            setSeenIds(nextSeen);
+        },
+        500
+    );
 
     // Calculate statistics
     const stats = useMemo(() => {
-        if (!pokedex) return { owned: 0, seen: 0, total: 151, completion: 0 };
-
-        let owned = 0;
-        let seen = 0;
-
-        for (let i = 0; i < 151; i++) {
-            if (isPokemonOwned(i)) owned++;
-            if (isPokemonSeen(i)) seen++;
-        }
-
+        const owned = ownedIds.size;
+        const seen = seenIds.size;
         const completion = Math.round((owned / 151) * 100);
         return { owned, seen, total: 151, completion };
-    }, [pokedex, isPokemonOwned, isPokemonSeen]);
+    }, [ownedIds, seenIds]);
+
+    const isOwned = useCallback((speciesZeroIndexed: number) => ownedIds.has(speciesZeroIndexed + 1), [ownedIds]);
+    const isSeen = useCallback((speciesZeroIndexed: number) => seenIds.has(speciesZeroIndexed + 1), [seenIds]);
 
     // Generate Pokemon list (just numbers for now)
     const pokemonList = useMemo(() => {
@@ -141,8 +198,8 @@ export default function Pokedex({ inGameMemory }: PokedexProps) {
                     <div className={styles.detailedView}>
                         <LeftPanel
                             pokemonId={selectedPokemon}
-                            isOwned={selectedPokemon ? isPokemonOwned(selectedPokemon - 1) : false}
-                            isSeen={selectedPokemon ? isPokemonSeen(selectedPokemon - 1) : false}
+                            isOwned={selectedPokemon ? isOwned(selectedPokemon - 1) : false}
+                            isSeen={selectedPokemon ? isSeen(selectedPokemon - 1) : false}
                             pokemonData={pokemonData}
                             description={description}
                             buildSpritePath={buildSpritePath}
@@ -157,8 +214,8 @@ export default function Pokedex({ inGameMemory }: PokedexProps) {
 
                         <RightPanel
                             pokemonIds={pokemonList}
-                            isPokemonOwned={isPokemonOwned}
-                            isPokemonSeen={isPokemonSeen}
+                            isPokemonOwned={isOwned}
+                            isPokemonSeen={isSeen}
                             onSelect={handlePokemonSelect}
                             isProcessing={loading}
                             onClose={handleClose}
@@ -172,13 +229,14 @@ export default function Pokedex({ inGameMemory }: PokedexProps) {
                     <div className={styles.title}>
                         <h3>Pokédex</h3>
                         <div className={styles.stats}>
-                            <span className={styles.stat}>{stats.seen} seen</span>
+                            <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
                         </div>
                         <div className={styles.stats}>
-                            <span className={styles.stat}>{stats.owned} caught</span>
+                            <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.owned} caught`}</span>
                         </div>
                     </div>
                     <PokedexButton onClick={() => {
+                        if (loadingPokedex) return;
                         setIsExpanded(!isExpanded);
                         setUseDefault(true);
                     }} />

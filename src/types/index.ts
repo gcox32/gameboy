@@ -5,3 +5,4 @@ export * from './models';
 export * from './pokemon';
 export * from './schema';
 export * from './sram';
+export * from './ingame';

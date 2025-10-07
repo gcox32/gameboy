@@ -143,7 +143,8 @@ export default function FullScreenContainer({
       {showMap && activeROM && activeState && <TownMap />}
       {showPokedex && activeROM && activeState && inGameMemory &&
         <Pokedex
-          inGameMemory={mbcRam}
+          inGameMemory={inGameMemory}
+          mbcRam={mbcRam}
         />
       }
       {showTeamPhoto && activeROM && activeState && <TeamPhoto />}
