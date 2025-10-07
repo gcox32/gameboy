@@ -70,9 +70,13 @@
 
 .title h3 {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--primary-color);
+  opacity: .3;
+  text-shadow: 0 -1px #777;
+  font-size: 14px;
+  margin-top: 8px;
+  text-transform: uppercase;
+  margin: 4px auto;
+  text-align: center;
 }
 
 .stats {
@@ -101,13 +105,11 @@
   border-radius: 50%;
   border: outset rgb(248, 187, 187) 6px;
   transform: rotate(60deg);
-  background: radial-gradient(
-      circle farthest-corner at 40% 25%,
+  background: radial-gradient(circle farthest-corner at 40% 25%,
       rgb(218, 237, 241) 9%,
       rgb(124, 214, 237) 20%,
       rgb(64, 90, 165) 62%,
-      rgb(43, 125, 196) 100%
-  );
+      rgb(43, 125, 196) 100%);
   cursor: pointer;
 }
 
@@ -116,23 +118,21 @@
 }
 
 .dexButton:hover {
-  background: radial-gradient(
-      circle farthest-corner at 40% 25%,
+  background: radial-gradient(circle farthest-corner at 40% 25%,
       rgb(233, 241, 218) 9%,
       rgb(184, 237, 124) 20%,
       rgb(64, 165, 106) 62%,
-      rgb(43, 196, 145) 100%
-  );
+      rgb(43, 196, 145) 100%);
 }
+
 .dexButton:active {
-  background: radial-gradient(
-      circle farthest-corner at 40% 25%,
+  background: radial-gradient(circle farthest-corner at 40% 25%,
       rgb(229, 255, 181) 9%,
       rgb(204, 237, 124) 20%,
       rgb(103, 165, 64) 62%,
-      rgb(66, 204, 40) 100%
-  );
+      rgb(66, 204, 40) 100%);
 }
+
 .dexButton::after {
   border: groove #460f0f 5px;
   content: "";
@@ -170,19 +170,17 @@
 .detailedView {
   display: flex;
   width: 100%;
-  gap: 20px;
   position: relative;
   height: 600px;
 }
 
 .leftPanel {
-  width: 359px;
   padding: 10px;
-  border: inset #b31818 3px;
+  /* border: inset #b31818 3px; */
   border-radius: 3px;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(15deg, #afafaf 50%, #ffffff 80%, #afafaf 90%);
+  /* background: linear-gradient(15deg, #afafaf 50%, #ffffff 80%, #afafaf 90%); */
 }
 
 .rightPanel {
@@ -193,7 +191,7 @@
 
 .leftPanel,
 .rightPanel {
-  width: 360px;
+  width: 352px;
 }
 
 .panelRow {
@@ -268,12 +266,6 @@
   margin-bottom: 10px;
 }
 
-.nameNo {
-  float: right;
-  text-transform: lowercase;
-  font-size: 18px;
-}
-
 /* Pokemon Sprite */
 .pokemonSprite {
   width: 100%;
@@ -284,12 +276,81 @@
   box-sizing: border-box;
 }
 
-.spriteImage {
+.spriteFrame {
+  position: relative;
   width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  --cut-size: 34px; /* size of the 45-degree cut on bottom-left */
+  --bezel: 3px; /* thickness of the chunky border */
+  /* Cut the bottom-left corner at ~45 degrees */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    calc(var(--cut-size)) 100%,
+    0 calc(100% - var(--cut-size))
+  );
+  overflow: hidden; /* ensure inner content respects the cut */
+}
+
+/* Fake the border so it follows the clipped diagonal by using two layered shapes */
+.spriteFrame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: #dcdcdc; /* border color */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    calc(var(--cut-size)) 100%,
+    0 calc(100% - var(--cut-size))
+  );
+  z-index: 0;
+}
+
+.spriteFrame::after {
+  content: "";
+  position: absolute;
+  inset: var(--bezel);
+  border-radius: 6px; /* a touch smaller to keep the curve clean */
+  background: #ffffff;
+  box-shadow: 0 2px 0 #cfcfcf inset, 0 -2px 0 #e9e9e9 inset, 0 6px 12px rgba(0,0,0,0.3);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    calc(var(--cut-size) - var(--bezel)) 100%,
+    0 calc(100% - (var(--cut-size) - var(--bezel)))
+  );
+  z-index: 0;
+}
+
+/* Ensure inner content sits above the layered shapes */
+.spriteFrame > * {
+  position: relative;
+  z-index: 1;
+}
+
+.spriteImage {
+  /* width: 100%; */
+  position: absolute;
+  top: 30px;
+  width: 80%;
   image-rendering: pixelated;
   border: inset #9aa28b 3px;
   border-radius: 5px;
   background: linear-gradient(15deg, #cad5b5 64%, #dde2d4 70%, #dde2d4 81%, #fff 86%, #dde2d4 89%, #dde2d4 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .spriteControls {
@@ -443,8 +504,8 @@
 
 /* Unknown Pokemon Sprite */
 .unknownSprite {
-  width: 100%;
-  height: 300px;
+  width: 220px;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -472,11 +533,16 @@
 
 /* Default Pokemon Sprite */
 .defaultSprite {
-  width: 100%;
-  height: 300px;
+  width: 220px;
+  height: 220px;
   background: linear-gradient(15deg, #cad5b5 64%, #dde2d4 70%, #dde2d4 81%, #fff 86%, #dde2d4 89%, #dde2d4 100%);
   border: inset #9aa28b 3px;
   border-radius: 5px;
+  top: 2px;
+}
+
+.spriteFrame img {
+  margin-top: -4px;
 }
 
 .pokemonCard {
@@ -559,33 +625,39 @@
   margin: 3px;
   border: groove #6c96e6 3px;
   border-radius: 5px;
-  background: linear-gradient(
-    15deg,
-    rgba(128, 128, 128, 0.5) 64%,
-    rgba(138, 138, 138, 0.5) 70%,
-    rgba(230, 230, 230, 0.5) 81%,
-    rgba(255, 255, 255, 0.5) 86%,
-    rgba(220, 220, 220, 0.5) 89%,
-    rgba(230, 230, 230, 0.5) 100%
-  );
+  background: linear-gradient(15deg,
+      rgba(128, 128, 128, 0.5) 64%,
+      rgba(138, 138, 138, 0.5) 70%,
+      rgba(230, 230, 230, 0.5) 81%,
+      rgba(255, 255, 255, 0.5) 86%,
+      rgba(220, 220, 220, 0.5) 89%,
+      rgba(230, 230, 230, 0.5) 100%);
   background-blend-mode: hard-light;
   background-color: #09a8ff;
   transition: all 0.2s ease;
 }
 
 .blueButtonActive {
-  background: linear-gradient(
-    15deg,
-    rgba(255, 255, 255, 0.8) 64%,
-    rgba(255, 255, 255, 0.9) 70%,
-    rgba(255, 255, 255, 1) 81%,
-    rgba(255, 255, 255, 1) 86%,
-    rgba(255, 255, 255, 0.9) 89%,
-    rgba(255, 255, 255, 0.8) 100%
-  );
+  background: linear-gradient(15deg,
+      rgba(255, 255, 255, 0.8) 64%,
+      rgba(255, 255, 255, 0.9) 70%,
+      rgba(255, 255, 255, 1) 81%,
+      rgba(255, 255, 255, 1) 86%,
+      rgba(255, 255, 255, 0.9) 89%,
+      rgba(255, 255, 255, 0.8) 100%);
   background-color: #ffffff;
   border-color: #ffffff;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.soundGroup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 240px;
+  padding: 1em;
+  padding-top: 0.5em;
+  margin-top: -0.5em;
 }
 
 .cryButton {
@@ -593,10 +665,62 @@
   border: groove #e61515 3px;
   border-width: 3px 2px;
   border-radius: 50%;
-  height: 30px;
-  width: 30px;
+  height: 25px !important;
+  width: 25px;
   cursor: pointer;
-  margin-left: 10px;
+}
+
+.speakerGrill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 32px;
+  height: 32px;
+  padding-top: 0.25em;
+}
+
+.speakerRow {
+  width: 100%;
+  height: 4px;
+  border-radius: 9999px;
+  background: #2d2d2d;
+  opacity: 1;
+  box-shadow: 0 2px 0 #cfcfcf inset, 0 -2px 0 #e9e9e9 inset, 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.onLights {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  position: absolute;
+  top: 10px;
+}
+
+.onLight {
+  height: 11px;
+  width: 11px;
+  border-radius: 50%;
+  border: groove #b31818 2px;
+  background: radial-gradient(circle farthest-corner at 40% 25%,
+      rgba(191, 35, 35, 0.7) 10%,
+      rgba(230, 21, 21, 0.7) 45%,
+      rgba(137, 19, 19, 0.9) 80%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset,
+              0 -1px 0 rgba(0, 0, 0, 0.25) inset;
+  opacity: 0.4;
+  transition: opacity 200ms ease, box-shadow 200ms ease, background 200ms ease;
+}
+
+.onLightActive {
+  opacity: 1;
+  background: radial-gradient(circle farthest-corner at 40% 25%,
+      #ff9b9b 8%,
+      #ff3b3b 35%,
+      #e61515 65%,
+      #b31818 100%);
+  box-shadow: 0 0 1px rgba(255, 80, 80, 0.5),
+              0 0 2px rgba(255, 0, 0, 0.25);
 }
 
 /* Responsive Design */

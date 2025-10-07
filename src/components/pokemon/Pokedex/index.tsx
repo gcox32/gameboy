@@ -227,7 +227,7 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
             <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
                 <div className={styles.header}>
                     <div className={styles.title}>
-                        <h3>Pokédex</h3>
+                        <h3>pokédex</h3>
                         <div className={styles.stats}>
                             <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
                         </div>
