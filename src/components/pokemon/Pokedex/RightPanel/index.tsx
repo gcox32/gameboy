@@ -1,8 +1,9 @@
 import React from 'react';
 import styles from '../styles.module.css';
-import PokedexButton from '../PokedexButton';
 import BlueButtons from './BlueButtons';
 import ListView from './ListView';
+import Controls from './Controls';
+import DualScreens from './DualScreens';
 
 interface RightPanelProps {
     pokemonIds: number[];
@@ -23,9 +24,8 @@ export default function RightPanel({ pokemonIds, isPokemonOwned, isPokemonSeen, 
                 onSelect={onSelect} 
             />
             <BlueButtons isProcessing={isProcessing} />
-            <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'end', alignItems: 'end' }}>
-                <PokedexButton onClick={onClose} />
-            </div>
+            <Controls onClick={onClose} />
+            <DualScreens />
         </div>
     );
 }

@@ -1,0 +1,106 @@
+.controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px;
+}
+
+.toggleButton {
+    transition: all 100ms ease;
+    /* padding: 5px; */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: gray 1px solid;
+    transform: rotate(60deg);
+    background: radial-gradient(circle farthest-corner at 40% 25%,
+            rgb(241, 237, 218) 9%,
+            rgb(237, 214, 124) 20%,
+            rgb(165, 147, 64) 62%,
+            rgb(196, 169, 43) 100%);
+    cursor: pointer;
+}
+
+.toggleButton:hover {
+    background: radial-gradient(circle farthest-corner at 40% 25%,
+            rgb(233, 241, 218) 9%,
+            rgb(184, 237, 124) 20%,
+            rgb(64, 165, 106) 62%,
+            rgb(43, 196, 145) 100%);
+}
+
+.toggleButton:active {
+    background: radial-gradient(circle farthest-corner at 50% 50%,
+            rgb(237, 214, 124) 20%,
+            rgb(165, 147, 64) 62%,
+            rgb(196, 169, 43) 100%);
+}
+
+.blackButtons {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    gap: 10px;
+}
+
+.blackButton {
+    width: 60px;
+    height: 10px;
+    transition: all 100ms ease;
+    border-radius: 9999px;
+    background: linear-gradient(to bottom,
+            rgb(70, 70, 70) 0%,
+            rgb(0, 0, 0) 50%,
+            rgb(70, 70, 70) 100%);
+    box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+}
+
+.blackButton:active {
+    background: linear-gradient(to bottom,
+            rgb(0, 0, 0) 0%,
+            rgb(70, 70, 70) 100%,
+            rgb(0, 0, 0) 100%);
+    box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.whiteButtons {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+    height: 100px;
+    margin-top: 1em;
+}
+
+.whiteButton {
+    cursor: pointer;
+    transition: 100ms ease;
+    width: 60px;
+    height: 60px;
+    margin: 0;
+    border: groove rgb(213, 213, 213) 1px;
+    border-radius: 4px;
+    background: linear-gradient(15deg,
+            rgba(128, 128, 128, 0.5) 64%,
+            rgba(138, 138, 138, 0.5) 70%,
+            rgba(230, 230, 230, 0.5) 81%,
+            rgba(255, 255, 255, 0.5) 86%,
+            rgba(220, 220, 220, 0.5) 89%,
+            rgba(230, 230, 230, 0.5) 100%);
+    background-blend-mode: hard-light;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.whiteButton:active {
+    background: linear-gradient(15deg,
+            rgba(128, 128, 128, 0.2) 100%,
+            rgba(138, 138, 138, 0.2) 89%,
+            rgba(230, 230, 230, 0.2) 76%,
+            rgba(255, 255, 255, 0.2) 62%,
+            rgba(220, 220, 220, 0.2) 50%,
+            rgba(230, 230, 230, 0.2) 0%);
+    background-color: rgb(209, 209, 209);
+}

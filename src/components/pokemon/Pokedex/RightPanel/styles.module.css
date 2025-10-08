@@ -2,7 +2,7 @@
 .pokemonListScreen {
     background: linear-gradient(15deg, #cad5b5 64%, #dde2d4 70%, #dde2d4 81%, #fff 86%, #dde2d4 89%, #dde2d4 100%);
     border: inset #9aa28b 3px;
-    border-radius: 5px;
+    border-radius: 6px;
     padding: 4px;
     max-height: 120px;
     overflow-y: auto;
@@ -74,7 +74,7 @@
 }
 
 .blueButton {
-    height: 50px;
+    height: 60px;
     flex: 1 1 20%;
     margin: 0;
     border: groove #6c96e6 1px;
@@ -102,4 +102,24 @@
     background-color: #ffffff;
     border-color: #ffffff;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.dualScreens {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 20px;
+}
+
+.dualScreen {
+    background: linear-gradient(15deg, #cad5b5 64%, #dde2d4 70%, #dde2d4 81%, #fff 86%, #dde2d4 89%, #dde2d4 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: inset #9aa28b 3px;
+    border-radius: 12px;
+    padding: 4px;
+    width: 160px;
+    height: 60px;
 }

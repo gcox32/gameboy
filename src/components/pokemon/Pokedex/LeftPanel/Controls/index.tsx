@@ -22,7 +22,7 @@ export default function LeftPanelControls({
     showFullDetails
 }: ControlsProps) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: '2em' }}>
             <ReadButton text={description} />
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '44%', gap: '3em' }}>
                 <SpriteControls
