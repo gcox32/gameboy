@@ -83,6 +83,10 @@
     background-image: -webkit-linear-gradient(top,#0a0a0a,#000)
 }
 
+.arrow {
+    cursor: pointer;
+}
+
 .dpad>.arrow:before {
     position: absolute;
     content: "";

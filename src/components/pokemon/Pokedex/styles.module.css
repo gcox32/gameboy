@@ -171,11 +171,10 @@
   display: flex;
   width: 100%;
   position: relative;
-  height: 600px;
+  height: 550px;
 }
 
 .leftPanel {
-  padding: 10px;
   /* border: inset #b31818 3px; */
   border-radius: 3px;
   display: flex;
@@ -191,7 +190,7 @@
 
 .leftPanel,
 .rightPanel {
-  width: 352px;
+  width: 360px;
 }
 
 .panelRow {
@@ -351,72 +350,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.spriteControls {
-  display: flex;
-  justify-content: flex-end;
-  gap: 2em;
-  /* margin-top: 10px; */
-  width: 100%;
-}
-
-.spriteControl {
-  height: 30px;
-  width: 30px;
-  border: groove grey 3px;
-  border-radius: 20px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform: rotate(60deg);
-  color: black;
-  padding: 1px;
-  border-color: #b06868;
-  background: linear-gradient(14deg, #bf8823 10%, #ffee90 25%, #e6a617 47%, #ffee90 73%, #fff6c8 74%, #ffee90 80%);
-}
-
-.spriteControl:hover {
-  border-color: #b8ed7c;
-}
-
-.spriteControl:active {
-  border-color: #f4fcb9;
-}
-
-.spriteControl.selected {
-  border-color: #b8ed7c;
-}
-
-.spriteControl>* {
-  transform: rotate(-60deg);
-}
-
-.spriteControl:nth-child(2) {
-  transform: rotate(0);
-  width: 90px;
-  text-shadow: white -1px 1px;
-}
-
-.spriteControl:nth-child(2)>* {
-  transform: rotate(0);
-}
-
-/* Pokemon Description */
-.pokemonDescription {
-  background: linear-gradient(14deg, rgb(165, 205, 83) 60%, rgb(193, 217, 144) 65%);
-  padding: 5px;
-  border-radius: 3px;
-  border: inset #879a65 3px;
-  font-size: 18px;
-  letter-spacing: 0;
-  min-height: 115px;
-  box-sizing: border-box;
-  flex: 1;
-  margin-top: 10px;
-  overflow-y: scroll;
-  scrollbar-width: none;
 }
 
 .panelHeader {

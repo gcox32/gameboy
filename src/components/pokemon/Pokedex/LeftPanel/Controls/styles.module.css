@@ -1,0 +1,84 @@
+.spriteControls {
+    display: flex;
+    gap: 1em;
+    /* margin-top: 10px; */
+    width: 100%;
+}
+
+.spriteControl {
+    height: 16px;
+    width: 90px;
+    border: groove grey 3px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1px;
+    border-color: #b06868;
+    /* transition: 0.2s ease-in-out; */
+    background: linear-gradient(14deg, #460f0f 10%, #891313 25%, #b31818 47%, #fd5555 73%, #ff8080 74%, #fd5555 80%);
+}
+
+.spriteControl:hover,
+.spriteControl.selected {
+    /* border-color: rgb(135, 23, 23); */
+    background: #891313;
+}
+
+.spriteControl:active {
+    border-color: #b31818;
+}
+
+.spriteControl:nth-child(2) {
+    border-color: #6969bd;
+    background: linear-gradient(14deg, #0f2846 10%, #132889 25%, #1818b3 47%, #5555fd 73%, #8080ff 74%, #5555fd 80%);
+}
+
+.spriteControl:nth-child(2):hover,
+.spriteControl:nth-child(2).selected {
+    /* border-color: #1818b3; */
+    background: #132889;
+}
+
+/* Pokemon Description */
+.pokemonDescription {
+    background: linear-gradient(14deg, rgb(165, 205, 83) 60%, rgb(193, 217, 144) 65%);
+    padding: 5px;
+    border-radius: 3px;
+    border: inset #879a65 3px;
+    font-size: 12px;
+    letter-spacing: 0;
+    max-height: 115px;
+    min-height: 115px;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+.pokedexDPad {
+    position: relative;
+    left: auto;
+    top: 0;
+}
+
+.readButton {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 31px;
+    background-color: #4a4a4a;
+    display: block;
+    background-color: #f7f7f7;
+    background-image: -webkit-linear-gradient(top, #262626, #000);
+    color: #000;
+    text-shadow: #313131 0 1px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.35), inset 0 2px 0 #676767;
+    border: 2px solid black;
+    border-top: 1px solid black;
+    margin-top: 5px;
+}

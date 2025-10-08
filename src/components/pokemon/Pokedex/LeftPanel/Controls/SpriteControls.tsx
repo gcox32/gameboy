@@ -1,4 +1,4 @@
-import styles from '../../styles.module.css';
+import styles from './styles.module.css';
 import { FaVenus, FaUndo } from 'react-icons/fa';
 
 interface SpriteControlsProps {
@@ -12,24 +12,20 @@ export default function SpriteControls({ spriteState, toggleGender, toggleShiny,
 
     return (
         <div className={styles.spriteControls}>
-            <div
+            {/* <div
                 className={`${styles.spriteControl} ${spriteState.female ? styles.selected : ''}`}
                 onClick={toggleGender}
             >
                 <FaVenus />
-            </div>
+            </div> */}
             <div
                 className={`${styles.spriteControl} ${spriteState.shiny ? styles.selected : ''}`}
                 onClick={toggleShiny}
-            >
-                <span>shiny</span>
-            </div>
+            ></div>
             <div
                 className={`${styles.spriteControl} ${!spriteState.front ? styles.selected : ''}`}
                 onClick={toggleFront}
-            >
-                <FaUndo />
-            </div>
+            ></div>
         </div>
 
     )

@@ -55,9 +55,9 @@ export default function LeftPanel({
 
     return (
         <div className={styles.leftPanel}>
-            <div className={styles.pokemonName}>
+            {/* <div className={styles.pokemonName}>
                 {showBasicDetails ? pokemonName : ''}
-            </div>
+            </div> */}
             <div className={styles.pokemonSprite}>
                 <SpriteFrame
                     useDefault={useDefault}
@@ -71,12 +71,9 @@ export default function LeftPanel({
                     toggleGender={toggleGender}
                     toggleShiny={toggleShiny}
                     toggleFront={toggleFront}
+                    description={description}
+                    showFullDetails={showFullDetails}
                 />
-            </div>
-            <div className={styles.pokemonDescription}>
-                {showFullDetails && (
-                    <>{description}</>
-                )}
             </div>
         </div>
     );

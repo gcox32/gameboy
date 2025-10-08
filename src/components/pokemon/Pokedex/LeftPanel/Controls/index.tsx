@@ -1,31 +1,39 @@
 import DPad from '@/components/console/DPad';
 import SpriteControls from './SpriteControls';
-import styles from '../../styles.module.css';
+import FlavorText from './FlavorText';
+import styles from './styles.module.css';
+import ReadButton from './ReadButton';
 
 interface ControlsProps {
     spriteState: { front: boolean; shiny: boolean; female: boolean };
     toggleGender: () => void;
     toggleShiny: () => void;
     toggleFront: () => void;
+    description: string;
+    showFullDetails: boolean;
 }
 
 export default function LeftPanelControls({
     spriteState,
     toggleGender,
     toggleShiny,
-    toggleFront
+    toggleFront,
+    description,
+    showFullDetails
 }: ControlsProps) {
     return (
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: '10px' }}>
-            <div className={styles.controls}>
+            <ReadButton text={description} />
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '44%', gap: '3em' }}>
                 <SpriteControls
                     spriteState={spriteState}
                     toggleGender={toggleGender}
                     toggleShiny={toggleShiny}
                     toggleFront={toggleFront}
                 />
-                <DPad />
+                <FlavorText flavorText={description} showFullDetails={showFullDetails} />
             </div>
+            <DPad className={styles.pokedexDPad} />
         </div>
     );
 }
