@@ -1,4 +1,4 @@
-import styles from '../../styles.module.css';
+import styles from './styles.module.css';
 import TopLights from './TopLights';
 import Image from 'next/image';
 import CryRow from './CryRow';
@@ -52,7 +52,7 @@ export default function SpriteFrame({
                     src={buildSpritePath()}
                     alt="pokemon"
                     width={220}
-                    height={220}
+                    height={214}
                     onError={(e) => {
                         e.currentTarget.src = '/images/pokemon/missingNo.png';
                     }} />

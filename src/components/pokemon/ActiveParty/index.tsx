@@ -88,41 +88,45 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
     });
 
     return (
-        <div className={styles.activeParty}>
-            <div className={styles.partyControls}>
-                <button 
-                    className={styles.partyControlButton}
-                    onClick={() => setUseStadiumSprites(!useStadiumSprites)}
-                    title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
-                >
-                    <FaExchangeAlt />
-                </button>
-                <button
-                    className={styles.partyControlButton}
-                    onClick={() => {}}
-                    title={`Take a photo of your team`}
-                >
-                    <FaCamera />
-                </button>
-            </div>
-            <div className={styles.partySlots}>
-                {partyData.map((pokemon: PokemonDetails, index: number) => (
-                    <PartySlot 
-                        key={pokemon.pokedexNo || index} 
-                        pokemon={pokemon} 
-                        onClick={() => handlePokemonClick(index)}
-                        useStadiumSprites={useStadiumSprites}
-                    />
-                ))}
-            </div>
-            {(selectedPokemonIndex !== null && partyData.length) && (
-                <PokemonDetailsModal
-                    isOpen={isModalOpen}
-                    onClose={handlePokemonModalClose}
-                    pokemon={partyData[selectedPokemonIndex]}
-                />
+        <>
+            {partyData.length > 0 && (
+                <div className={styles.activeParty}>
+                    <div className={styles.partyControls}>
+                        <button
+                            className={styles.partyControlButton}
+                            onClick={() => setUseStadiumSprites(!useStadiumSprites)}
+                            title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
+                        >
+                            <FaExchangeAlt />
+                        </button>
+                        <button
+                            className={styles.partyControlButton}
+                            onClick={() => { }}
+                            title={`Take a photo of your team`}
+                        >
+                            <FaCamera />
+                        </button>
+                    </div>
+                    <div className={styles.partySlots}>
+                        {partyData.map((pokemon: PokemonDetails, index: number) => (
+                            <PartySlot
+                                key={pokemon.pokedexNo || index}
+                                pokemon={pokemon}
+                                onClick={() => handlePokemonClick(index)}
+                                useStadiumSprites={useStadiumSprites}
+                            />
+                        ))}
+                    </div>
+                    {(selectedPokemonIndex !== null && partyData.length) && (
+                        <PokemonDetailsModal
+                            isOpen={isModalOpen}
+                            onClose={handlePokemonModalClose}
+                            pokemon={partyData[selectedPokemonIndex]}
+                        />
+                    )}
+                </div>
             )}
-        </div>
+        </>
     );
 }
 

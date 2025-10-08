@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from '../styles.module.css';
+import styles from './styles.module.css';
 
 export default function BlueButtons({ isProcessing = false }: { isProcessing?: boolean }) {
     const [activeButtons, setActiveButtons] = useState<number[]>([]);

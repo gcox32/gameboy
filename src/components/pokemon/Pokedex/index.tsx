@@ -128,7 +128,7 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
 
     // Load Pokemon data via internal API route
     const loadPokemonData = useCallback(async (pokemonId: number) => {
-        
+
         // Start the API calls and minimum processing time in parallel
         const apiData = await (async () => {
             try {
@@ -193,55 +193,59 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
     return (
         <>
             {isExpanded ? (
-            <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
-                <div className={styles.content}>
-                    <div className={styles.detailedView}>
-                        <LeftPanel
-                            pokemonId={selectedPokemon}
-                            isOwned={selectedPokemon ? isOwned(selectedPokemon - 1) : false}
-                            isSeen={selectedPokemon ? isSeen(selectedPokemon - 1) : false}
-                            pokemonData={pokemonData}
-                            description={description}
-                            buildSpritePath={buildSpritePath}
-                            spriteState={spriteState}
-                            toggleGender={toggleGender}
-                            toggleShiny={toggleShiny}
-                            toggleFront={toggleFront}
-                            useDefault={useDefault}
-                        />
+                <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
+                    <div className={styles.content}>
+                        <div className={styles.detailedView}>
+                            <LeftPanel
+                                pokemonId={selectedPokemon}
+                                isOwned={selectedPokemon ? isOwned(selectedPokemon - 1) : false}
+                                isSeen={selectedPokemon ? isSeen(selectedPokemon - 1) : false}
+                                pokemonData={pokemonData}
+                                description={description}
+                                buildSpritePath={buildSpritePath}
+                                spriteState={spriteState}
+                                toggleGender={toggleGender}
+                                toggleShiny={toggleShiny}
+                                toggleFront={toggleFront}
+                                useDefault={useDefault}
+                            />
 
-                        <Hinge />
+                            <Hinge />
 
-                        <RightPanel
-                            pokemonIds={pokemonList}
-                            isPokemonOwned={isOwned}
-                            isPokemonSeen={isSeen}
-                            onSelect={handlePokemonSelect}
-                            isProcessing={loading}
-                            onClose={handleClose}
-                        />
+                            <RightPanel
+                                pokemonIds={pokemonList}
+                                isPokemonOwned={isOwned}
+                                isPokemonSeen={isSeen}
+                                onSelect={handlePokemonSelect}
+                                isProcessing={loading}
+                                onClose={handleClose}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
             ) : (
-            <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
-                <div className={styles.header}>
-                    <div className={styles.title}>
-                        <h3>pokédex</h3>
-                        <div className={styles.stats}>
-                            <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
+                <>
+                    {ownedIds.size > 0 && (
+                        <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
+                            <div className={styles.header}>
+                                <div className={styles.title}>
+                                    <h3>pokédex</h3>
+                                    <div className={styles.stats}>
+                                        <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
+                                    </div>
+                                    <div className={styles.stats}>
+                                        <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.owned} caught`}</span>
+                                    </div>
+                                </div>
+                                <PokedexButton onClick={() => {
+                                    if (loadingPokedex) return;
+                                    setIsExpanded(!isExpanded);
+                                    setUseDefault(true);
+                                }} />
+                            </div>
                         </div>
-                        <div className={styles.stats}>
-                            <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.owned} caught`}</span>
-                        </div>
-                    </div>
-                    <PokedexButton onClick={() => {
-                        if (loadingPokedex) return;
-                        setIsExpanded(!isExpanded);
-                        setUseDefault(true);
-                    }} />
-                </div>
-            </div>
+                    )}
+                </>
             )}
         </>
     );

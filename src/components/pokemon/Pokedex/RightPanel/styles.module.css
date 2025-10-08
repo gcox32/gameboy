@@ -1,0 +1,105 @@
+/* Pokemon List (full-width, screen-styled) */
+.pokemonListScreen {
+    background: linear-gradient(15deg, #cad5b5 64%, #dde2d4 70%, #dde2d4 81%, #fff 86%, #dde2d4 89%, #dde2d4 100%);
+    border: inset #9aa28b 3px;
+    border-radius: 5px;
+    padding: 4px;
+    max-height: 120px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    margin-top: 2em;
+}
+
+.pokemonList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pokemonListItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    /* background: var(--background-secondary); */
+    cursor: pointer !important;
+    transition: background 120ms ease, transform 120ms ease;
+    background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(76, 175, 80, 0.08) 100%);
+    border-color: #9e9e9e
+}
+
+.pokemonListItem:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.pokemonListInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pokemonListNumber {
+    font-size: 8px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.pokemonListName {
+    font-size: 8px;
+    color: var(--text-primary);
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.pokemonListStatus {
+    display: flex;
+    align-items: center;
+}
+
+.panelRow {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 10px;
+}
+
+.blueButtons {
+    margin-top: 2em;
+    flex-wrap: wrap;
+    padding: 1px;
+    box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.blueButton {
+    height: 50px;
+    flex: 1 1 20%;
+    margin: 0;
+    border: groove #6c96e6 1px;
+    border-radius: 1px;
+    background: linear-gradient(15deg,
+            rgba(128, 128, 128, 0.5) 64%,
+            rgba(138, 138, 138, 0.5) 70%,
+            rgba(230, 230, 230, 0.5) 81%,
+            rgba(255, 255, 255, 0.5) 86%,
+            rgba(220, 220, 220, 0.5) 89%,
+            rgba(230, 230, 230, 0.5) 100%);
+    background-blend-mode: hard-light;
+    background-color: #09a8ff;
+    transition: all 0.2s ease;
+}
+
+.blueButtonActive {
+    background: linear-gradient(15deg,
+            rgba(255, 255, 255, 0.8) 64%,
+            rgba(255, 255, 255, 0.9) 70%,
+            rgba(255, 255, 255, 1) 81%,
+            rgba(255, 255, 255, 1) 86%,
+            rgba(255, 255, 255, 0.9) 89%,
+            rgba(255, 255, 255, 0.8) 100%);
+    background-color: #ffffff;
+    border-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
