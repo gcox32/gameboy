@@ -1,3 +1,4 @@
+import React from 'react';
 import styles from './styles.module.css';
 import TopLights from './TopLights';
 import Image from 'next/image';
@@ -6,15 +7,15 @@ import CryRow from './CryRow';
 interface SpriteFrameProps {
     useDefault: boolean;
     showUnknownSprite: boolean;
-    buildSpritePath: () => string;
+    spritePath: string;
     pokemonId: number | null;
     isOwned: boolean;
 }
 
-export default function SpriteFrame({
+const SpriteFrame = React.memo(function SpriteFrame({
     useDefault,
     showUnknownSprite,
-    buildSpritePath,
+    spritePath,
     pokemonId,
     isOwned
 }: SpriteFrameProps) {
@@ -49,7 +50,7 @@ export default function SpriteFrame({
         return (
             <div className={styles.spriteImage}>
                 <Image
-                    src={buildSpritePath()}
+                    src={spritePath}
                     alt="pokemon"
                     width={220}
                     height={214}
@@ -69,4 +70,6 @@ export default function SpriteFrame({
             </div>
         </div>
     );
-}
+});
+
+export default SpriteFrame;

@@ -13,7 +13,7 @@ interface LeftPanelProps {
     isSeen: boolean;
     pokemonData: PokemonData | null; // PokeAPI data
     description: string;
-    buildSpritePath: () => string;
+    spritePath: string;
     spriteState: { front: boolean; shiny: boolean; female: boolean };
     toggleGender: () => void;
     toggleShiny: () => void;
@@ -32,13 +32,13 @@ function getPokemonNameByPokedexNo(pokedexNo: number): string | null {
     return null;
 }
 
-export default function LeftPanel({
+const LeftPanel = React.memo(function LeftPanel({
     pokemonId,
     isOwned,
     isSeen,
     pokemonData,
     description,
-    buildSpritePath,
+    spritePath,
     spriteState,
     toggleGender,
     toggleShiny,
@@ -62,7 +62,7 @@ export default function LeftPanel({
                 <SpriteFrame
                     useDefault={useDefault}
                     showUnknownSprite={showUnknownSprite}
-                    buildSpritePath={buildSpritePath}
+                    spritePath={spritePath}
                     pokemonId={pokemonId}
                     isOwned={isOwned}
                 />
@@ -77,6 +77,8 @@ export default function LeftPanel({
             </div>
         </div>
     );
-}
+});
+
+export default LeftPanel;
 
 

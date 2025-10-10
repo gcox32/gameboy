@@ -73,8 +73,6 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
         }
 
         // Accept if close enough (<= 8 differing bits across 38 bytes)
-        console.log('bestIndex', bestIndex);
-        console.log('bestBits', bestBits);
         if (bestIndex >= 0 && bestBits <= 8) {
             setPokedexOffset(bestIndex);
             setLoadingPokedex(false);
@@ -104,10 +102,30 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
                 console.log(`0x${pokedexOffset.toString(16).toUpperCase()}`)
                 console.log(slice.length);
             }
-            setOwnedIds(nextOwned);
-            setSeenIds(nextSeen);
-        },
-        500
+            
+            // Only update state if the data has actually changed
+            setOwnedIds(prevOwned => {
+                if (prevOwned.size !== nextOwned.size) return nextOwned;
+                for (const id of nextOwned) {
+                    if (!prevOwned.has(id)) return nextOwned;
+                }
+                for (const id of prevOwned) {
+                    if (!nextOwned.has(id)) return nextOwned;
+                }
+                return prevOwned; // No change, return same reference
+            });
+            
+            setSeenIds(prevSeen => {
+                if (prevSeen.size !== nextSeen.size) return nextSeen;
+                for (const id of nextSeen) {
+                    if (!prevSeen.has(id)) return nextSeen;
+                }
+                for (const id of prevSeen) {
+                    if (!nextSeen.has(id)) return nextSeen;
+                }
+                return prevSeen; // No change, return same reference
+            });
+        }
     );
 
     // Calculate statistics
@@ -175,7 +193,7 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
         setSpriteState(prev => ({ ...prev, front: !prev.front }));
     }, []);
     // Build sprite image path
-    const buildSpritePath = useCallback((): string => {
+    const spritePath = useMemo((): string => {
         if (!pokemonData) return '/images/missingNo.png';
         const dir = spriteState.front ? "front" : "back";
         const gender = spriteState.female ? "_female" : "";
@@ -183,7 +201,7 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
         const key = dir + shiny + gender;
         const spriteUrl = pokemonData.sprites[key as keyof typeof pokemonData.sprites];
         return (typeof spriteUrl === 'string' ? spriteUrl : pokemonData.sprites.front_default) || '/images/missingNo.png';
-    }, [pokemonData, spriteState]);
+    }, [pokemonData, spriteState.front, spriteState.shiny, spriteState.female]);
 
     const handleClose = useCallback(() => {
         setIsExpanded(false);
@@ -202,7 +220,7 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
                                 isSeen={selectedPokemon ? isSeen(selectedPokemon - 1) : false}
                                 pokemonData={pokemonData}
                                 description={description}
-                                buildSpritePath={buildSpritePath}
+                                spritePath={spritePath}
                                 spriteState={spriteState}
                                 toggleGender={toggleGender}
                                 toggleShiny={toggleShiny}

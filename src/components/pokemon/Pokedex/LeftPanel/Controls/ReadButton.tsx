@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import styles from './styles.module.css';
 
-export default function ReadButton({ text }: { text: string }) {
+interface ReadButtonProps {
+    text: string;
+    isOwned?: boolean;
+}
+
+export default function ReadButton({ text, isOwned = false }: ReadButtonProps) {
 
     const [supported, setSupported] = useState(false);
 
@@ -11,7 +16,7 @@ export default function ReadButton({ text }: { text: string }) {
 
     const speak = useCallback(() => {
         const synth = window.speechSynthesis;
-        if (!synth) return;
+        if (!synth || !isOwned) return;
 
         synth.cancel();
         const u = new SpeechSynthesisUtterance(text);

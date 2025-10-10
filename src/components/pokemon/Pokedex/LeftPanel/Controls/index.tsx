@@ -23,7 +23,7 @@ export default function LeftPanelControls({
 }: ControlsProps) {
     return (
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: '2em' }}>
-            <ReadButton text={description} />
+            <ReadButton text={description} isOwned={showFullDetails} />
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '44%', gap: '3em' }}>
                 <SpriteControls
                     spriteState={spriteState}
