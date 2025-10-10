@@ -33,7 +33,7 @@ export default function ReadButton({ text, isOwned = false }: ReadButtonProps) {
         u.pitch = 0.85;
 
         synth.speak(u);
-    }, [text]);
+    }, [text, isOwned]);
 
     if (!supported) return null;
 
