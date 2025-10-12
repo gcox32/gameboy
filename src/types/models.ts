@@ -1,4 +1,4 @@
-import { MemoryWatcherConfig } from "./schema";
+import { MemoryWatcherConfig } from "./states";
 
 export interface NotificationModel {
     id: string;

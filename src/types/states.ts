@@ -1,13 +1,10 @@
-import { AuthenticatedUser } from "./auth";
-import { GameModel, SaveStateModel } from "./models";
+import { GameModel } from "./models";
 
 export interface MemoryWatcherConfig {
     baseAddress?: string;
     offset?: string;
     size?: string;
 }
-
-
 
 export interface GameState {
     activeGame: GameModel;

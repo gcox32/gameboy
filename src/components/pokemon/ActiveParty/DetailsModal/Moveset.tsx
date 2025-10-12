@@ -1,20 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './styles.module.css'
-import { Move } from '@/types/pokemon'
+import { Move, MovesetProps, MoveDetails } from '@/types/pokemon'
 import { FaExpandAlt, FaCompressAlt } from 'react-icons/fa';
-
-interface MoveDetails {
-    name: string;
-    type: string;
-    PP: number;
-    basepower: number;
-    accuracy: number;
-    clean_description: string;
-}
-
-interface MovesetProps {
-    moves: Move[]
-}
 
 export default function Moveset({ moves }: MovesetProps) {
     const [moveDetails, setMoveDetails] = useState<(MoveDetails | null)[]>([]);

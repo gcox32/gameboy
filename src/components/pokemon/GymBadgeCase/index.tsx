@@ -1,36 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import GymBadge from './GymBadge';
+import GymModal from './GymModal';
 import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 import styles from './styles.module.css';
 import { GameModel, MemoryWatcherConfig } from '@/types';
-import { SRAMArray } from '@/types';
-
-const badgesInfo = [
-    { name: "Boulder Badge", image: "boulder.png" },
-    { name: "Cascade Badge", image: "cascade.png" },
-    { name: "Thunder Badge", image: "thunder.png" },
-    { name: "Rainbow Badge", image: "rainbow.png" },
-    { name: "Soul Badge",    image: "soul.png" },
-    { name: "Marsh Badge",   image: "marsh.png" },
-    { name: "Volcano Badge", image: "volcano.png" },
-    { name: "Earth Badge",   image: "earth.png" },    
-];
+import { badges as badgesData, gyms as gymsData } from '@/utils/pokemon/gyms';
+import { Badge } from '@/types/pokemon';
 
 interface GymBadgeCaseProps {
-    inGameMem: SRAMArray;
+    inGameMem: number[];
     activeROM: GameModel;
 }
 
 function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
-    const [badges, setBadges] = useState(badgesInfo.map(badge => ({
+    const [badges, setBadges] = useState(badgesData.map(badge => ({
         ...badge,
         earned: false
     })));
-    const [prevBadges, setPrevBadges] = useState(badgesInfo.map(badge => ({
+    const [prevBadges, setPrevBadges] = useState(badgesData.map(badge => ({
         ...badge,
         earned: false
     })));
     const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
+    const [selectedGym, setSelectedGym] = useState<typeof gymsData[0] | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     
     useEffect(() => {
         if (!activeROM) return;
@@ -52,7 +45,7 @@ function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
             
             // Create new badges array by mapping each bit to a badge
             // Bits are ordered from LSB to MSB: Boulder (bit 0) to Earth (bit 7)
-            const newBadges = badgesInfo.map((badge, index) => {
+            const newBadges = badgesData.map((badge, index) => {
                 const isEarned = ((badgesByte >> index) & 1) === 1;
                 return {
                     ...badge,
@@ -66,17 +59,40 @@ function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
         3000
     );
 
+    const handleBadgeClick = (badge: Badge, index: number) => {
+        const gym = gymsData[index];
+        if (gym) {
+            setSelectedGym(gym);
+            setIsModalOpen(true);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedGym(null);
+    };
+
     return (
-        <div className={styles.badgesCase}>
-            {badges.map((badge, index) => (
-                <GymBadge 
-                    key={index} 
-                    badge={{ ...badge, index }}
-                    earned={badge.earned}
-                    justEarned={badge.earned && !prevBadges[index].earned}
+        <>
+            <div className={styles.badgesCase}>
+                {badges.map((badge, index) => (
+                    <GymBadge 
+                        key={index} 
+                        badge={{ ...badge, index }}
+                        earned={badge.earned}
+                        justEarned={badge.earned && !prevBadges[index].earned}
+                        onBadgeClick={handleBadgeClick}
+                    />
+                ))}
+            </div>
+            {selectedGym && (
+                <GymModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    gym={selectedGym}
                 />
-            ))}
-        </div>
+            )}
+        </>
     );
 }
 

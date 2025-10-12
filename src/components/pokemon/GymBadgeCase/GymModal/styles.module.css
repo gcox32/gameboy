@@ -1,0 +1,55 @@
+.modalContent.gymModal {
+    max-width: 800px;
+    overflow-y: scroll;
+}
+
+.modalContent.gymModal img:hover {
+    cursor: default !important;
+    outline: none !important;
+}
+
+.gymDetails {
+    width: 600px;
+}
+
+.gymDetails p {
+    text-align: justify;
+}
+
+.gymLeaderImage {
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.gymTitle {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.gymSubtitle {
+    color: #7f8c8d;
+    font-style: italic;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.gymInfo {
+    margin: 1rem 0;
+}
+
+.gymInfo p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.gymInfo strong {
+    color: #34495e;
+    font-weight: 600;
+}
+
+.gymDescription {
+    font-style: italic;
+    color: #555;
+    line-height: 1.6;
+}

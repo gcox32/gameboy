@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { badgeImgPath } from '@/../config';
 import styles from '../styles.module.css';
 import Image from 'next/image';
+import { Badge } from '@/types/pokemon';
 
 interface GymBadgeProps {
     badge: {
@@ -12,9 +13,10 @@ interface GymBadgeProps {
     };
     earned: boolean;
     justEarned: boolean;
+    onBadgeClick: (badge: Badge, index: number) => void;
 }
 
-function GymBadge({ badge, earned, justEarned }: GymBadgeProps) {
+function GymBadge({ badge, earned, justEarned, onBadgeClick }: GymBadgeProps) {
     const [gleam, setGleam] = useState(false);
     const badgeClass = earned ? styles.earned : styles.unearned;
 
@@ -33,11 +35,24 @@ function GymBadge({ badge, earned, justEarned }: GymBadgeProps) {
         }
     };
 
+    const handleBadgeClick = () => {
+        if (earned) {
+            // Convert the badge data to the Badge type expected by the modal
+            const badgeData: Badge = {
+                name: badge.name,
+                image: badge.image,
+                giver: badge.name.split(' ')[0] + ' Badge', // Extract gym leader name from badge name
+            };
+            onBadgeClick(badgeData, badge.index);
+        }
+    };
+
     return (
         <div className={`${styles.badge} ${badgeClass} ${justEarned ? styles.animate : ''}`}>
             <div 
                 className={`${styles.badgeImageWrapper} ${gleam ? styles.gleam : ''}`} 
-                onClick={handleGleam}
+                onClick={earned ? handleBadgeClick : handleGleam}
+                style={{ cursor: earned ? 'pointer' : 'default' }}
             >
                 <Image
                     src={`${badgeImgPath}${badge.image}`}

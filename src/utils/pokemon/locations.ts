@@ -1,6 +1,5 @@
 import { Location } from "@/types/pokemon";
-
-const imgUrl = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/locations/'
+import { locationsImgPath as imgUrl } from "@/../config";
 
 export const locations: Location[] = [
     {
