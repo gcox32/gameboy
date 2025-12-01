@@ -20,7 +20,7 @@ export default function Home() {
       <GlobalStyles />
         <Nav />
         <div className={styles.container}>
-          <h1 className={styles.title}>Welcome to JS GBC</h1>
+          <h1 className={styles.title}>Welcome to JS&nbsp;GBC</h1>
       <p className={styles.description}>Play Gameboy Color games in your browser.</p>
       {user === null ? (
         <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>

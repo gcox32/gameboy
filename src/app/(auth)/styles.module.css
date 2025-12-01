@@ -7,12 +7,15 @@
     background-color: #f4f4f9;
     padding: 20px;
     font-family: Arial, sans-serif;
+    max-width: 98%;
 }
 
 .title {
     font-size: 2rem;
     color: #333;
     margin-bottom: 1rem;
+    text-align: center;
+    width: 100%;
 }
 
 .form {
