@@ -110,9 +110,9 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     </Flex>
                 </section>
 
-                <Divider />
+                <Divider className={styles.desktop}/>
 
-                <section className={styles.settingsSection}>
+                <section className={styles.desktopSettingsSection}>
                     <Heading as="h4" className={styles.sectionTitle}>Background</Heading>
                     <CustomSwitch
                         label="Dynamic Background"
@@ -135,9 +135,9 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     </div>
                 </section>
 
-                <Divider />
+                <Divider className={styles.desktop}/>
 
-                <section className={styles.settingsSection}>
+                <section className={styles.desktopSettingsSection}>
                     <Heading as="h4" className={styles.sectionTitle}>Controls</Heading>
                     <KeyMappingControl
                         mappings={tempSettings.keyMappings}
@@ -145,7 +145,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     />
                 </section>
 
-                <Divider />
+                <Divider className={styles.desktop}/>
 
                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem' }}>
                     <button

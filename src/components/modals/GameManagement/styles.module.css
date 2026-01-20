@@ -22,8 +22,9 @@
 
 @media (max-width: 768px) {
     .modal {
-        width: 90%;
-        min-width: 0 !important;
+        max-width: 100%;
+        min-width: 0;
+        min-height: 0;
     }
     .gameList {
         display: flex;
@@ -39,7 +40,7 @@
         gap: 1rem;
     }
     .gameCardContainer {
-        width: 90%;
+        width: 100%;
     }
     .gameCard {
         padding: 0;

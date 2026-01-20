@@ -53,3 +53,13 @@
     color: #555;
     line-height: 1.6;
 }
+
+@media (max-width: 768px) {
+    .modalContent.gymModal {
+        max-width: 100%;
+    }
+
+    .gymDetails {
+        width: 100%;
+    }
+}

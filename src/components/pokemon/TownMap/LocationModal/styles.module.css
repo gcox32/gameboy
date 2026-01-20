@@ -15,3 +15,13 @@
 .mapLocDetails p {
     text-align: justify;
 }
+
+@media (max-width: 768px) {
+    .modalContent.locationModal {
+        max-width: 100%;
+    }
+
+    .mapLocDetails {
+        width: 100%;
+    }
+}

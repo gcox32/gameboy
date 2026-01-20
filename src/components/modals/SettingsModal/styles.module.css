@@ -13,7 +13,7 @@
     margin-bottom: 1rem;
 }
 
-.settingsSection {
+.settingsSection, .desktopSettingsSection {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -64,10 +64,12 @@
     font-weight: 500;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .settingsModal {
         max-width: 100%;
-        margin: 1rem;
+        min-width: 0;
+        margin: 0;
+        border-radius: 0;
     }
 
     .actionButtons {
@@ -77,5 +79,13 @@
 
     .resetButton, .applyButton {
         width: 100%;
+    }
+
+    .desktopSettingsSection {
+        display: none;
+    }
+    
+    .desktop {
+        display: none;
     }
 }

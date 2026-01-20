@@ -210,3 +210,26 @@
 .movesetContent {
   margin-top: 8px;
 }
+
+@media (max-width: 768px) {
+  .modalContent {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .pokemonDetailsRow {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pokemonDetailsSection {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+  }
+
+  .pokemonDetailsSection.top {
+    height: auto;
+    min-height: 150px;
+  }
+}
