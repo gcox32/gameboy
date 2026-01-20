@@ -29,15 +29,10 @@
   .controlPanel.hidden {
     left: -302px; /* Same as the width of the control panel */
   }
-
+    /* Hide control panel completely on mobile for immersive console experience */
   @media (max-width: 768px) {
     .controlPanel {
-      width: min(83vw, 360px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.28), 0 8px 16px rgba(0,0,0,0.16);
-    }
-
-    .controlPanel.hidden {
-      left: calc(-1 * min(83vw, 360px));
+      display: none !important;
     }
   }
 

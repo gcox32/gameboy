@@ -7,9 +7,11 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
 import { getCurrentUser } from 'aws-amplify/auth'
 import { useSaveState } from '@/hooks/useSaveState';
+import { useMobileImmersive } from '@/hooks/useMobileImmersive';
 import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/left/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
+import MobileControls from '@/components/mobile/MobileControls';
 import { useToast } from '@/components/ui';
 import GameBoyCore from '@/utils/GameBoyCore';
 import { GameBoyCoreInstance, GameModel, SaveStateModel, AuthenticatedUser, SRAMArray } from '@/types';
@@ -65,6 +67,9 @@ export default function App() {
 		activeROM || { id: '', owner: '', title: '', filePath: '', metadata: {} },
 		currentUser?.userId || ''
 	);
+
+	// Mobile immersive mode - handles fullscreen, orientation lock, PWA detection
+	useMobileImmersive();
 
 	// Update game context when emulator state changes
 	useEffect(() => {
@@ -505,6 +510,22 @@ export default function App() {
 				mbcRam={mbcRamRef.current}
 				onPauseResume={handlePauseResume}
 				intervalPaused={intervalPaused}
+			/>
+			<MobileControls
+				onROMSelected={handleROMSelected}
+				isEmulatorPlaying={isEmulatorPlaying}
+				currentUser={currentUser}
+				intervalPaused={intervalPaused}
+				onPauseResume={handlePauseResume}
+				onReset={handleReset}
+				onPowerToggle={handlePowerToggle}
+				isRomLoaded={isRomLoaded}
+				userSaveStates={userSaveStates}
+				isSaving={isSaving}
+				activeSaveState={activeState}
+				onSaveConfirmed={onSaveConfirmed}
+				runFromSaveState={runFromSaveState}
+				onDeleteSaveState={onDeleteSaveState}
 			/>
 		</div>
 	);

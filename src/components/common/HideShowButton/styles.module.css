@@ -40,3 +40,10 @@
     bottom: 20px;
 }
 
+/* Hide on mobile for immersive console experience */
+@media (max-width: 768px) {
+    .toggleButton {
+        display: none !important;
+    }
+}
+

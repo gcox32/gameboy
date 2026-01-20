@@ -210,25 +210,56 @@
 
 
 
+/* ============================================
+   MOBILE IMMERSIVE MODE - Full Console View
+   ============================================ */
+
+@media screen and (max-width: 768px) {
+  .consoleContainer {
+    /* Remove margin - console should fill the screen */
+    margin-top: 0 !important;
+    /* Center vertically in the viewport */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Scale to fit viewport while maintaining aspect ratio */
+    width: min(100vw, calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * (526/928)));
+    height: min(calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)), calc(100vw * (928/526)));
+    max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    /* Ensure it's above everything */
+    z-index: 100;
+    /* Remove border on mobile for cleaner look */
+    border: none;
+    border-radius: 0;
+  }
+}
+
 @media screen and (max-width: 568px) {
   #GameBoy.zoom {
-
     width: 100vw;
     height: calc(100vw * (286 / 321));
-    /* left: 0 !important; */
     left: 44px !important;
-    /* top: 11px !important; */
     top: 34px !important;
   }
 }
 
 @media screen and (max-width: 400px) {
   .consoleContainer {
+    /* On very small screens, prioritize width */
     width: 100vw;
-    /* 420px; */
     height: calc(100vw * (928/526));
+    max-height: none;
     overflow: hidden;
     background-position: center;
+    /* Keep centered */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0 !important;
+    border: none;
+    border-radius: 0;
   }
 
   .mobile {
@@ -242,17 +273,13 @@
   #GameBoy {
     left: 2px !important;
     top: 56px !important;
-    /* -9px !important; */
     width: 252px;
-    /* 100vw !important; */
     height: calc(252px * (286 / 321));
-    /* calc(100vw * (286 / 321)) */
     position: relative;
     transition: 200ms all ease-in-out;
   }
 
   #GameBoy.zoom {
-
     width: 100vw;
     height: calc(100vw * (286 / 321));
     left: 0 !important;
@@ -305,7 +332,8 @@
     top: 58%;
     left: 4.75%;
     transform: scale(0.85);
-    background-color: red;
+    /* Remove debug background color */
+    background-color: transparent;
   }
 
   .joypad div {

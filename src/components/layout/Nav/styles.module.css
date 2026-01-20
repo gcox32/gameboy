@@ -81,42 +81,16 @@
 }
 
 @media (max-width: 768px) {
+    /* Hide entire nav on mobile for immersive console experience */
+    .navContainer {
+        display: none !important;
+    }
+
     .hamburger {
-        display: flex;
-        z-index: 2;
+        display: none !important;
     }
 
     .navMenu {
-        position: fixed;
-        right: -100%;
-        top: 0;
-        flex-direction: column;
-        width: 100%;
-        height: 100vh;
-        padding: 2rem;
-        padding-top: 3em;
-        transition: transform 0.3s ease-in-out;
-        overflow-y: auto;
-        background-color: var(--background-color);
-        display: flex;
-        justify-content: flex-start;
+        display: none !important;
     }
-
-    .navMenu.open {
-        transform: translateX(-100%);
-    }
-
-    .navMenu a {
-        font-size: 1.2rem;
-        width: 100%;
-        text-align: center;
-        padding: 1rem;
-    }
-
-    .navMenu a:hover {
-        background-color: var(--hover-background-color);
-        border-radius: 8px;
-    }
-
-
 }

@@ -1,3 +1,4 @@
+import type { Viewport } from 'next';
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from 'react';
@@ -21,7 +22,27 @@ export const metadata = {
   icons: {
     icon: "/favicon.ico",
     apple: "/gbc-homescreen-icon-192.jpeg"
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "JS GBC"
+  },
+  formatDetection: {
+    telephone: false
   }
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(max-width: 768px)", color: "#000000" },
+    { media: "(min-width: 769px)", color: "#add8e6" }
+  ]
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
