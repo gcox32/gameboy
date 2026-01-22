@@ -9,7 +9,11 @@ import {
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import { GameModel } from '@/types';
+import { MemoryWatcherConfig } from '@/types/states';
+import { getPresetByRomTitle, getDefaultPreset } from '@/data/memoryPresets';
+import MemoryScannerSection from './MemoryScannerSection';
 import buttons from '@/styles/buttons.module.css';
+import styles from './styles.module.css';
 
 interface GameEditFormProps {
     game: GameModel;
@@ -22,6 +26,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [watchersExpanded, setWatchersExpanded] = useState(false);
     const [formData, setFormData] = useState(() => {
         // Parse metadata if it exists
         let metadata;
@@ -32,34 +37,26 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
             metadata = {};
         }
 
-        // Default memory watcher values
+        // Try to get preset based on game title, fall back to defaults
+        const preset = getPresetByRomTitle(game.title) || getDefaultPreset();
         const defaultWatchers = {
-            activeParty: {
-                baseAddress: '0xD163', // true blue is 0xD162
-                offset: '0x00',
-                size: '0x195'
-            },
-            gymBadges: {
-                baseAddress: '0xD2F6',
-                offset: '0x60', // true blue is 0x5F
-                size: '0x1'
-            },
-            location: {
-                baseAddress: '0xD2F6',
-                offset: '0x68', // true blue is 0x67
-                size: '0x1'
-            }
+            activeParty: preset.activeParty,
+            gymBadges: preset.gymBadges,
+            location: preset.location,
         };
 
         return {
             title: game.title || '',
             description: metadata.description || '',
             series: metadata.series || '',
-            generation: metadata.generation || '',
+            generation: metadata.generation || String(preset.generation),
             releaseDate: metadata.releaseDate || '',
             memoryWatchers: metadata.memoryWatchers || defaultWatchers
         };
     });
+
+    // Determine generation for scanning
+    const generation = (parseInt(formData.generation) === 2 ? 2 : 1) as 1 | 2;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -105,14 +102,36 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
         }));
     };
 
-    // Add this section after the existing form fields, before the buttons
+    const handleScanResult = (
+        watcher: 'activeParty' | 'gymBadges' | 'location',
+        config: MemoryWatcherConfig
+    ) => {
+        setFormData(prev => ({
+            ...prev,
+            memoryWatchers: {
+                ...prev.memoryWatchers,
+                [watcher]: {
+                    ...prev.memoryWatchers[watcher],
+                    baseAddress: config.baseAddress,
+                    offset: config.offset || '0x00',
+                }
+            }
+        }));
+    };
+
+    // Render watcher config with scanner and manual fields
     const renderWatcherFields = (
         watcher: 'activeParty' | 'gymBadges' | 'location',
         label: string
     ) => (
-        <View $padding="1rem" $backgroundColor="rgba(0,0,0,0.05)" $borderRadius="medium">
-            <Heading as="h6">{label} Memory Configuration</Heading>
-            <Flex $direction="row" $gap="1rem">
+        <MemoryScannerSection
+            watcherType={watcher}
+            label={label}
+            currentConfig={formData.memoryWatchers[watcher]}
+            generation={generation}
+            onConfigFound={(config) => handleScanResult(watcher, config)}
+        >
+            <div className={styles.watcherConfigFields}>
                 <TextField
                     label="Base Address"
                     value={formData.memoryWatchers[watcher].baseAddress}
@@ -131,27 +150,23 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
                     onChange={e => updateWatcherConfig(watcher, 'size', e.target.value)}
                     orientation="vertical"
                 />
-            </Flex>
-        </View>
+            </div>
+        </MemoryScannerSection>
     );
 
     return (
-        <form onSubmit={handleSubmit}>
-            <Flex $direction="column" $gap="1rem">
-                <Flex $justifyContent="space-between" $alignItems="center">
-                    <Heading as="h5">Edit Game Details</Heading>
-                </Flex>
+        <form onSubmit={handleSubmit} className={styles.editForm}>
+            {error && <Alert $variation="error">{error}</Alert>}
 
-                {error && <Alert $variation="error">{error}</Alert>}
+            <div className={styles.imageSection}>
+                <ImageUpload
+                    value={gameImgRef}
+                    onChange={(file) => setImageFile(file as File)}
+                    label="Game Cover Image"
+                />
+            </div>
 
-                <View $flexDirection="column" $alignItems="center">
-                    <ImageUpload
-                        value={gameImgRef}
-                        onChange={(file) => setImageFile(file as File)}
-                        label="Game Cover Image"
-                    />
-                </View>
-
+            <div className={styles.formSection}>
                 <TextField
                     label="Title"
                     required
@@ -167,20 +182,18 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
                     orientation="vertical"
                 />
 
-                <Flex $direction="row" $gap="1rem">
+                <div className={styles.formRow}>
                     <TextField
                         label="Series"
                         value={formData.series}
                         onChange={e => setFormData(prev => ({ ...prev, series: e.target.value }))}
                         orientation="vertical"
-                        $flex="1"
                     />
                     <TextField
                         label="Generation"
                         value={formData.generation}
                         onChange={e => setFormData(prev => ({ ...prev, generation: e.target.value }))}
                         orientation="vertical"
-                        $flex="1"
                     />
                     <TextField
                         label="Release Date"
@@ -188,16 +201,29 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
                         value={formData.releaseDate}
                         onChange={e => setFormData(prev => ({ ...prev, releaseDate: e.target.value }))}
                         orientation="vertical"
-                        $flex="1"
                     />
-                </Flex>
+                </div>
+            </div>
 
-                <Heading as="h6">Memory Watchers</Heading>
-                {renderWatcherFields('activeParty', 'Active Party')}
-                {renderWatcherFields('gymBadges', 'Gym Badges')}
-                {renderWatcherFields('location', 'Location')}
+            {/* Collapsible Memory Watchers Section */}
+            <div className={styles.watchersSection}>
+                <div
+                    className={styles.watchersSectionHeader}
+                    onClick={() => setWatchersExpanded(!watchersExpanded)}
+                >
+                    <h6>Memory Watchers</h6>
+                    <span className={`${styles.watchersSectionToggle} ${watchersExpanded ? styles.expanded : ''}`}>
+                        ▼
+                    </span>
+                </div>
+                <div className={`${styles.watchersSectionContent} ${!watchersExpanded ? styles.collapsed : ''}`}>
+                    {renderWatcherFields('activeParty', 'Active Party')}
+                    {renderWatcherFields('gymBadges', 'Gym Badges')}
+                    {renderWatcherFields('location', 'Location')}
+                </div>
+            </div>
 
-                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
                     <button
                         className={buttons.warningButton}
                         onClick={() => onDelete(game)}
@@ -213,7 +239,6 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
                         Save Changes
                     </button>
                 </div>
-            </Flex>
         </form>
     );
-} 
+}

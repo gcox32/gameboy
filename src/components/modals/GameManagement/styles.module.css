@@ -1,8 +1,9 @@
 .modal {
-    max-width: 800px;
-    min-width: 600px;
+    max-width: 900px;
+    min-width: 0;
+    width: 100%;
     min-height: 400px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .gameList {
@@ -18,33 +19,6 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-}
-
-@media (max-width: 768px) {
-    .modal {
-        max-width: 100%;
-        min-width: 0;
-        min-height: 0;
-    }
-    .gameList {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        padding: 1rem 0;
-    }
-    .modalHeader {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    .gameCardContainer {
-        width: 100%;
-    }
-    .gameCard {
-        padding: 0;
-    }
 }
 
 .gameCardContainer {
@@ -88,7 +62,7 @@
     padding: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    height: 200px;  /* Fixed height */
+    height: 200px;
     width: 100%;
 }
 
@@ -99,4 +73,326 @@
 .gameCard button {
     padding: 0.25rem;
     min-width: auto;
+}
+
+/* Edit Form Layout */
+.editForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.formSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.formRowTwo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.imageSection {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+/* Memory Watchers Section */
+.watchersSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border-color, #e5e5e5);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.watchersSectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--background-secondary, #f5f5f5);
+    cursor: pointer;
+    user-select: none;
+}
+
+.watchersSectionHeader:hover {
+    background: var(--hover-background-color, #e8e8e8);
+}
+
+.watchersSectionHeader h6 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.watchersSectionToggle {
+    font-size: 1.25rem;
+    color: var(--text-secondary, #666);
+    transition: transform 0.2s ease;
+}
+
+.watchersSectionToggle.expanded {
+    transform: rotate(180deg);
+}
+
+.watchersSectionContent {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.watchersSectionContent.collapsed {
+    display: none;
+}
+
+/* Memory Scanner Styles */
+.scannerSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #e5e5e5);
+}
+
+.scannerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.scannerLabel {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.scanProgress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: var(--background-secondary, #e5e5e5);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color, #3b82f6), #60a5fa);
+    transition: width 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progressFill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: scanWave 1.5s ease-in-out infinite;
+}
+
+@keyframes scanWave {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.scanStatus {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.scanIndicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary-color, #3b82f6);
+    animation: scanPulse 1s ease-in-out infinite;
+}
+
+@keyframes scanPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.scanResults {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.scanBanner {
+    margin-top: 0.5rem;
+}
+
+.candidateList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.candidateItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.625rem 0.75rem;
+    background: var(--background-color, #fff);
+    border: 2px solid var(--border-color, #e5e5e5);
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.candidateItem:hover {
+    border-color: var(--primary-color, #3b82f6);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.candidateItem.selected {
+    border-color: var(--primary-color, #3b82f6);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.confidenceBadge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.watcherConfigFields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.currentConfig {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color, #e5e5e5);
+    margin-top: 0.25rem;
+}
+
+.formActions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color, #e5e5e5);
+    margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal {
+        max-width: 100%;
+    }
+
+    .gameList {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+
+    .modalHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .gameCardContainer {
+        width: 100%;
+    }
+
+    .gameCard {
+        padding: 0;
+    }
+
+    .formRow,
+    .formRowTwo {
+        grid-template-columns: 1fr;
+    }
+
+    .watcherConfigFields {
+        grid-template-columns: 1fr;
+    }
+
+    .scannerSection {
+        padding: 0.75rem;
+    }
+
+    .scannerHeader {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .candidateList {
+        max-height: 150px;
+    }
+
+    .formActions {
+        flex-direction: column-reverse;
+    }
+}
+
+@media (max-width: 500px) {
+    .watchersSectionHeader {
+        padding: 0.75rem;
+    }
+
+    .watchersSectionContent {
+        padding: 0.75rem;
+    }
 }

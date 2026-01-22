@@ -116,9 +116,9 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             }
 
             // Update game record in database
+            // Note: don't include 'owner' - field-level auth doesn't allow updating it
             const updatedGame = await client.models.Game.update({
                 id: gameData.id,
-                owner: user?.userId,
                 title: gameData.title,
                 img: imagePath,
                 metadata: JSON.stringify({
@@ -131,12 +131,20 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             });
 
             setEditingGame(null);
-            loadGames();
-            
-            // Call the new callback with the updated game
-            if (onGameEdited && updatedGame.data) {
-                onGameEdited(updatedGame.data as GameModel);
+
+            // Optimistically update local state to avoid eventual consistency issues
+            if (updatedGame.data) {
+                const updated = updatedGame.data as GameModel;
+                setGames(prev => prev.map(g => g.id === updated.id ? updated : g));
+
+                // Call the callback with the updated game
+                if (onGameEdited) {
+                    onGameEdited(updated);
+                }
             }
+
+            // Also refresh from server (but don't wait for it to show success)
+            loadGames();
 
             // Success toast
             showToast(`Saved changes to "${gameData.title}"`, 'success');
