@@ -465,6 +465,49 @@ export default function App() {
 		setFullscreenBackground(uiSettings.background);
 	}, [uiSettings.background, activeROM]);
 
+	// DEBUG: Memory dump on Ctrl+Shift+M
+	useEffect(() => {
+		const handleDebugKey = (e: KeyboardEvent) => {
+			if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+				e.preventDefault();
+				if (inGameMemory.current && inGameMemory.current.length > 0) {
+					console.log('=== IN-GAME MEMORY DUMP ===');
+					console.log('Total length:', inGameMemory.current.length);
+					console.log('Full memory array:', inGameMemory.current);
+
+					// Log some common Pokemon memory regions (Gen 1)
+					// Player name: 0xD158
+					// Party Pokemon: 0xD163
+					// Current box Pokemon: 0xDA80
+					// Pokedex owned: 0xD2F7
+					// Pokedex seen: 0xD30A
+					console.log('--- Common Pokemon Memory Regions (Gen 1) ---');
+					console.log('0xD158 (Player name region):', inGameMemory.current.slice(0xD158, 0xD158 + 11));
+					console.log('0xD163 (Party count + species):', inGameMemory.current.slice(0xD163, 0xD163 + 50));
+					console.log('0xD2F7 (Pokedex owned):', inGameMemory.current.slice(0xD2F7, 0xD2F7 + 19));
+					console.log('0xD30A (Pokedex seen):', inGameMemory.current.slice(0xD30A, 0xD30A + 19));
+
+					// Also expose to window for easy inspection
+					(window as unknown as { __gbMemory: number[] }).__gbMemory = [...inGameMemory.current];
+					console.log('Memory also available at window.__gbMemory');
+				} else {
+					console.log('No in-game memory available. Is a game running?');
+				}
+
+				if (mbcRamRef.current && mbcRamRef.current.length > 0) {
+					console.log('=== MBC RAM (SRAM) DUMP ===');
+					console.log('Total length:', mbcRamRef.current.length);
+					console.log('Full SRAM array:', mbcRamRef.current);
+					(window as unknown as { __gbSRAM: number[] }).__gbSRAM = [...mbcRamRef.current];
+					console.log('SRAM also available at window.__gbSRAM');
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleDebugKey);
+		return () => window.removeEventListener('keydown', handleDebugKey);
+	}, []);
+
 	// Loading screen
 	if (isLoading) {
 		return <div>Loading...</div>;
