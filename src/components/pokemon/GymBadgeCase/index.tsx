@@ -3,16 +3,17 @@ import GymBadge from './GymBadge';
 import GymModal from './GymModal';
 import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 import styles from './styles.module.css';
-import { GameModel, MemoryWatcherConfig } from '@/types';
+import { GameModel, MemoryWatcherConfig, SRAMArray } from '@/types';
 import { badges as badgesData, gyms as gymsData } from '@/utils/pokemon/gyms';
 import { Badge } from '@/types/pokemon';
 
 interface GymBadgeCaseProps {
     inGameMem: number[];
+    gbcMemory?: SRAMArray | number[];
     activeROM: GameModel;
 }
 
-function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
+function GymBadgeCase({ inGameMem, gbcMemory, activeROM }: GymBadgeCaseProps) {
     const [badges, setBadges] = useState(badgesData.map(badge => ({
         ...badge,
         earned: false
@@ -42,7 +43,7 @@ function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
         watcherConfig?.size,
         (array: number[]) => {
             const badgesByte = array[0];
-            
+
             // Create new badges array by mapping each bit to a badge
             // Bits are ordered from LSB to MSB: Boulder (bit 0) to Earth (bit 7)
             const newBadges = badgesData.map((badge, index) => {
@@ -56,7 +57,8 @@ function GymBadgeCase({ inGameMem, activeROM }: GymBadgeCaseProps) {
             setPrevBadges(badges);
             setBadges(newBadges);
         },
-        3000
+        3000,
+        gbcMemory
     );
 
     const handleBadgeClick = (badge: Badge, index: number) => {

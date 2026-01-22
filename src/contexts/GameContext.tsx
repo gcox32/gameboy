@@ -10,8 +10,9 @@ interface GameContextValue {
     setGameState: (gameState: GameState) => void;
     // Memory refs for scanning
     inGameMemoryRef: MutableRefObject<SRAMArray>;
+    gbcMemoryRef: MutableRefObject<SRAMArray>;
     mbcRamRef: MutableRefObject<SRAMArray>;
-    setMemoryRefs: (inGameMemory: SRAMArray, mbcRam: SRAMArray) => void;
+    setMemoryRefs: (inGameMemory: SRAMArray, gbcMemory: SRAMArray, mbcRam: SRAMArray) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -29,6 +30,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     // Memory refs for accessing emulator memory
     const inGameMemoryRef = useRef<SRAMArray>([]);
+    const gbcMemoryRef = useRef<SRAMArray>([]); // GBC WRAM banks (0xD000+ for GBC games)
     const mbcRamRef = useRef<SRAMArray>([]);
 
     const startGame = useCallback((gameData: GameModel) => {
@@ -44,6 +46,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             if (prev.isPlaying) {
                 // Clear memory refs when stopping
                 inGameMemoryRef.current = [];
+                gbcMemoryRef.current = [];
                 mbcRamRef.current = [];
                 return {
                     isPlaying: false,
@@ -55,8 +58,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         });
     }, []);
 
-    const setMemoryRefs = useCallback((inGameMemory: SRAMArray, mbcRam: SRAMArray) => {
+    const setMemoryRefs = useCallback((inGameMemory: SRAMArray, gbcMemory: SRAMArray, mbcRam: SRAMArray) => {
         inGameMemoryRef.current = inGameMemory;
+        gbcMemoryRef.current = gbcMemory;
         mbcRamRef.current = mbcRam;
     }, []);
 
@@ -67,6 +71,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             stopGame,
             setGameState,
             inGameMemoryRef,
+            gbcMemoryRef,
             mbcRamRef,
             setMemoryRefs
         }}>

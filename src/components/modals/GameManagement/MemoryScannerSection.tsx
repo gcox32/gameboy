@@ -25,7 +25,7 @@ export default function MemoryScannerSection({
     hints,
     children,
 }: MemoryScannerSectionProps) {
-    const { gameState, inGameMemoryRef } = useGame();
+    const { gameState, inGameMemoryRef, gbcMemoryRef } = useGame();
     const [isScanning, setIsScanning] = useState(false);
     const [progress, setProgress] = useState(0);
     const [statusMessage, setStatusMessage] = useState('');
@@ -33,6 +33,26 @@ export default function MemoryScannerSection({
     const [selectedCandidate, setSelectedCandidate] = useState<ScanCandidate | null>(null);
 
     const canScan = gameState.isPlaying && inGameMemoryRef.current.length > 0;
+
+    // Merge memory arrays for scanning - GBC games store 0xD000+ in GBCMemory
+    const getMergedMemory = useCallback((): number[] => {
+        const baseMemory = Array.from(inGameMemoryRef.current);
+        const gbcMemory = gbcMemoryRef.current;
+
+        // If GBCMemory has data, overlay it onto the 0xD000-0xDFFF range
+        // GBCMemory is offset by -0xD000, so gbcMemory[0] = address 0xD000
+        if (gbcMemory && gbcMemory.length > 0) {
+            // GBCMemory stores banks 1-7, bank 1 maps to 0xD000-0xDFFF
+            // The gbcRamBankPosition offset handles this in the emulator
+            // For our purposes, we need the first 0x1000 bytes for 0xD000-0xDFFF
+            for (let i = 0; i < Math.min(gbcMemory.length, 0x1000); i++) {
+                baseMemory[0xD000 + i] = gbcMemory[i];
+            }
+            console.log('[MemoryScanner] Merged GBC memory into base memory for 0xD000-0xDFFF range');
+        }
+
+        return baseMemory;
+    }, [inGameMemoryRef, gbcMemoryRef]);
 
     const handleScan = useCallback(async () => {
         if (!canScan) return;
@@ -47,9 +67,12 @@ export default function MemoryScannerSection({
             // Small delay to let UI update
             await new Promise(resolve => setTimeout(resolve, 50));
 
+            // Get merged memory (base memory + GBC memory overlay for 0xD000+)
+            const mergedMemory = getMergedMemory();
+
             const result = await scanMemory(
                 watcherType,
-                inGameMemoryRef.current as number[],
+                mergedMemory,
                 generation,
                 hints,
                 (prog, msg) => {
@@ -78,7 +101,7 @@ export default function MemoryScannerSection({
             setIsScanning(false);
             setStatusMessage('');
         }
-    }, [canScan, watcherType, generation, hints, inGameMemoryRef]);
+    }, [canScan, watcherType, generation, hints, getMergedMemory]);
 
     const handleApplyConfig = useCallback(() => {
         if (selectedCandidate) {

@@ -40,6 +40,7 @@ export default function App() {
 	const fullscreenContainerRef = useRef<HTMLDivElement>(null);
 	const mbcRamRef = useRef<SRAMArray>([]);
 	const inGameMemory = useRef<SRAMArray>([]);
+	const gbcMemory = useRef<SRAMArray>([]);
 
 	// Maintain states
 	const [currentUser, setUser] = useState<AuthenticatedUser | null>(null);
@@ -58,7 +59,7 @@ export default function App() {
 	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
 
-	const { startGame, stopGame } = useGame();
+	const { startGame, stopGame, setMemoryRefs } = useGame();
 	const { showToast } = useToast();
 
 	// Add hook near other hooks
@@ -111,6 +112,14 @@ export default function App() {
 				gameboyInstance.iterations = 0;
 				gameboyInstance.setSpeed(speed);
 				inGameMemory.current = gameboyInstance.memory;
+				gbcMemory.current = gameboyInstance.GBCMemory || [];
+				// Sync memory refs to context for scanning access
+				// GBCMemory contains WRAM bank 1+ (0xD000+) for GBC games
+				setMemoryRefs(
+					gameboyInstance.memory,
+					gameboyInstance.GBCMemory || [],
+					gameboyInstance.MBCRam
+				);
 				runInterval.current = setInterval(function () {
 					if (!document.hidden) {
 						gameboyInstance.run();
@@ -550,6 +559,7 @@ export default function App() {
 				activeROM={activeROM}
 				activeState={activeState}
 				inGameMemory={inGameMemory.current}
+				gbcMemory={gbcMemory.current}
 				mbcRam={mbcRamRef.current}
 				onPauseResume={handlePauseResume}
 				intervalPaused={intervalPaused}

@@ -10,6 +10,7 @@ import { useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 
 interface PokedexProps {
     inGameMemory: SRAMArray | number[];
+    gbcMemory?: SRAMArray | number[];
     mbcRam?: SRAMArray | number[];
 }
 
@@ -18,7 +19,7 @@ function pickRandom<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
+export default function Pokedex({ inGameMemory, gbcMemory, mbcRam }: PokedexProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [selectedPokemon, setSelectedPokemon] = useState<number | null>(null);
     const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
@@ -102,7 +103,7 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
                 console.log(`0x${pokedexOffset.toString(16).toUpperCase()}`)
                 console.log(slice.length);
             }
-            
+
             // Only update state if the data has actually changed
             setOwnedIds(prevOwned => {
                 if (prevOwned.size !== nextOwned.size) return nextOwned;
@@ -114,7 +115,7 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
                 }
                 return prevOwned; // No change, return same reference
             });
-            
+
             setSeenIds(prevSeen => {
                 if (prevSeen.size !== nextSeen.size) return nextSeen;
                 for (const id of nextSeen) {
@@ -125,7 +126,9 @@ export default function Pokedex({ inGameMemory, mbcRam }: PokedexProps) {
                 }
                 return prevSeen; // No change, return same reference
             });
-        }
+        },
+        1000,
+        gbcMemory
     );
 
     // Calculate statistics

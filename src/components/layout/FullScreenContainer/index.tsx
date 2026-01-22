@@ -17,6 +17,7 @@ interface FullScreenContainerProps {
   activeROM: GameModel | null;
   activeState: SaveStateModel | null;
   inGameMemory: number[];
+  gbcMemory: SRAMArray | number[];
   mbcRam: SRAMArray | number[];
   onPauseResume: () => void;
   intervalPaused: boolean;
@@ -31,6 +32,7 @@ export default function FullScreenContainer({
   activeROM,
   activeState,
   inGameMemory,
+  gbcMemory,
   mbcRam,
   onPauseResume,
   intervalPaused
@@ -80,7 +82,8 @@ export default function FullScreenContainer({
         setDynamicBackground(null);
       }
     },
-    2000
+    2000,
+    gbcMemory
   );
 
   // Effect to handle background transitions
@@ -129,6 +132,7 @@ export default function FullScreenContainer({
       {showActiveParty && activeROM && activeState && inGameMemory &&
         <ActiveParty
           inGameMemory={inGameMemory}
+          gbcMemory={gbcMemory}
           onPauseResume={onPauseResume}
           intervalPaused={intervalPaused}
           activeROM={activeROM}
@@ -137,6 +141,7 @@ export default function FullScreenContainer({
       {showGymBadgeCase && activeROM && activeState && inGameMemory &&
         <GymBadgeCase
           inGameMem={inGameMemory}
+          gbcMemory={gbcMemory}
           activeROM={activeROM}
         />
       }
@@ -144,6 +149,7 @@ export default function FullScreenContainer({
       {showPokedex && activeROM && activeState && inGameMemory &&
         <Pokedex
           inGameMemory={inGameMemory}
+          gbcMemory={gbcMemory}
           mbcRam={mbcRam}
         />
       }

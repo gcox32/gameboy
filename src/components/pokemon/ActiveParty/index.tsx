@@ -8,7 +8,7 @@ import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 import { MemoryWatcherConfig } from "@/types";
 import { FaCamera, FaExchangeAlt } from 'react-icons/fa';
 
-function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
+function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
     const partyArray = useRef([])
     const [partyData, setPartyData] = useState<PokemonDetails[]>([]);
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
@@ -44,7 +44,9 @@ function ActiveParty({ inGameMemory, onPauseResume, intervalPaused, activeROM }:
                     handlePokemonModalClose();
                 }
             }
-        }
+        },
+        1000,
+        gbcMemory
     );
 
     const handlePokemonClick = (index: number) => {

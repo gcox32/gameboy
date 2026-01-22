@@ -1,7 +1,9 @@
 import { GameModel } from "./models";
+import { SRAMArray } from "./sram";
 
 export interface ActivePartyProps {
     inGameMemory: number[];
+    gbcMemory?: SRAMArray | number[];
     onPauseResume: () => void;
     intervalPaused: boolean;
     activeROM: GameModel;
