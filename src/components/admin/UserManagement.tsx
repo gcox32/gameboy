@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import {
     Flex,
     Text,
-    Alert,
-    Heading
+    Alert
 } from '@/components/ui';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import DataTable from './DataTable';
 import AdminModal from './AdminModal';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
 import styles from '@/styles/admin.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -37,6 +37,7 @@ export default function UserManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingUser, setEditingUser] = useState<Profile | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [deletingUser, setDeletingUser] = useState<Profile | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
     const [avatarUrlsByUserId, setAvatarUrlsByUserId] = useState<Record<string, string>>({});
 
@@ -143,19 +144,21 @@ export default function UserManagement() {
         }
     };
 
-    const handleDeleteUser = async (userId: string) => {
-        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-            return;
-        }
+    const handleDeleteUser = (user: Profile) => {
+        setDeletingUser(user);
+    };
+
+    const confirmDeleteUser = async () => {
+        if (!deletingUser) return;
 
         try {
             setLoading(true);
-            await client.models.Profile.delete({ id: userId });
-            loadUsers();
+            await client.models.Profile.delete({ id: deletingUser.id });
+            setDeletingUser(null);
+            await loadUsers();
         } catch (err) {
             setError('Failed to delete user. Please try again.');
             console.error('Error deleting user:', err);
-        } finally {
             setLoading(false);
         }
     };
@@ -201,7 +204,7 @@ export default function UserManagement() {
             sortable: false,
             render: (user: Profile) => (
                 <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                    {user.owner.substring(0, 8)}...
+                    {user.owner ?? ''}
                 </Text>
             )
         },
@@ -219,7 +222,7 @@ export default function UserManagement() {
                         <FaEdit />
                     </button>
                     <button
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser(user)}
                         className={`${styles.actionButton} destructive`}
                         title="Delete user"
                     >
@@ -231,15 +234,14 @@ export default function UserManagement() {
     ];
 
     return (
-        <div className={styles.userManagement}>
-            <Flex $justifyContent="space-between" $alignItems="center" className={styles.adminHeader}>
-                <Heading as="h2">User Management</Heading>
-                <div className={`${styles.adminActions} ${buttons.buttonGroup}`} style={{ flexDirection: 'row', gap: '1rem' }}>
-                    <SearchInput
-                        value={searchTerm}  
-                        onChange={setSearchTerm}
-                        placeholder="Search users..."
-                    />
+        <div className={styles.managementContainer}>
+            <Flex $justifyContent="space-between" $alignItems="center" className={styles.tableToolbar}>
+                <SearchInput
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search users..."
+                />
+                <div className={buttons.buttonGroup} style={{ width: 'auto', alignItems: 'flex-end' }}>
                     <button
                         className={buttons.primaryButton}
                         onClick={() => setShowCreateModal(true)}
@@ -263,6 +265,12 @@ export default function UserManagement() {
                 onSort={handleSort}
                 currentSort={sortConfig}
             />
+
+            <div className={styles.tableFooter}>
+                <Text $fontSize="sm" $variation="secondary">
+                    Total: {users.length} users
+                </Text>
+            </div>
 
             {/* Edit User Modal */}
             <AdminModal
@@ -332,6 +340,17 @@ export default function UserManagement() {
             >
                 <Text>User creation is not yet implemented in the backend.</Text>
             </AdminModal>
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmDeleteModal
+                isOpen={!!deletingUser}
+                onClose={() => setDeletingUser(null)}
+                onConfirm={confirmDeleteUser}
+                title="Delete User"
+                message="Are you sure you want to delete this user? This action cannot be undone."
+                itemName={deletingUser?.username}
+                loading={loading}
+            />
         </div>
     );
 }

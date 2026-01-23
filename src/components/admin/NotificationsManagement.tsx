@@ -5,13 +5,13 @@ import {
     Button,
     Flex,
     Text,
-    Alert,
-    Heading
+    Alert
 } from '@/components/ui';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import { getUsernamesForSubs } from '@/utils/usernames';
 import DataTable from './DataTable';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
 import styles from '@/styles/admin.module.css';
 import { FaTrash } from 'react-icons/fa';
@@ -36,6 +36,7 @@ export default function NotificationsManagement() {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
+    const [deletingNotification, setDeletingNotification] = useState<Notification | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showQuickNotification, setShowQuickNotification] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -127,19 +128,21 @@ export default function NotificationsManagement() {
         }
     };
 
-    const handleDeleteNotification = async (notificationId: string, notificationTitle: string) => {
-        if (!confirm(`Are you sure you want to delete "${notificationTitle}"?`)) {
-            return;
-        }
+    const handleDeleteNotification = (notification: Notification) => {
+        setDeletingNotification(notification);
+    };
+
+    const confirmDeleteNotification = async () => {
+        if (!deletingNotification) return;
 
         try {
             setLoading(true);
-            await client.models.Notification.delete({ id: notificationId });
-            loadNotifications();
+            await client.models.Notification.delete({ id: deletingNotification.id });
+            setDeletingNotification(null);
+            await loadNotifications();
         } catch (err) {
             setError('Failed to delete notification. Please try again.');
             console.error('Error deleting notification:', err);
-        } finally {
             setLoading(false);
         }
     };
@@ -175,7 +178,7 @@ export default function NotificationsManagement() {
             sortable: false,
             render: (notification: Notification) => (
                 <Text $fontSize="sm">
-                    {notification.body.length > 100
+                    {notification.body?.length > 100
                         ? `${notification.body.substring(0, 100)}...`
                         : notification.body
                     }
@@ -191,7 +194,7 @@ export default function NotificationsManagement() {
                 const username = usernameBySub[sub];
                 return (
                     <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                        {username || `${sub.substring(0, 8)}...`}
+                        {username || `${sub?.substring(0, 8) ?? ''}...`}
                     </Text>
                 );
             }
@@ -227,7 +230,7 @@ export default function NotificationsManagement() {
             render: (notification: Notification) => (
                 <Flex $gap="0.5rem">
                     <button
-                        onClick={() => handleDeleteNotification(notification.id, notification.title)}
+                        onClick={() => handleDeleteNotification(notification)}
                         className={`${styles.actionButton} destructive`}
                         title="Delete notification"
                     >
@@ -239,15 +242,14 @@ export default function NotificationsManagement() {
     ];
 
     return (
-        <div className={styles.notificationsManagement}>
-            <Flex $justifyContent="space-between" $alignItems="center" className={styles.adminHeader}>
-                <Heading as="h2">Notifications</Heading>
-                <div className={`${styles.adminActions} ${buttons.buttonGroup}`} style={{ flexDirection: 'row', gap: '1rem' }}>
-                    <SearchInput
-                        value={searchTerm}
-                        onChange={setSearchTerm}
-                        placeholder="Search notifications..."
-                    />
+        <div className={styles.managementContainer}>
+            <Flex $justifyContent="space-between" $alignItems="center" className={styles.tableToolbar}>
+                <SearchInput
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search notifications..."
+                />
+                <div className={buttons.buttonGroup} style={{ width: 'auto', alignItems: 'flex-end' }}>
                     <button
                         className={buttons.primaryButton}
                         onClick={() => setShowQuickNotification(true)}
@@ -259,7 +261,7 @@ export default function NotificationsManagement() {
 
             {showQuickNotification && (
                 <div className={styles.quickNotification}>
-                    <Heading as="h3">Create App Notification</Heading>
+                    <h3>Create App Notification</h3>
                     <Text $fontSize="sm" $variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
                         Send a notification to all users with minimal clicks
                     </Text>
@@ -331,14 +333,25 @@ export default function NotificationsManagement() {
                 currentSort={sortConfig}
             />
 
-            <Flex $justifyContent="space-between" $alignItems="center" style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
+            <div className={styles.tableFooter}>
                 <Text $fontSize="sm" $variation="secondary">
-                    Total notifications: {notifications.length}
+                    Total: {notifications.length} notifications
                 </Text>
                 <Text $fontSize="sm" $variation="secondary">
                     Unread: {notifications.filter(n => !n.readAt).length}
                 </Text>
-            </Flex>
+            </div>
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmDeleteModal
+                isOpen={!!deletingNotification}
+                onClose={() => setDeletingNotification(null)}
+                onConfirm={confirmDeleteNotification}
+                title="Delete Notification"
+                message="Are you sure you want to delete this notification?"
+                itemName={deletingNotification?.title}
+                loading={loading}
+            />
         </div>
     );
 }

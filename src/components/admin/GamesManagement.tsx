@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import {
     Flex,
     Text,
-    Alert,
-    Heading
+    Alert
 } from '@/components/ui';
 import { generateClient } from 'aws-amplify/api';
 import { type Schema } from '@/amplify/data/resource';
 import DataTable from './DataTable';
 import AdminModal from './AdminModal';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
 import styles from '@/styles/admin.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -28,6 +28,7 @@ export default function GamesManagement() {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [editingGame, setEditingGame] = useState<GameModel | null>(null);
+    const [deletingGame, setDeletingGame] = useState<GameModel | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
     const [imageUrlsByGameId, setImageUrlsByGameId] = useState<Record<string, string>>({});
     const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
@@ -146,21 +147,31 @@ export default function GamesManagement() {
         }
     };
 
-    const handleDeleteGame = async (gameId: string, gameTitle: string) => {
-        if (!confirm(`Are you sure you want to delete "${gameTitle}"? This action cannot be undone and will remove all associated save states.`)) {
-            return;
-        }
+    const handleDeleteGame = (game: GameModel) => {
+        setDeletingGame(game);
+    };
+
+    const confirmDeleteGame = async () => {
+        if (!deletingGame) return;
 
         try {
             setLoading(true);
-            await client.models.Game.delete({ id: gameId });
-            loadGames();
-            showToast(`Deleted "${gameTitle}"`, 'success');
+            console.log('Deleting game:', deletingGame.id);
+            const response = await client.models.Game.delete({ id: deletingGame.id });
+            
+            // Check if the delete actually succeeded
+            // If authorization fails, response.data will be null/undefined
+            if (!response.data) {
+                throw new Error('Delete operation was not authorized or failed silently');
+            }
+            
+            showToast(`Deleted "${deletingGame.title}"`, 'success');
+            setDeletingGame(null);
+            await loadGames();
         } catch (err) {
-            setError('Failed to delete game. Please try again.');
+            setError('Failed to delete game. You may not have permission to delete games owned by other users.');
             console.error('Error deleting game:', err);
-            showToast('Failed to delete game', 'error');
-        } finally {
+            showToast('Failed to delete game. Check console for details.', 'error');
             setLoading(false);
         }
     };
@@ -201,7 +212,7 @@ export default function GamesManagement() {
                 const username = usernameBySub[sub];
                 return (
                     <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                        {username || `${sub.substring(0, 8)}...`}
+                        {username || `${sub?.substring(0, 8) ?? ''}...`}
                     </Text>
                 );
             }
@@ -222,7 +233,7 @@ export default function GamesManagement() {
                     )}
                     {game.metadata?.description && (
                         <Text $fontSize="sm" $variation="secondary">
-                            {game.metadata.description.substring(0, 50)}...
+                            {game.metadata?.description?.substring(0, 50) ?? ''}...
                         </Text>
                     )}
                 </Flex>
@@ -252,7 +263,7 @@ export default function GamesManagement() {
                         <FaEdit />
                     </button>
                     <button
-                        onClick={() => handleDeleteGame(game.id, game.title)}
+                        onClick={() => handleDeleteGame(game)}
                         className={`${styles.actionButton} destructive`}
                         title="Delete game"
                     >
@@ -264,19 +275,14 @@ export default function GamesManagement() {
     ];
 
     return (
-        <div className={styles.gamesManagement}>
-            <Flex $justifyContent="space-between" $alignItems="center" className={styles.adminHeader}>
-                <Heading as="h2">Games Management</Heading>
-                <Flex $gap="1rem" $alignItems="center" className={styles.adminActions}>
-                    <SearchInput
-                        value={searchTerm}
-                        onChange={setSearchTerm}
-                        placeholder="Search games..."
-                    />
-                    <Text $fontSize="sm" $variation="secondary">
-                        Total: {games.length} games
-                    </Text>
-                </Flex>
+        <div className={styles.managementContainer}>
+            <Flex $justifyContent="space-between" $alignItems="center" className={styles.tableToolbar}>
+                <SearchInput
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search games..."
+                />
+                <div />
             </Flex>
 
             {error && (
@@ -293,6 +299,12 @@ export default function GamesManagement() {
                 onSort={handleSort}
                 currentSort={sortConfig}
             />
+
+            <div className={styles.tableFooter}>
+                <Text $fontSize="sm" $variation="secondary">
+                    Total: {games.length} games
+                </Text>
+            </div>
 
             {/* Edit Game Modal */}
             <AdminModal
@@ -397,6 +409,17 @@ export default function GamesManagement() {
                     </Flex>
                 )}
             </AdminModal>
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmDeleteModal
+                isOpen={!!deletingGame}
+                onClose={() => setDeletingGame(null)}
+                onConfirm={confirmDeleteGame}
+                title="Delete Game"
+                message="Are you sure you want to delete this game? This action cannot be undone and will remove all associated save states."
+                itemName={deletingGame?.title}
+                loading={loading}
+            />
         </div>
     );
 }

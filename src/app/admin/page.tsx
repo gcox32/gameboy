@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-    Heading,
-    Flex,
-    Button,
-    Card,
-    View
-} from '@/components/ui';
 import UserManagement from '@/components/admin/UserManagement';
 import GamesManagement from '@/components/admin/GamesManagement';
 import NotificationsManagement from '@/components/admin/NotificationsManagement';
+import SidebarNavigation from '@/components/admin/SidebarNavigation';
+import {
+    AdminDashboard,
+    AdminMain,
+    AdminHeader,
+    AdminContent,
+    ContentPanel
+} from '@/components/admin/AdminLayout';
 import styles from '@/styles/admin.module.css';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateClient } from 'aws-amplify/api';
@@ -24,6 +25,12 @@ import Nav from '@/components/layout/Nav';
 import Footer from '@/components/layout/Footer';
 
 type TabType = 'users' | 'games' | 'notifications';
+
+const tabTitles: Record<TabType, string> = {
+    users: 'User Management',
+    games: 'Games Management',
+    notifications: 'Notifications'
+};
 
 function Admin() {
     const [activeTab, setActiveTab] = useState<TabType>('users');
@@ -60,7 +67,7 @@ function Admin() {
                         setIsAdmin(true);
                     } else {
                         setIsAdmin(false);
-                        router.push('/play'); // Redirect non-admin users
+                        router.push('/play');
                     }
                 } catch (error) {
                     console.error('Error checking admin status:', error);
@@ -75,17 +82,9 @@ function Admin() {
         checkAdminStatus();
     }, [auth, router, client]);
 
-    // Show loading while checking admin status
     if (checkingAdmin || !auth) {
         return (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                fontSize: '1.2rem',
-                color: '#666'
-            }}>
+            <div className={styles.loadingContainer}>
                 Checking admin privileges...
             </div>
         );
@@ -95,13 +94,7 @@ function Admin() {
         return null;
     }
 
-    const tabs = [
-        { id: 'users' as TabType, label: 'Users', count: null },
-        { id: 'games' as TabType, label: 'Games', count: null },
-        { id: 'notifications' as TabType, label: 'Notifications', count: null },
-    ];
-
-    const renderTabContent = () => {
+    const renderContent = () => {
         switch (activeTab) {
             case 'users':
                 return <UserManagement />;
@@ -115,42 +108,26 @@ function Admin() {
     };
 
     return (
-        <div className={styles.adminContainer}>
-            <Flex $direction="column" $gap="2rem">
-                {/* Header */}
-                <Flex $direction="column" $gap="1rem" $alignItems="flex-start">
-                    <Heading as="h1">Admin Dashboard</Heading>
-                    <View $width="100%" $padding="0">
-                        <Flex $gap="0.5rem" className={styles.tabContainer}>
-                            {tabs.map((tab) => (
-                                <Button
-                                    key={tab.id}
-                                    $variation={activeTab === tab.id ? 'primary' : 'secondary'}
-                                    size="small"
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`${styles.tabButton} ${activeTab === tab.id ? styles.activeTab : ''}`}
-                                >
-                                    {tab.label}
-                                    {tab.count !== null && (
-                                        <span className={styles.tabCount}>({tab.count})</span>
-                                    )}
-                                </Button>
-                            ))}
-                        </Flex>
-                    </View>
-                </Flex>
-
-                {/* Tab Content */}
-                <Card className={styles.tabContent}>
-                    {renderTabContent()}
-                </Card>
-            </Flex>
-        </div>
+        <AdminDashboard>
+            <SidebarNavigation
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+            />
+            <AdminMain>
+                <AdminHeader>
+                    <h2>{tabTitles[activeTab]}</h2>
+                </AdminHeader>
+                <AdminContent>
+                    <ContentPanel>
+                        {renderContent()}
+                    </ContentPanel>
+                </AdminContent>
+            </AdminMain>
+        </AdminDashboard>
     );
 }
 
 export default function AdminPage() {
-
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyles />

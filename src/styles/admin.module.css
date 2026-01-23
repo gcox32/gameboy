@@ -1,42 +1,38 @@
-.adminContainer {
-    min-height: 100vh;
-    padding: 2rem 0;
-    min-width: 1100px;
+/* Loading state */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.2rem;
+    color: var(--neutral-500);
 }
 
-.tabContainer {
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 1.5rem;
+/* Management container - consistent layout for all admin sections */
+.managementContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-.tabButton {
-    border-radius: 8px 8px 0 0;
-    border: 1px solid transparent;
-    border-bottom: none;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
+/* Table toolbar - search left, action button right */
+.tableToolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0.5rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.tabButton:hover {
-    background-color: var(--color-hover);
-}
-
-.activeTab {
-    background-color: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-}
-
-.tabContent {
-    padding: 2rem;
-    min-height: 60vh;
-}
-
-.tabCount {
-    font-size: 0.875rem;
-    opacity: 0.8;
-    margin-left: 0.5rem;
+/* Table footer - totals on the left */
+.tableFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0.5rem;
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
 }
 
 /* Admin Components */
@@ -44,9 +40,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .adminActions {
@@ -54,59 +50,76 @@
     gap: 1rem;
     align-items: center;
     justify-content: flex-end;
+    padding-bottom: 1rem;
 }
 
 .searchInput {
     padding: 0.5rem 1rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.875rem;
     min-width: 200px;
+    background: var(--background-color);
+    color: var(--foreground-rgb);
 }
 
 .searchInput:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+    border-color: var(--button-primary-bg);
+    box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.15);
 }
 
+/* Data Table */
 .dataTable {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
+    table-layout: fixed;
+}
+
+.dataTable td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 0; /* Required for text-overflow to work with table-layout: fixed */
 }
 
 .dataTable th,
 .dataTable td {
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     text-align: left;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .dataTable th {
-    background-color: var(--color-background-secondary);
+    background-color: var(--hover-background-color);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    color: var(--neutral-500);
+}
+
+.dataTable tbody tr {
+    transition: background-color 0.15s ease;
 }
 
 .dataTable tbody tr:hover {
-    background-color: var(--color-hover);
+    background-color: var(--hover-background-color);
 }
 
 /* Zebra striping for table rows */
 .dataTable tbody tr:nth-child(odd) {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgba(0, 0, 0, 0.015);
 }
+
 .dataTable tbody tr:nth-child(even) {
     background-color: transparent;
 }
 
 .emptyState {
     text-align: center;
-    padding: 3rem;
-    color: var(--color-text-secondary);
+    padding: 4rem 2rem;
+    color: var(--neutral-500);
 }
 
 .emptyStateIcon {
@@ -117,27 +130,43 @@
 
 .loadingSpinner {
     text-align: center;
-    padding: 3rem;
+    padding: 4rem 2rem;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* Action buttons with borders and better hover */
 .actionButton {
     padding: 0.5rem;
-    border: none;
-    background: none;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
     cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-    margin-right: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    margin-right: 0.25rem;
     color: var(--neutral-500);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .actionButton:hover {
-    color: var(--text-primary);
+    color: var(--foreground-rgb);
     background-color: var(--hover-background-color);
+    border-color: var(--neutral-500);
+}
+
+.actionButton.edit:hover {
+    background-color: rgba(98, 0, 234, 0.08);
+    border-color: var(--button-primary-bg);
+    color: var(--button-primary-bg);
 }
 
 .actionButton.destructive:hover {
-    background-color: rgba(220, 38, 38, 0.1);
+    background-color: rgba(220, 38, 38, 0.08);
+    border-color: rgb(220, 38, 38);
     color: rgb(220, 38, 38);
 }
 
@@ -168,25 +197,28 @@
 .formLabel {
     font-weight: 500;
     font-size: 0.875rem;
-    color: var(--color-text);
+    color: var(--foreground-rgb);
 }
 
 .formInput {
     padding: 0.75rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.875rem;
+    background: var(--background-color);
+    color: var(--foreground-rgb);
 }
 
 .formInput:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+    border-color: var(--button-primary-bg);
+    box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.15);
 }
 
 .formInput:disabled {
-    background-color: var(--color-background-secondary);
+    background-color: var(--hover-background-color);
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .formActions {
@@ -195,7 +227,7 @@
     gap: 1rem;
     margin-top: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--border-color);
 }
 
 .checkboxGroup {
@@ -207,25 +239,66 @@
 .checkbox {
     width: 1rem;
     height: 1rem;
+    accent-color: var(--button-primary-bg);
 }
 
+/* Status badges with dot indicator */
 .statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: capitalize;
 }
 
-.statusBadge.active {
+.statusBadge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.statusBadge.active,
+.statusBadgeActive {
     background-color: rgba(34, 197, 94, 0.1);
-    color: rgb(34, 197, 94);
+    color: rgb(22, 163, 74);
 }
 
-.statusBadge.inactive {
+.statusBadge.active::before,
+.statusBadgeActive::before {
+    background-color: rgb(34, 197, 94);
+}
+
+.statusBadge.inactive,
+.statusBadgeInactive {
     background-color: rgba(156, 163, 175, 0.1);
-    color: rgb(156, 163, 175);
+    color: rgb(107, 114, 128);
+}
+
+.statusBadge.inactive::before,
+.statusBadgeInactive::before {
+    background-color: rgb(156, 163, 175);
+}
+
+.statusBadge.pending {
+    background-color: rgba(251, 191, 36, 0.1);
+    color: rgb(217, 119, 6);
+}
+
+.statusBadge.pending::before {
+    background-color: rgb(251, 191, 36);
+}
+
+.statusBadge.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: rgb(220, 38, 38);
+}
+
+.statusBadge.error::before {
+    background-color: rgb(239, 68, 68);
 }
 
 .avatar {
@@ -233,15 +306,15 @@
     height: 2.5rem;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--color-border);
+    border: 2px solid var(--border-color);
 }
 
 .gameImage {
     width: 3rem;
     height: 3rem;
     object-fit: cover;
-    border-radius: 4px;
-    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 
 .gameCard {
@@ -249,14 +322,14 @@
     align-items: center;
     gap: 1rem;
     padding: 1rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     margin-bottom: 1rem;
     transition: all 0.2s ease;
 }
 
 .gameCard:hover {
-    border-color: var(--color-primary);
+    border-color: var(--button-primary-bg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -266,25 +339,29 @@
     align-items: center;
     gap: 0.5rem;
     margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .pageButton {
     padding: 0.5rem 1rem;
-    border: 1px solid var(--color-border);
-    background: white;
-    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
+    color: var(--foreground-rgb);
 }
 
 .pageButton:hover {
-    background-color: var(--color-hover);
+    background-color: var(--hover-background-color);
+    border-color: var(--neutral-500);
 }
 
 .pageButton.active {
-    background-color: var(--color-primary);
+    background-color: var(--button-primary-bg);
     color: white;
-    border-color: var(--color-primary);
+    border-color: var(--button-primary-bg);
 }
 
 .quickNotification {
@@ -320,7 +397,8 @@
 .tableContainer {
     overflow-x: auto;
     border-radius: 8px;
-    border: 1px solid var(--color-border);
+    min-height: 400px;
+    width: 100%;
 }
 
 .sortable {
@@ -329,7 +407,7 @@
 }
 
 .sortable:hover {
-    background-color: var(--color-hover);
+    background-color: var(--hover-background-color);
 }
 
 .headerContent {
@@ -356,6 +434,44 @@
     width: 800px;
 }
 
+/* Modal buttons */
+.modalCancelButton,
+.modalDeleteButton {
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid var(--border-color);
+}
+
+.modalCancelButton {
+    background: var(--background-color);
+    color: var(--foreground-rgb);
+}
+
+.modalCancelButton:hover:not(:disabled) {
+    background: var(--hover-background-color);
+}
+
+.modalDeleteButton {
+    background: rgb(220, 38, 38);
+    color: white;
+    border-color: rgb(220, 38, 38);
+}
+
+.modalDeleteButton:hover:not(:disabled) {
+    background: rgb(185, 28, 28);
+    border-color: rgb(185, 28, 28);
+}
+
+.modalCancelButton:disabled,
+.modalDeleteButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .modalSmall,
@@ -378,9 +494,15 @@
         min-width: auto;
         width: 100%;
     }
+
+    .adminHeader {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
 }
 
-/* Custom button styles */
+/* Custom button styles for notifications */
 .sendButton {
     background: white !important;
     color: #667eea !important;

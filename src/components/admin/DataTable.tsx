@@ -26,25 +26,9 @@ export default function DataTable<T extends Record<string, any>>({
     onSort,
     currentSort
 }: DataTableProps<T>) {
-    if (loading) {
-        return (
-            <div className={styles.loadingSpinner}>
-                <Text>Loading...</Text>
-            </div>
-        );
-    }
-
-    if (data.length === 0) {
-        return (
-            <div className={styles.emptyState}>
-                <div className={styles.emptyStateIcon}>📭</div>
-                <Text>{emptyMessage}</Text>
-            </div>
-        );
-    }
-
+    // Always render the table structure to maintain consistent width
     return (
-        <div className={styles.tableContainer}>
+        <div className={styles.tableContainer} style={{ minHeight: '500px' }}>
             <table className={styles.dataTable}>
                 <thead>
                     <tr>
@@ -72,15 +56,26 @@ export default function DataTable<T extends Record<string, any>>({
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((item, index) => (
-                        <tr key={index}>
-                            {columns.map((column) => (
-                                <td key={String(column.key)}>
-                                    {column.render ? column.render(item) : String(item[column.key])}
-                                </td>
-                            ))}
+                    {loading ? (
+                        <></>
+                    ) : data.length === 0 ? (
+                        <tr>
+                            <td colSpan={columns.length} className={styles.emptyState}>
+                                <div className={styles.emptyStateIcon}>📭</div>
+                                <Text>{emptyMessage}</Text>
+                            </td>
                         </tr>
-                    ))}
+                    ) : (
+                        data.map((item, index) => (
+                            <tr key={index}>
+                                {columns.map((column) => (
+                                    <td key={String(column.key)}>
+                                        {column.render ? column.render(item) : String(item[column.key])}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
         </div>
