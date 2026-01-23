@@ -110,7 +110,7 @@ export const theme = {
     system: {
       foreground: 'rgb(0, 0, 0)',
       background: 'white',
-      link: '#333',
+      link: 'hsl(0, 0%, 95%)',
       border: '#ccc',
       hoverBackground: '#f5f5f5'
     }
@@ -227,7 +227,7 @@ export const cssVariables = `
     --border-subtle: rgba(255, 255, 255, 0.12);
     --hover-bg: rgba(255, 255, 255, 0.04);
     --foreground-rgb: rgb(255, 255, 255);
-    --link-color: #ccc;
+    --link-color: hsl(0, 0%, 95%);
     --background-color: #1a1a1a;
     --border-color: #555;
     --hover-background-color: #333;

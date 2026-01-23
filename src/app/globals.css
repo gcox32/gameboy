@@ -13,7 +13,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Override variables for dark mode */
-    --link-color: #ccc;
+    --link-color: hsl(0, 0%, 95%);
     --background-color: #1a1a1a;
     --border-color: #555;
     --hover-background-color: #333;
@@ -49,8 +49,8 @@ html {
 }
 
 body {
-  background-color: lightblue;
-  width: auto;
+  /* background-color: lightblue; */
+  /* width: auto; */
   height: auto;
   min-width: 100%;
   min-height: 100%;

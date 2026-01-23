@@ -14,6 +14,7 @@ export const NotificationSchema = a
     })
     .authorization((allow) => [
         allow.owner().to(['create', 'read', 'update', 'delete']),
+        allow.group('admin').to(['create', 'read', 'update', 'delete']), // Admins can do everything
         allow.authenticated().to(['read']),
         allow.guest().to(['read'])
     ]);

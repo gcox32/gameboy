@@ -169,9 +169,9 @@ export default function GamesManagement() {
             setDeletingGame(null);
             await loadGames();
         } catch (err) {
-            setError('Failed to delete game. You may not have permission to delete games owned by other users.');
+            setError('Failed to delete game. Please try again.');
             console.error('Error deleting game:', err);
-            showToast('Failed to delete game. Check console for details.', 'error');
+            showToast('Failed to delete game', 'error');
             setLoading(false);
         }
     };
