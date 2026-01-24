@@ -140,6 +140,17 @@
   animation-delay: -4s;
 }
 
+/* Layer 8: Super bright sparkle stars - select few with intense glow */
+.stars8 {
+  background-image:
+    radial-gradient(3px 3px at 150px 100px, rgba(255,255,255,1), rgba(255,255,255,0.8) 30%, transparent 70%),
+    radial-gradient(3px 3px at 280px 60px, rgba(255,255,255,1), rgba(255,255,255,0.8) 30%, transparent 70%),
+    radial-gradient(3px 3px at 80px 150px, rgba(255,255,255,1), rgba(255,255,255,0.8) 30%, transparent 70%);
+  background-size: 400px 240px;
+  animation: twinkleSuperBright 8s ease-in-out infinite;
+  animation-delay: -1s;
+}
+
 /* Keyframes - different easing curves for variety */
 @keyframes twinkleSlow {
   0%, 100% { opacity: 0.3; }
@@ -156,6 +167,13 @@
   0%, 100% { opacity: 0.2; }
   30% { opacity: 0.9; }
   70% { opacity: 0.6; }
+}
+
+@keyframes twinkleSuperBright {
+  0%, 100% { opacity: 0.4; }
+  25% { opacity: 1; }
+  50% { opacity: 0.9; }
+  75% { opacity: 1; }
 }
 /* Scanline overlay for CRT effect */
 .homeContainer::after {

@@ -20,6 +20,7 @@ export default function StarfieldContainer({ children, hideScanlines = false }: 
         <div className={`${styles.stars} ${styles.stars5}`} />
         <div className={`${styles.stars} ${styles.stars6}`} />
         <div className={`${styles.stars} ${styles.stars7}`} />
+        <div className={`${styles.stars} ${styles.stars8}`} />
       </div>
       {children}
     </div>
