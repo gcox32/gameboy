@@ -3,19 +3,20 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    background-color: #f4f4f9;
+    flex: 1;
     padding: 20px;
-    font-family: Arial, sans-serif;
     max-width: 98%;
+    position: relative;
+    z-index: 1;
 }
 
 .title {
     font-size: 2rem;
-    color: #333;
+    color: yellow;
     margin-bottom: 1rem;
     text-align: center;
     width: 100%;
+    text-shadow: 0 0 10px rgba(155, 188, 15, 0.5), 2px 2px 0 #306230;
 }
 
 .form {
@@ -24,34 +25,41 @@
     gap: 1rem;
     width: 100%;
     max-width: 400px;
-    background-color: white;
+    background: linear-gradient(180deg, rgba(74, 74, 106, 0.9) 0%, rgba(42, 42, 74, 0.9) 100%);
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 3px solid #5a5a7a;
+    box-shadow: 0 8px 0 #1a1a2a, 0 12px 20px rgba(0, 0, 0, 0.4);
 }
 
 .input {
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 2px solid #5a5a7a;
     border-radius: 4px;
     font-size: 1rem;
     outline: none;
+    background: rgba(26, 26, 46, 0.8);
+    color: #e0e0e0;
 }
 
 .input:focus {
-    border-color: #6200ea;
-    box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.2);
+    border-color: #9bbc0f;
+    box-shadow: 0 0 0 2px rgba(155, 188, 15, 0.3);
+}
+
+.input::placeholder {
+    color: #888;
 }
 
 .statusMessage {
-    color: #333;
+    color: #9bbc0f;
     font-size: 0.9rem;
     margin-top: 1rem;
     text-align: center;
 }
 
 .error {
-    color: red;
+    color: #ff6b6b;
     font-size: 0.9rem;
     margin-top: 0.5rem;
 }
@@ -59,21 +67,22 @@
 .signupPrompt {
     margin-top: 1.5rem;
     font-size: 0.9rem;
-    color: #333;
+    color: #c0c0c0;
 }
 
 .signupLink {
-    color: #6200ea;
+    color: #9bbc0f;
     text-decoration: none;
 }
 
 .signupLink:hover {
     text-decoration: underline;
+    color: yellow;
 }
 
 .description {
     font-size: 1.25rem;
-    color: #555;
+    color: #c0c0c0;
     margin-bottom: 2rem;
     text-align: center;
 }
@@ -82,7 +91,7 @@
     display: flex;
     align-items: center;
     font-size: 0.9rem;
-    color: #666;
+    color: #c0c0c0;
     margin-bottom: 1rem;
 }
 
@@ -91,10 +100,11 @@
 }
 
 .link {
-    color: #6200ea;
+    color: #9bbc0f;
     text-decoration: none;
 }
 
 .link:hover {
     text-decoration: underline;
+    color: yellow;
 }

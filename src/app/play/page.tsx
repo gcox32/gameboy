@@ -12,6 +12,9 @@ import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/left/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
 import MobileControls from '@/components/mobile/MobileControls';
+import StarfieldContainer from '@/components/layout/StarfieldContainer';
+import Footer from '@/components/layout/Footer';
+import styles from './play.module.css';
 import { useToast } from '@/components/ui';
 import GameBoyCore from '@/utils/GameBoyCore';
 import { GameBoyCoreInstance, GameModel, SaveStateModel, AuthenticatedUser, SRAMArray } from '@/types';
@@ -528,58 +531,61 @@ export default function App() {
 	}
 
 	return (
-		<div className="App">
-			<ControlPanel 
-				handleROMSelected={handleROMSelected}
-				isEmulatorPlaying={isEmulatorPlaying}
-				activeSaveState={activeState}
-				intervalPaused={intervalPaused}
-				handlePauseResume={handlePauseResume}
-				handleReset={handleReset}
-				handlePowerToggle={handlePowerToggle}
-				toggleFullscreenMode={toggleFullscreenMode}
-				isRomLoaded={isRomLoaded}
-				onSaveConfirmed={onSaveConfirmed}
-				userSaveStates={userSaveStates}
-				runFromSaveState={runFromSaveState}
-				currentUser={currentUser}
-				isSaving={isSaving}
-				onDeleteSaveState={onDeleteSaveState}
-				activeROM={activeROM}
-			/>
-			<Console
-				isEmulatorOn={isEmulatorOn}
-				mainCanvasRef={mainCanvasRef as React.RefObject<HTMLCanvasElement>}
-				mobileZoom={mobileZoom}
-			/>
-			<FullScreenContainer
-				background={fullscreenBackground}
-				fullscreenCanvasRef={fullscreenCanvasRef as React.RefObject<HTMLCanvasElement>}
-				fullscreenContainerRef={fullscreenContainerRef as React.RefObject<HTMLDivElement>}
-				activeROM={activeROM}
-				activeState={activeState}
-				inGameMemory={inGameMemory.current}
-				gbcMemory={gbcMemory.current}
-				mbcRam={mbcRamRef.current}
-				onPauseResume={handlePauseResume}
-				intervalPaused={intervalPaused}
-			/>
-			<MobileControls
-				onROMSelected={handleROMSelected}
-				isEmulatorPlaying={isEmulatorPlaying}
-				currentUser={currentUser}
-				intervalPaused={intervalPaused}
-				onPauseResume={handlePauseResume}
-				onReset={handleReset}
-				onPowerToggle={handlePowerToggle}
-				isRomLoaded={isRomLoaded}
-				userSaveStates={userSaveStates}
-				isSaving={isSaving}
-				activeSaveState={activeState}
-				onSaveConfirmed={onSaveConfirmed}
-				runFromSaveState={runFromSaveState}
-				onDeleteSaveState={onDeleteSaveState}
-			/>
-		</div>
+		<StarfieldContainer hideScanlines>
+			<div className={styles.playContainer}>
+				<ControlPanel
+					handleROMSelected={handleROMSelected}
+					isEmulatorPlaying={isEmulatorPlaying}
+					activeSaveState={activeState}
+					intervalPaused={intervalPaused}
+					handlePauseResume={handlePauseResume}
+					handleReset={handleReset}
+					handlePowerToggle={handlePowerToggle}
+					toggleFullscreenMode={toggleFullscreenMode}
+					isRomLoaded={isRomLoaded}
+					onSaveConfirmed={onSaveConfirmed}
+					userSaveStates={userSaveStates}
+					runFromSaveState={runFromSaveState}
+					currentUser={currentUser}
+					isSaving={isSaving}
+					onDeleteSaveState={onDeleteSaveState}
+					activeROM={activeROM}
+				/>
+				<Console
+					isEmulatorOn={isEmulatorOn}
+					mainCanvasRef={mainCanvasRef as React.RefObject<HTMLCanvasElement>}
+					mobileZoom={mobileZoom}
+				/>
+				<FullScreenContainer
+					background={fullscreenBackground}
+					fullscreenCanvasRef={fullscreenCanvasRef as React.RefObject<HTMLCanvasElement>}
+					fullscreenContainerRef={fullscreenContainerRef as React.RefObject<HTMLDivElement>}
+					activeROM={activeROM}
+					activeState={activeState}
+					inGameMemory={inGameMemory.current}
+					gbcMemory={gbcMemory.current}
+					mbcRam={mbcRamRef.current}
+					onPauseResume={handlePauseResume}
+					intervalPaused={intervalPaused}
+				/>
+				<MobileControls
+					onROMSelected={handleROMSelected}
+					isEmulatorPlaying={isEmulatorPlaying}
+					currentUser={currentUser}
+					intervalPaused={intervalPaused}
+					onPauseResume={handlePauseResume}
+					onReset={handleReset}
+					onPowerToggle={handlePowerToggle}
+					isRomLoaded={isRomLoaded}
+					userSaveStates={userSaveStates}
+					isSaving={isSaving}
+					activeSaveState={activeState}
+					onSaveConfirmed={onSaveConfirmed}
+					runFromSaveState={runFromSaveState}
+					onDeleteSaveState={onDeleteSaveState}
+				/>
+				<Footer />
+			</div>
+		</StarfieldContainer>
 	);
 }

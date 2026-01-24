@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/layout/Footer';
-import Nav from '@/components/layout/Nav';
 import { ThemeProvider } from 'styled-components';
 import { theme } from '@/theme';
 import { GlobalStyles } from '@/theme/GlobalStyles';
+import StarfieldContainer from '@/components/layout/StarfieldContainer';
 import styles from './home.module.css';
 
 export default function Home() {
@@ -17,16 +17,7 @@ export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
-      <div className={styles.homeContainer}>
-        <div className={styles.starfield} aria-hidden="true">
-          <div className={`${styles.stars} ${styles.stars1}`} />
-          <div className={`${styles.stars} ${styles.stars2}`} />
-          <div className={`${styles.stars} ${styles.stars3}`} />
-          <div className={`${styles.stars} ${styles.stars4}`} />
-          <div className={`${styles.stars} ${styles.stars5}`} />
-          <div className={`${styles.stars} ${styles.stars6}`} />
-          <div className={`${styles.stars} ${styles.stars7}`} />
-        </div>
+      <StarfieldContainer>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>JS GBC</h1>
           <p className={styles.heroSubtitle}>
@@ -100,7 +91,7 @@ export default function Home() {
           </div>
         </section>
         <Footer />
-      </div>
+      </StarfieldContainer>
     </ThemeProvider>
   );
 }

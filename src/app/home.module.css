@@ -1,6 +1,6 @@
 /* Base container with deep retro gradient */
 .homeContainer {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg,
@@ -11,6 +11,25 @@
   );
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 2rem;
+}
+
+/* Variant without scanlines for pages where they interfere */
+.homeContainerNoScanlines {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg,
+    #1a1a2e 0%,
+    #16213e 30%,
+    #0f3460 60%,
+    #1a1a2e 100%
+  );
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
   width: 100%;
   padding-bottom: 2rem;
 }
@@ -192,7 +211,7 @@
 .heroTitle {
   font-size: 4rem;
   font-weight: bold;
-  color: #9bbc0f;
+  color: yellow;
   margin-bottom: 0.5rem;
   text-shadow:
     0 0 10px rgba(155, 188, 15, 0.8),
@@ -422,7 +441,7 @@
 
 .featureTitle {
   font-size: 1.4rem;
-  color: #9bbc0f;
+  color: yellow;
   margin-bottom: 1rem;
   margin-top: 1.5rem;
   font-weight: bold;
@@ -439,7 +458,7 @@
 
 .sectionTitle {
   font-size: 2.5rem;
-  color: #9bbc0f;
+  color: yellow;
   text-align: center;
   margin-bottom: 1rem;
   font-weight: bold;

@@ -1,42 +1,60 @@
 .container {
   max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
-  overflow-y: auto;
-  max-height: calc(100vh - 4rem);
-  background-color: var(--background-color, #f5f5f5);
-  min-height: 100vh;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
 }
 
 .header {
   margin-bottom: 3rem;
   text-align: center;
-  border-bottom: 2px solid var(--border-color, #eaeaea);
+  border-bottom: 2px solid rgba(90, 90, 122, 0.5);
   padding-bottom: 1.5rem;
 }
 
 .title {
   font-size: 2.5rem;
-  color: var(--text-primary, #333);
+  color: yellow;
   margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px rgba(155, 188, 15, 0.5), 2px 2px 0 #306230;
 }
 
 .section {
   margin-bottom: 2.5rem;
+  background: linear-gradient(180deg, rgba(74, 74, 106, 0.6) 0%, rgba(42, 42, 74, 0.6) 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #5a5a7a;
 }
 
 .sectionTitle {
   font-size: 1.5rem;
-  color: var(--text-secondary, #444);
+  color: yellow;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color, #eaeaea);
+  border-bottom: 1px solid rgba(155, 188, 15, 0.3);
+  text-shadow: 0 0 8px rgba(155, 188, 15, 0.4);
 }
 
 .paragraph {
   line-height: 1.6;
-  color: var(--text-tertiary, #555);
+  color: #c0c0c0;
   margin-bottom: 1.5rem;
+}
+
+.staticPage ul li,
+.staticPage p {
+  color: #c0c0c0;
+}
+
+.paragraph a {
+  color: #9bbc0f;
+}
+
+.paragraph a:hover {
+  color: yellow;
 }
 
 .featureList {
@@ -50,14 +68,14 @@
   padding-left: 1.5rem;
   margin-bottom: 0.75rem;
   line-height: 1.5;
-  color: var(--text-tertiary, #555);
+  color: #c0c0c0;
 }
 
 .featureList li:before {
   content: "•";
   position: absolute;
   left: 0;
-  color: var(--text-secondary, #666);
+  color: #9bbc0f;
 }
 
 .buttonContainer {
@@ -68,16 +86,13 @@
 }
 
 .link {
-  padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color, #6200ea);
-  color: white;
-  border-radius: 4px;
+  color: #9bbc0f;
   text-decoration: none;
-  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .link:hover {
-  background-color: var(--primary-color-dark, #3700b3);
+  color: yellow;
+  text-decoration: underline;
 }
 
 .imageContainer {
@@ -111,8 +126,19 @@
   }
 }
 
+.staticPage {
+  padding-bottom: 2rem;
+}
+
+.aboutPage,
+.contactPage {
+  /* Page-specific overrides if needed */
+}
+
 @media (max-width: 768px) {
-  .aboutPage {
+  .aboutPage,
+  .contactPage,
+  .staticPage {
     margin: 1rem auto;
   }
 

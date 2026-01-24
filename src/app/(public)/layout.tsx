@@ -5,14 +5,17 @@ import { theme } from '@/theme';
 import Nav from '@/components/layout/Nav';
 import { GlobalStyles } from '@/theme/GlobalStyles';
 import Footer from '@/components/layout/Footer';
+import StarfieldContainer from '@/components/layout/StarfieldContainer';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyles />
-            <Nav />
-            {children}
-            <Footer />
+            <StarfieldContainer>
+                <Nav />
+                {children}
+                <Footer />
+            </StarfieldContainer>
         </ThemeProvider>
     );
 }

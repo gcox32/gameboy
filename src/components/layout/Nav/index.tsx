@@ -24,7 +24,7 @@ const client = generateClient<Schema>();
 const Nav = () => {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
-    
+
     const { user } = auth as { user: AuthUser | null };
     const [userProfile, setUserProfile] = useState<ProfileModel | null>(null);
     const [avatarUrl, setAvatarUrl] = useState(null);
@@ -38,11 +38,11 @@ const Nav = () => {
     const [notifNextToken, setNotifNextToken] = useState<string | null>(null);
     const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
     const [isFriendsOpen, setIsFriendsOpen] = useState(false);
-    
-    const { 
+
+    const {
         isModalOpen,
-        handleContinue, 
-        handleClose 
+        handleContinue,
+        handleClose
     } = useProtectedNavigation();
 
     const fetchUserProfile = useCallback(async () => {
@@ -72,10 +72,10 @@ const Nav = () => {
         try {
             setIsLoadingNotifs(true);
             const resp = await client.models.Notification.list({
-                filter: { 
+                filter: {
                     or: [
-                        {owner: { eq: user.userId }}, 
-                        {sender: { eq: 'SYSTEM' }}
+                        { owner: { eq: user.userId } },
+                        { sender: { eq: 'SYSTEM' } }
                     ]
                 },
                 limit: 10,
@@ -167,7 +167,7 @@ const Nav = () => {
     return (
         <>
             <nav className={styles.navContainer}>
-                <button 
+                <button
                     className={`${styles.hamburger} ${isMenuOpen ? styles.open : ''}`}
                     onClick={toggleMenu}
                     aria-label="Toggle menu"
@@ -178,7 +178,7 @@ const Nav = () => {
                     <span></span>
                 </button>
                 <div className={`${styles.navMenu} ${isMenuOpen ? styles.open : ''}`}>
-                    
+
                     {user ? (
                         <>
                             <Friends handleFriendsClick={handleFriendsClick} />
@@ -203,7 +203,7 @@ const Nav = () => {
                             />
                         </>
                     ) : (
-                        <Link href="login" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                        <></>
                     )}
                     <MobileFooter setIsMenuOpen={setIsMenuOpen} />
                 </div>
@@ -218,7 +218,7 @@ const Nav = () => {
                 isOpen={isSettingsModalOpen}
                 onClose={closeSettingsModal}
             />
-            <GameInterruptModal 
+            <GameInterruptModal
                 isOpen={isModalOpen}
                 onClose={handleClose}
                 onContinue={handleContinue}
