@@ -11,7 +11,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyles />
-            <StarfieldContainer>
+            <StarfieldContainer hideScanlines>
                 <Nav />
                 {children}
                 <Footer />

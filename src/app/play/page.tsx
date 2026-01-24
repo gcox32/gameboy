@@ -584,8 +584,8 @@ export default function App() {
 					runFromSaveState={runFromSaveState}
 					onDeleteSaveState={onDeleteSaveState}
 				/>
-				<Footer />
 			</div>
+			<Footer />
 		</StarfieldContainer>
 	);
 }

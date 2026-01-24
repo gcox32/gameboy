@@ -15,7 +15,7 @@
 }
 
 .notifButton:hover {
-    color: var(--primary-color);
+    color: yellow;
 }
 
 .notifButton svg {

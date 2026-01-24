@@ -4,7 +4,6 @@ import { Amplify } from 'aws-amplify';
 import outputs from '../../../amplify_outputs.json';
 import { ThemeProvider } from 'styled-components';
 import { theme } from '@/theme';
-import Nav from '@/components/layout/Nav';
 import { GlobalStyles } from '@/theme/GlobalStyles';
 import { Suspense } from 'react';
 import StarfieldContainer from '@/components/layout/StarfieldContainer';

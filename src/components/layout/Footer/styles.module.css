@@ -8,9 +8,9 @@
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  padding: 1rem 2rem;
+  padding-top: 2rem;
   font-size: 0.7rem;
-  position: fixed;
+  position: relative;
   bottom: 0;
   height: 40px;
   z-index: 10;

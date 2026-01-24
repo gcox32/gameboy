@@ -40,7 +40,6 @@ export default function PlayLayout({ children }: { children: ReactNode }) {
             <ToastProvider>
                 <Nav />
                 {children}
-                <Footer />
             </ToastProvider>
         </ThemeProvider>
     );

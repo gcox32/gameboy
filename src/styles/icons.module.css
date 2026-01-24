@@ -12,7 +12,7 @@
 }
 
 .navIconButton:hover {
-    color: var(--primary-color);
+    color: yellow;
 }
 
 .navIconButton svg {
