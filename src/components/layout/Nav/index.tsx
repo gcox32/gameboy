@@ -203,7 +203,7 @@ const Nav = () => {
                             />
                         </>
                     ) : (
-                        <></>
+                        <Link href="login" onClick={() => setIsMenuOpen(false)}>Login</Link>
                     )}
                     <MobileFooter setIsMenuOpen={setIsMenuOpen} />
                 </div>

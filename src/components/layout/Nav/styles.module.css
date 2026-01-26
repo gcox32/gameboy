@@ -27,14 +27,16 @@
     gap: 1.5rem;
 }
 
-.navMenu a {
+.navMenu a,
+.navLink {
     color: var(--foreground-rgb);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
 }
 
-.navMenu a:hover {
+.navMenu a:hover,
+.navLink:hover {
     color: var(--primary-color);
 }
 

@@ -1,29 +1,16 @@
-'use client'
-
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
 import Footer from '@/components/layout/Footer';
-import { ThemeProvider } from 'styled-components';
-import { theme } from '@/theme';
-import { GlobalStyles } from '@/theme/GlobalStyles';
 import StarfieldContainer from '@/components/layout/StarfieldContainer';
 import styles from './home.module.css';
 
 export default function Home() {
-  const auth = useAuth();
-  if (!auth) throw new Error('Auth context not available');
-  const { user } = auth;
-
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyles />
       <StarfieldContainer>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>JS GBC</h1>
           <p className={styles.heroSubtitle}>
             Relive the magic of your Game Boy, right in your browser.
           </p>
-          {user === null ? (
             <div className={styles.ctaButtons}>
               <Link href="/signup">
                 <button>New Game</button>
@@ -32,13 +19,6 @@ export default function Home() {
                 <button>Load Game</button>
               </Link>
             </div>
-          ) : (
-            <div className={styles.ctaButtons}>
-              <Link href="/play">
-                <button>Press Start</button>
-              </Link>
-            </div>
-          )}
         </div>
 
         <section className={styles.features}>
@@ -92,6 +72,5 @@ export default function Home() {
         </section>
         <Footer />
       </StarfieldContainer>
-    </ThemeProvider>
   );
 }

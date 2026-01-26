@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signUp } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import { authedRoute } from '@/../config';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 
@@ -14,6 +16,21 @@ export default function SignUp() {
     const [error, setError] = useState<string | null>(null);
     const [agreeToTerms, setAgreeToTerms] = useState(false);
     const router = useRouter();
+    const auth = useAuth();
+    
+    useEffect(() => {
+        if (auth) {
+            const { user, loading } = auth;
+            // Redirect logged-in users away from signup page
+            if (!loading && user) {
+                router.push(authedRoute);
+            }
+        }
+    }, [auth, router]);
+    
+    if (auth && !auth.loading && auth.user) {
+        return null;
+    }
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
