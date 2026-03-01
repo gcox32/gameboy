@@ -22,11 +22,9 @@ export default function Login() {
     const { user, loading } = auth;
     const { setUser }: { setUser: (user: AuthUser) => void } = auth;
 
-    if (user) {
-        router.push('/');
-    }
-
     useEffect(() => {
+        console.log('user', user);
+        console.log('loading', loading);
         if (!loading && user) {
             router.push(authedRoute);
         }
@@ -66,7 +64,20 @@ export default function Login() {
                 handleNextStep(nextStep.signInStep);
             }
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            const message = err instanceof Error ? err.message : 'An error occurred';
+            // Already signed in (e.g. session exists but context hadn't hydrated yet)
+            if (message.includes('already a signed in user') || message.includes('already signed in')) {
+                try {
+                    const currentUser = await getCurrentUser();
+                    setUser(currentUser);
+                    router.push(authedRoute);
+                    return;
+                } catch {
+                    setError(message);
+                }
+            } else {
+                setError(message);
+            }
         }
     };
 
