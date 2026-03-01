@@ -18,7 +18,7 @@ const getTextVariationStyles = (variation?: TextVariation) => {
       color: ${({ theme }) => theme.colors.secondary};
     `,
     error: css`
-      color: ${({ theme }) => theme.colors.error};
+      color: ${({ theme }) => theme.colors.danger};
     `,
     success: css`
       color: ${({ theme }) => theme.colors.success};
