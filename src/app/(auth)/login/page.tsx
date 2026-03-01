@@ -22,6 +22,10 @@ export default function Login() {
     const { user, loading } = auth;
     const { setUser }: { setUser: (user: AuthUser) => void } = auth;
 
+    if (user) {
+        router.push('/');
+    }
+
     useEffect(() => {
         if (!loading && user) {
             router.push(authedRoute);
