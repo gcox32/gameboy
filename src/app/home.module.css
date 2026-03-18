@@ -1,14 +1,10 @@
-/* Base container with deep retro gradient */
-.homeContainer {
+/* Base container */
+.homeContainer,
+.homeContainerNoScanlines {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg,
-    #1a1a2e 0%,
-    #16213e 30%,
-    #0f3460 60%,
-    #1a1a2e 100%
-  );
+  background: #0d0d1a;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -16,22 +12,39 @@
   padding-bottom: 2rem;
 }
 
-/* Variant without scanlines for pages where they interfere */
-.homeContainerNoScanlines {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Back terrain layer */
+.bgHalfway {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/images/background/bg-halfway.png');
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.5;
+  transform: translateY(20%);
+}
+
+/* Sky gradient layer — tints bg-halfway, lets it show through */
+.skyGradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(180deg,
     #1a1a2e 0%,
     #16213e 30%,
     #0f3460 60%,
     #1a1a2e 100%
   );
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
-  width: 100%;
-  padding-bottom: 2rem;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* Starfield container */
@@ -43,6 +56,22 @@
   bottom: 0;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Front terrain layer */
+.bgFront {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/images/background/bg-front.png');
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 4;
+  transform: translateY(20%);
 }
 
 /* Base star layer styles */
@@ -175,24 +204,6 @@
   50% { opacity: 0.9; }
   75% { opacity: 1; }
 }
-/* Scanline overlay for CRT effect */
-.homeContainer::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.15) 2px,
-    rgba(0, 0, 0, 0.15) 4px
-  );
-  pointer-events: none;
-  z-index: 1000;
-}
 
 /* ============================================
    HERO SECTION - The Main Event
@@ -206,7 +217,7 @@
   padding: 6rem 2rem 4rem;
   text-align: center;
   position: relative;
-  z-index: 1;
+  z-index: 5;
 }
 
 .hero::before {
@@ -354,7 +365,7 @@
   padding: 4rem 2rem 6rem;
   width: 100%;
   position: relative;
-  z-index: 1;
+  z-index: 5;
 }
 
 .sectionSubtitle {
