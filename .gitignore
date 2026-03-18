@@ -30,6 +30,9 @@ yarn-error.log*
 scripts/
 .vscode/
 
+# claude
+.claude/
+
 # vercel
 .vercel
 
