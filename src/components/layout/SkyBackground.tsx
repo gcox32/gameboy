@@ -4,21 +4,15 @@ import { useMemo } from 'react';
 import styles from '@/app/home.module.css';
 import { getCurrentSkyConfig } from '@/lib/sky';
 
-interface DynamicBackgroundProps {
+interface SkyBackgroundProps {
   children: React.ReactNode;
 }
 
-export default function DynamicBackground({ children }: DynamicBackgroundProps) {
+export default function SkyBackground({ children }: SkyBackgroundProps) {
   const config = useMemo(() => getCurrentSkyConfig(), []);
 
   return (
-    <div className={styles.homeContainer}>
-      <div className={styles.bgHalfway} style={{ zIndex: 1 }} aria-hidden="true" />
-      <div
-        className={styles.skyGradient}
-        style={{ background: config.gradient, zIndex: 2 }}
-        aria-hidden="true"
-      />
+    <div className={styles.homeContainer} style={{ background: config.topColor }}>
       {config.starOpacity > 0 && (
         <div
           className={styles.starfield}
@@ -35,7 +29,6 @@ export default function DynamicBackground({ children }: DynamicBackgroundProps) 
           <div className={`${styles.stars} ${styles.stars8}`} />
         </div>
       )}
-      <div className={styles.bgFront} style={{ zIndex: 4 }} aria-hidden="true" />
       {children}
     </div>
   );

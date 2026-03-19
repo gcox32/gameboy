@@ -10,12 +10,12 @@
   align-items: center;
   padding-top: 2rem;
   font-size: 0.7rem;
-  position: relative;
+  position: fixed;
   bottom: 0;
+  left: 0;
   height: 40px;
   z-index: 10;
   width: 100%;
-
 }
 
 .footerLinks {

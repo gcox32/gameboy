@@ -9,8 +9,9 @@ import { Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '@/../config';
-import StarfieldContainer from '@/components/layout/StarfieldContainer';
-import Footer from '@/components/layout/Footer';
+import SkyBackground from '@/components/layout/SkyBackground';
+import HomeLink from '@/components/layout/HomeLink';
+import styles from './styles.module.css';
 Amplify.configure(outputs);
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -35,12 +36,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyles />
-            <StarfieldContainer>
+            <SkyBackground>
+                <HomeLink className={styles.homeLink}>← Home</HomeLink>
                 <Suspense fallback={<p>Loading...</p>}>
                     {children}
                 </Suspense>
-                <Footer />
-            </StarfieldContainer>
+            </SkyBackground>
         </ThemeProvider>
     );
 }

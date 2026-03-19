@@ -1,0 +1,53 @@
+export type SkyPeriod = 'night' | 'dawn' | 'morning' | 'midday' | 'afternoon' | 'dusk';
+
+export interface SkyConfig {
+  gradient: string;
+  topColor: string; // the 0% stop, used as the solid background fallback
+  starOpacity: number;
+}
+
+export function getSkyPeriod(hour: number): SkyPeriod {
+  if (hour >= 22 || hour < 5) return 'night';
+  if (hour < 7)               return 'dawn';
+  if (hour < 10)              return 'morning';
+  if (hour < 14)              return 'midday';
+  if (hour < 18)              return 'afternoon';
+  return 'dusk';
+}
+
+export const SKY_CONFIGS: Record<SkyPeriod, SkyConfig> = {
+  night: {
+    gradient:    'linear-gradient(180deg, #0d0d1a 0%, #16213e 30%, #0f3460 60%, #0a0a1a 100%)',
+    topColor:    '#0d0d1a',
+    starOpacity: 1,
+  },
+  dawn: {
+    gradient:    'linear-gradient(180deg, #1a0a2e 0%, #6b2d6e 35%, #c85a2a 70%, #f0a060 100%)',
+    topColor:    '#1a0a2e',
+    starOpacity: 0.25,
+  },
+  morning: {
+    gradient:    'linear-gradient(180deg, #3a7a9e 0%, #6aaec8 40%, #a8d4e8 75%, #f5e8c0 100%)',
+    topColor:    '#3a7a9e',
+    starOpacity: 0,
+  },
+  midday: {
+    gradient:    'linear-gradient(180deg, #0878c8 0%, #2898e8 40%, #58c0f8 75%, #a8e0ff 100%)',
+    topColor:    '#0878c8',
+    starOpacity: 0,
+  },
+  afternoon: {
+    gradient:    'linear-gradient(180deg, #0a5a9a 0%, #1e7ac0 40%, #50a8d8 70%, #d8a830 100%)',
+    topColor:    '#0a5a9a',
+    starOpacity: 0,
+  },
+  dusk: {
+    gradient:    'linear-gradient(180deg, #0d0d1a 0%, #6b1a4a 30%, #c83c1e 65%, #f07820 100%)',
+    topColor:    '#0d0d1a',
+    starOpacity: 0.15,
+  },
+};
+
+export function getCurrentSkyConfig(): SkyConfig {
+  return SKY_CONFIGS[getSkyPeriod(new Date().getHours())];
+}

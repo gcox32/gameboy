@@ -64,6 +64,37 @@ body {
 }
 
 /* ===========================================
+   VIEW TRANSITIONS — directional slide
+   =========================================== */
+
+@keyframes page-slide-up-out {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(100vh)); }
+}
+@keyframes page-slide-up-in {
+  from { transform: translateY(calc(-100vh)); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes page-slide-down-out {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100vh)); }
+}
+@keyframes page-slide-down-in {
+  from { transform: translateY(calc(100vh)); }
+  to   { transform: translateY(0); }
+}
+
+/* Default: going up (home → next page) */
+::view-transition-old(root) {
+  animation: page-slide-up-out 1500ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+::view-transition-new(root) {
+  animation: page-slide-up-in 1500ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+/* Going down (next page → home) is applied via injected <style> in transition.ts */
+
+/* ===========================================
    MOBILE IMMERSIVE MODE - Console Experience
    =========================================== */
 

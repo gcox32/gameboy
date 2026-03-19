@@ -1,3 +1,20 @@
+.homeLink {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: none;
+    border: none;
+    color: #c0c0c0;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.homeLink:hover {
+    color: yellow;
+}
+
 .container {
     display: flex;
     flex-direction: column;
