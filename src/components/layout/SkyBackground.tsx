@@ -12,7 +12,7 @@ export default function SkyBackground({ children }: SkyBackgroundProps) {
   const config = useMemo(() => getCurrentSkyConfig(), []);
 
   return (
-    <div className={styles.homeContainer} style={{ background: config.topColor }}>
+    <div className={styles.homeContainer} style={{ background: config.blendedTopColor }}>
       {config.starOpacity > 0 && (
         <div
           className={styles.starfield}
