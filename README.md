@@ -1,5 +1,6 @@
 # JS GBC
 
+
 This project is forever ongoing and represents the things I'm learning as I'm learning them. It started as vanilla frontend, local only, graduated to a React app with [AWS Amplify](https://aws.amazon.com/amplify/), then [Next.js](https://nextjs.org/). If you spot something that could be better or even just cleaner, let me know. Not going to hurt my feelings.
 
 The core emulator mechanics were adapted from this project: [GameBoy-Online](https://github.com/taisel/GameBoy-Online/tree/47f9f638a8a9445aaa75050f634e437baa34aae0). This guy did most of the legwork and I learned a lot about Javascript and even computer science from deconstructing his work.
