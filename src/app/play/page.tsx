@@ -12,7 +12,6 @@ import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/left/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
 import MobileControls from '@/components/mobile/MobileControls';
-import StarfieldContainer from '@/components/layout/StarfieldContainer';
 import Footer from '@/components/layout/Footer';
 import styles from './play.module.css';
 import { useToast } from '@/components/ui';
@@ -29,6 +28,7 @@ import {
 	settings,
 	clearLastEmulation
 } from '@/utils/GameBoyIO';
+import SkyBackground from '@/components/layout/SkyBackground';
 
 export default function App() {
 	// Get settings from context
@@ -531,7 +531,7 @@ export default function App() {
 	}
 
 	return (
-		<StarfieldContainer hideScanlines>
+		<SkyBackground>
 			<div className={styles.playContainer}>
 				<ControlPanel
 					handleROMSelected={handleROMSelected}
@@ -586,6 +586,6 @@ export default function App() {
 				/>
 			</div>
 			<Footer />
-		</StarfieldContainer>
+		</SkyBackground>
 	);
 }
