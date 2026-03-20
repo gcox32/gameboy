@@ -38,9 +38,12 @@
   },
   "overrides": {
     "fast-xml-parser": "^5.4.1",
-    "minimatch": "^10.2.4"
+    "minimatch": "^10.2.4",
+    "immutable": ">=3.8.3",
+    "lodash": "^4.17.23",
+    "@smithy/config-resolver": "^4.4.0"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=24.5.0"
   }
 }
