@@ -44,6 +44,6 @@
     "@smithy/config-resolver": "^4.4.0"
   },
   "engines": {
-    "node": ">=24.5.0"
+    "node": ">=22.0.0"
   }
 }
