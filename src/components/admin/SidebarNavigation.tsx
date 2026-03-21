@@ -1,11 +1,15 @@
 'use client';
 
+'use client';
+
 import React from 'react';
-import { FaUsers, FaGamepad, FaBell } from 'react-icons/fa';
+import { FaUsers, FaGamepad, FaBell, FaArrowLeft } from 'react-icons/fa';
+import Link from 'next/link';
 import {
     AdminSidebar,
     SidebarBrand,
     SidebarNav,
+    SidebarFooter,
     NavSection,
     NavSectionTitle,
     NavItem,
@@ -58,6 +62,12 @@ export default function SidebarNavigation({ activeTab, onTabChange }: SidebarNav
                     ))}
                 </NavSection>
             </SidebarNav>
+            <SidebarFooter>
+                <NavItem as={Link as any} href="/play">
+                    <FaArrowLeft />
+                    Back to Game
+                </NavItem>
+            </SidebarFooter>
         </AdminSidebar>
     );
 }

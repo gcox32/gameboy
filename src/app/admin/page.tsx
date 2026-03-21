@@ -134,7 +134,6 @@ export default function AdminPage() {
             <ToastProvider>
                 <Nav />
                 <Admin />
-                <Footer />
             </ToastProvider>
         </ThemeProvider>
     );

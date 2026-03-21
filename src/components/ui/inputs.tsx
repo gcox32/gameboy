@@ -68,7 +68,8 @@ interface TextProps {
 }
 
 export const Text = styled.span<TextProps>`
-  color: ${({ theme, $variation = 'primary' }) => theme.colors.text[$variation]};
+  color: ${({ theme, $variation = 'primary' }) =>
+    $variation === 'primary' ? 'var(--foreground-rgb)' : theme.colors.text[$variation]};
   font-size: ${({ theme, $fontSize = 'md' }) => theme.typography.fontSizes[$fontSize]};
   font-weight: ${({ theme, $fontWeight = 'normal' }) => theme.typography.fontWeights[$fontWeight]};
   text-align: ${({ $textAlign }) => $textAlign || 'left'};

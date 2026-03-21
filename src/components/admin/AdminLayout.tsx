@@ -2,10 +2,11 @@
 
 import styled from 'styled-components';
 
-export const AdminDashboard = styled.div`
+export const AdminDashboard = styled.div.attrs({ 'data-theme': 'dark' })`
     display: flex;
     min-height: 100vh;
-    background-color: var(--background-color);
+    background: #0d1120;
+    color: var(--foreground-rgb);
 `;
 
 export const AdminSidebar = styled.aside`
@@ -17,30 +18,31 @@ export const AdminSidebar = styled.aside`
     top: 0;
     height: 100vh;
 
-    /* Glass morphism effect matching ControlPanel */
-    background-color: color-mix(in srgb, var(--background-color), transparent 15%);
-    -webkit-backdrop-filter: blur(10px) saturate(120%);
-    backdrop-filter: blur(10px) saturate(120%);
-    border-right: 1px solid color-mix(in srgb, var(--foreground-rgb), transparent 85%);
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+    background: rgba(13, 17, 32, 0.75);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    backdrop-filter: blur(12px) saturate(130%);
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
 `;
 
 export const SidebarBrand = styled.div`
     padding: 1.5rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--foreground-rgb), transparent 88%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 
     h1 {
         font-size: 1.25rem;
         font-weight: 700;
         margin: 0;
-        color: var(--foreground-rgb);
+        color: rgba(255, 255, 255, 0.92);
+        letter-spacing: 2px;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
     }
 
     span {
-        font-size: 0.75rem;
-        color: var(--neutral-500);
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.35);
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.12em;
     }
 `;
 
@@ -48,6 +50,11 @@ export const SidebarNav = styled.nav`
     flex: 1;
     padding: 1rem 0;
     overflow-y: auto;
+`;
+
+export const SidebarFooter = styled.div`
+    padding: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
 `;
 
 export const NavSection = styled.div`
@@ -76,10 +83,10 @@ export const NavItem = styled.button<NavItemProps>`
     width: 100%;
     padding: 0.75rem;
     border: none;
-    background: ${props => props.$active ? 'var(--hover-background-color)' : 'transparent'};
+    background: ${props => props.$active ? 'rgba(123, 104, 166, 0.18)' : 'transparent'};
     border-radius: 8px;
     cursor: pointer;
-    color: ${props => props.$active ? 'var(--foreground-rgb)' : 'var(--neutral-500)'};
+    color: ${props => props.$active ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.45)'};
     font-size: 0.875rem;
     font-weight: ${props => props.$active ? '600' : '500'};
     text-align: left;
@@ -95,14 +102,14 @@ export const NavItem = styled.button<NavItemProps>`
             transform: translateY(-50%);
             width: 3px;
             height: 60%;
-            background: var(--button-primary-bg);
+            background: #7b68a6;
             border-radius: 0 2px 2px 0;
         }
     `}
 
     &:hover {
-        background: var(--hover-background-color);
-        color: var(--foreground-rgb);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.85);
     }
 
     svg {
@@ -113,7 +120,7 @@ export const NavItem = styled.button<NavItemProps>`
 
 export const NavItemBadge = styled.span`
     margin-left: auto;
-    background: var(--button-primary-bg);
+    background: #7b68a6;
     color: white;
     font-size: 0.625rem;
     font-weight: 600;
@@ -134,14 +141,15 @@ export const AdminMain = styled.main`
 
 export const AdminHeader = styled.header`
     padding: 1.5rem 2rem;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--background-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: transparent;
 
     h2 {
         font-size: 1.5rem;
         font-weight: 600;
         margin: 0;
-        color: var(--foreground-rgb);
+        color: rgba(255, 255, 255, 0.92);
+        letter-spacing: 1px;
     }
 `;
 
@@ -155,11 +163,12 @@ export const AdminContent = styled.div`
 `;
 
 export const ContentPanel = styled.div`
-    background: var(--background-color);
+    background: rgba(20, 20, 40, 0.5);
     border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    min-height: 500px; /* Consistent minimum height */
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    min-height: 500px;
     padding: 1rem;
     width: 100%;
     overflow-x: auto;

@@ -17,6 +17,7 @@ import Notifications from './Notifications';
 import Settings from './Settings';
 import MobileFooter from './MobileFooter';
 import Friends from './Friends';
+import AdminLink from './AdminLink';
 import { NotificationModel, ProfileModel } from '@/types';
 
 const client = generateClient<Schema>();
@@ -181,6 +182,7 @@ const Nav = () => {
 
                     {user ? (
                         <>
+                            {userProfile?.admin && <AdminLink />}
                             <Friends handleFriendsClick={handleFriendsClick} />
                             <Settings handleSettingsClick={handleSettingsClick} />
                             <Notifications

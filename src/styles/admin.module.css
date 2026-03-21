@@ -65,8 +65,8 @@
 
 .searchInput:focus {
     outline: none;
-    border-color: var(--button-primary-bg);
-    box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.15);
+    border-color: #7b68a6;
+    box-shadow: 0 0 0 2px rgba(123, 104, 166, 0.25);
 }
 
 /* Data Table */
@@ -159,9 +159,9 @@
 }
 
 .actionButton.edit:hover {
-    background-color: rgba(98, 0, 234, 0.08);
-    border-color: var(--button-primary-bg);
-    color: var(--button-primary-bg);
+    background-color: rgba(123, 104, 166, 0.15);
+    border-color: #7b68a6;
+    color: #a090cc;
 }
 
 .actionButton.destructive:hover {
@@ -211,8 +211,8 @@
 
 .formInput:focus {
     outline: none;
-    border-color: var(--button-primary-bg);
-    box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.15);
+    border-color: #7b68a6;
+    box-shadow: 0 0 0 2px rgba(123, 104, 166, 0.25);
 }
 
 .formInput:disabled {

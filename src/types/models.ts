@@ -33,6 +33,7 @@ export interface ProfileModel {
     email: string;
     bio: string;
     avatar: string;
+    admin?: boolean;
     createdAt?: string;
     updatedAt?: string;
 }
