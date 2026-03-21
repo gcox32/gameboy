@@ -13,18 +13,9 @@ export default function DynamicBackground({ children }: DynamicBackgroundProps) 
 
   return (
     <div className={styles.homeContainer}>
-      <div className={styles.bgHalfway} style={{ zIndex: 1 }} aria-hidden="true" />
-      <div
-        className={styles.skyGradient}
-        style={{ background: config.gradient, zIndex: 2 }}
-        aria-hidden="true"
-      />
+      <div className={styles.skyGradient} style={{ background: config.gradient }} aria-hidden="true" />
       {config.starOpacity > 0 && (
-        <div
-          className={styles.starfield}
-          style={{ opacity: config.starOpacity, zIndex: 3 }}
-          aria-hidden="true"
-        >
+        <div className={styles.starfield} style={{ opacity: config.starOpacity }} aria-hidden="true">
           <div className={`${styles.stars} ${styles.stars1}`} />
           <div className={`${styles.stars} ${styles.stars2}`} />
           <div className={`${styles.stars} ${styles.stars3}`} />
@@ -35,7 +26,8 @@ export default function DynamicBackground({ children }: DynamicBackgroundProps) 
           <div className={`${styles.stars} ${styles.stars8}`} />
         </div>
       )}
-      <div className={styles.bgFront} style={{ zIndex: 4 }} aria-hidden="true" />
+      <div className={styles.bgHalfway} aria-hidden="true" />
+      <div className={styles.bgFront} aria-hidden="true" />
       {children}
     </div>
   );
