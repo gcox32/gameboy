@@ -4,15 +4,16 @@
     left: 1.5rem;
     background: none;
     border: none;
-    color: #c0c0c0;
+    color: rgba(255, 255, 255, 0.45);
     font-size: 0.9rem;
     cursor: pointer;
     padding: 0;
     z-index: 10;
+    transition: color 0.15s ease;
 }
 
 .homeLink:hover {
-    color: yellow;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .container {
@@ -29,11 +30,13 @@
 
 .title {
     font-size: 2rem;
-    color: yellow;
-    margin-bottom: 1rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.92);
+    margin-bottom: 1.5rem;
     text-align: center;
     width: 100%;
-    text-shadow: 0 0 10px rgba(155, 188, 15, 0.5), 2px 2px 0 #306230;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
 }
 
 .form {
@@ -42,34 +45,36 @@
     gap: 1rem;
     width: 100%;
     max-width: 400px;
-    background: linear-gradient(180deg, rgba(74, 74, 106, 0.9) 0%, rgba(42, 42, 74, 0.9) 100%);
+    background: rgba(20, 20, 40, 0.6);
     padding: 2rem;
-    border-radius: 12px;
-    border: 3px solid #5a5a7a;
-    box-shadow: 0 8px 0 #1a1a2a, 0 12px 20px rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
 }
 
 .input {
     padding: 0.75rem;
-    border: 2px solid #5a5a7a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 4px;
     font-size: 1rem;
     outline: none;
-    background: rgba(26, 26, 46, 0.8);
-    color: #e0e0e0;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input:focus {
-    border-color: #9bbc0f;
-    box-shadow: 0 0 0 2px rgba(155, 188, 15, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
 }
 
 .input::placeholder {
-    color: #888;
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .statusMessage {
-    color: #9bbc0f;
+    color: rgba(155, 188, 15, 0.9);
     font-size: 0.9rem;
     margin-top: 1rem;
     text-align: center;
@@ -79,49 +84,75 @@
     color: #ff6b6b;
     font-size: 0.9rem;
     margin-top: 0.5rem;
+    text-align: center;
+}
+
+.authSubmit {
+    margin-top: 1.5rem;
 }
 
 .signupPrompt {
     margin-top: 1.5rem;
     font-size: 0.9rem;
-    color: #c0c0c0;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.link {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s ease;
+}
+
+.link:hover {
+    color: rgba(255, 255, 255, 1);
 }
 
 .signupLink {
-    color: #9bbc0f;
-    text-decoration: none;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s ease;
 }
 
 .signupLink:hover {
-    text-decoration: underline;
-    color: yellow;
+    color: rgba(255, 255, 255, 1);
 }
 
 .description {
-    font-size: 1.25rem;
-    color: #c0c0c0;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
     margin-bottom: 2rem;
     text-align: center;
+}
+
+.termsLabel {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 440px;
+    width: 100%;
+    margin-top: 1.25rem;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.termsLabel .checkbox {
+    margin-top: 2px;
+    flex-shrink: 0;
 }
 
 .checkboxLabel {
     display: flex;
     align-items: center;
     font-size: 0.9rem;
-    color: #c0c0c0;
-    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
 }
 
 .checkbox {
-    margin-right: 0.5rem;
-}
-
-.link {
-    color: #9bbc0f;
-    text-decoration: none;
-}
-
-.link:hover {
-    text-decoration: underline;
-    color: yellow;
+    accent-color: rgba(255, 255, 255, 0.8);
 }

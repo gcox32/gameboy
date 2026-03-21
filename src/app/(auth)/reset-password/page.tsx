@@ -78,7 +78,7 @@ export default function ResetPassword() {
                         required
                         className={styles.input}
                     />
-                    <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }} disabled={isRequesting}>
+                    <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }} disabled={isRequesting}>
                         {isRequesting ? 'Sending…' : 'Send Reset Code'}
                     </button>
                 </form>
@@ -102,7 +102,7 @@ export default function ResetPassword() {
                         required
                         className={styles.input}
                     />
-                    <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }} disabled={isConfirming}>
+                    <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }} disabled={isConfirming}>
                         {isConfirming ? 'Confirming…' : 'Confirm Reset'}
                     </button>
                     <button

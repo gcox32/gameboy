@@ -153,7 +153,7 @@ function ControlPanel({
 
     return (
         <>
-            <div className={`${styles.controlPanel} ${isPanelVisible ? '' : styles.hidden}`}>
+            <div data-theme="dark" className={`${styles.controlPanel} ${isPanelVisible ? '' : styles.hidden}`}>
                 <Cartridges
                     onROMSelected={handleROMSelected}
                     isDisabled={isEmulatorPlaying}

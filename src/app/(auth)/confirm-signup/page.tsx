@@ -141,7 +141,7 @@ function ConfirmSignUpComponent() {
                     required
                     className={styles.input}
                 />
-                <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }}>Confirm</button>
+                <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }}>Confirm</button>
             </form>
             <button 
                 onClick={handleResendCode} 

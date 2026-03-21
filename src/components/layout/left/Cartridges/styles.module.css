@@ -1,12 +1,15 @@
 .manageGamesButton {
     cursor: pointer;
-    color: var(--text-primary);
+    color: rgba(255, 255, 255, 0.6);
     font-size: 12px;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
 .manageGamesButton:hover {
-    color: var(--accent-color);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .mobile {
@@ -15,37 +18,39 @@
 
 .romSelector {
     padding: 8px 12px;
-    border-radius: 5px;
-    border: 2px black solid;
-    background-color: white;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.06);
     cursor: pointer;
     width: var(--btn-width);
     height: var(--btn-height);
     text-align: center;
     font-size: 12px;
-    color: var(--foreground-color);
-    background-color: var(--background-color);
+    color: rgba(255, 255, 255, 0.85);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.romSelector:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .romSelector:disabled {
-    background-color: #eee;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
-#activeGameTitle {
+.activeGameTitle {
     padding: 8px 12px;
-    border-radius: 5px;
-    border: 2px black solid;
-    background-color: white;
-    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.04);
     width: var(--btn-width);
     height: var(--btn-height);
     font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-#activeGameTitle.null {
-    background-color: gray;
+    letter-spacing: 0.5px;
 }

@@ -62,8 +62,8 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
                 ))}
             </select>
             <div className={buttons.buttonGroup}>
-            <button className={buttons.primaryButton} onClick={onOpenGameManagement}>Manage Games</button>
-                <div id={styles.activeGameTitle} className={activeSaveState ? "" : styles.null}>
+            <button className={buttons.retroButton} onClick={onOpenGameManagement}>Manage Games</button>
+                <div className={styles.activeGameTitle}>
                     { activeSaveState ? activeSaveState.title : '' }
                 </div>
             </div>

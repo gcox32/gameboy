@@ -152,7 +152,7 @@ export default function Login() {
                     />
                     Remember Me
                 </label>
-                <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }}>Login</button>
+                <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }}>Login</button>
             </form>
             {error && <p className={styles.error} role="alert">{error}</p>}
             {searchParams.get('reset') === 'success' && (

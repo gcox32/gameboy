@@ -41,7 +41,7 @@ export default function SystemControls({
 					<button
                         onClick={onPowerToggle}
 						disabled={!isRomLoaded}
-						className={buttons.primaryButton}
+						className={buttons.retroButton}
 					>
 						{isEmulatorPlaying ? "Power Off" : "New Game"}
 					</button>
@@ -49,7 +49,7 @@ export default function SystemControls({
 					<button
 						onClick={onPauseResume}
 						disabled={!isEmulatorPlaying}
-						className={buttons.secondaryButton}
+						className={buttons.retroButton}
 					>
 						{intervalPaused ? "Resume" : "Pause"}
 					</button>
@@ -57,7 +57,7 @@ export default function SystemControls({
 					<button
                         onClick={onReset}
 						disabled={!isEmulatorPlaying}
-						className={buttons.warningButton}
+						className={buttons.retroButton}
 					>
 						Reset
 					</button>
@@ -67,7 +67,7 @@ export default function SystemControls({
 					<button
                         onClick={onOpenLoadStateModal}
 						disabled={!isRomLoaded || isEmulatorPlaying || userSaveStates.length === 0}
-						className={buttons.secondaryButton}
+						className={buttons.retroButton}
 					>
 						Load State
 					</button>
@@ -75,7 +75,7 @@ export default function SystemControls({
 					<button
                         onClick={onSave}
 						disabled={!isEmulatorPlaying}
-						className={buttons.primaryButton}
+						className={buttons.retroButton}
 					>
 						{isSaving ? <Loader /> : 'Save'}
 					</button>
@@ -83,7 +83,7 @@ export default function SystemControls({
 					<button
                         onClick={onSaveAs}
 						disabled={!isEmulatorPlaying}
-						className={buttons.primaryButton}
+						className={buttons.retroButton}
 					>
 						{isSaving ? <Loader /> : 'Save As'}
 					</button>
@@ -93,7 +93,7 @@ export default function SystemControls({
 					<button
 						onClick={onFullscreenToggle}
 						disabled={!isRomLoaded}
-						className={`${buttons.secondaryButton} ${buttons.desktop}`}
+						className={`${buttons.retroButton} ${buttons.desktop}`}
 					>
 						Fullscreen
 					</button>

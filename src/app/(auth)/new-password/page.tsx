@@ -21,7 +21,7 @@ export default function NewPassword() {
                     required
                     className={styles.input}
                 />
-                <button type="submit" className={buttons.primaryButton} style={{ margin: '0 auto' }}>Submit</button>
+                <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }}>Submit</button>
             </form>
         </div>
     );
