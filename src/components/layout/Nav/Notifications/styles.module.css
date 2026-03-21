@@ -6,16 +6,19 @@
     position: relative;
     background: none;
     border: none;
-    color: var(--link-color);
+    color: rgba(255, 255, 255, 0.55);
     cursor: pointer;
     padding: 0.5rem;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .notifButton:hover {
-    color: yellow;
+    color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .notifButton svg {
