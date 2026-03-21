@@ -585,7 +585,6 @@ export default function App() {
 					onDeleteSaveState={onDeleteSaveState}
 				/>
 			</div>
-			<Footer />
 		</SkyBackground>
 	);
 }
