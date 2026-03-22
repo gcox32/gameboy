@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import { Button, Heading, Flex } from '@/components/ui';
 import styles from '@/styles/admin.module.css';
@@ -7,7 +7,7 @@ interface AdminModalProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
-    children: React.ReactNode;
+    children: ReactNode;
     onSave?: () => void;
     onCancel?: () => void;
     saveText?: string;

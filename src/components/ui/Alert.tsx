@@ -1,5 +1,6 @@
 'use client';
 
+import { ReactNode } from 'react';
 import styled from 'styled-components';
 import { Button } from './Button';
 import { useState } from 'react';
@@ -13,7 +14,7 @@ interface AlertProps {
   isDismissible?: boolean;
   hasIcon?: boolean;
   heading?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const getVariationStyles = (variation: AlertVariation = 'info') => {

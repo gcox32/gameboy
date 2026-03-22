@@ -1,5 +1,6 @@
 'use client';
 
+import { FC } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 type LoaderVariation = 'circular' | 'linear';
@@ -54,7 +55,7 @@ const LinearLoaderBar = styled.div`
   animation: ${slide} 1s infinite ease-in-out;
 `;
 
-export const Loader: React.FC<LoaderProps> = ({ variation = 'circular', size = 'medium' }) => {
+export const Loader: FC<LoaderProps> = ({ variation = 'circular', size = 'medium' }) => {
   if (variation === 'linear') {
     return (
       <LinearLoaderContainer>

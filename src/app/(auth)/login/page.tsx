@@ -1,137 +1,92 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, FormEvent } from 'react';
 import Link from 'next/link';
-import { signIn, getCurrentUser } from 'aws-amplify/auth';
+import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '@/../config';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
-import { AuthUser } from 'aws-amplify/auth';
 
-export default function Login() {
-    const [username, setUsername] = useState('');
+function LoginComponent() {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
-    const searchParams = useSearchParams();
     const auth = useAuth();
-    if (!auth) throw new Error('Auth context not available');
-    const { user, loading } = auth;
-    const { setUser }: { setUser: (user: AuthUser) => void } = auth;
+    const searchParams = useSearchParams();
+
+    const verified = searchParams.get('verified') === 'true';
+    const resetSuccess = searchParams.get('reset') === 'success';
 
     useEffect(() => {
-        console.log('user', user);
-        console.log('loading', loading);
-        if (!loading && user) {
+        if (auth && !auth.loading && auth.user) {
             router.push(authedRoute);
         }
-    }, [user, loading, router]);
+    }, [auth, router]);
 
     useEffect(() => {
-        const rememberedUsername = localStorage.getItem('rememberedUsername');
-        if (rememberedUsername) {
-            setUsername(rememberedUsername);
+        const remembered = localStorage.getItem('rememberedEmail');
+        if (remembered) {
+            setEmail(remembered);
             setRememberMe(true);
         }
     }, []);
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
+        setSubmitting(true);
+
         try {
-            const { isSignedIn, nextStep } = await signIn({
-                username,
-                password,
-                options: {
-                    clientMetadata: {
-                        rememberDevice: rememberMe ? 'true' : 'false'
-                    }
-                }
-            });
-            if (isSignedIn) {
-                const updatedUser = await getCurrentUser();
-                setUser(updatedUser);
-                if (rememberMe) {
-                    localStorage.setItem('rememberedUsername', username);
-                } else {
-                    localStorage.removeItem('rememberedUsername');
-                }
-                router.push(authedRoute);
-            } else {
-                handleNextStep(nextStep.signInStep);
+            const result = await signIn('credentials', { email, password, redirect: false });
+
+            if (result?.error) {
+                setError('Invalid email or password.');
+                return;
             }
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'An error occurred';
-            // Already signed in (e.g. session exists but context hadn't hydrated yet)
-            if (message.includes('already a signed in user') || message.includes('already signed in')) {
-                try {
-                    const currentUser = await getCurrentUser();
-                    setUser(currentUser);
-                    router.push(authedRoute);
-                    return;
-                } catch {
-                    setError(message);
-                }
+
+            if (rememberMe) {
+                localStorage.setItem('rememberedEmail', email);
             } else {
-                setError(message);
+                localStorage.removeItem('rememberedEmail');
             }
+
+            router.push(authedRoute);
+        } catch {
+            setError('An error occurred. Please try again.');
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    const handleNextStep = (nextStep: string) => {
-        switch (nextStep) {
-            case 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED':
-                router.push('/new-password');
-                break;
-            case 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE':
-                router.push('/custom-challenge');
-                break;
-            case 'CONFIRM_SIGN_IN_WITH_TOTP_CODE':
-                router.push('/totp');
-                break;
-            case 'CONTINUE_SIGN_IN_WITH_TOTP_SETUP':
-                router.push('/totp-setup');
-                break;
-            case 'CONFIRM_SIGN_IN_WITH_SMS_CODE':
-                router.push('/sms');
-                break;
-            case 'CONTINUE_SIGN_IN_WITH_MFA_SELECTION':
-                router.push('/mfa-selection');
-                break;
-            case 'RESET_PASSWORD':
-                router.push('/reset-password');
-                break;
-            case 'CONFIRM_SIGN_UP':
-                router.push('/confirm-signup');
-                break;
-            case 'DONE':
-                router.push('/');
-                break;
-            default:
-                setError('Unknown next step');
-        }
-    };
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (!loading && user) {
-        return null;
-    }
+    if (auth?.loading) return <div>Loading...</div>;
+    if (auth?.user) return null;
 
     return (
-        <div className={`${styles.container} ${buttons.buttonGroup}`}>
+        <div className={styles.container}>
             <h1 className={styles.title}>Login</h1>
+
+            {verified && (
+                <p className={styles.statusMessage} role="status">
+                    Email verified. You can now log in.
+                </p>
+            )}
+            {resetSuccess && (
+                <p className={styles.statusMessage} role="status">
+                    Password has been reset. You can sign in now.
+                </p>
+            )}
+
             <form onSubmit={handleLogin} className={styles.form}>
                 <input
-                    type="text"
+                    type="email"
                     placeholder="Email"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     className={styles.input}
                 />
@@ -152,25 +107,38 @@ export default function Login() {
                     />
                     Remember Me
                 </label>
-                <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }}>Login</button>
             </form>
+
             {error && <p className={styles.error} role="alert">{error}</p>}
-            {searchParams.get('reset') === 'success' && (
-                <p className={styles.statusMessage} role="status">Password has been reset. You can sign in now.</p>
-            )}
-            
-            <div className={styles.signupPrompt}>
-                {`Don't have an account? `}<Link href="/signup" className={styles.signupLink}>Sign up</Link>
-            </div>
-            <div className={styles.signupPrompt}>
+
+            <button
+                onClick={(e) => handleLogin(e as unknown as FormEvent)}
+                className={`${buttons.retroButton} ${styles.authSubmit}`}
+                disabled={submitting}
+            >
+                {submitting ? 'Signing in…' : 'Login'}
+            </button>
+
+            <p className={styles.signupPrompt}>
+                Don&apos;t have an account?{' '}
+                <Link href="/signup" className={styles.signupLink}>Sign up</Link>
+            </p>
+            <p className={styles.signupPrompt}>
                 <Link
-                    href={`/reset-password${username ? `?username=${encodeURIComponent(username)}` : ''}`}
+                    href={`/reset-password${email ? `?email=${encodeURIComponent(email)}` : ''}`}
                     className={styles.link}
                 >
                     Forgot password?
                 </Link>
-            </div>
+            </p>
         </div>
     );
-    
+}
+
+export default function Login() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <LoginComponent />
+        </Suspense>
+    );
 }

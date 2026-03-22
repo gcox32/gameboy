@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import styles from '../styles.module.css';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { Pokemon as PokemonData } from '@/types/pokeapi/root';
@@ -32,7 +32,7 @@ function getPokemonNameByPokedexNo(pokedexNo: number): string | null {
     return null;
 }
 
-const LeftPanel = React.memo(function LeftPanel({
+const LeftPanel = memo(function LeftPanel({
     pokemonId,
     isOwned,
     isSeen,

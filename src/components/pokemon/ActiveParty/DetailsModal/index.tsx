@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import BaseModal from "@/components/modals/BaseModal";
 import RadarChart from "./RadarChart";
 import Image from "next/image";

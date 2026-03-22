@@ -1,35 +1,47 @@
 'use client';
 
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getCurrentUser } from 'aws-amplify/auth';
-import { AuthUser } from 'aws-amplify/auth';
+import { createContext, useContext, ReactNode } from 'react';
+import { SessionProvider, useSession } from 'next-auth/react';
 
-const AuthContext = createContext<{ user: AuthUser | null; setUser: (user: AuthUser | null) => void; loading: boolean } | null>(null);
+export interface AppUser {
+    userId: string;
+    email: string;
+    username: string;
+    admin: boolean;
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [loading, setLoading] = useState(true)
+interface AuthContextValue {
+    user: AppUser | null;
+    loading: boolean;
+}
 
-  useEffect(() => {
-    checkUser()
-  }, []);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-  async function checkUser() {
-    try {
-      const user = await getCurrentUser()
-      setUser(user)
-    } catch (error) {
-      setUser(null)
-    } finally {
-      setLoading(false)
-    }
-  };
+function AuthContextBridge({ children }: { children: ReactNode }) {
+    const { data: session, status } = useSession();
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
-      {children}
-    </AuthContext.Provider>
-  )
-};
+    const user: AppUser | null = session?.user
+        ? {
+              userId: session.user.id,
+              email: session.user.email ?? '',
+              username: session.user.name ?? session.user.email ?? '',
+              admin: session.user.admin ?? false,
+          }
+        : null;
+
+    return (
+        <AuthContext.Provider value={{ user, loading: status === 'loading' }}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+    return (
+        <SessionProvider>
+            <AuthContextBridge>{children}</AuthContextBridge>
+        </SessionProvider>
+    );
+}
 
 export const useAuth = () => useContext(AuthContext);

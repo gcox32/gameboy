@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import TownMapLocation from "./TownMapLocation";
 import { locations } from "@/utils/pokemon/locations";
 import LocationModal from "@/components/pokemon/TownMap/LocationModal";

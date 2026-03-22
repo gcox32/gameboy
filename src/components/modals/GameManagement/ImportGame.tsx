@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { uploadData } from 'aws-amplify/storage';
-import { generateClient } from 'aws-amplify/api';
-import { type Schema } from '@/amplify/data/resource';
+import { useState, FormEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
     Flex,
@@ -13,9 +10,8 @@ import {
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import FileUploadZone from '@/components/common/FileUploadZone';
+import { uploadBlob } from '@/utils/blobUpload';
 import buttons from '@/styles/buttons.module.css';
-
-const client = generateClient<Schema>();
 
 interface ImportGameProps {
     userId: string | undefined;
@@ -32,58 +28,26 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        img: '',
         memoryWatchers: {
-            activeParty: {
-                baseAddress: '0xD163',
-                offset: '0x00',
-                size: '0x195'
-            },
-            gymBadges: {
-                baseAddress: '0xD2F6',
-                offset: '0x60',
-                size: '0x1'
-            },
-            location: {
-                baseAddress: '0xD2F6',
-                offset: '0x68',
-                size: '0x1'
-            }
+            activeParty: { baseAddress: '0xD163', offset: '0x00', size: '0x195' },
+            gymBadges: { baseAddress: '0xD2F6', offset: '0x60', size: '0x1' },
+            location: { baseAddress: '0xD2F6', offset: '0x68', size: '0x1' }
         }
     });
 
     const presetImages = [
-        {
-            id: 'green',
-            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-green.jpg',
-            label: 'Green'
-        },
-        {
-            id: 'red',
-            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-red.jpg',
-            label: 'Red'
-        },
-        {
-            id: 'blue',
-            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-blue.jpg',
-            label: 'Blue'
-        },
-        {
-            id: 'yellow',
-            url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-yellow.jpg',
-            label: 'Yellow'
-        }
+        { id: 'green', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-green.jpg', label: 'Green' },
+        { id: 'red', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-red.jpg', label: 'Red' },
+        { id: 'blue', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-blue.jpg', label: 'Blue' },
+        { id: 'yellow', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-yellow.jpg', label: 'Yellow' },
     ];
 
     const handleGameFileChange = (file: File) => {
         if (file && (file.name.toLowerCase().endsWith('.gbc') || file.name.toLowerCase().endsWith('.gb'))) {
             setGameFile(file);
             setError(null);
-
-            // Auto-fill title from filename if empty
             if (!formData.title) {
-                const title = file.name.split('.').slice(0, -1).join('.');
-                setFormData(prev => ({ ...prev, title }));
+                setFormData(prev => ({ ...prev, title: file.name.split('.').slice(0, -1).join('.') }));
             }
         } else {
             setError('Please select a valid .gb or .gbc file');
@@ -91,76 +55,60 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!gameFile) {
-            setError('Please select a game file');
-            return;
-        }
-        if (!formData.title.trim()) {
-            setError('Please enter a title');
-            return;
-        }
+        if (!gameFile) { setError('Please select a game file'); return; }
+        if (!formData.title.trim()) { setError('Please enter a title'); return; }
+        if (!userId) { setError('Not authenticated'); return; }
 
         setLoading(true);
         setError(null);
+        setUploadProgress(0);
 
         try {
             const gameId = uuidv4();
-            const filePath = `protected/${userId}/games/${gameId}/${gameFile.name}`;
 
-            // Upload game file to S3
-            await uploadData({
-                path: filePath,
-                data: gameFile,
-                options: {
-                    contentType: 'application/octet-stream',
-                    onProgress: ({ transferredBytes, totalBytes }) => {
-                        const progress = (transferredBytes / (totalBytes || 1)) * 100;
-                        setUploadProgress(progress);
-                    }
-                }
-            }).result;
+            // Upload ROM file
+            setUploadProgress(10);
+            const romPath = `games/${userId}/${gameId}/${gameFile.name}`;
+            const filePath = await uploadBlob(gameFile, romPath);
+            setUploadProgress(60);
 
-            // Handle image upload if provided
-            let imagePath = '';
+            // Upload cover image if provided
+            let imgPath = '';
             if (imageFile) {
                 if (typeof imageFile === 'string') {
-                    imagePath = imageFile;
+                    // Preset URL — store directly
+                    imgPath = imageFile;
                 } else {
-                    const fileType = imageFile.name.split('.').pop();
-                    imagePath = `protected/${userId}/games/${gameId}/cover.${fileType}`;
-                    
-                    await uploadData({
-                        path: imagePath,
-                        data: imageFile,
-                        options: {
-                            contentType: imageFile.type
-                        }
-                    }).result;
+                    const ext = imageFile.name.split('.').pop() ?? 'jpg';
+                    const coverPath = `games/${userId}/${gameId}/cover.${ext}`;
+                    imgPath = await uploadBlob(imageFile, coverPath);
                 }
             }
+            setUploadProgress(90);
 
-            // Create game record in database
-            await client.models.Game.create({
-                id: gameId,
-                owner: userId,
-                title: formData.title,
-                filePath: filePath,
-                img: imagePath,
-                metadata: JSON.stringify({
-                    description: formData.description,
-                    series: '',
-                    generation: '',
-                    releaseDate: '',
-                    memoryWatchers: formData.memoryWatchers
-                })
+            // Create game record
+            const res = await fetch('/api/games', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: formData.title,
+                    filePath,
+                    img: imgPath,
+                    metadata: {
+                        description: formData.description,
+                        memoryWatchers: formData.memoryWatchers,
+                    },
+                }),
             });
+            if (!res.ok) throw new Error('Failed to save game record');
 
+            setUploadProgress(100);
             onSuccess();
         } catch (err) {
             console.error('Error importing game:', err);
-            setError('Failed to import game. Please try again.');
+            setError((err as Error).message || 'Failed to import game. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -173,18 +121,10 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
 
                 <View $flexDirection="column" $alignItems="center">
                     <Text>Game ROM File</Text>
-                    <FileUploadZone
-                        onFileSelect={handleGameFileChange}
-                        accept=".gb,.gbc"
-                        error={error}
-                    />
+                    <FileUploadZone onFileSelect={handleGameFileChange} accept=".gb,.gbc" error={error} />
                 </View>
 
-                <ImageUpload
-                    onChange={setImageFile}
-                    label="Game Cover Image (Optional)"
-                    presetImages={presetImages}
-                />
+                <ImageUpload onChange={setImageFile} label="Game Cover Image (Optional)" presetImages={presetImages} />
 
                 <TextField
                     label="Title"
@@ -203,30 +143,17 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
 
                 {uploadProgress > 0 && uploadProgress < 100 && (
                     <div className="upload-progress">
-                        <div
-                            className="progress-bar"
-                            style={{ width: `${uploadProgress}%` }}
-                        />
+                        <div className="progress-bar" style={{ width: `${uploadProgress}%` }} />
                     </div>
                 )}
 
                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
-                    <button
-                        className={buttons.retroButton}
-                        onClick={onCancel}
-                        type="button"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className={buttons.retroButton}
-                        type="submit"
-                        disabled={loading}
-                    >
-                        Import Game
+                    <button className={buttons.retroButton} onClick={onCancel} type="button">Cancel</button>
+                    <button className={buttons.retroButton} type="submit" disabled={loading}>
+                        {loading ? 'Importing…' : 'Import Game'}
                     </button>
                 </div>
             </Flex>
         </form>
     );
-} 
+}

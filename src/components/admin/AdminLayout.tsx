@@ -2,7 +2,7 @@
 
 import styled from 'styled-components';
 
-export const AdminDashboard = styled.div.attrs({ 'data-theme': 'dark' })`
+export const AdminDashboard = styled.div.attrs({ 'data-theme': 'dark' } as object)`
     display: flex;
     min-height: 100vh;
     background: #0d1120;

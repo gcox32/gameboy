@@ -1,7 +1,8 @@
+import { ReactNode } from 'react';
 import styles from '../styles.module.css'
 
 interface IndividualValuesProps {
-    renderStatBar: (value: number, max: number, type: 'stat' | 'ev' | 'iv') => React.ReactNode
+    renderStatBar: (value: number, max: number, type: 'stat' | 'ev' | 'iv') => ReactNode
     structure: {
         IVs: {
             hp: number

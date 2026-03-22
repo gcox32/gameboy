@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState, ReactNode } from "react";
 import styled, { DefaultTheme } from "styled-components";
 
 type ToastType = "success" | "error" | "info";
@@ -97,7 +97,7 @@ const CloseButton = styled.button`
   padding: 4px 6px;
 `;
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timersRef = useRef<Record<string, number>>({});
 

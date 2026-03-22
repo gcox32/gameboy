@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, ReactNode } from 'react';
 import { Flex, Text, View, Alert, Heading } from '@/components/ui';
 import { useGame } from '@/contexts/GameContext';
 import { scanMemory, ScanResult, ScanCandidate, ScanType } from '@/utils/memoryScanner';
@@ -13,7 +13,7 @@ interface MemoryScannerSectionProps {
     generation: 1 | 2;
     onConfigFound: (config: MemoryWatcherConfig) => void;
     hints?: { badgeCount?: number; mapId?: number };
-    children?: React.ReactNode;
+    children?: ReactNode;
 }
 
 export default function MemoryScannerSection({

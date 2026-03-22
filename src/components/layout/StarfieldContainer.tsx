@@ -1,9 +1,10 @@
 'use client';
 
+import { ReactNode } from 'react';
 import styles from '@/app/home.module.css';
 
 interface StarfieldContainerProps {
-  children: React.ReactNode;
+  children: ReactNode;
   hideScanlines?: boolean;
 }
 

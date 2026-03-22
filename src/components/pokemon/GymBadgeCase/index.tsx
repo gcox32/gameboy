@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import GymBadge from './GymBadge';
 import GymModal from './GymModal';
 import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';

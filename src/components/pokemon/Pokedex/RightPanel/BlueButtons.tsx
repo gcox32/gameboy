@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './styles.module.css';
 
 export default function BlueButtons({ isProcessing = false }: { isProcessing?: boolean }) {

@@ -1,7 +1,8 @@
+import { ReactNode } from 'react';
 import styles from './styles.module.css';
 
 interface PokedexButtonProps {
-    children?: React.ReactNode;
+    children?: ReactNode;
     className?: string;
     onClick: () => void;
 }

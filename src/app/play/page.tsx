@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, RefObject } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchUserSaveStates, loadInGameFile } from '@/utils/saveLoad';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
-import { getCurrentUser } from 'aws-amplify/auth'
+import { useAuth } from '@/contexts/AuthContext';
 import { useSaveState } from '@/hooks/useSaveState';
 import { useMobileImmersive } from '@/hooks/useMobileImmersive';
 import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/left/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
 import MobileControls from '@/components/mobile/MobileControls';
-import Footer from '@/components/layout/Footer';
 import styles from './play.module.css';
 import { useToast } from '@/components/ui';
 import GameBoyCore from '@/utils/GameBoyCore';
@@ -46,7 +45,8 @@ export default function App() {
 	const gbcMemory = useRef<SRAMArray>([]);
 
 	// Maintain states
-	const [currentUser, setUser] = useState<AuthenticatedUser | null>(null);
+	const auth = useAuth();
+	const currentUser = auth?.user ?? null;
 	const [ROMImage, setROMImage] = useState<string | null>(null);
 	const [activeROM, setActiveROM] = useState<GameModel | null>(null);
 	const [userSaveStates, setUserSaveStates] = useState<SaveStateModel[]>([]);
@@ -68,7 +68,7 @@ export default function App() {
 	// Add hook near other hooks
 	const { saveThisState, isSaving } = useSaveState(
 		gameBoyInstance.current || { saveSRAMState: () => [] },
-		activeROM || { id: '', owner: '', title: '', filePath: '', metadata: {} },
+		activeROM || { id: '', userId: '', title: '', filePath: '', metadata: {} },
 		currentUser?.userId || ''
 	);
 
@@ -81,7 +81,7 @@ export default function App() {
 			startGame({
 				id: activeROM.id,
 				title: activeROM.title || 'title',
-				owner: activeROM.owner,
+				userId: activeROM.userId,
 				filePath: activeROM.filePath,
 				metadata: activeROM.metadata
 			});
@@ -90,18 +90,6 @@ export default function App() {
 		}
 	}, [isEmulatorPlaying, activeROM, startGame, stopGame]);
 
-	// Move checkAuthState to be defined with useCallback before its useEffect
-	const checkAuthState = useCallback(async () => {
-		try {
-			const user = await getCurrentUser();
-			setUser(user);
-		} catch (error) {
-			console.error('Not authenticated', error);
-			router.push('login');
-		} finally {
-			setIsLoading(false);
-		}
-	}, [router]); // Add router as dependency since it's used in the function
 
 	const run = (gameboyInstance: GameBoyCoreInstance) => {
 		setIntervalPaused(false);
@@ -144,10 +132,7 @@ export default function App() {
 			// console.log('Current user:', currentUser);
 			try {
 				const response = await loadInGameFile(selectedROM.filePath);
-				if (!response.body) {
-					throw new Error('Failed to load ROM file');
-				}
-				const blob = await response.body.blob();
+				const blob = await response.blob();
 				const reader = new FileReader();
 				reader.onloadend = () => {
 					setROMImage(reader.result as string);
@@ -341,9 +326,12 @@ export default function App() {
 	};
 
 	useEffect(() => {
-		checkAuthState();
-	}, [checkAuthState]);
-	
+		if (!auth) return;
+		if (auth.loading) return;
+		if (!auth.user) { router.push('/login'); return; }
+		setIsLoading(false);
+	}, [auth, router]);
+
 	// Register GUI events on load
 	useEffect(() => {
 		registerGUIEvents();
@@ -553,13 +541,13 @@ export default function App() {
 				/>
 				<Console
 					isEmulatorOn={isEmulatorOn}
-					mainCanvasRef={mainCanvasRef as React.RefObject<HTMLCanvasElement>}
+					mainCanvasRef={mainCanvasRef as RefObject<HTMLCanvasElement>}
 					mobileZoom={mobileZoom}
 				/>
 				<FullScreenContainer
 					background={fullscreenBackground}
-					fullscreenCanvasRef={fullscreenCanvasRef as React.RefObject<HTMLCanvasElement>}
-					fullscreenContainerRef={fullscreenContainerRef as React.RefObject<HTMLDivElement>}
+					fullscreenCanvasRef={fullscreenCanvasRef as RefObject<HTMLCanvasElement>}
+					fullscreenContainerRef={fullscreenContainerRef as RefObject<HTMLDivElement>}
 					activeROM={activeROM}
 					activeState={activeState}
 					inGameMemory={inGameMemory.current}

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useRef, MutableRefObject } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, MutableRefObject, ReactNode } from 'react';
 import { GameModel, GameState, nullGameState, SRAMArray } from '@/types';
 
 interface GameContextValue {
@@ -17,7 +17,7 @@ interface GameContextValue {
 
 const GameContext = createContext<GameContextValue | null>(null);
 
-export function GameProvider({ children }: { children: React.ReactNode }) {
+export function GameProvider({ children }: { children: ReactNode }) {
     const [gameState, setGameState] = useState<{
         isPlaying: boolean;
         activeGame: GameModel;

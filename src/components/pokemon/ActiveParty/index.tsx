@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import PartySlot from "./PartySlot";
 import { useInGameMemoryWatcher, parseMetadata } from "@/utils/MemoryWatcher";
 import { parseParty } from "@/utils/pokemon/parse";

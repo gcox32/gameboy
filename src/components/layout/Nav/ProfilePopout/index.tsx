@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import Image from 'next/image';
 import styles from './styles.module.css';
 import dynamic from 'next/dynamic';

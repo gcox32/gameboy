@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { generateClient } from 'aws-amplify/api';
-import { type Schema } from '@/amplify/data/resource';
+import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import styles from './styles.module.css';
 import { GameModel, SaveStateModel, AuthenticatedUser } from '@/types';
 import buttons from '@/styles/buttons.module.css';
@@ -13,21 +11,22 @@ export interface CartridgesProps {
     onOpenGameManagement: () => void;
 }
 
-const client = generateClient<Schema>();
+interface GameModelExtended extends GameModel {
+    _id?: string
+}
 
 function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, onOpenGameManagement }: CartridgesProps) {
-    const [games, setGames] = useState<GameModel[]>([]);
+    const [games, setGames] = useState<GameModelExtended[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
     const fetchGames = useCallback(async () => {
+        if (!currentUser?.userId) return;
         try {
-            const gamesList = await client.models.Game.list({
-                filter: {
-                    owner: { eq: currentUser.userId }
-                }
-            });
-            setGames(gamesList.data as GameModel[]);
+            setLoading(true);
+            const res = await fetch('/api/games');
+            if (!res.ok) throw new Error('Failed to fetch games');
+            setGames(await res.json());
         } catch (err) {
             setError(err as Error);
         } finally {
@@ -39,15 +38,11 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
         fetchGames();
     }, [fetchGames]);
 
-    const handleROMChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedValue = e.target.value;
-        const selectedROM = games.find(game => game.filePath === selectedValue);
-        // Pass the selected ROM object to the callback
+    const handleROMChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const selectedROM = games.find(game => game.filePath === e.target.value);
         onROMSelected(selectedROM as GameModel);
     };
 
-
-    // Handling loading and error states in the component's return statement
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
@@ -56,15 +51,15 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
             <select onChange={handleROMChange} disabled={isDisabled} className={styles.romSelector}>
                 <option value="">Select a Game</option>
                 {games.map(game => (
-                    <option key={game.id} value={game.filePath}>
+                    <option key={game._id} value={game.filePath}>
                         {game.title}
                     </option>
                 ))}
             </select>
             <div className={buttons.buttonGroup}>
-            <button className={buttons.retroButton} onClick={onOpenGameManagement}>Manage Games</button>
+                <button className={buttons.retroButton} onClick={onOpenGameManagement}>Manage Games</button>
                 <div className={styles.activeGameTitle}>
-                    { activeSaveState ? activeSaveState.title : '' }
+                    {activeSaveState ? activeSaveState.title : ''}
                 </div>
             </div>
         </>
@@ -72,4 +67,3 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
 }
 
 export default Cartridges;
-

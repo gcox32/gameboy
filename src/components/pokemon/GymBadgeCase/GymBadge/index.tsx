@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { badgeImgPath } from '@/../config';
 import styles from '../styles.module.css';
 import Image from 'next/image';

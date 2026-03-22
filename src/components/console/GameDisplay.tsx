@@ -1,8 +1,8 @@
-import React from 'react';
+import { RefObject } from 'react';
 import styles from './styles.module.css';
 
 interface GameDisplayProps {
-    mainCanvasRef: React.RefObject<HTMLCanvasElement> | undefined;
+    mainCanvasRef: RefObject<HTMLCanvasElement> | undefined;
     mobileZoom: boolean;
 }
 

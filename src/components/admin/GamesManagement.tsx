@@ -1,13 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-    Flex,
-    Text,
-    Alert
-} from '@/components/ui';
-import { generateClient } from 'aws-amplify/api';
-import { type Schema } from '@/amplify/data/resource';
+import { Flex, Text, Alert } from '@/components/ui';
 import DataTable from './DataTable';
 import AdminModal from './AdminModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -15,12 +9,9 @@ import SearchInput from './SearchInput';
 import styles from '@/styles/admin.module.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
-import { getUrl } from 'aws-amplify/storage';
 import { getUsernamesForSubs } from '@/utils/usernames';
 import { useToast } from '@/components/ui';
 import { GameModel } from '@/types';
-
-const client = generateClient<Schema>();
 
 export default function GamesManagement() {
     const [games, setGames] = useState<GameModel[]>([]);
@@ -30,7 +21,6 @@ export default function GamesManagement() {
     const [editingGame, setEditingGame] = useState<GameModel | null>(null);
     const [deletingGame, setDeletingGame] = useState<GameModel | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
-    const [imageUrlsByGameId, setImageUrlsByGameId] = useState<Record<string, string>>({});
     const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
 
     const { showToast } = useToast();
@@ -39,65 +29,27 @@ export default function GamesManagement() {
         try {
             setLoading(true);
             setError(null);
-            const response = await client.models.Game.list();
-            const data = response.data as unknown as GameModel[];
+            const res = await fetch('/api/games?all=true');
+            if (!res.ok) throw new Error('Failed to load games');
+            const data: GameModel[] = await res.json();
             setGames(data);
 
-            const owners = data.map((n) => n.owner).filter(Boolean);
+            const owners = data.map((g) => g.userId).filter(Boolean);
             if (owners.length > 0) {
                 const mapping = await getUsernamesForSubs(owners);
                 setUsernameBySub((prev) => ({ ...prev, ...mapping }));
             }
         } catch (err) {
             setError('Failed to load games. Please try again.');
-            console.error('Error loading games:', err);
+            console.error(err);
         } finally {
             setLoading(false);
         }
     }, []);
 
-    useEffect(() => {
-        loadGames();
-    }, [loadGames]);
+    useEffect(() => { loadGames(); }, [loadGames]);
 
-    // Resolve presigned URLs for any game images that are stored in S3
-    useEffect(() => {
-        let isMounted = true;
-        const resolveImageUrls = async () => {
-            const nextMap: Record<string, string> = {};
-            const tasks = games.map(async (game) => {
-                if (!game.img) return;
-                if (game.img.slice(0, 4) === 'http') {
-                    nextMap[game.id] = game.img;
-                    return;
-                }
-                try {
-                    const { url } = await getUrl({ path: game.img });
-                    nextMap[game.id] = String(url);
-                } catch (e) {
-                    // ignore failures for individual images
-                }
-            });
-            await Promise.all(tasks);
-            if (isMounted) {
-                setImageUrlsByGameId(nextMap);
-            }
-        };
-
-        if (games.length > 0) {
-            resolveImageUrls();
-        } else {
-            setImageUrlsByGameId({});
-        }
-
-        return () => {
-            isMounted = false;
-        };
-    }, [games]);
-
-    const handleSort = (key: string, direction: 'asc' | 'desc') => {
-        setSortConfig({ key, direction });
-    };
+    const handleSort = (key: string, direction: 'asc' | 'desc') => setSortConfig({ key, direction });
 
     const filteredGames = games.filter(game =>
         game.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -106,71 +58,47 @@ export default function GamesManagement() {
 
     const sortedGames = [...filteredGames].sort((a, b) => {
         if (!sortConfig) return 0;
-
-        const aValue = a[sortConfig.key as keyof GameModel];
-        const bValue = b[sortConfig.key as keyof GameModel];
-
-        if (aValue && bValue && aValue < bValue) {
-            return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (aValue && bValue && aValue > bValue) {
-            return sortConfig.direction === 'asc' ? 1 : -1;
-        }
+        const aVal = a[sortConfig.key as keyof GameModel] ?? '';
+        const bVal = b[sortConfig.key as keyof GameModel] ?? '';
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
     });
 
-    const handleEditGame = (game: GameModel) => {
-        setEditingGame(game);
-    };
-
     const handleSaveGame = async () => {
         if (!editingGame) return;
-
         try {
             setLoading(true);
-            await client.models.Game.update({
-                id: editingGame.id,
-                title: editingGame.title,
-                metadata: JSON.stringify(editingGame.metadata || {}),
+            const res = await fetch(`/api/games/${editingGame.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: editingGame.title, metadata: editingGame.metadata }),
             });
-
+            if (!res.ok) throw new Error('Update failed');
             setEditingGame(null);
             loadGames();
-
             showToast(`Saved changes to "${editingGame.title}"`, 'success');
         } catch (err) {
             setError('Failed to update game. Please try again.');
-            console.error('Error updating game:', err);
+            console.error(err);
             showToast('Failed to update game', 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDeleteGame = (game: GameModel) => {
-        setDeletingGame(game);
-    };
-
     const confirmDeleteGame = async () => {
         if (!deletingGame) return;
-
         try {
             setLoading(true);
-            console.log('Deleting game:', deletingGame.id);
-            const response = await client.models.Game.delete({ id: deletingGame.id });
-            
-            // Check if the delete actually succeeded
-            // If authorization fails, response.data will be null/undefined
-            if (!response.data) {
-                throw new Error('Delete operation was not authorized or failed silently');
-            }
-            
+            const res = await fetch(`/api/games/${deletingGame.id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Delete failed');
             showToast(`Deleted "${deletingGame.title}"`, 'success');
             setDeletingGame(null);
             await loadGames();
         } catch (err) {
             setError('Failed to delete game. Please try again.');
-            console.error('Error deleting game:', err);
+            console.error(err);
             showToast('Failed to delete game', 'error');
             setLoading(false);
         }
@@ -183,39 +111,25 @@ export default function GamesManagement() {
             sortable: true,
             render: (game: GameModel) => (
                 <Flex $alignItems="center" $gap="0.75rem">
-                    {game.img && (game.img.slice(0, 4) === 'http' || imageUrlsByGameId[game.id]) && (
-                        <Image
-                            src={game.img.slice(0, 4) === 'http' ? game.img : imageUrlsByGameId[game.id]}
-                            alt={game.title}
-                            className={styles.gameImage}
-                            width={32}
-                            height={32}
-                        />
+                    {game.img && (
+                        <Image src={game.img} alt={game.title} className={styles.gameImage} width={32} height={32} />
                     )}
                     <Flex $direction="column">
                         <Text $fontWeight="medium">{game.title}</Text>
-                        {game.metadata?.series && (
-                            <Text $fontSize="sm" $variation="secondary">
-                                {game.metadata.series}
-                            </Text>
-                        )}
+                        {game.metadata?.series && <Text $fontSize="sm" $variation="secondary">{game.metadata.series}</Text>}
                     </Flex>
                 </Flex>
             )
         },
         {
-            key: 'owner',
+            key: 'userId',
             header: 'Owner',
             sortable: true,
-            render: (game: GameModel) => {
-                const sub = game.owner;
-                const username = usernameBySub[sub];
-                return (
-                    <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                        {username || `${sub?.substring(0, 8) ?? ''}...`}
-                    </Text>
-                );
-            }
+            render: (game: GameModel) => (
+                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                    {usernameBySub[game.userId] || `${game.userId?.substring(0, 8) ?? ''}...`}
+                </Text>
+            )
         },
         {
             key: 'metadata',
@@ -223,19 +137,9 @@ export default function GamesManagement() {
             sortable: false,
             render: (game: GameModel) => (
                 <Flex $direction="column" $gap="0.25rem">
-                    {game.metadata?.generation && (
-                        <Text $fontSize="sm">Gen: {game.metadata.generation}</Text>
-                    )}
-                    {game.metadata?.releaseDate && (
-                        <Text $fontSize="sm" $variation="secondary">
-                            {new Date(game.metadata.releaseDate).getFullYear()}
-                        </Text>
-                    )}
-                    {game.metadata?.description && (
-                        <Text $fontSize="sm" $variation="secondary">
-                            {game.metadata?.description?.substring(0, 50) ?? ''}...
-                        </Text>
-                    )}
+                    {game.metadata?.generation && <Text $fontSize="sm">Gen: {game.metadata.generation}</Text>}
+                    {game.metadata?.releaseDate && <Text $fontSize="sm" $variation="secondary">{new Date(game.metadata.releaseDate).getFullYear()}</Text>}
+                    {game.metadata?.description && <Text $fontSize="sm" $variation="secondary">{game.metadata.description.substring(0, 50)}...</Text>}
                 </Flex>
             )
         },
@@ -244,9 +148,7 @@ export default function GamesManagement() {
             header: 'File',
             sortable: false,
             render: (game: GameModel) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                    {game.filePath.split('/').pop()}
-                </Text>
+                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>{game.filePath.split('/').pop()}</Text>
             )
         },
         {
@@ -255,20 +157,8 @@ export default function GamesManagement() {
             sortable: false,
             render: (game: GameModel) => (
                 <Flex $gap="0.5rem">
-                    <button
-                        onClick={() => handleEditGame(game)}
-                        className={`${styles.actionButton} edit`}
-                        title="Edit game"
-                    >
-                        <FaEdit />
-                    </button>
-                    <button
-                        onClick={() => handleDeleteGame(game)}
-                        className={`${styles.actionButton} destructive`}
-                        title="Delete game"
-                    >
-                        <FaTrash />
-                    </button>
+                    <button onClick={() => setEditingGame(game)} className={`${styles.actionButton} edit`} title="Edit game"><FaEdit /></button>
+                    <button onClick={() => setDeletingGame(game)} className={`${styles.actionButton} destructive`} title="Delete game"><FaTrash /></button>
                 </Flex>
             )
         }
@@ -277,36 +167,18 @@ export default function GamesManagement() {
     return (
         <div className={styles.managementContainer}>
             <Flex $justifyContent="space-between" $alignItems="center" className={styles.tableToolbar}>
-                <SearchInput
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder="Search games..."
-                />
+                <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Search games..." />
                 <div />
             </Flex>
 
-            {error && (
-                <Alert $variation="error" isDismissible>
-                    {error}
-                </Alert>
-            )}
+            {error && <Alert $variation="error" isDismissible>{error}</Alert>}
 
-            <DataTable
-                data={sortedGames}
-                columns={columns}
-                loading={loading}
-                emptyMessage="No games found"
-                onSort={handleSort}
-                currentSort={sortConfig}
-            />
+            <DataTable data={sortedGames} columns={columns} loading={loading} emptyMessage="No games found" onSort={handleSort} currentSort={sortConfig} />
 
             <div className={styles.tableFooter}>
-                <Text $fontSize="sm" $variation="secondary">
-                    Total: {games.length} games
-                </Text>
+                <Text $fontSize="sm" $variation="secondary">Total: {games.length} games</Text>
             </div>
 
-            {/* Edit Game Modal */}
             <AdminModal
                 isOpen={!!editingGame}
                 onClose={() => setEditingGame(null)}
@@ -320,103 +192,47 @@ export default function GamesManagement() {
                         <div className={styles.formRow}>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Title</label>
-                                <input
-                                    type="text"
-                                    value={editingGame.title}
-                                    onChange={(e) => setEditingGame({...editingGame, title: e.target.value})}
-                                    className={styles.formInput}
-                                />
+                                <input type="text" value={editingGame.title} onChange={(e) => setEditingGame({ ...editingGame, title: e.target.value })} className={styles.formInput} />
                             </div>
                         </div>
-
                         <div className={styles.formRow}>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Series</label>
-                                <input
-                                    type="text"
-                                    value={editingGame.metadata?.series || ''}
-                                    onChange={(e) => setEditingGame({
-                                        ...editingGame,
-                                        metadata: {...editingGame.metadata, series: e.target.value}
-                                    })}
-                                    className={styles.formInput}
-                                />
+                                <input type="text" value={editingGame.metadata?.series || ''} onChange={(e) => setEditingGame({ ...editingGame, metadata: { ...editingGame.metadata, series: e.target.value } })} className={styles.formInput} />
                             </div>
-
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Generation</label>
-                                <input
-                                    type="text"
-                                    value={editingGame.metadata?.generation || ''}
-                                    onChange={(e) => setEditingGame({
-                                        ...editingGame,
-                                        metadata: {...editingGame.metadata, generation: e.target.value}
-                                    })}
-                                    className={styles.formInput}
-                                />
+                                <input type="text" value={editingGame.metadata?.generation || ''} onChange={(e) => setEditingGame({ ...editingGame, metadata: { ...editingGame.metadata, generation: e.target.value } })} className={styles.formInput} />
                             </div>
                         </div>
-
                         <div className={styles.formRow}>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Release Date</label>
-                                <input
-                                    type="date"
-                                    value={editingGame.metadata?.releaseDate?.split('T')[0] || ''}
-                                    onChange={(e) => setEditingGame({
-                                        ...editingGame,
-                                        metadata: {...editingGame.metadata, releaseDate: e.target.value}
-                                    })}
-                                    className={styles.formInput}
-                                />
+                                <input type="date" value={editingGame.metadata?.releaseDate?.split('T')[0] || ''} onChange={(e) => setEditingGame({ ...editingGame, metadata: { ...editingGame.metadata, releaseDate: e.target.value } })} className={styles.formInput} />
                             </div>
-
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Owner ID</label>
-                                <input
-                                    type="text"
-                                    value={editingGame.owner}
-                                    disabled
-                                    className={`${styles.formInput} ${styles.disabled}`}
-                                    title="Cannot change owner"
-                                />
+                                <input type="text" value={editingGame.userId} disabled className={`${styles.formInput} ${styles.disabled}`} />
                             </div>
                         </div>
-
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Description</label>
-                            <textarea
-                                value={editingGame.metadata?.description || ''}
-                                onChange={(e) => setEditingGame({
-                                    ...editingGame,
-                                    metadata: {...editingGame.metadata, description: e.target.value}
-                                })}
-                                className={styles.formInput}
-                                rows={3}
-                            />
+                            <textarea value={editingGame.metadata?.description || ''} onChange={(e) => setEditingGame({ ...editingGame, metadata: { ...editingGame.metadata, description: e.target.value } })} className={styles.formInput} rows={3} />
                         </div>
-
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>File Path</label>
-                            <input
-                                type="text"
-                                value={editingGame.filePath}
-                                disabled
-                                className={`${styles.formInput} ${styles.disabled}`}
-                                title="File path cannot be changed"
-                            />
+                            <input type="text" value={editingGame.filePath} disabled className={`${styles.formInput} ${styles.disabled}`} />
                         </div>
                     </Flex>
                 )}
             </AdminModal>
 
-            {/* Delete Confirmation Modal */}
             <ConfirmDeleteModal
                 isOpen={!!deletingGame}
                 onClose={() => setDeletingGame(null)}
                 onConfirm={confirmDeleteGame}
                 title="Delete Game"
-                message="Are you sure you want to delete this game? This action cannot be undone and will remove all associated save states."
+                message="Are you sure you want to delete this game? This action cannot be undone."
                 itemName={deletingGame?.title}
                 loading={loading}
             />

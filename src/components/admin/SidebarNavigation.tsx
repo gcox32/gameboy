@@ -1,8 +1,6 @@
 'use client';
 
-'use client';
-
-import React from 'react';
+import { ReactNode } from 'react';
 import { FaUsers, FaGamepad, FaBell, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import {
@@ -21,7 +19,7 @@ type TabType = 'users' | 'games' | 'notifications';
 interface NavItemConfig {
     id: TabType;
     label: string;
-    icon: React.ReactNode;
+    icon: ReactNode;
     count?: number | null;
 }
 

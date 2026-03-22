@@ -1,9 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { type Schema } from '@/amplify/data/resource';
+import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import Image from 'next/image';
 import BaseModal from '../BaseModal';
-import { generateClient } from 'aws-amplify/api';
-import { uploadData, remove } from 'aws-amplify/storage';
 import {
     Flex,
     Heading,
@@ -15,11 +12,11 @@ import {
     Alert
 } from '@/components/ui';
 import { getS3Url } from '@/utils/saveLoad';
+import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
+import { useAuth } from '@/contexts/AuthContext';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 import { ProfileModel } from '@/types';
-
-const client = generateClient<Schema>();
 
 interface ProfileModalProps {
     isOpen: boolean;
@@ -29,10 +26,10 @@ interface ProfileModalProps {
 }
 
 const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalProps) => {
+    const auth = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const [imagePreview, setImagePreview] = useState<string | null>(userProfile?.avatar || null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [formData, setFormData] = useState<ProfileModel>({
@@ -72,104 +69,62 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
         }
         setIsEditing(!isEditing);
         setError(null);
-        setUploadProgress(0);
     };
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event?.target?.files?.[0];
         if (!file) return;
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            setError('Please select an image file.');
-            return;
-        }
-
-        // Validate file size (e.g., 5MB limit)
-        if (file.size > 5 * 1024 * 1024) {
-            setError('Image size should be less than 5MB.');
-            return;
-        }
+        if (!file.type.startsWith('image/')) { setError('Please select an image file.'); return; }
+        if (file.size > 5 * 1024 * 1024) { setError('Image size should be less than 5MB.'); return; }
 
         try {
             setError(null);
-            setUploadProgress(0);
-
-            // Upload to S3
-            const fileName = `protected/${userProfile.owner}/avatar/${Date.now()}-${file.name}`;
-            await uploadData({
-                path: fileName,
-                data: file,
-                options: {
-                    contentType: file.type,
-                    onProgress: ({ transferredBytes, totalBytes }) => {
-                        if (!totalBytes) return;
-                        const progress = (transferredBytes / totalBytes) * 100;
-                        setUploadProgress(progress);
-                    },
-                }
-            }).result;
-
-            // Get the URL for preview
-            const url = await getS3Url(fileName);
+            const userId = auth?.user?.userId;
+            if (!userId) throw new Error('Not authenticated');
+            const ext = file.name.split('.').pop() ?? 'jpg';
+            const path = `avatars/${userId}/${Date.now()}.${ext}`;
+            const url = await uploadBlob(file, path);
             setImagePreview(url);
-
-            // Update form data with the S3 key
-            setFormData(prev => ({
-                ...prev,
-                avatar: fileName
-            }));
-
+            setFormData(prev => ({ ...prev, avatar: url }));
         } catch (err) {
-            console.error('Error uploading image:', err);
+            console.error('Error uploading avatar:', err);
             setError('Failed to upload image. Please try again.');
-            const url = await getS3Url(userProfile.avatar);
-            setImagePreview(url);
         }
     };
 
     const handleRemoveImage = async () => {
         try {
-            if (formData.avatar) {
-                // Remove from S3 if it exists
-                await remove({ path: formData.avatar });
-            }
-            setFormData(prev => ({
-                ...prev,
-                avatar: ''
-            }));
-            setImagePreview(null);
+            if (formData.avatar) await deleteBlob(formData.avatar);
         } catch (err) {
-            console.error('Error removing image:', err);
-            setError('Failed to remove image. Please try again.');
+            console.error('Error removing avatar:', err);
         }
+        setFormData(prev => ({ ...prev, avatar: '' }));
+        setImagePreview(null);
     };
 
     const handleSubmit = async () => {
         try {
             setIsSaving(true);
             setError(null);
-
-            await client.models.Profile.update({
-                id: userProfile.id,
-                username: formData.username,
-                email: formData.email,
-                bio: formData.bio,
-                avatar: formData.avatar
+            const res = await fetch('/api/profiles', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: formData.username,
+                    bio: formData.bio,
+                    avatar: formData.avatar,
+                }),
             });
-
+            if (!res.ok) throw new Error('Update failed');
             setIsEditing(false);
             onUpdate?.();
         } catch (err) {
             setError('Failed to update profile. Please try again.');
-            console.error('Error updating profile:', err);
+            console.error(err);
         } finally {
             setIsSaving(false);
         }
@@ -182,11 +137,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                     <Heading as="h4">User Profile</Heading>
                 </div>
 
-                {error && (
-                    <Alert $variation="error">
-                        {error}
-                    </Alert>
-                )}
+                {error && <Alert $variation="error">{error}</Alert>}
 
                 {userProfile && (
                     <Flex $direction="column" $gap="1.5rem">
@@ -211,20 +162,8 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                                 style={{ display: 'none' }}
                                                 aria-label="Upload profile picture"
                                             />
-                                            <Button
-                                                onClick={() => fileInputRef.current?.click()}
-                                                size="small"
-                                                $variation="link"
-                                                className={styles.uploadButton}
-                                            >
-                                                <svg
-                                                    width="24"
-                                                    height="24"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                >
+                                            <Button onClick={() => fileInputRef.current?.click()} size="small" $variation="link" className={styles.uploadButton}>
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                                     <polyline points="17 8 12 3 7 8" />
                                                     <line x1="12" y1="3" x2="12" y2="15" />
@@ -233,68 +172,23 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                             </Button>
                                         </div>
                                         {imagePreview && (
-                                            <Button
-                                                onClick={handleRemoveImage}
-                                                size="small"
-                                                $variation="destructive"
-                                                className={styles.removeButton}
-                                            >
+                                            <Button onClick={handleRemoveImage} size="small" $variation="destructive" className={styles.removeButton}>
                                                 Remove
                                             </Button>
                                         )}
                                     </>
-                                )}
-                                {uploadProgress > 0 && uploadProgress < 100 && (
-                                    <div className={styles.uploadProgress}>
-                                        <div
-                                            className={styles.progressBar}
-                                            style={{ width: `${uploadProgress}%` }}
-                                        />
-                                    </div>
                                 )}
                             </div>
                         </View>
 
                         {isEditing ? (
                             <Flex $direction="column" $gap="1.5rem">
-                                <TextField
-                                    label="Username"
-                                    value={formData.username}
-                                    onChange={e => handleInputChange('username', e.target.value)}
-                                    placeholder="Enter username"
-                                    orientation="vertical"
-                                />
-                                <TextField
-                                    label="Email"
-                                    value={formData.email}
-                                    placeholder="Enter email"
-                                    type="email"
-                                    $isReadOnly={true}
-                                    $isDisabled={true}
-                                    orientation="vertical"
-                                />
-                                <TextAreaField
-                                    label="Bio"
-                                    value={formData.bio}
-                                    onChange={e => handleInputChange('bio', e.target.value)}
-                                    placeholder="Tell us about yourself"
-                                    rows={3}
-                                    orientation="vertical"
-                                />
+                                <TextField label="Username" value={formData.username} onChange={e => handleInputChange('username', e.target.value)} placeholder="Enter username" orientation="vertical" />
+                                <TextField label="Email" value={formData.email} placeholder="Enter email" type="email" $isReadOnly={true} $isDisabled={true} orientation="vertical" />
+                                <TextAreaField label="Bio" value={formData.bio} onChange={e => handleInputChange('bio', e.target.value)} placeholder="Tell us about yourself" rows={3} orientation="vertical" />
                                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', gap: '1rem' }}>
-                                    <button
-                                        className={buttons.retroButton}
-                                        onClick={handleEditToggle}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSubmit}
-                                        className={buttons.retroButton}
-                                        disabled={isSaving}
-                                    >
-                                        Save Changes
-                                    </button>
+                                    <button className={buttons.retroButton} onClick={handleEditToggle}>Cancel</button>
+                                    <button onClick={handleSubmit} className={buttons.retroButton} disabled={isSaving}>Save Changes</button>
                                 </div>
                             </Flex>
                         ) : (
@@ -312,12 +206,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     <Text>{userProfile.bio || 'No bio available'}</Text>
                                 </View>
                                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'column', gap: '1rem' }}>
-                                    <button
-                                        className={buttons.retroButton}
-                                        onClick={handleEditToggle}
-                                    >
-                                        Edit
-                                    </button>
+                                    <button className={buttons.retroButton} onClick={handleEditToggle}>Edit</button>
                                 </div>
                             </Flex>
                         )}

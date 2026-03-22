@@ -2,7 +2,7 @@ import { MemoryWatcherConfig } from "./states";
 
 export interface NotificationModel {
     id: string;
-    owner: string;
+    userId: string;
     sender?: string;
     type: string;
     title?: string;
@@ -14,7 +14,7 @@ export interface NotificationModel {
 
 export interface SaveStateModel {
     id?: string;
-    owner: string;
+    userId: string;
     gameId: string;
     game: GameModel;
     filePath: string;
@@ -28,7 +28,7 @@ export interface SaveStateModel {
 
 export interface ProfileModel {
     id?: string;
-    owner?: string;
+    userId?: string;
     username: string;
     email: string;
     bio: string;
@@ -40,7 +40,7 @@ export interface ProfileModel {
 
 export interface GameModel {
     id: string;
-    owner: string;
+    userId: string;
     title: string;
     img?: string;
     filePath: string;

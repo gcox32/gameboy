@@ -1,10 +1,11 @@
 'use client';
 
+import { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { navigateWithTransition } from '@/lib/transition';
 
 interface HomeLinkProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 

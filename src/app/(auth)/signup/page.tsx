@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { signUp } from 'aws-amplify/auth';
+import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,50 +9,51 @@ import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 
 export default function SignUp() {
-    const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [password, setPassword] = useState('');
     const [agreeToTerms, setAgreeToTerms] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
     const auth = useAuth();
 
     useEffect(() => {
-        if (auth) {
-            const { user, loading } = auth;
-            if (!loading && user) {
-                router.push(authedRoute);
-            }
+        if (auth && !auth.loading && auth.user) {
+            router.push(authedRoute);
         }
     }, [auth, router]);
 
-    if (auth && !auth.loading && auth.user) {
-        return null;
-    }
+    if (auth && !auth.loading && auth.user) return null;
 
-    const handleSignUp = async (e: React.FormEvent) => {
+    const handleSignUp = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
 
         if (!agreeToTerms) {
-            setError('You must agree to the Terms and Conditions and Privacy Policy');
+            setError('You must agree to the Terms and Privacy Policy.');
             return;
         }
 
+        setSubmitting(true);
         try {
-            const { isSignUpComplete } = await signUp({
-                username: email,
-                password,
-                options: { userAttributes: { email } },
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
             });
 
-            if (isSignUpComplete) {
-                router.push('login');
-            } else {
-                const encodedPassword = encodeURIComponent(password);
-                router.push(`confirm-signup?username=${email}&email=${email}&password=${encodedPassword}`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error ?? 'An error occurred.');
+                return;
             }
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+
+            router.push(`/confirm-signup?email=${encodeURIComponent(email)}`);
+        } catch {
+            setError('An error occurred. Please try again.');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -98,10 +98,11 @@ export default function SignUp() {
             {error && <p className={styles.error} role="alert">{error}</p>}
 
             <button
-                onClick={(e) => handleSignUp(e as unknown as React.FormEvent)}
+                onClick={(e) => handleSignUp(e as unknown as FormEvent)}
                 className={`${buttons.retroButton} ${styles.authSubmit}`}
+                disabled={submitting}
             >
-                Sign Up
+                {submitting ? 'Creating account…' : 'Sign Up'}
             </button>
 
             <p className={styles.signupPrompt}>

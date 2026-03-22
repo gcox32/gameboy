@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { SRAMArray } from '@/types';
 import styles from './styles.module.css';
 import Hinge from './Hinge';

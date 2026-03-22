@@ -1,7 +1,8 @@
+import { ReactNode } from 'react';
 import styles from '../styles.module.css'
 
 interface CurrentStatsProps {
-    renderStatBar: (value: number, max: number, type: 'stat' | 'ev' | 'iv') => React.ReactNode
+    renderStatBar: (value: number, max: number, type: 'stat' | 'ev' | 'iv') => ReactNode
     structure: {
         levelStats: {
             maxHP: number

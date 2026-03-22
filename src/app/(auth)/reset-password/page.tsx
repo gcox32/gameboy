@@ -1,123 +1,126 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect, Suspense, FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 
-export default function ResetPassword() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-
-    const [username, setUsername] = useState('');
-    const [confirmationCode, setConfirmationCode] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [isRequesting, setIsRequesting] = useState(false);
-    const [isConfirming, setIsConfirming] = useState(false);
-    const [step, setStep] = useState<'request' | 'confirm'>('request');
+function ResetPasswordComponent() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const token = searchParams.get('token');
 
     useEffect(() => {
-        const initialUsername = searchParams.get('username') || '';
-        if (initialUsername) setUsername(initialUsername);
+        const emailParam = searchParams.get('email');
+        if (emailParam) setEmail(emailParam);
     }, [searchParams]);
 
-    const handleRequest = async (e: React.FormEvent) => {
+    // Step 1: request a reset link
+    const handleRequest = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
-        setMessage(null);
-        setIsRequesting(true);
+        setSubmitting(true);
+
         try {
-            const output = await resetPassword({ username });
-            // Most setups send an email with a code
-            if (output.nextStep.resetPasswordStep === 'CONFIRM_RESET_PASSWORD_WITH_CODE') {
-                setMessage('We sent a verification code to your email. Enter it below with your new password.');
-                setStep('confirm');
-            } else {
-                setMessage('Check your email for reset instructions.');
-            }
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            setMessage('If that account exists, a reset link has been sent to your email.');
+        } catch {
+            setError('An error occurred. Please try again.');
         } finally {
-            setIsRequesting(false);
+            setSubmitting(false);
         }
     };
 
-    const handleConfirm = async (e: React.FormEvent) => {
+    // Step 2: set new password using token from link
+    const handleReset = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
-        setMessage(null);
-        setIsConfirming(true);
+        setSubmitting(true);
+
         try {
-            await confirmResetPassword({
-                username,
-                confirmationCode,
-                newPassword,
+            const res = await fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, token, password }),
             });
-            router.push(`/login?reset=success`);
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error ?? 'Reset failed.');
+                return;
+            }
+
+            router.push('/login?reset=success');
+        } catch {
+            setError('An error occurred. Please try again.');
         } finally {
-            setIsConfirming(false);
+            setSubmitting(false);
         }
     };
 
     return (
-        <div className={`${styles.container} ${buttons.buttonGroup}`}>
+        <div className={styles.container}>
             <h1 className={styles.title}>Reset Password</h1>
 
-            {step === 'request' && (
-                <form onSubmit={handleRequest} className={styles.form}>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        className={styles.input}
-                    />
-                    <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }} disabled={isRequesting}>
-                        {isRequesting ? 'Sending…' : 'Send Reset Code'}
-                    </button>
-                </form>
-            )}
-
-            {step === 'confirm' && (
-                <form onSubmit={handleConfirm} className={styles.form}>
-                    <input
-                        type="text"
-                        placeholder="Verification Code"
-                        value={confirmationCode}
-                        onChange={(e) => setConfirmationCode(e.target.value)}
-                        required
-                        className={styles.input}
-                    />
+            {token ? (
+                // Token present — user arrived via email link
+                <form onSubmit={handleReset} className={styles.form}>
                     <input
                         type="password"
-                        placeholder="New Password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="New password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
+                        minLength={8}
                         className={styles.input}
                     />
-                    <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }} disabled={isConfirming}>
-                        {isConfirming ? 'Confirming…' : 'Confirm Reset'}
-                    </button>
-                    <button
-                        type="button"
-                        className={`${buttons.button} ${buttons.secondaryButton}`}
-                        onClick={() => setStep('request')}
-                        disabled={isConfirming}
-                    >
-                        Back
+                    {error && <p className={styles.error} role="alert">{error}</p>}
+                    <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }} disabled={submitting}>
+                        {submitting ? 'Saving…' : 'Set New Password'}
                     </button>
                 </form>
+            ) : (
+                // No token — request a reset link
+                <>
+                    {message ? (
+                        <p className={styles.statusMessage} role="status">{message}</p>
+                    ) : (
+                        <form onSubmit={handleRequest} className={styles.form}>
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className={styles.input}
+                            />
+                            {error && <p className={styles.error} role="alert">{error}</p>}
+                            <button type="submit" className={buttons.retroButton} style={{ margin: '0 auto' }} disabled={submitting}>
+                                {submitting ? 'Sending…' : 'Send Reset Link'}
+                            </button>
+                        </form>
+                    )}
+                </>
             )}
-
-            {message && <p className={styles.statusMessage} role="status">{message}</p>}
-            {error && <p className={styles.error} role="alert">{error}</p>}
         </div>
+    );
+}
+
+export default function ResetPassword() {
+    return (
+        <Suspense fallback={<p>Loading...</p>}>
+            <ResetPasswordComponent />
+        </Suspense>
     );
 }

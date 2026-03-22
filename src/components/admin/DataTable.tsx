@@ -1,11 +1,11 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Text } from '@/components/ui';
 import styles from '@/styles/admin.module.css';
 
 interface Column<T> {
     key: keyof T | string;
     header: string;
-    render?: (item: T) => React.ReactNode;
+    render?: (item: T) => ReactNode;
     sortable?: boolean;
 }
 

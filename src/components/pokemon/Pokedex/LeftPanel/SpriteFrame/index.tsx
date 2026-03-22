@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import styles from './styles.module.css';
 import TopLights from './TopLights';
 import Image from 'next/image';
@@ -12,7 +12,7 @@ interface SpriteFrameProps {
     isOwned: boolean;
 }
 
-const SpriteFrame = React.memo(function SpriteFrame({
+const SpriteFrame = memo(function SpriteFrame({
     useDefault,
     showUnknownSprite,
     spritePath,

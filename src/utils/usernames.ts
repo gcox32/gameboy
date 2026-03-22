@@ -1,65 +1,41 @@
 'use client';
 
-import { generateClient } from 'aws-amplify/api';
-import { type Schema } from '@/amplify/data/resource';
+const userIdToUsernameCache: Map<string, string> = new Map();
 
-const client = generateClient<Schema>();
+export async function getUsernameForUserId(userId: string): Promise<string> {
+    if (!userId) return '';
 
-const subToUsernameCache: Map<string, string> = new Map();
-
-export async function getUsernameForSub(sub: string): Promise<string> {
-    if (!sub) {
-        return '';
-    }
-
-    const cached = subToUsernameCache.get(sub);
-    if (cached) {
-        return cached;
-    }
+    const cached = userIdToUsernameCache.get(userId);
+    if (cached) return cached;
 
     try {
-        const response = await client.models.Profile.list({
-            filter: {
-                owner: { eq: sub }
-            }
-        });
-
-        const profile = response.data?.[0] as unknown as { username?: string } | undefined;
-        const username = profile?.username ?? sub;
-
-        subToUsernameCache.set(sub, username);
+        const res = await fetch(`/api/profiles?userId=${encodeURIComponent(userId)}`);
+        if (!res.ok) return userId;
+        const profile = await res.json();
+        const username = profile?.username ?? userId;
+        userIdToUsernameCache.set(userId, username);
         return username;
-    } catch (_err) {
-        // Fall back to the sub when fetching fails
-        return sub;
+    } catch {
+        return userId;
     }
 }
 
-export async function getUsernamesForSubs(subs: string[]): Promise<Record<string, string>> {
-    const uniqueSubs = Array.from(new Set(subs.filter(Boolean)));
-
+export async function getUsernamesByUserIds(userIds: string[]): Promise<Record<string, string>> {
+    const unique = Array.from(new Set(userIds.filter(Boolean)));
     const result: Record<string, string> = {};
 
-    // Seed with any cached values
-    for (const sub of uniqueSubs) {
-        const cached = subToUsernameCache.get(sub);
-        if (cached) {
-            result[sub] = cached;
-        }
+    for (const id of unique) {
+        const cached = userIdToUsernameCache.get(id);
+        if (cached) result[id] = cached;
     }
 
-    const subsToFetch = uniqueSubs.filter((s) => !(s in result));
-    if (subsToFetch.length === 0) {
-        return result;
-    }
-
-    // Fetch sequentially to keep it simple and avoid API filter limitations
-    for (const sub of subsToFetch) {
-        const username = await getUsernameForSub(sub);
-        result[sub] = username;
+    const toFetch = unique.filter((id) => !(id in result));
+    for (const id of toFetch) {
+        result[id] = await getUsernameForUserId(id);
     }
 
     return result;
 }
 
-
+// Backward-compat alias used by admin components
+export const getUsernamesForSubs = getUsernamesByUserIds;

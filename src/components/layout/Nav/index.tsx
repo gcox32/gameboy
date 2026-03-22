@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { generateClient } from 'aws-amplify/api';
-import { type Schema } from '@/amplify/data/resource';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getS3Url } from '@/utils/saveLoad';
 import ProfileModal from '@/components/modals/ProfileModal';
 import SettingsModal from '@/components/modals/SettingsModal';
-import { type AuthUser, signOut } from 'aws-amplify/auth';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
 import GameInterruptModal from '@/components/modals/utilities/GameInterruptModal';
 import ProfilePopout from './ProfilePopout';
@@ -20,13 +18,11 @@ import Friends from './Friends';
 import AdminLink from './AdminLink';
 import { NotificationModel, ProfileModel } from '@/types';
 
-const client = generateClient<Schema>();
-
 const Nav = () => {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
 
-    const { user } = auth as { user: AuthUser | null };
+    const { user } = auth;
     const [userProfile, setUserProfile] = useState<ProfileModel | null>(null);
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -35,33 +31,23 @@ const Nav = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState<number>(0);
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const [notifications, setNotifications] = useState<NotificationModel[]>([]);
     const [notifNextToken, setNotifNextToken] = useState<string | null>(null);
     const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
     const [isFriendsOpen, setIsFriendsOpen] = useState(false);
 
-    const {
-        isModalOpen,
-        handleContinue,
-        handleClose
-    } = useProtectedNavigation();
+    const { isModalOpen, handleContinue, handleClose } = useProtectedNavigation();
 
     const fetchUserProfile = useCallback(async () => {
         if (!user) return;
-
         try {
-            const profiles = await client.models.Profile.list({
-                filter: {
-                    owner: { eq: user.userId }
-                }
-            });
-            if (profiles.data.length > 0) {
-                const profile = profiles.data[0];
-                setUserProfile(profile as ProfileModel);
-                if (profile.avatar) {
-                    const url = await getS3Url(profile.avatar);
-                    setAvatarUrl(url);
-                }
+            const res = await fetch('/api/profiles');
+            if (!res.ok) return;
+            const profile: ProfileModel = await res.json();
+            setUserProfile(profile);
+            if (profile.avatar) {
+                const url = await getS3Url(profile.avatar);
+                setAvatarUrl(url);
             }
         } catch (error) {
             console.error('Error fetching user profile:', error);
@@ -72,21 +58,16 @@ const Nav = () => {
         if (!user) return;
         try {
             setIsLoadingNotifs(true);
-            const resp = await client.models.Notification.list({
-                filter: {
-                    or: [
-                        { owner: { eq: user.userId } },
-                        { sender: { eq: 'SYSTEM' } }
-                    ]
-                },
-                limit: 10,
-                nextToken: nextToken ?? undefined
-            });
-            const items = resp.data ?? [];
+            const url = nextToken
+                ? `/api/notifications?cursor=${encodeURIComponent(nextToken)}`
+                : '/api/notifications';
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const items: NotificationModel[] = await res.json();
             setNotifications((prev) => nextToken ? [...prev, ...items] : items);
-            setNotifNextToken(resp.nextToken ?? null);
-            const unread = items.filter((n) => !n.readAt).length;
-            if (!nextToken) setUnreadCount(unread);
+            // The API doesn't support cursor pagination yet — clear nextToken
+            setNotifNextToken(null);
+            if (!nextToken) setUnreadCount(items.filter((n) => !n.readAt).length);
         } catch (error) {
             console.error('Error fetching notifications:', error);
         } finally {
@@ -97,7 +78,9 @@ const Nav = () => {
     const markAllRead = useCallback(async () => {
         try {
             const toMark = notifications.filter((n: NotificationModel) => !n.readAt);
-            await Promise.all(toMark.map((n: NotificationModel) => client.models.Notification.update({ id: n.id, readAt: new Date().toISOString() })));
+            await Promise.all(toMark.map((n: NotificationModel) =>
+                fetch(`/api/notifications/${n.id}`, { method: 'PUT' })
+            ));
             setNotifications((prev) => prev.map((n: NotificationModel) => ({ ...n, readAt: n.readAt ?? new Date().toISOString() })));
             setUnreadCount(0);
         } catch (e) {
@@ -105,25 +88,9 @@ const Nav = () => {
         }
     }, [notifications]);
 
-    const handleAvatarClick = () => {
-        setShowDropdown(!showDropdown);
-    };
-
-    const handleProfileOptionClick = () => {
-        openProfileModal();
-        setShowDropdown(false);
-    };
-
-    const handleSettingsClick = () => {
-        setIsSettingsModalOpen(true);
-    };
-
     const handleLogout = async () => {
         try {
-            await signOut();
-            setShowDropdown(false);
-            window.location.href = '/';
-
+            await signOut({ callbackUrl: '/' });
         } catch (error) {
             console.error('Error signing out:', error);
         }
@@ -134,28 +101,10 @@ const Nav = () => {
         setShowDropdown(false);
     };
 
-    const closeProfileModal = () => {
-        setIsProfileModalOpen(false);
-    };
-
-    const closeSettingsModal = () => {
-        setIsSettingsModalOpen(false);
-    }
-
-    const handleFriendsClick = () => {
-        setIsFriendsOpen(true);
-    };
-
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-
     const toggleNotifications = () => {
         const newOpen = !isNotifOpen;
         setIsNotifOpen(newOpen);
-        if (newOpen) {
-            fetchNotifications();
-        }
+        if (newOpen) fetchNotifications();
     };
 
     useEffect(() => {
@@ -170,7 +119,7 @@ const Nav = () => {
             <nav className={styles.navContainer}>
                 <button
                     className={`${styles.hamburger} ${isMenuOpen ? styles.open : ''}`}
-                    onClick={toggleMenu}
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
                     aria-label="Toggle menu"
                     aria-expanded={isMenuOpen}
                 >
@@ -179,12 +128,11 @@ const Nav = () => {
                     <span></span>
                 </button>
                 <div className={`${styles.navMenu} ${isMenuOpen ? styles.open : ''}`}>
-
                     {user ? (
                         <>
                             {userProfile?.admin && <AdminLink />}
-                            <Friends handleFriendsClick={handleFriendsClick} />
-                            <Settings handleSettingsClick={handleSettingsClick} />
+                            <Friends handleFriendsClick={() => setIsFriendsOpen(true)} />
+                            <Settings handleSettingsClick={() => setIsSettingsModalOpen(true)} />
                             <Notifications
                                 toggleNotifications={toggleNotifications}
                                 isNotifOpen={isNotifOpen}
@@ -198,8 +146,8 @@ const Nav = () => {
                             <ProfilePopout
                                 userProfile={userProfile}
                                 avatarUrl={avatarUrl}
-                                onAvatarClick={handleAvatarClick}
-                                onProfileClick={handleProfileOptionClick}
+                                onAvatarClick={() => setShowDropdown(!showDropdown)}
+                                onProfileClick={() => { openProfileModal(); setShowDropdown(false); }}
                                 onLogoutClick={handleLogout}
                                 isOpen={showDropdown}
                             />
@@ -212,13 +160,13 @@ const Nav = () => {
             </nav>
             <ProfileModal
                 isOpen={isProfileModalOpen}
-                onClose={closeProfileModal}
+                onClose={() => setIsProfileModalOpen(false)}
                 userProfile={userProfile as ProfileModel}
                 onUpdate={fetchUserProfile}
             />
             <SettingsModal
                 isOpen={isSettingsModalOpen}
-                onClose={closeSettingsModal}
+                onClose={() => setIsSettingsModalOpen(false)}
             />
             <GameInterruptModal
                 isOpen={isModalOpen}

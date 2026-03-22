@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
+import { useEffect, ReactNode } from "react";
 import styles from './styles.module.css';
 
 interface BaseModalProps {
     isOpen: boolean;
     onClose: () => void;
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
     lightCloseButton?: boolean;
 }

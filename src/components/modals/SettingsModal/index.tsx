@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import BaseModal from '../BaseModal';
 import { useSettings } from '@/contexts/SettingsContext';
 import CustomSlider from '@/components/common/CustomSlider';
@@ -23,7 +23,7 @@ const defaultBackground = 'https://assets.letmedemo.com/public/gameboy/images/fu
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const { uiSettings, updateUISettings } = useSettings();
-    const [tempSettings, setTempSettings] = React.useState(uiSettings);
+    const [tempSettings, setTempSettings] = useState(uiSettings);
 
     const onSpeedChange = (value: number) => {
         setTempSettings(prev => ({ ...prev, speed: value }));

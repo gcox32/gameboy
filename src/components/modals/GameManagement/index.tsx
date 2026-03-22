@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
 import {
-    Button,
     Flex,
     Heading,
     Alert,
@@ -15,16 +14,10 @@ import styles from './styles.module.css';
 import ImportGame from './ImportGame';
 import GameEditForm from './GameEditForm';
 import { useToast } from '@/components/ui';
-
-import { generateClient } from 'aws-amplify/api';
-import { type Schema } from '@/amplify/data/resource';
-import { uploadData } from 'aws-amplify/storage';
 import { getS3Url } from '@/utils/saveLoad';
-import { type AuthUser } from 'aws-amplify/auth';
+import { uploadBlob } from '@/utils/blobUpload';
 import { GameModel } from '@/types';
 import buttons from '@/styles/buttons.module.css';
-
-const client = generateClient<Schema>();
 
 interface GameManagementProps {
     isOpen: boolean;
@@ -38,7 +31,7 @@ interface GameManagementProps {
 export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameEdited, editingGame, setEditingGame }: GameManagementProps) {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
-    const { user } = auth as { user: AuthUser | null };
+    const { user } = auth;
     const { showToast } = useToast();
 
     const [games, setGames] = useState<GameModel[]>([]);
@@ -53,25 +46,19 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         try {
             setLoading(true);
             setError(null);
-            const userGames = await client.models.Game.list({
-                filter: {
-                    owner: { eq: user?.userId }
-                }
-            });
-            console.log('userGames', userGames);
-            setGames(userGames.data as unknown as GameModel[]);
+            const res = await fetch('/api/games');
+            if (!res.ok) throw new Error('Failed to load games');
+            setGames(await res.json());
         } catch (err) {
             setError('Failed to load games. Please try again.');
-            console.error('Error loading games:', err);
+            console.error(err);
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, []);
 
     useEffect(() => {
-        if (isOpen && user) {
-            loadGames();
-        }
+        if (isOpen && user) loadGames();
     }, [isOpen, user, loadGames]);
 
     useEffect(() => {
@@ -80,19 +67,13 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             for (const game of games) {
                 if (game.img) {
                     try {
-                        const url = await getS3Url(game.img);
-                        imageUrls[game.id] = url;
-                    } catch (err) {
-                        console.error('Error loading image for game:', game.id, err);
-                    }
+                        imageUrls[game.id] = await getS3Url(game.img);
+                    } catch { /* ignore */ }
                 }
             }
             setGameImages(imageUrls);
         };
-
-        if (games.length > 0) {
-            loadImages();
-        }
+        if (games.length > 0) loadImages();
     }, [games]);
 
     const handleEditGame = async (gameData: GameModel & { imageFile?: File }) => {
@@ -100,56 +81,32 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             setLoading(true);
             setError(null);
 
-            // Handle image upload if a new image was provided
             let imagePath = gameData.img || '';
             if (gameData.imageFile) {
-                const fileType = gameData.imageFile.name.split('.').pop();
-                imagePath = `protected/${user?.userId}/games/${gameData.id}/cover.${fileType}`;
-
-                await uploadData({
-                    path: imagePath,
-                    data: gameData.imageFile,
-                    options: {
-                        contentType: gameData.imageFile.type
-                    }
-                }).result;
+                const ext = gameData.imageFile.name.split('.').pop() ?? 'jpg';
+                const coverPath = `games/${user?.userId}/${gameData.id}/cover.${ext}`;
+                imagePath = await uploadBlob(gameData.imageFile, coverPath);
             }
 
-            // Update game record in database
-            // Note: don't include 'owner' - field-level auth doesn't allow updating it
-            const updatedGame = await client.models.Game.update({
-                id: gameData.id,
-                title: gameData.title,
-                img: imagePath,
-                metadata: JSON.stringify({
-                    description: gameData.metadata?.description || '',
-                    series: gameData.metadata?.series || '',
-                    generation: gameData.metadata?.generation || '',
-                    releaseDate: gameData.metadata?.releaseDate || '',
-                    memoryWatchers: gameData.metadata?.memoryWatchers || {}
-                })
+            const res = await fetch(`/api/games/${gameData.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: gameData.title,
+                    img: imagePath,
+                    metadata: gameData.metadata,
+                }),
             });
+            if (!res.ok) throw new Error('Update failed');
+            const updated: GameModel = await res.json();
 
             setEditingGame(null);
-
-            // Optimistically update local state to avoid eventual consistency issues
-            if (updatedGame.data) {
-                const updated = updatedGame.data as GameModel;
-                setGames(prev => prev.map(g => g.id === updated.id ? updated : g));
-
-                // Call the callback with the updated game
-                if (onGameEdited) {
-                    onGameEdited(updated);
-                }
-            }
-
-            // Also refresh from server (but don't wait for it to show success)
+            setGames(prev => prev.map(g => g.id === updated.id ? updated : g));
+            onGameEdited?.(updated);
             loadGames();
-
-            // Success toast
             showToast(`Saved changes to "${gameData.title}"`, 'success');
         } catch (err) {
-            console.error('Error updating game:', err);
+            console.error(err);
             setError('Failed to update game. Please try again.');
             showToast('Failed to update game', 'error');
         } finally {
@@ -159,69 +116,40 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
 
     const handleDeleteGame = async (game: GameModel) => {
         try {
-            await client.models.Game.delete({
-                id: game.id
-            });
+            await fetch(`/api/games/${game.id}`, { method: 'DELETE' });
             setGameToDelete(null);
-            setEditingGame(null);  // Close edit form if open
+            setEditingGame(null);
             loadGames();
             onGameDeleted();
-
-            // Success toast
             showToast(`Deleted "${game.title}"`, 'success');
         } catch (err) {
-            console.error('Error deleting game:', err);
+            console.error(err);
             setError('Failed to delete game. Please try again.');
             showToast('Failed to delete game', 'error');
         }
     };
 
-    const handleDeleteConfirmed = async () => {
-        if (gameToDelete) {
-            await handleDeleteGame(gameToDelete);
-        }
-    };
-
     const renderGameCard = (game: GameModel) => (
-        <div className={styles.gameCardContainer} key={game.id}>
-            <div
-                className={styles.gameCard}
-                onClick={() => setEditingGame(game)}
-            >
+        <div className={styles.gameCardContainer}>
+            <div className={styles.gameCard} onClick={() => setEditingGame(game)}>
                 <div
                     className={styles.gameCardBackground}
                     style={gameImages[game.id] ? { backgroundImage: `url(${gameImages[game.id]})` } : undefined}
                 />
-
             </div>
-            <Text
-                $fontSize="lg"
-                $fontWeight="bold"
-                className={styles.gameCardTitle}
-            >
-                {game.title}
-            </Text>
+            <Text $fontSize="lg" $fontWeight="bold" className={styles.gameCardTitle}>{game.title}</Text>
         </div>
     );
 
     const renderContent = () => {
-        if (loading) {
-            return <Loader variation="linear" />;
-        }
-
-        if (error) {
-            return <Alert $variation="error">{error}</Alert>;
-        }
+        if (loading) return <Loader variation="linear" />;
+        if (error) return <Alert $variation="error">{error}</Alert>;
 
         if (showImport) {
             return (
                 <ImportGame
                     userId={user?.userId}
-                    onSuccess={() => {
-                        setShowImport(false);
-                        loadGames();
-                        onGameDeleted();
-                    }}
+                    onSuccess={() => { setShowImport(false); loadGames(); onGameDeleted(); }}
                     onCancel={() => setShowImport(false)}
                 />
             );
@@ -234,11 +162,8 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                     gameImgRef={gameImages[editingGame.id]}
                     onSave={handleEditGame as (gameData: GameModel & { imageFile?: File | null }) => Promise<void>}
                     onDelete={(game) => {
-                        if (skipDeleteConfirmation) {
-                            handleDeleteGame(game);
-                        } else {
-                            setGameToDelete(game);
-                        }
+                        if (skipDeleteConfirmation) handleDeleteGame(game);
+                        else setGameToDelete(game);
                     }}
                 />
             );
@@ -248,47 +173,21 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             return (
                 <View $textAlign="center" $padding="2rem">
                     <Text>No games found. Import your first game to get started!</Text>
-                    <button
-                        onClick={() => setShowImport(true)}
-                        className={buttons.retroButton}
-                    >
-                        Import
-                    </button>
+                    <button onClick={() => setShowImport(true)} className={buttons.retroButton}>Import</button>
                 </View>
             );
         }
 
         return (
             <>
-                <div className={styles.gameList}>
-                    {games.map(renderGameCard)}
-                </div>
-
+                <div className={styles.gameList}>{games.map(game => <Fragment key={game.id}>{renderGameCard(game)}</Fragment>)}</div>
                 {gameToDelete && (
-                    <Alert
-                        $variation="warning"
-                        isDismissible={false}
-                        hasIcon={true}
-                        heading="Confirm Deletion"
-                    >
+                    <Alert $variation="warning" isDismissible={false} hasIcon heading="Confirm Deletion">
                         <Flex $direction="column" $gap="1rem">
-                            <Text>
-                                {`Are you sure you want to delete "${gameToDelete.title}"?
-                                This action cannot be undone and will remove all associated save states.`}
-                            </Text>
+                            <Text>{`Are you sure you want to delete "${gameToDelete.title}"? This action cannot be undone.`}</Text>
                             <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                <button
-                                    className={buttons.retroButton}
-                                    onClick={() => setGameToDelete(null)}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className={buttons.retroButton}
-                                    onClick={() => handleDeleteGame(gameToDelete)}
-                                >
-                                    Delete
-                                </button>
+                                <button className={buttons.retroButton} onClick={() => setGameToDelete(null)}>Cancel</button>
+                                <button className={buttons.retroButton} onClick={() => handleDeleteGame(gameToDelete)}>Delete</button>
                             </div>
                         </Flex>
                     </Alert>
@@ -301,25 +200,17 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         <>
             <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modal}>
                 <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                    <div 
-                        className={`${buttons.buttonGroup} ${styles.modalHeader}`} 
+                    <div
+                        className={`${buttons.buttonGroup} ${styles.modalHeader}`}
                         style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                     >
                         <Heading as="h4">
-                            {showImport ? 'Import Game' :
-                                editingGame ? `Edit ${editingGame.title}` :
-                                    'Game Management'}
+                            {showImport ? 'Import Game' : editingGame ? `Edit ${editingGame.title}` : 'Game Management'}
                         </Heading>
                         {!showImport && !editingGame && games.length > 0 && (
-                            <button
-                                className={buttons.retroButton}
-                                onClick={() => setShowImport(true)}
-                            >
-                                Import
-                            </button>
+                            <button className={buttons.retroButton} onClick={() => setShowImport(true)}>Import</button>
                         )}
                     </div>
-
                     {renderContent()}
                 </Flex>
             </BaseModal>
@@ -327,11 +218,11 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             <ConfirmModal
                 isOpen={!!gameToDelete}
                 onClose={() => setGameToDelete(null)}
-                onConfirm={handleDeleteConfirmed}
+                onConfirm={() => { if (gameToDelete) handleDeleteGame(gameToDelete); }}
                 skipConfirmation={skipDeleteConfirmation}
                 toggleSkipConfirmation={() => setSkipDeleteConfirmation(!skipDeleteConfirmation)}
             >
-                {`Are you sure you want to delete "${gameToDelete?.title}"? This action cannot be undone and will remove all associated save states.`}
+                {`Are you sure you want to delete "${gameToDelete?.title}"? This action cannot be undone.`}
             </ConfirmModal>
         </>
     );

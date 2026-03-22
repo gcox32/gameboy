@@ -15,7 +15,7 @@ export interface GameState {
 export const nullGameState: GameState = {
     activeGame: {
         id: '',
-        owner: '',
+        userId: '',
         title: '',
         filePath: '',
         metadata: {}

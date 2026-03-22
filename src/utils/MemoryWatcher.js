@@ -74,6 +74,7 @@ export const useInGameMemoryWatcher = (gameMemoryRef, baseAddressHex, offsetHex,
             console.warn('gameMemoryRef.current is not initialized.');
             return;
         }
+        if (!baseAddressHex || !offsetHex || !sizeHex) return;
 
         const baseAddress = parseInt(baseAddressHex, 16);
         const offset = parseInt(offsetHex, 16);
@@ -102,7 +103,8 @@ export const useInGameMemoryWatcher = (gameMemoryRef, baseAddressHex, offsetHex,
     }, [gameMemoryRef, gbcMemoryRef, baseAddressHex, offsetHex, sizeHex, onChange, interval]);
 };
 export const parseMetadata = (activeROM, key, defaultConfig = {}) => {
-    const metadata = JSON.parse(activeROM?.metadata);
+    const raw = activeROM?.metadata;
+    const metadata = typeof raw === 'string' ? JSON.parse(raw) : raw;
     try {
         const config = metadata?.memoryWatchers?.[key];
         return config;

@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, ReactNode } from 'react';
 import styles from '@/app/home.module.css';
 import { getCurrentSkyConfig } from '@/lib/sky';
 
 interface DynamicBackgroundProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function DynamicBackground({ children }: DynamicBackgroundProps) {

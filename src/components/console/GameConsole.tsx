@@ -1,4 +1,4 @@
-import React from 'react';
+import { RefObject } from 'react';
 import GameControls from './GameControls';
 import GameDisplay from './GameDisplay';
 import OnLight from './OnLight';
@@ -6,7 +6,7 @@ import styles from './styles.module.css';
 
 interface ConsoleProps {
     isEmulatorOn: boolean;
-    mainCanvasRef: React.RefObject<HTMLCanvasElement> | undefined;
+    mainCanvasRef: RefObject<HTMLCanvasElement> | undefined;
     mobileZoom: boolean;
 }
 

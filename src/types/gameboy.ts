@@ -1,3 +1,5 @@
+import { RefObject } from 'react';
+
 /**
  * TypeScript interface definitions for GameBoyCore
  * This provides type safety for the GameBoy emulator throughout the application
@@ -327,7 +329,7 @@ export type GyroEventHandler = (x: number, y: number) => void;
 export type AudioEventHandler = (numSamples: number) => void;
 
 // Utility types for working with GameBoyCore
-export type GameBoyCoreRef = React.RefObject<IGameBoyCore>;
+export type GameBoyCoreRef = RefObject<IGameBoyCore>;
 export type GameBoyCoreInstance = IGameBoyCore | null;
 
 // Memory access function types

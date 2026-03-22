@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, MouseEvent } from 'react';
 import { useGame } from '@/contexts/GameContext';
 import { useRouter } from 'next/navigation';
 
@@ -10,7 +10,7 @@ export const useProtectedNavigation = () => {
     const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
     const router = useRouter();
 
-    const handleStaticPageNavigation = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    const handleStaticPageNavigation = (e: MouseEvent<HTMLAnchorElement>, path: string) => {
         console.log('gameState', gameState);
         if (gameState.isPlaying) {
             e.preventDefault();

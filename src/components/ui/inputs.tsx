@@ -1,7 +1,7 @@
 'use client';
 
 import styled, { css } from 'styled-components';
-import React, { JSX } from 'react';
+import { JSX, ChangeEvent, FC } from 'react';
 import { theme } from '@/theme';
 
 // Text variations
@@ -91,7 +91,7 @@ const InputWrapper = styled.div<{ orientation?: 'horizontal' | 'vertical' }>`
 interface TextFieldProps {
   label?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   placeholder?: string;
   type?: string;
@@ -105,7 +105,7 @@ interface TextFieldProps {
 }
 
 // TextField Component
-export const TextField: React.FC<TextFieldProps> = ({
+export const TextField: FC<TextFieldProps> = ({
   label,
   value,
   onChange,
@@ -165,7 +165,7 @@ export const TextArea = styled.textarea`
 interface TextAreaFieldProps {
   label?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   required?: boolean;
   placeholder?: string;
   hasError?: boolean;
@@ -175,7 +175,7 @@ interface TextAreaFieldProps {
   orientation?: 'horizontal' | 'vertical';
 }
 
-export const TextAreaField: React.FC<TextAreaFieldProps> = ({
+export const TextAreaField: FC<TextAreaFieldProps> = ({
   label,
   value,
   onChange,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { KeyMapping } from '@/contexts/SettingsContext';
 import styles from './styles.module.css';
 

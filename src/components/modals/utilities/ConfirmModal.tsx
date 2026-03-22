@@ -1,4 +1,4 @@
-import React from "react";
+import { ReactNode } from "react";
 import BaseModal from "../BaseModal";
 import {
     Flex,
@@ -11,7 +11,7 @@ interface ConfirmModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
-    children: React.ReactNode;
+    children: ReactNode;
     skipConfirmation: boolean;
     toggleSkipConfirmation: () => void;
 }

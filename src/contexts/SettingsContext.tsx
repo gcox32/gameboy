@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { defaultEmulatorSettings } from '@/utils/settings/emulatorSettings';
 
 export interface KeyMapping {
@@ -66,7 +66,7 @@ const SettingsContext = createContext<{
     }) => void;
 } | null>(null);
 
-export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
+export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     // Load initial UI settings from localStorage or use defaults
     const [uiSettings, setUiSettings] = useState<UISettings>(() => {
         if (typeof window === 'undefined') return defaultUISettings;

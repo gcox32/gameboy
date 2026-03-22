@@ -1,7 +1,6 @@
 'use client';
 
-import { Amplify } from 'aws-amplify';
-import outputs from '../../../amplify_outputs.json';
+import { ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { theme } from '@/theme';
 import { GlobalStyles } from '@/theme/GlobalStyles';
@@ -12,9 +11,8 @@ import { authedRoute } from '@/../config';
 import SkyBackground from '@/components/layout/SkyBackground';
 import HomeLink from '@/components/layout/HomeLink';
 import styles from './styles.module.css';
-Amplify.configure(outputs);
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
     const router = useRouter();
     const auth = useAuth();
     

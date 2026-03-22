@@ -3,7 +3,7 @@
  * Demonstrates the comprehensive type system for Pokémon save data
  */
 
-import React, { useState } from 'react';
+import { useState, useEffect, ChangeEvent, FC } from 'react';
 import { useSRAMData } from '@/hooks/useSRAMData';
 import { SRAMArray } from '@/types/sram';
 
@@ -12,7 +12,7 @@ interface SRAMViewerProps {
   onDataChange?: (data: SRAMArray) => void;
 }
 
-export const SRAMViewer: React.FC<SRAMViewerProps> = ({
+export const SRAMViewer: FC<SRAMViewerProps> = ({
   initialData,
   onDataChange
 }) => {
@@ -51,20 +51,20 @@ export const SRAMViewer: React.FC<SRAMViewerProps> = ({
   } = useSRAMData();
 
   // Load initial data
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialData) {
       loadSRAM(initialData);
     }
   }, [initialData, loadSRAM]);
 
   // Notify parent of data changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (sramData && onDataChange) {
       onDataChange(sramData.raw);
     }
   }, [sramData, onDataChange]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 

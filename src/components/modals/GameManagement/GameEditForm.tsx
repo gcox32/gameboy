@@ -1,11 +1,8 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import {
-    Flex,
     TextField,
     TextAreaField,
     Alert,
-    Heading,
-    View
 } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import { GameModel } from '@/types';
@@ -31,7 +28,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
         // Parse metadata if it exists
         let metadata;
         try {
-            metadata = game.metadata ? JSON.parse(game.metadata as string) : {};
+            metadata = game.metadata ?? {};
         } catch (e) {
             console.error('Error parsing metadata:', e);
             metadata = {};
@@ -58,7 +55,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
     // Determine generation for scanning
     const generation = (parseInt(formData.generation) === 2 ? 2 : 1) as 1 | 2;
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -127,26 +124,26 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
         <MemoryScannerSection
             watcherType={watcher}
             label={label}
-            currentConfig={formData.memoryWatchers[watcher]}
+            currentConfig={formData.memoryWatchers[watcher] ?? {}}
             generation={generation}
             onConfigFound={(config) => handleScanResult(watcher, config)}
         >
             <div className={styles.watcherConfigFields}>
                 <TextField
                     label="Base Address"
-                    value={formData.memoryWatchers[watcher].baseAddress}
+                    value={formData?.memoryWatchers[watcher]?.baseAddress}
                     onChange={e => updateWatcherConfig(watcher, 'baseAddress', e.target.value)}
                     orientation="vertical"
                 />
                 <TextField
                     label="Offset"
-                    value={formData.memoryWatchers[watcher].offset}
+                    value={formData?.memoryWatchers[watcher]?.offset}
                     onChange={e => updateWatcherConfig(watcher, 'offset', e.target.value)}
                     orientation="vertical"
                 />
                 <TextField
                     label="Size"
-                    value={formData.memoryWatchers[watcher].size}
+                    value={formData?.memoryWatchers[watcher]?.size}
                     onChange={e => updateWatcherConfig(watcher, 'size', e.target.value)}
                     orientation="vertical"
                 />

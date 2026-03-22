@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Cartridges from "../Cartridges";
 import SystemControls from "../SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
@@ -7,7 +7,6 @@ import ConfirmModal from "@/components/modals/utilities/ConfirmModal";
 import SaveStateModal from "@/components/modals/SaveStateManagement/SaveStateModal";
 import LoadStateModal from "@/components/modals/SaveStateManagement/LoadStateModal";
 import GameManagement from "@/components/modals/GameManagement";
-import { getUrl } from 'aws-amplify/storage';
 import { AuthenticatedUser, GameModel, SaveStateModel } from '@/types';
 import { PartialSaveStateModel } from "@/components/modals/SaveStateManagement/SaveStateModal";
 
@@ -120,8 +119,8 @@ function ControlPanel({
 
     const handleLoadSaveState = async (selectedSaveState: SaveStateModel) => {
         try {
-            const signedUrl = await getUrl({ path: selectedSaveState.filePath });
-            const response = await fetch(signedUrl.url);
+            // filePath is a Vercel Blob permanent URL — fetch directly
+            const response = await fetch(selectedSaveState.filePath);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

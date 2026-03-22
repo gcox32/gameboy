@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, RefObject, CSSProperties } from 'react';
 import GameElementsBar from '@/components/layout/GameElementsBar';
 import ActiveParty from '@/components/pokemon/ActiveParty';
 import GymBadgeCase from '@/components/pokemon/GymBadgeCase';
@@ -12,8 +12,8 @@ import { SRAMArray, SaveStateModel, GameModel, MemoryWatcherConfig } from '@/typ
 
 interface FullScreenContainerProps {
   background: string;
-  fullscreenCanvasRef: React.RefObject<HTMLCanvasElement> | null;
-  fullscreenContainerRef: React.RefObject<HTMLDivElement> | null;
+  fullscreenCanvasRef: RefObject<HTMLCanvasElement> | null;
+  fullscreenContainerRef: RefObject<HTMLDivElement> | null;
   activeROM: GameModel | null;
   activeState: SaveStateModel | null;
   inGameMemory: number[];
@@ -110,7 +110,7 @@ export default function FullScreenContainer({
         backgroundImage: `url(${currentBackground})`,
         ...(isTransitioning && {
           '--previous-background': `url(${previousBackground})`,
-        } as React.CSSProperties),
+        } as CSSProperties),
       }}
     >
       <canvas id="fullscreen" className={styles.fullscreen} ref={fullscreenCanvasRef}></canvas>

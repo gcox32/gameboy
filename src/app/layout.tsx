@@ -3,15 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from 'react';
 
-import { Amplify } from 'aws-amplify';
-import outputs from '../../amplify_outputs.json';
-
 import { AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { GameProvider } from '../contexts/GameContext';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
-
-Amplify.configure(outputs);
 
 const inter = Inter({ subsets: ["latin"] });
 

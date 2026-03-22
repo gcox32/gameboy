@@ -1,7 +1,7 @@
 'use client';
 
 import styled, { css } from 'styled-components';
-import React from 'react';
+import { ReactNode, MouseEvent, FC } from 'react';
 import { Loader } from './Loader';
 
 type ButtonVariation = 'primary' | 'secondary' | 'destructive' | 'link';
@@ -14,9 +14,9 @@ interface ButtonProps {
   $isDisabled?: boolean;
   $isLoading?: boolean;
   loadingText?: string;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   type?: 'button' | 'submit' | 'reset';
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
@@ -116,7 +116,7 @@ const LoaderWrapper = styled.span`
   justify-content: center;
 `;
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button: FC<ButtonProps> = ({
   children,
   $isLoading,
   loadingText,
