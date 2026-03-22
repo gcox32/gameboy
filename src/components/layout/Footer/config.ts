@@ -31,5 +31,5 @@ export const footerConfig = {
             icon: 'admin',
         },
     ],
-    copyright: '© letmedemo.com. All rights reserved.',
+    copyright: '© grantcox.net. All rights reserved.',
 };

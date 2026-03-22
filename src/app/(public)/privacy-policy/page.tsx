@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
             <section>
                 <h2 className={styles.sectionTitle}>Contact Us</h2>
                 <p className={styles.paragraph}>
-                    If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@letmedemo.com">support@letmedemo.com</a>.
+                    If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@grantcox.net">support@grantcox.net</a>.
                 </p>
             </section>
         </div>

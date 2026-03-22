@@ -13,8 +13,8 @@ const ContactPage = () => {
           Have questions or need support? Feel free to reach out to us via email:
         </p>
         <p className={styles.paragraph}>
-          <a href="mailto:support@letmedemo.com" className={styles.link}>
-            support@letmedemo.com
+          <a href="mailto:support@grantcox.net" className={styles.link}>
+            support@grantcox.net
           </a>
         </p>
       </section>
