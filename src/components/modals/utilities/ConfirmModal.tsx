@@ -41,13 +41,13 @@ function ConfirmModal({
 
                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'flex-end' }}>
                     <button
-                        className={buttons.warningButton}
+                        className={buttons.retroButton}
                         onClick={onClose}
                     >
                         Cancel
                     </button>
                     <button
-                        className={buttons.primaryButton}
+                        className={buttons.retroButton}
                         onClick={onConfirm}
                     >
                         Confirm

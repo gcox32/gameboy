@@ -162,7 +162,7 @@ export default function MemoryScannerSection({
                     <Heading as="h6" className={styles.scannerLabel}>{label}</Heading>
                     <button
                         type="button"
-                        className={buttons.secondaryButton}
+                        className={buttons.retroButton}
                         onClick={handleScan}
                         disabled={!canScan || isScanning}
                         style={{ padding: '0.4rem 1rem', fontSize: '0.875rem' }}
@@ -210,7 +210,7 @@ export default function MemoryScannerSection({
                         <Flex $direction="row" $gap="0.5rem" $justifyContent="flex-end">
                             <button
                                 type="button"
-                                className={buttons.secondaryButton}
+                                className={buttons.retroButton}
                                 onClick={handleScan}
                                 style={{ padding: '0.5rem 1rem' }}
                             >
@@ -218,7 +218,7 @@ export default function MemoryScannerSection({
                             </button>
                             <button
                                 type="button"
-                                className={buttons.primaryButton}
+                                className={buttons.retroButton}
                                 onClick={handleApplyConfig}
                                 disabled={!selectedCandidate}
                                 style={{ padding: '0.5rem 1rem' }}

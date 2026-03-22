@@ -243,7 +243,7 @@ export default function UserManagement() {
                 />
                 <div className={buttons.buttonGroup} style={{ width: 'auto', alignItems: 'flex-end' }}>
                     <button
-                        className={buttons.primaryButton}
+                        className={buttons.retroButton}
                         onClick={() => setShowCreateModal(true)}
                     >
                         Create User

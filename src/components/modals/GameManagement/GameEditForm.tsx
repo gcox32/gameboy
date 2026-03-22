@@ -225,14 +225,14 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
 
             <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
                     <button
-                        className={buttons.warningButton}
+                        className={buttons.retroButton}
                         onClick={() => onDelete(game)}
                         type="button"
                     >
                         Delete Game
                     </button>
                     <button
-                        className={buttons.primaryButton}
+                        className={buttons.retroButton}
                         type="submit"
                         disabled={loading}
                     >

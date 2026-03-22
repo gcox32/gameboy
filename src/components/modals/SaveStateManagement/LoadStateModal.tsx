@@ -117,7 +117,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 						<p className={styles.lastUpdateText}>{state.createdAt ? formatDate(state.createdAt, false) : ''}</p>
 						<p className={styles.lastUpdateText}>{state.updatedAt ? formatDate(state.updatedAt) : ''}</p>
 						<div className={buttons.buttonGroup}>
-							<button className={buttons.warningButton} onClick={(e) => {
+							<button className={buttons.retroButton} onClick={(e) => {
 								e.stopPropagation();
 								handleDeleteClick(state);
 							}}>Delete</button>

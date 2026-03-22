@@ -150,13 +150,13 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem' }}>
                     <button
                         onClick={applySettings}
-                        className={buttons.primaryButton}
+                        className={buttons.retroButton}
                     >
                         Apply Changes
                     </button>
                     <button
                         onClick={resetSettings}
-                        className={buttons.warningButton}
+                        className={buttons.retroButton}
                     >
                         Reset All
                     </button>

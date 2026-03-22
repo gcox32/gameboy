@@ -250,7 +250,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                     <Text>No games found. Import your first game to get started!</Text>
                     <button
                         onClick={() => setShowImport(true)}
-                        className={buttons.primaryButton}
+                        className={buttons.retroButton}
                     >
                         Import
                     </button>
@@ -278,13 +278,13 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                             </Text>
                             <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'flex-end' }}>
                                 <button
-                                    className={buttons.secondaryButton}
+                                    className={buttons.retroButton}
                                     onClick={() => setGameToDelete(null)}
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    className={buttons.warningButton}
+                                    className={buttons.retroButton}
                                     onClick={() => handleDeleteGame(gameToDelete)}
                                 >
                                     Delete
@@ -312,7 +312,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                         </Heading>
                         {!showImport && !editingGame && games.length > 0 && (
                             <button
-                                className={buttons.primaryButton}
+                                className={buttons.retroButton}
                                 onClick={() => setShowImport(true)}
                             >
                                 Import

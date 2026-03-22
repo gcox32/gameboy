@@ -251,7 +251,7 @@ export default function NotificationsManagement() {
                 />
                 <div className={buttons.buttonGroup} style={{ width: 'auto', alignItems: 'flex-end' }}>
                     <button
-                        className={buttons.primaryButton}
+                        className={buttons.retroButton}
                         onClick={() => setShowQuickNotification(true)}
                     >
                         Quick Notification

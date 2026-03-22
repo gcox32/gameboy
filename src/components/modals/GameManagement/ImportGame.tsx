@@ -212,14 +212,14 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
 
                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
                     <button
-                        className={buttons.warningButton}
+                        className={buttons.retroButton}
                         onClick={onCancel}
                         type="button"
                     >
                         Cancel
                     </button>
                     <button
-                        className={buttons.primaryButton}
+                        className={buttons.retroButton}
                         type="submit"
                         disabled={loading}
                     >

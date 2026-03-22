@@ -22,13 +22,13 @@ export default function GameInterruptModal({ isOpen, onClose, onContinue }: Game
                 
                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
                     <button 
-                        className={buttons.warningButton}
+                        className={buttons.retroButton}
                         onClick={onClose}
                     >
                         Return
                     </button>
                     <button
-                        className={buttons.primaryButton} 
+                        className={buttons.retroButton} 
                         onClick={onContinue}
                     >
                         Continue

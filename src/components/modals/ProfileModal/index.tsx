@@ -283,14 +283,14 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 />
                                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', gap: '1rem' }}>
                                     <button
-                                        className={buttons.warningButton}
+                                        className={buttons.retroButton}
                                         onClick={handleEditToggle}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={handleSubmit}
-                                        className={buttons.primaryButton}
+                                        className={buttons.retroButton}
                                         disabled={isSaving}
                                     >
                                         Save Changes
@@ -313,7 +313,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 </View>
                                 <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'column', gap: '1rem' }}>
                                     <button
-                                        className={buttons.primaryButton}
+                                        className={buttons.retroButton}
                                         onClick={handleEditToggle}
                                     >
                                         Edit
