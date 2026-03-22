@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from 'react';
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import { AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <Analytics />
+      <SpeedInsights />
       <body className={inter.className}>
         <AuthProvider>
           <SettingsProvider>
