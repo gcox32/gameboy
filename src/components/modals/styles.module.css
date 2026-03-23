@@ -41,6 +41,7 @@
   --hover-background-color: #2a1f42;
   --text-primary: #e8e0f4;
   --surface-color: #2a1f42;
+  --neutral-200: #3d2f5c;
   color: #e8e0f4;
 }
 
@@ -67,6 +68,16 @@
 
 .modalContent label {
   color: #c8b0e8 !important;
+}
+
+/* Headings: styled-component uses hardcoded theme.colors.text.primary (#212529) */
+.modalContent h1,
+.modalContent h2,
+.modalContent h3,
+.modalContent h4,
+.modalContent h5,
+.modalContent h6 {
+  color: #e8e0f4;
 }
 
 /* ---- Size variants ---- */
