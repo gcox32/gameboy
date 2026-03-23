@@ -3,7 +3,6 @@ import BaseModal from '@/components/modals/BaseModal';
 import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
 import {
     Flex,
-    Heading,
     Alert,
     Text,
     View,
@@ -130,14 +129,19 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
     };
 
     const renderGameCard = (game: GameModel) => (
-        <div className={styles.gameCardContainer}>
-            <div className={styles.gameCard} onClick={() => setEditingGame(game)}>
-                <div
-                    className={styles.gameCardBackground}
-                    style={gameImages[game.id] ? { backgroundImage: `url(${gameImages[game.id]})` } : undefined}
-                />
+        <div className={styles.gameCardContainer} onClick={() => setEditingGame(game)}>
+            <div
+                className={styles.gameCardCover}
+                style={gameImages[game.id] ? { backgroundImage: `url(${gameImages[game.id]})` } : undefined}
+            >
+                {!gameImages[game.id] && (
+                    <div className={styles.gameCardPlaceholder}>
+                        <span>{game.title.charAt(0).toUpperCase()}</span>
+                    </div>
+                )}
+                <div className={styles.gameCardOverlay} />
             </div>
-            <Text $fontSize="lg" $fontWeight="bold" className={styles.gameCardTitle}>{game.title}</Text>
+            <p className={styles.gameCardTitle}>{game.title}</p>
         </div>
     );
 
@@ -157,62 +161,60 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
 
         if (editingGame) {
             return (
-                <GameEditForm
-                    game={editingGame}
-                    gameImgRef={gameImages[editingGame.id]}
-                    onSave={handleEditGame as (gameData: GameModel & { imageFile?: File | null }) => Promise<void>}
-                    onDelete={(game) => {
-                        if (skipDeleteConfirmation) handleDeleteGame(game);
-                        else setGameToDelete(game);
-                    }}
-                />
+                <>
+                    <button
+                        className={styles.backButton}
+                        onClick={() => setEditingGame(null)}
+                        type="button"
+                    >
+                        ← Library
+                    </button>
+                    <GameEditForm
+                        game={editingGame}
+                        gameImgRef={gameImages[editingGame.id]}
+                        onSave={handleEditGame as (gameData: GameModel & { imageFile?: File | null }) => Promise<void>}
+                        onDelete={(game) => {
+                            if (skipDeleteConfirmation) handleDeleteGame(game);
+                            else setGameToDelete(game);
+                        }}
+                    />
+                </>
             );
         }
 
         if (games.length === 0) {
             return (
-                <View $textAlign="center" $padding="2rem">
-                    <Text>No games found. Import your first game to get started!</Text>
-                    <button onClick={() => setShowImport(true)} className={buttons.retroButton}>Import</button>
+                <View $textAlign="center" $padding="3rem 2rem">
+                    <Text $variation="secondary">No games yet. Import a ROM to get started.</Text>
+                    <div style={{ marginTop: '1.5rem' }}>
+                        <button onClick={() => setShowImport(true)} className={buttons.retroButton}>Import Game</button>
+                    </div>
                 </View>
             );
         }
 
         return (
-            <>
-                <div className={styles.gameList}>{games.map(game => <Fragment key={game.id}>{renderGameCard(game)}</Fragment>)}</div>
-                {gameToDelete && (
-                    <Alert $variation="warning" isDismissible={false} hasIcon heading="Confirm Deletion">
-                        <Flex $direction="column" $gap="1rem">
-                            <Text>{`Are you sure you want to delete "${gameToDelete.title}"? This action cannot be undone.`}</Text>
-                            <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                <button className={buttons.retroButton} onClick={() => setGameToDelete(null)}>Cancel</button>
-                                <button className={buttons.retroButton} onClick={() => handleDeleteGame(gameToDelete)}>Delete</button>
-                            </div>
-                        </Flex>
-                    </Alert>
-                )}
-            </>
+            <Flex $direction="column" $gap="1.5rem">
+                <div className={styles.gameList}>
+                    {games.map(game => <Fragment key={game.id}>{renderGameCard(game)}</Fragment>)}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button className={buttons.retroButton} onClick={() => setShowImport(true)}>
+                        + Import Game
+                    </button>
+                </div>
+            </Flex>
         );
     };
 
+    const modalTitle = showImport ? 'Import Game' : editingGame ? editingGame.title : 'Game Library';
+
     return (
         <>
-            <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modal}>
-                <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                    <div
-                        className={`${buttons.buttonGroup} ${styles.modalHeader}`}
-                        style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-                    >
-                        <Heading as="h4">
-                            {showImport ? 'Import Game' : editingGame ? `Edit ${editingGame.title}` : 'Game Management'}
-                        </Heading>
-                        {!showImport && !editingGame && games.length > 0 && (
-                            <button className={buttons.retroButton} onClick={() => setShowImport(true)}>Import</button>
-                        )}
-                    </div>
+            <BaseModal isOpen={isOpen} onClose={onClose} title={modalTitle} size="lg">
+                <div className={styles.modalBody}>
                     {renderContent()}
-                </Flex>
+                </div>
             </BaseModal>
 
             <ConfirmModal

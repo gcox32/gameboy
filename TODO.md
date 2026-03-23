@@ -1,84 +1,93 @@
 # Project Roadmap
 
-## TypeScript Migration
-- Convert core files to TypeScript:
-  - [ ] Create type definitions for GameBoyCore and emulator interfaces
-  - [ ] Convert context files (AuthContext, GameContext, SettingsContext)
-  - [ ] Add proper typing for AWS Amplify interactions
-  - [ ] Define interfaces for game state and save state management
+## UX / UI Overhaul
 
-## Architecture Improvements
+### Modal System
+- [ ] Establish a consistent modal design language (spacing, typography, header/footer patterns)
+- [ ] **Profile modal** — rebuild layout; avatar upload UX, bio editing, clear save/cancel flow
+- [ ] **Settings modal** — visual hierarchy, grouped controls, better toggle/select components
+- [ ] **Game Management modal** — reduce visual noise; cleaner game card grid; separate list vs edit views
+- [ ] **Game Edit modal** — simplify form layout; collapse memory watcher section by default; clearer save/delete affordances
+- [ ] **Save State modal** — thumbnail previews, cleaner slot layout, keyboard nav
+- [ ] **Load State modal** — consistent with Save State modal; confirm-to-overwrite pattern
 
-### Feature-based Organization
+### Onboarding
+- [ ] First-run experience: detect new users with no games and guide them to import
+- [ ] Empty states with contextual prompts (no games, no saves, no profile photo)
+- [ ] Inline import hints in the Cartridges selector when library is empty
+- [ ] Tooltips or short copy on memory watcher fields for new users
 
-### Component Refactoring
-- [ ] Create reusable UI components:
-  - Button (primary, secondary, danger variants)
-  - Modal (base modal with composition pattern)
-  - Form elements (input, select, checkbox)
-- [ ] Implement proper loading states using Suspense
-- [ ] Add error boundaries for each major feature
+### General UI Polish
+- [ ] Audit and normalise spacing, font sizes, and colour usage across all modals
+- [ ] Consistent loading and error states (skeleton screens or inline loaders, not blank panels)
+- [ ] Mobile modal UX — full-screen sheets on small viewports
+- [ ] Keyboard accessibility audit (focus trapping, Escape to close, tab order)
 
-## Performance Optimization
+---
 
-### Emulator Core
-- [ ] Optimize GameBoyCore performance
-- [ ] Implement proper cleanup for memory management
-- [ ] Add frame skipping for performance boost
-- [ ] Optimize canvas rendering
+## Testing
 
-### State Management
-- [ ] Implement proper state persistence
-- [ ] Add auto-save functionality with configurable intervals
-- [ ] Optimize save state storage and retrieval
-- [ ] Add save state compression
+### Unit Tests
+- [ ] Set up Vitest (or Jest) + React Testing Library
+- [ ] Core utilities: `MemoryWatcher`, `saveLoad`, `blobUpload`, `usernames`
+- [ ] Auth helpers: token validation, password hashing utilities
+- [ ] API route handlers (mock MongoDB + NextAuth session)
 
-## User Experience
+### Integration Tests
+- [ ] Save state create / update / delete flow
+- [ ] Game import flow (blob upload → DB record)
+- [ ] Profile update flow
+- [ ] Notification read / delete flow
 
-### Save State Management
-- [x] Multiple save states per game
-- [x] Custom titles and descriptions for save states
-- [x] Progress metrics for save states
-- [ ] Save state previews with screenshots
-- [ ] Quick save/load functionality
+### E2E Tests
+- [ ] Set up Playwright
+- [ ] Critical paths: sign up → verify → log in
+- [ ] Import a game → play → save state → load state
+- [ ] Admin: create notification → user receives it
 
-### Game Enhancement Features
-- [ ] Keyboard input for text entry
-- [ ] Custom control mapping
+---
+
+## Performance
+
+### Emulator
+- [ ] Audit frame-skip and canvas rendering for dropped frames
+- [ ] Memory cleanup on game stop / ROM swap
+
+### State & Data
+- [ ] Auto-save with configurable interval (debounced, non-blocking)
+- [ ] Save state compression before blob upload
+- [ ] Cache game list client-side to avoid refetch on every modal open
+
+---
+
+## Game & Player Features
+
+- [ ] Screenshot capture on save (hook into canvas)
+- [ ] Quick-save / quick-load keybinding
+- [ ] Custom control mapping (keyboard + gamepad)
 - [ ] Speed control improvements
-- [ ] Game-specific settings persistence
-- [ ] Dynamic background based on game (e.g. Viridian Forest, Pewter City, etc.)
+- [ ] Game-specific settings persistence (speed, palette per ROM)
 
-### Pokemon Features
-- [x] Real-time team viewer with Sugimori art
-- [x] Progress tracking (badges, Pokedex)
+---
 
-## Testing Implementation
-- [ ] Set up Jest and React Testing Library
-- [ ] Add unit tests for core utilities
-- [ ] Add integration tests for game features
-- [ ] Add E2E tests for critical paths
+## Mobile
 
-## Documentation
-- [ ] Add comprehensive README
-- [ ] Add README for the frontend
-- [ ] Document emulator architecture
-- [ ] Add contributing guidelines
-- [ ] Create user guide
+- [ ] Full-screen immersive mode polish
+- [ ] Touch control layout configurability
+- [ ] PWA manifest + offline shell
 
-## Mobile Experience
-- [ ] Optimize touch controls
-- [ ] Improve responsive design
-- [ ] Add PWA support
-- [ ] Implement proper mobile save state handling
+---
 
 ## Infrastructure
-- [ ] Add proper error logging
-- [ ] Implement analytics
-- [ ] Add performance monitoring
-- [ ] Optimize AWS Amplify usage
+
+- [ ] Error logging service (Sentry or similar)
+- [ ] Rate limiting on auth routes
+- [ ] Admin audit log (who did what, when)
+
+---
 
 ## Stretch Goals
-- [ ] Community features (save state sharing)
+
+- [ ] Save state sharing (public link with expiry)
+- [ ] Community features (view others' progress, team comparison)
 - [ ] Advanced game analysis tools
-- [ ] Custom texture packs

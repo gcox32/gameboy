@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import styles from '../styles.module.css';
+import BaseModal from '../BaseModal';
+import { Flex, TextField, TextAreaField } from '@/components/ui';
 import { ImageUpload } from '@/components/common/ImageUpload';
 import { getS3Url } from '@/utils/saveLoad';
 import buttons from '@/styles/buttons.module.css';
@@ -25,15 +26,12 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateMo
     const [previewUrl, setPreviewUrl] = useState(initialData?.img || '');
 
     const handleSubmit = async () => {
-        const saveStateData = {
-            title: title,
-            description: description,
+        onConfirm({
+            title,
+            description,
             img: initialData?.img || '',
             imgFile: imageFile as unknown as File
-        };
-
-        console.log('Submitting save state with data:', saveStateData);
-        onConfirm(saveStateData);
+        });
         onClose();
         setTitle('');
         setDescription('');
@@ -55,45 +53,32 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateMo
         loadImageUrl();
     }, [initialData?.img]);
 
-    if (!isOpen) return null;
-
     return (
-        <div className={styles.modal}>
-            <div onClick={onClose} className={styles.modalOverlay}></div>
-            <div className={styles.modalContent} id={styles.saveModal}>
-                <button onClick={onClose} className={styles.closeModal}>&times;</button>
-                <h2>Save Game</h2>
-                <input
-                    type="text"
+        <BaseModal isOpen={isOpen} onClose={onClose} title="Save State" size="sm">
+            <Flex $direction="column" $gap="1.25rem" $padding="1.5rem">
+                <TextField
+                    label="Title"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={e => setTitle(e.target.value)}
                     placeholder="Enter title"
+                    orientation="vertical"
                 />
-                <textarea
+                <TextAreaField
+                    label="Description"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={e => setDescription(e.target.value)}
                     placeholder="Enter description"
+                    rows={3}
+                    orientation="vertical"
                 />
-                <ImageUpload
-                    onChange={handleImageUpload}
-                    value={previewUrl}
-                />
-                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row' }}>
-                    <button
-                        className={buttons.retroButton}
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className={buttons.retroButton}
-                        onClick={handleSubmit}
-                    >
-                        Confirm
-                    </button>
+                <ImageUpload onChange={handleImageUpload} value={previewUrl} />
+
+                <div className={buttons.buttonGroup} style={{ flexDirection: 'row' }}>
+                    <button className={buttons.retroButton} onClick={onClose}>Cancel</button>
+                    <button className={buttons.retroButton} onClick={handleSubmit}>Confirm</button>
                 </div>
-            </div>
-        </div>
+            </Flex>
+        </BaseModal>
     );
 }
 

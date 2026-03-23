@@ -76,9 +76,8 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     }, [isOpen, uiSettings]);
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} className={styles.settingsModal}>
+        <BaseModal isOpen={isOpen} onClose={onClose} title="Settings" size="md">
             <Flex $direction="column" $gap="2rem" $padding="2rem">
-                <Heading as="h3" className={styles.modalTitle}>Game Settings</Heading>
 
                 <section className={styles.settingsSection}>
                     <Heading as="h4" className={styles.sectionTitle}>Game Speed</Heading>

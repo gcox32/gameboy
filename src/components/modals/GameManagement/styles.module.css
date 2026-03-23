@@ -1,81 +1,115 @@
-.modal {
-    max-width: 900px;
-    min-width: 0;
-    width: 100%;
-    min-height: 400px;
-    overflow-y: auto;
+/* ============================================================
+   GAME MANAGEMENT MODAL
+   ============================================================ */
+
+.modalBody {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
+/* ---- Back navigation ---- */
+.backButton {
+    background: none;
+    border: none;
+    color: #a990d0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 0;
+    align-self: flex-start;
+    transition: color 0.15s ease;
+}
+
+.backButton:hover {
+    color: #c8b0e8;
+}
+
+/* ---- Game library grid ---- */
 .gameList {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    padding: 1rem 0;
-}
-
-.modalHeader {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.25rem;
 }
 
 .gameCardContainer {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-}
-
-.gameCard {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
+    gap: 0.6rem;
     cursor: pointer;
-    height: 200px;
-    padding: 1rem;
-    width: 100%;
 }
 
-.gameCardBackground:hover {
+.gameCardCover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 3px solid #3d2f5c;
+    box-shadow: 0 4px 0 #2a1f42, 0 6px 16px rgba(0, 0, 0, 0.4);
+    background-size: cover;
+    background-position: center;
+    background-color: #2a1f42;
+    overflow: hidden;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.gameCardContainer:hover .gameCardCover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 0 #2a1f42, 0 10px 24px rgba(0, 0, 0, 0.5);
+    border-color: #7b68a6;
+}
+
+.gameCardPlaceholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3d2f5c 0%, #2a1f42 100%);
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.25);
+    text-transform: uppercase;
+}
+
+.gameCardOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.gameCardContainer:hover .gameCardOverlay {
     opacity: 1;
 }
 
-.gameCardContent:hover {
-    background: rgba(0, 0, 0, 0) 0%;
-}
-
-.gameCardBackground {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.gameCardContent {
-    border: 2px dashed var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    height: 200px;
-    width: 100%;
-}
-
 .gameCardTitle {
-    margin-top: 1rem;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ccc;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.gameCard button {
-    padding: 0.25rem;
-    min-width: auto;
+.gameCardContainer:hover .gameCardTitle {
+    color: #fff;
 }
 
-/* Edit Form Layout */
+/* ============================================================
+   GAME EDIT FORM
+   ============================================================ */
+
 .editForm {
     display: flex;
     flex-direction: column;
@@ -103,15 +137,14 @@
 .imageSection {
     display: flex;
     justify-content: center;
-    padding: 1rem 0;
+    padding: 0.5rem 0;
 }
 
-/* Memory Watchers Section */
+/* ---- Memory Watchers (collapsible) ---- */
 .watchersSection {
     display: flex;
     flex-direction: column;
-    gap: 0;
-    border: 1px solid var(--border-color, #e5e5e5);
+    border: 1px solid #3d2f5c;
     border-radius: 8px;
     overflow: hidden;
 }
@@ -120,25 +153,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background: var(--background-secondary, #f5f5f5);
+    padding: 0.875rem 1rem;
+    background: rgba(123, 104, 166, 0.12);
     cursor: pointer;
     user-select: none;
+    transition: background 0.15s ease;
 }
 
 .watchersSectionHeader:hover {
-    background: var(--hover-background-color, #e8e8e8);
+    background: rgba(123, 104, 166, 0.22);
 }
 
 .watchersSectionHeader h6 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a990d0;
 }
 
 .watchersSectionToggle {
-    font-size: 1.25rem;
-    color: var(--text-secondary, #666);
+    font-size: 1rem;
+    color: #a990d0;
     transition: transform 0.2s ease;
 }
 
@@ -151,21 +188,22 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    border-top: 1px solid #3d2f5c;
 }
 
 .watchersSectionContent.collapsed {
     display: none;
 }
 
-/* Memory Scanner Styles */
+/* ---- Memory Scanner ---- */
 .scannerSection {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(0, 0, 0, 0.25);
     border-radius: 8px;
-    border: 1px solid var(--border-color, #e5e5e5);
+    border: 1px solid #3d2f5c;
 }
 
 .scannerHeader {
@@ -178,8 +216,9 @@
 
 .scannerLabel {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
+    color: #c8b0e8;
 }
 
 .scanProgress {
@@ -191,7 +230,7 @@
 .progressBar {
     width: 100%;
     height: 8px;
-    background: var(--background-secondary, #e5e5e5);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 4px;
     overflow: hidden;
     position: relative;
@@ -199,7 +238,7 @@
 
 .progressFill {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary-color, #3b82f6), #60a5fa);
+    background: linear-gradient(90deg, #5a4a7a, #a990d0);
     transition: width 0.3s ease-out;
     position: relative;
     overflow: hidden;
@@ -208,26 +247,14 @@
 .progressFill::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-    );
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
     animation: scanWave 1.5s ease-in-out infinite;
 }
 
 @keyframes scanWave {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100%);
-    }
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 .scanStatus {
@@ -240,19 +267,14 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--primary-color, #3b82f6);
+    background: #a990d0;
     animation: scanPulse 1s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
 @keyframes scanPulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.5;
-        transform: scale(1.2);
-    }
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(1.3); }
 }
 
 .scanResults {
@@ -262,7 +284,7 @@
 }
 
 .scanBanner {
-    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .candidateList {
@@ -271,29 +293,35 @@
     gap: 0.5rem;
     max-height: 180px;
     overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.candidateList::-webkit-scrollbar {
+    display: none;
 }
 
 .candidateItem {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.625rem 0.75rem;
-    background: var(--background-color, #fff);
-    border: 2px solid var(--border-color, #e5e5e5);
+    padding: 0.6rem 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid #3d2f5c;
     border-radius: 6px;
     cursor: pointer;
     text-align: left;
-    transition: all 0.15s ease;
+    transition: border-color 0.12s ease, background 0.12s ease;
 }
 
 .candidateItem:hover {
-    border-color: var(--primary-color, #3b82f6);
-    background: rgba(59, 130, 246, 0.05);
+    border-color: #7b68a6;
+    background: rgba(123, 104, 166, 0.1);
 }
 
 .candidateItem.selected {
-    border-color: var(--primary-color, #3b82f6);
-    background: rgba(59, 130, 246, 0.1);
+    border-color: #a990d0;
+    background: rgba(123, 104, 166, 0.2);
+    box-shadow: 0 0 0 1px #a990d0 inset;
 }
 
 .confidenceBadge {
@@ -317,46 +345,17 @@
     align-items: center;
     gap: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid var(--border-color, #e5e5e5);
-    margin-top: 0.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.formActions {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color, #e5e5e5);
-    margin-top: 0.5rem;
-}
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 
-/* Responsive */
 @media (max-width: 768px) {
-    .modal {
-        max-width: 100%;
-    }
-
     .gameList {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
         gap: 1rem;
-        padding: 1rem 0;
-    }
-
-    .modalHeader {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .gameCardContainer {
-        width: 100%;
-    }
-
-    .gameCard {
-        padding: 0;
     }
 
     .formRow,
@@ -380,19 +379,5 @@
 
     .candidateList {
         max-height: 150px;
-    }
-
-    .formActions {
-        flex-direction: column-reverse;
-    }
-}
-
-@media (max-width: 500px) {
-    .watchersSectionHeader {
-        padding: 0.75rem;
-    }
-
-    .watchersSectionContent {
-        padding: 0.75rem;
     }
 }

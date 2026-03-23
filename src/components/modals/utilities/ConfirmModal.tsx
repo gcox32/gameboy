@@ -3,7 +3,7 @@ import BaseModal from "../BaseModal";
 import {
     Flex,
     CheckboxField,
-    Heading
+    Text
 } from '@/components/ui';
 import buttons from '@/styles/buttons.module.css';
 
@@ -16,42 +16,22 @@ interface ConfirmModalProps {
     toggleSkipConfirmation: () => void;
 }
 
-function ConfirmModal({ 
-    isOpen, 
-    onClose, 
-    onConfirm, 
-    children, 
-    skipConfirmation, 
-    toggleSkipConfirmation 
+function ConfirmModal({
+    isOpen,
+    onClose,
+    onConfirm,
+    children,
+    skipConfirmation,
+    toggleSkipConfirmation
 }: ConfirmModalProps) {
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose}>
-            <Flex
-                $direction="column"
-                $gap="1.5rem"
-                $padding="1.5rem"
-                $alignItems="center"
-            >
-                <Heading 
-                    as="h4"
-                    $textAlign="center"
-                >
-                    {children}
-                </Heading>
+        <BaseModal isOpen={isOpen} onClose={onClose} title="Confirm" size="sm">
+            <Flex $direction="column" $gap="1.5rem" $padding="1.5rem" $alignItems="center">
+                <Text $textAlign="center">{children}</Text>
 
-                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                    <button
-                        className={buttons.retroButton}
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className={buttons.retroButton}
-                        onClick={onConfirm}
-                    >
-                        Confirm
-                    </button>
+                <div className={buttons.buttonGroup} style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <button className={buttons.retroButton} onClick={onClose}>Cancel</button>
+                    <button className={buttons.retroButton} onClick={onConfirm}>Confirm</button>
                 </div>
 
                 <CheckboxField

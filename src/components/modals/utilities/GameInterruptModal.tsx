@@ -1,7 +1,7 @@
 'use client';
 
 import { useGame } from '@/contexts/GameContext';
-import { Flex, Button } from '@/components/ui';
+import { Flex, Text } from '@/components/ui';
 import BaseModal from '../BaseModal';
 import buttons from '@/styles/buttons.module.css';
 
@@ -15,26 +15,17 @@ export default function GameInterruptModal({ isOpen, onClose, onContinue }: Game
     const { gameState } = useGame();
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose}>
-            <Flex $direction="column" $gap="1.5rem" $padding="1rem">
-                <h2>Active Game Warning</h2>
-                <p>You have an active game of {gameState.activeGame?.title}. Continuing will turn off the emulator.</p>
-                
-                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
-                    <button 
-                        className={buttons.retroButton}
-                        onClick={onClose}
-                    >
-                        Return
-                    </button>
-                    <button
-                        className={buttons.retroButton} 
-                        onClick={onContinue}
-                    >
-                        Continue
-                    </button>
+        <BaseModal isOpen={isOpen} onClose={onClose} title="Active Game" size="sm">
+            <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
+                <Text $textAlign="center">
+                    You have an active game of <strong>{gameState.activeGame?.title}</strong>. Continuing will turn off the emulator.
+                </Text>
+
+                <div className={buttons.buttonGroup} style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <button className={buttons.retroButton} onClick={onClose}>Return</button>
+                    <button className={buttons.retroButton} onClick={onContinue}>Continue</button>
                 </div>
             </Flex>
         </BaseModal>
     );
-} 
+}

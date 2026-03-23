@@ -1,150 +1,167 @@
-/* modal */
+/* ============================================================
+   BASE MODAL CHROME — retro Game Boy aesthetic
+   ============================================================ */
+
 .modal {
   position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: 300;
   display: flex;
   justify-content: center;
   align-items: center;
-  scrollbar-width: none;
 }
 
 .modalOverlay {
-  width: 100%;
-  height: 100%;
-  opacity: 0.6;
-  background: rgba(0, 0, 0, 0.85);
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .modalContent {
-  border-radius: 16px;
+  position: relative;
   z-index: 10;
-  position: absolute;
-  max-height: 90%;
-  overflow-y: scroll;
-  background: var(--background-color);
-  box-sizing: border-box;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  text-align: center;
+  max-height: 90dvh;
   min-width: 320px;
-  max-width: 930px;
-  min-height: auto;
-  padding: 1em;
+  background: #1e1828;
+  border: 3px solid #3d2f5c;
+  border-radius: 12px;
+  box-shadow:
+    0 6px 0 #2a1f42,
+    0 12px 40px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+
+  /* Force dark context — overrides light-mode CSS variables for everything inside */
+  color-scheme: dark;
+  --foreground-rgb: #e8e0f4;
+  --background-color: #1e1828;
+  --border-color: #4d3f6e;
+  --hover-background-color: #2a1f42;
+  --text-primary: #e8e0f4;
+  --surface-color: #2a1f42;
+  color: #e8e0f4;
+}
+
+/* Form elements: styled-components don't inherit CSS variables for bg/color */
+.modalContent input,
+.modalContent textarea,
+.modalContent select {
+  background-color: #2a1f42 !important;
+  color: #e8e0f4 !important;
+  border-color: #4d3f6e !important;
+}
+
+.modalContent input::placeholder,
+.modalContent textarea::placeholder {
+  color: rgba(232, 224, 244, 0.35);
+}
+
+.modalContent input:focus,
+.modalContent textarea:focus,
+.modalContent select:focus {
+  border-color: #7b68a6 !important;
+  outline-color: #7b68a6 !important;
+}
+
+.modalContent label {
+  color: #c8b0e8 !important;
+}
+
+/* ---- Size variants ---- */
+.sizeSm { max-width: 460px; width: 90vw; }
+.sizeMd { max-width: 600px; width: 90vw; }
+.sizeLg { max-width: 860px; width: 95vw; }
+
+/* ---- Header bar (rendered when title prop is set) ---- */
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(180deg, #7b68a6 0%, #5a4a7a 100%);
+  border-bottom: 3px solid #3d2f5c;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+.modalTitle {
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  margin: 0;
+}
+
+/* Close button embedded in header */
+.closeModal {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.closeModal:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- Float close (no title prop) ---- */
+.closeModalFloat {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: #ccc;
+  opacity: 0.5;
+  cursor: pointer;
+  z-index: 20;
+  transition: opacity 0.15s ease;
+}
+
+.closeModalFloat:hover {
+  opacity: 1;
+}
+
+.closeModalFloat.light {
+  color: #fff;
+  opacity: 0.65;
+}
+
+.closeModalFloat.light:hover {
+  opacity: 1;
+}
+
+/* ---- Body — scrollable content area ---- */
+.modalBody {
+  flex: 1;
+  overflow-y: auto;
   scrollbar-width: none;
 }
 
-.modalContent#saveModal {
-  max-width: 640px !important;
-  padding: 1em;
+.modalBody::-webkit-scrollbar {
+  display: none;
 }
 
-.modalContent>h2 {
-  font-size: 20px;
-  font-weight: 200;
-  margin: 1em;
-  text-align: center;
-}
-
-.modalContent>h3 {
-  font-size: 28px;
-  font-weight: 200;
-  margin: 2em auto;
-  max-width: 80%;
-}
-
-.modal .closeModal {
-  position: absolute;
-  right: 8px;
-  top: 0;
-  cursor: pointer;
-  font-size: 28px;
-  opacity: 0.5;
-  background: none;
-  border: none;
-  transition: opacity 0.2s ease;
-  color: var(--text-primary);
-  margin-top: 12px;
-}
-
-.modal .closeModal:hover {
-  opacity: 0.9;
-}
-
-.modal .modalContent label {
-  padding: 5px;
-}
-
-.modalOptionsButtons {
-  display: flex;
-  justify-content: space-between;
-  width: 80%;
-  margin: auto;
-}
-
-.modalOptionsButtons button {
-  padding: 5px 10px;
-  border-radius: 4px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  min-width: var(--btn-width);
-  height: var(--btn-height);
-  margin: 1em;
-  font-size: 16px;
-  transition: background-color 0.2s;
-}
-
-.modalOptionsButtons button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.modalOptionsButtons button:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.removeConfirm {
-  display: flex;
-  font-size: 16px;
-  margin: auto;
-  width: 80%;
-}
-
-.removeConfirm input:not([type='checkbox']) {
-  margin: 10px;
-}
-
-.removeConfirm input[type='checkbox'] {
-  margin: 10px !important;
-}
-
-.modalContent input {
-  text-align: center;
-}
-
-.modalContent input:not([type='range']),
-.modalContent textarea {
-  font-size: 20px;
-  margin-bottom: 1em;
-  color: var(--text-primary);
-  background-color: var(--background-color);
-}
-
-.modalContent#saveModal {
-  min-width: 400px;
-}
-
-.profileModal .modalContent {
-  max-width: 450px;
-  min-height: auto;
-  padding: 0;
-}
+/* ============================================================
+   PROFILE MODAL
+   ============================================================ */
 
 .profileAvatarSection {
   display: flex;
@@ -153,35 +170,17 @@
   padding: 1rem 0;
 }
 
-.avatarPlaceholderModal.large {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  font-weight: 500;
-}
-
-.profileDetail {
-  display: flex;
-  padding: 0.75rem;
-  border-radius: 8px;
-  background-color: var(--background-secondary);
-}
-
 .avatarContainer {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 120px;
+  height: 120px;
   border-radius: 8px;
   overflow: hidden;
+  border: 3px solid #3d2f5c;
+  box-shadow: 0 4px 0 #2a1f42, 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
-.avatarContainer img {
+.profileAvatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -216,13 +215,9 @@
   background: rgba(255, 255, 255, 0.1) !important;
 }
 
-.uploadButton span {
-  font-size: 0.875rem;
-}
-
 .removeButton {
   position: absolute;
-  bottom: 1rem;
+  bottom: 0.5rem;
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
@@ -233,55 +228,28 @@
   opacity: 1;
 }
 
-.uploadProgress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--background-secondary);
-  overflow: hidden;
-}
-
-.progressBar {
-  height: 100%;
-  background: var(--primary-color);
-  transition: width 0.3s ease-in-out;
-}
-
-.avatarPlaceholderModal.large {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  color: white;
+.profileDetail {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* load state modal */
-.modalContent#loadStateContent {
-  width: 800px;
-}
-
-.modalContent img {
-  transition: 100ms ease-in-out;
-}
-
-.modalContent img:hover:not(.modalContent .profileAvatar) {
-  cursor: pointer;
-  outline: 5px gray solid;
-}
+/* ============================================================
+   SAVE STATE MODALS
+   ============================================================ */
 
 .saveStateList {
-  overflow-x: scroll;
-  padding: 4px;
+  overflow-x: auto;
+  padding: 0.25rem;
   display: flex;
   justify-content: flex-start;
   scrollbar-width: none;
+}
+
+.saveStateList::-webkit-scrollbar {
+  display: none;
 }
 
 .saveStateBlock {
@@ -289,25 +257,25 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 2em;
+  margin: 1.5rem;
+  cursor: pointer;
 }
 
-.saveStateBlock button {
-  font-size: 10px;
-}
-
-h3.saveStateTitle {
-  font-size: 16px;
+.saveStateTitle {
+  font-size: 1rem;
   font-weight: 500;
-  margin-top: 10px;
+  margin-top: 0.75rem;
   margin-bottom: 0;
+  white-space: nowrap;
   text-overflow: ellipsis;
-  text-wrap: nowrap;
+  overflow: hidden;
+  max-width: 220px;
 }
 
 .lastUpdateText {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin: 0.2rem 0;
 }
 
 .top {
@@ -315,44 +283,13 @@ h3.saveStateTitle {
 }
 
 .deleteBtn {
-  margin: 10px;
+  margin: 0.5rem;
   cursor: pointer;
 }
 
-.profileModalContent {
-  padding: 20px;
-}
-
-.profileAvatarModal {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.avatarPlaceholderModal.large {
-  width: 100px;
-  height: 100px;
-  font-size: 40px;
-  line-height: 100px;
-}
-
-.profileDetails p {
-  margin: 10px 0;
-}
-
-@media screen and (max-width: 400px) {
-  .modalOptionsButtons {
-    justify-content: space-around !important;
-  }
-
-  .optionButton {
-    width: var(--btn-height) !important;
-    min-width: 0 !important;
-  }
-
-  .amplifyButton {
-      min-width: 100px;
-  }
-}
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 
 @media screen and (max-width: 768px) {
   .modalContent {
@@ -360,42 +297,31 @@ h3.saveStateTitle {
     inset: 0;
     width: 100%;
     height: 100dvh;
-    max-width: 100%;
+    max-width: 100% !important;
     max-height: 100%;
     min-width: 0;
     border-radius: 0;
-    margin: 0;
-    padding: 1rem;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 3.5rem);
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-shadow: none;
+  }
+
+  .modalBody {
     padding-bottom: env(safe-area-inset-bottom, 1rem);
   }
 
-  .modalOverlay {
-    background: #000;
-    opacity: 1;
-  }
-
-  .modal .closeModal {
+  .closeModalFloat {
     position: fixed;
-    top: env(safe-area-inset-top, 0.5rem);
-    right: 0.5rem;
+    top: calc(env(safe-area-inset-top, 0px) + 0.5rem);
+    right: 0.75rem;
     width: 44px;
     height: 44px;
-    font-size: 32px;
+    font-size: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 15;
-    margin-top: 0;
-  }
-
-  .modalContent#loadStateContent {
-    width: 100%;
-  }
-
-  .modalContent#saveModal {
-    max-width: 100%;
-    min-width: 0;
+    z-index: 400;
   }
 
   .saveStateList {
@@ -404,53 +330,6 @@ h3.saveStateTitle {
   }
 
   .saveStateBlock {
-    margin: 1em;
+    margin: 1rem;
   }
 }
-
-
-.settingsModal .modalContent {
-  padding: 0;
-  min-height: auto;
-  width: 380px;
-  background: var(--background-primary);
-}
-
-.settingsModal .amplifySlider {
-  width: 100%;
-}
-
-.settingsModal .amplifySwitchfield {
-  width: 100%;
-  justify-content: space-between;
-}
-
-.settingsModal .amplifyDivider {
-  margin: 0.5rem 0;
-}
-
-.settingsModal .amplifyButton {
-  width: 100%;
-}
-
-.settingsModal .amplifyHeading {
-  margin: 0;
-}
-
-.amplifyButton {
-  min-width: 120px;
-}
-
-.amplifyCheckboxfield {
-  margin-top: 0.5rem;
-}
-
-.closeModal.light {
-  color: #fff;
-  opacity: 0.7;
-}
-
-.closeModal.light:hover {
-  opacity: 1;
-}
-

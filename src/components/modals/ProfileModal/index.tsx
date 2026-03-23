@@ -3,7 +3,6 @@ import Image from 'next/image';
 import BaseModal from '../BaseModal';
 import {
     Flex,
-    Heading,
     Button,
     TextField,
     TextAreaField,
@@ -131,12 +130,8 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     };
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} className={styles.profileModal}>
+        <BaseModal isOpen={isOpen} onClose={onClose} title="User Profile" size="sm">
             <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Heading as="h4">User Profile</Heading>
-                </div>
-
                 {error && <Alert $variation="error">{error}</Alert>}
 
                 {userProfile && (
@@ -146,8 +141,8 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 <Image
                                     src={imagePreview || defaultAvatar}
                                     alt={userProfile.username}
-                                    width={100}
-                                    height={100}
+                                    width={120}
+                                    height={120}
                                     className={styles.profileAvatar}
                                     style={{ objectFit: "cover" }}
                                 />
@@ -168,7 +163,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                                     <polyline points="17 8 12 3 7 8" />
                                                     <line x1="12" y1="3" x2="12" y2="15" />
                                                 </svg>
-                                                <span>Upload New Image</span>
+                                                <span>Upload</span>
                                             </Button>
                                         </div>
                                         {imagePreview && (
@@ -186,9 +181,9 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 <TextField label="Username" value={formData.username} onChange={e => handleInputChange('username', e.target.value)} placeholder="Enter username" orientation="vertical" />
                                 <TextField label="Email" value={formData.email} placeholder="Enter email" type="email" $isReadOnly={true} $isDisabled={true} orientation="vertical" />
                                 <TextAreaField label="Bio" value={formData.bio} onChange={e => handleInputChange('bio', e.target.value)} placeholder="Tell us about yourself" rows={3} orientation="vertical" />
-                                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', gap: '1rem' }}>
+                                <div className={buttons.buttonGroup} style={{ flexDirection: 'row', gap: '1rem' }}>
                                     <button className={buttons.retroButton} onClick={handleEditToggle}>Cancel</button>
-                                    <button onClick={handleSubmit} className={buttons.retroButton} disabled={isSaving}>Save Changes</button>
+                                    <button onClick={handleSubmit} className={buttons.retroButton} disabled={isSaving}>Save</button>
                                 </div>
                             </Flex>
                         ) : (
@@ -203,10 +198,10 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
                                     <Text $variation="secondary">Bio</Text>
-                                    <Text>{userProfile.bio || 'No bio available'}</Text>
+                                    <Text>{userProfile.bio || 'No bio yet'}</Text>
                                 </View>
-                                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'column', gap: '1rem' }}>
-                                    <button className={buttons.retroButton} onClick={handleEditToggle}>Edit</button>
+                                <div className={buttons.buttonGroup}>
+                                    <button className={buttons.retroButton} onClick={handleEditToggle}>Edit Profile</button>
                                 </div>
                             </Flex>
                         )}

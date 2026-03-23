@@ -88,8 +88,8 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 	if (!isOpen) return null;
 
 	return (
-		<BaseModal isOpen={isOpen} onClose={onClose}>
-			<h2>Select a Save State</h2>
+		<BaseModal isOpen={isOpen} onClose={onClose} title="Load Save State" size="lg">
+
 			<div className={styles.saveStateList}>
 				{updatedSaveStates.map((state) => (
 					<div className={styles.saveStateBlock} key={state.id} onClick={() => onConfirm(state)}>
