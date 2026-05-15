@@ -5,7 +5,7 @@ import { JSX, ChangeEvent, FC } from 'react';
 import { theme } from '@/theme';
 
 // Text variations
-type TextVariation = 'primary' | 'secondary' | 'error' | 'success' | 'warning';
+type TextVariation = 'primary' | 'secondary' | 'error' | 'success' | 'warning' | 'light' | 'dark';
 
 const getTextVariationStyles = (variation?: TextVariation) => {
   if (!variation) return '';
@@ -25,6 +25,12 @@ const getTextVariationStyles = (variation?: TextVariation) => {
     `,
     warning: css`
       color: ${({ theme }) => theme.colors.warning};
+    `,
+    light: css`
+      color: ${({ theme }) => theme.colors.text.light};
+    `,
+    dark: css`
+      color: ${({ theme }) => theme.colors.text.dark};
     `
   };
   return variations[variation];
@@ -60,7 +66,7 @@ const Label = styled.label`
 `;
 
 interface TextProps {
-  $variation?: keyof typeof theme.colors.text;
+  $variation?: TextVariation;
   $fontSize?: keyof typeof theme.typography.fontSizes;
   $fontWeight?: keyof typeof theme.typography.fontWeights;
   $textAlign?: 'left' | 'center' | 'right' | 'justify';
@@ -75,7 +81,8 @@ export const Text = styled.span<TextProps>`
   text-align: ${({ $textAlign }) => $textAlign || 'left'};
 `;
 
-const ErrorMessage = styled(Text).attrs({ $variation: 'error' as TextVariation })`
+const ErrorMessage = styled.span`
+  color: ${({ theme }) => theme.colors.danger};
   font-size: 0.75rem;
   margin-top: 0.25rem;
 `;

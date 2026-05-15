@@ -1,0 +1,123 @@
+The '''Pokémon data structure''' in the [[Generation II]] games stores most information about the current state of a {{player}}'s [[caught Pokémon]]. It has a length of 48 bytes for Pokémon in the player's [[party]] and 32 bytes for Pokémon in Boxes on [[Pokémon Storage System|Bill's PC]]. The information lost when depositing a Pokémon in Bill's PC is its [[status condition]], [[HP]], {{stat|Attack}}, {{stat|Defense}}, {{stat|Speed}}, {{stat|Special Attack}} and {{stat|Special Defense}}; this allows the [[Box trick]] to work by recalculating the lost information upon withdrawing the Pokémon again.
+
+==The structure==
+{| style="border: 1px solid #88a; background: #f8f8ff; padding: 0.5em; border-collapse: collapse; margin: 0 0 0.5em 0.5em;" cellspacing="1" cellpadding="2"
+|-
+! style="text-align: center; background:#{{johto color}};" | '''Offset'''
+! style="text-align: center; background: #{{johto color}};" | '''Contents'''
+! style="text-align: center; background: #{{johto color}};" | '''Size'''
+|-
+| 0x00 || [[List of Pokémon by index number in Generation II|Index number of the species]] || 1 byte
+|-
+| 0x01 || [[List of items by index number in Generation II|Index number of held item]] || 1 byte
+|-
+| 0x02 || [[List of moves|Index number of move 1]] || 1 byte
+|-
+| 0x03 || Index number of move 2 || 1 byte
+|-
+| 0x04 || Index number of move 3 || 1 byte
+|-
+| 0x05 || Index number of move 4 || 1 byte
+|-
+| 0x06 || [[Trainer ID number|Original Trainer ID number]] || 2 bytes
+|-
+| 0x08 || [[Experience|Experience points]] || 3 bytes
+|-
+| 0x0B || [[HP]] [[Effort values|EV data]] || 2 bytes
+|-
+| 0x0D || {{stat|Attack}} EV data || 2 bytes
+|-
+| 0x0F || {{stat|Defense}} EV data || 2 bytes
+|-
+| 0x11 || {{stat|Speed}} EV data || 2 bytes
+|-
+| 0x13 || {{stat|Special}} EV data || 2 bytes
+|-
+| 0x15 || [[Individual values|IV data]] || {{tt|2 bytes|4 bits for each IV excluding HP}}
+|-
+| 0x17 || Move 1's [[PP]] values ||  {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| 0x18 || Move 2's PP values ||  {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| 0x19 || Move 3's PP values ||  {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| 0x1A || Move 4's PP values ||  {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| 0x1B || [[Friendship]]/Remaining [[Egg cycles]] || 1 byte
+|-
+| 0x1C || [[Pokérus]] || 1 byte
+|-
+| 0x1D || [[#Caught data|Caught data]] || 2 bytes
+|-
+| 0x1F || [[Level]] || 1 byte
+|-
+| 0x20 || [[Status condition]] || 1 byte
+|-
+| 0x21 || Unused byte || 1 byte
+|-
+| 0x22 || Current [[HP]] || 2 bytes
+|-
+| 0x24 || Maximum HP || 2 bytes
+|-
+| 0x26 || {{stat|Attack}} || 2 bytes
+|-
+| 0x28 || {{stat|Defense}} || 2 bytes
+|-
+| 0x2A || {{stat|Speed}} || 2 bytes
+|-
+| 0x2C || {{stat|Special Attack}} || 2 bytes
+|-
+| 0x2E || {{stat|Special Defense}} || 2 bytes
+|}
+
+Notably missing from this structure are the Pokémon's [[nickname]], the [[original Trainer]]'s name, and whether or not the Pokémon is an {{pkmn|Egg}}, which are stored elsewhere.
+
+Pokémon stored in Bill's PC use a form of this structure that stops after the level data, at 0x1F.
+
+The Pokémon Box data consists only of the currently open Pokémon Box, which explains the need for the player to save the game before switching the open Box. The current Box is represented in volatile RAM at a given offset depending on which version is being used, and continues for 640 bytes (32 bytes each for 20 Pokémon).
+
+==Differences==
+The {{OBP|Pokémon data structure|Generation I|Generation I Pokémon data structure}} initially had 44 bytes—33 "core bytes" and 11 "temporary bytes" when withdrawn from the PC. In Generation II, Pokémon are now represented by 48 bytes—32 "core bytes" and 16 "temporary bytes" when withdrawn from the PC. This makes Pokémon storage in RAM slightly cleaner to access/modify than in previous [[Generation I]] games.
+
+This structure is nearly the same as the Generation I structure, but with a few items moved around and the [[Generation II#Advances in Gameplay|addition]] of four more bytes of data.
+
+===Removed data===
+* The catch rate from the Generation I games is now recycled to store a Pokémon's [[held item]]. Held items can be traded between Generation I and II and will still remain in Generation I, despite being unusable. This is because non-[[wild Pokémon]] in Generation I never utilize their catch rate data.
+* Six values in the offset range 0x01-0x06 from the Generation I structure have been rearranged, with values from offset 0x07 onwards now taking the place of 0x02 onwards.
+** Remaining [[HP]] (2 bytes) is now two "temporary bytes", which explains why a Pokémon's HP is restored when deposited/withdrawn in Generation II, unlike in Generation I.
+** The redundant level value from Generation I is now gone, as a "permanent byte" value is now used to store a Pokémon's level while in the PC.
+** [[Status condition]] is also a "temporary byte", as opposed to previously being a "permanent byte", in the same fashion as Remaining HP.
+** A Pokémon's given types (2 bytes) are now removed from its individual data. Instead, in Generation II, a database is used to calculate a Pokémon's type when it gets sent into battle.
+
+===Additional data===
+* [[Friendship]] has now been added right after move 4's PP byte. This value disappears from a Pokémon when traded to Generation I. However, Pokémon traded to any Generation II game will be assigned a [[Friendship#Generation II|default friendship value]].
+* [[Pokérus]] has also been added right after friendship. Like friendship, this value disappears when traded to Generation I. As such, it is possible to "erase" Pokérus by trading the infected Pokémon between a Generation I game and a Generation II game, as long as it is "compatible" with Generation I.
+* [[#Caught data|Caught data]] (2 bytes) has been added after Pokérus. However, these fields are left blank in all versions except {{game|Crystal}}.
+* At the very end of the "temporary bytes", Special has now been split up into {{stat|Special Attack}} and {{stat|Special Defense}}. Both stats utilize the same EV and IV values. However, they are assigned different numbers from the species' given database entry.
+
+==Notes==
+===IV data===
+The Pokémon's individual values are stored packed into two bytes, with 4 bits for each IV. From most to least significant, they're stored in the following order: Attack, Defense, Speed, and Special.
+
+===Caught data===
+Pokémon caught in Pokémon Crystal record information about their capture in two bytes. This value is blank (0x00 0x00) for Pokémon obtained in games other than Pokémon Crystal. If a Pokémon is traded to a [[Generation I]] game, this data is permanently lost; however, it is retained when traded to {{game|Gold and Silver|s}}, despite those games not recording this data.
+
+In Pokémon Crystal, the [[Poké Seer]] in [[Cianwood City]] tells the player where their Pokémon was caught, the time at which it was caught, and the level at which it was caught. In [[Pokémon Stadium 2]], checking a Pokémon shows where it was caught, the time at which it was caught, and the level at which it was caught. This information is not otherwise available to the player.
+
+This data is stored in two bytes:
+* Time and level
+:* 2 bits: Time of day (1: morning, 2: day, 3: night)
+:* 6 bits: {{tt|Level|Pokémon hatched from Eggs will have a value of 1 for the level they were 'caught at'}}
+* OT gender and location
+:* 1 bit: OT Gender (0: Male, 1: Female)
+:* 7 bits: [[List of locations by index number in Generation II|Location]]
+
+For example, a Cyndaquil that was received in New Bark Town at level 5 by the female Trainer during the daytime would have the following bytes: '''85 81''' (in hexadecimal format)
+* 2 bits: '''10''' (decimal 2 - day) and 6 bits: '''000101''' (decimal 5 - level 5), so 8 bits: '''1000 0101''' (0x85 in hex)
+* 1 bit: '''1''' (decimal 1 - female) and 7 bits: '''0000001''' (decimal 1 - [[New Bark Town]]), so 8 bits: '''1000 0001''' (0x81 in hex)
+
+Pokémon that were hatched from an Egg will have a value of 1 as their 'caught level'. As such, if any Pokémon with a value of 1 for their caught level is brought to the seer, the game will assume they were hatched from an Egg and the seer will state that their caught level was 5.
+
+==Related articles==
+{{Data structure}}
+{{Project Games notice|data structure}}

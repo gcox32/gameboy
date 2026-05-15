@@ -1,0 +1,282 @@
+The '''Pokémon data structure''' in the [[Generation I]] games stores most information about the current state of a {{player}}'s [[caught Pokémon]]. It has a length of 64 bytes for Pokémon in the player's [[party]] (44 bytes for the Pokémon itself and 20 bytes for the OT's name and the Nickname) and 53 bytes for Pokémon in boxes (33 for the Pokémon itself and 20 for the OT's name and Nickname) on [[Pokémon Storage System|Bill's PC]]. The information lost when depositing a Pokémon in Bill's PC is its [[level]], [[HP]], {{stat|Attack}}, {{stat|Defense}}, {{stat|Speed}} and {{stat|Special}}; this allows the [[box trick]] to work by recalculating the lost information upon withdrawing the Pokémon again.
+
+==The structure==
+{| style="border: 1px solid #88a; background: #f8f8ff; padding: 0.5em; border-collapse: collapse; margin: 0 0 0.5em 0.5em;" cellspacing="1" cellpadding="2"
+|- 
+! style="text-align: center; background: #ccf;" | '''Offset'''
+! style="text-align: center; background: #ccf;" | '''Contents'''
+! style="text-align: center; background: #ccf;" | '''Size'''
+|-
+| [[#Species|0x00]] || [[List of Pokémon by index number in Generation I|Index number of the Species]] || 1 byte
+|-
+| [[#Remaining HP|0x01]] || Current [[HP]] || 2 bytes
+|-
+| [[#Box Level|0x03]] || {{tt|Level|as represented while viewed from inside the PC}} || 1 byte
+|-
+| [[#Status conditions|0x04]] || [[Status condition]] || 1 byte
+|-
+| [[#Type|0x05]] || [[Type|Type 1]] || 1 byte
+|-
+| [[#Type|0x06]] || Type 2 || 1 byte
+|-
+| [[#Catch rate/Held item|0x07]] || [[Catch rate]]/[[Held item]] || 1 byte
+|-
+| 0x08 || [[List of moves#Generation I|Index number of move 1]] || 1 byte
+|-
+| 0x09 || Index number of move 2 || 1 byte
+|-
+| 0x0A || Index number of move 3 || 1 byte
+|-
+| 0x0B || Index number of move 4 || 1 byte
+|-
+| 0x0C || [[Trainer ID number|Original Trainer ID number]] || 2 bytes
+|-
+| [[#Experience|0x0E]] || [[Experience|Experience points]] || 3 bytes
+|-
+| [[#Stat experience|0x11]] || [[HP]] [[effort values|stat experience data]] || 2 bytes
+|-
+| [[#Stat experience|0x13]] || {{stat|Attack}} stat experience data || 2 bytes
+|-
+| [[#Stat experience|0x15]] || {{stat|Defense}} stat experience data || 2 bytes
+|-
+| [[#Stat experience|0x17]] || {{stat|Speed}} stat experience data || 2 bytes
+|-
+| [[#Stat experience|0x19]] || {{stat|Special}} stat experience data || 2 bytes
+|-
+| 0x1B || [[Individual values|IV data]] || {{tt|2 bytes|One nibble (4 bits) for each stat's IV excluding HP}}
+|-
+| [[#PP|0x1D]] || Move 1's [[PP]] values || {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| [[#PP|0x1E]] || Move 2's PP values || {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| [[#PP|0x1F]] || Move 3's PP values || {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| [[#PP|0x20]] || Move 4's PP values || {{tt|1 byte|2 bits for applied PP Ups, 6 bits for current PP}}
+|-
+| 0x21 || [[Level]] || 1 byte
+|-
+| [[#Maximum HP|0x22]] || Maximum HP || 2 bytes
+|-
+| [[#Attack, Defense, Speed, and Special|0x24]] || {{stat|Attack}} || 2 bytes
+|-
+| [[#Attack, Defense, Speed, and Special|0x26]] || {{stat|Defense}} || 2 bytes
+|-
+| [[#Attack, Defense, Speed, and Special|0x28]] || {{stat|Speed}} || 2 bytes
+|-
+| [[#Attack, Defense, Speed, and Special|0x2A]] || {{stat|Special}} || 2 bytes
+|}
+
+Notably missing from this structure are the Pokémon's nickname and the original Trainer's name, which are stored elsewhere.
+
+Pokémon stored in Bill's PC use a form of this structure that stops after the PP data for the fourth move, at 0x20.
+
+The Pokémon box data consists only of the currently open Pokémon box, which explains the need for the player to save the game before switching the open box.
+
+In {{game|Red}} and {{game|Blue}} for the US, the current Pokémon box data is stored at 0xDA81 and is 460 bytes long (including OT Names and Nicknames).
+
+In {{game|Yellow}} for the US, this data starts at 0xDA95 and is 660 bytes long (33 bytes each for 20 Pokémon).
+
+==Explanation of fields==
+===Species===
+The [[List of Pokémon by index number in Generation I|index number]] for the Pokémon's species.
+
+===Remaining HP===
+The number of HP left on the Pokémon. This value should not be greater than the Maximum HP field's value.
+
+===Level===
+Though it appears to be the level of the Pokémon, it seems effectively redundant: it exists as a Pokémon's level when said Pokémon is stored in a PC box, yet is overwritten as part of the recalculation that takes place when the Pokémon is withdrawn. If the Pokémon is deposited back into a box, this value is set to the Pokémon's level again. This value's purpose is currently unknown.
+
+===Status conditions===
+The [[status condition]]s of the Pokémon, as a bit field.
+
+{| style="border: 1px solid #88a; background: #f8f8ff; padding: 0.5em; border-collapse: collapse; margin: 0 0 0.5em 0.5em;" cellspacing="1" cellpadding="2"
+|- 
+! style="text-align: center; background: #ccf;" | '''Bit'''
+! style="text-align: center; background: #ccf;" | '''Value'''
+! style="text-align: center; background: #ccf;" | '''Status condition'''
+|-
+| 3 || 0x04 || Asleep
+|-
+| 4 || 0x08 || Poisoned
+|-
+| 5 || 0x10 || Burned
+|-
+| 6 || 0x20 || Frozen
+|-
+| 7 || 0x40 || Paralyzed
+|}
+
+Since being {{status|poison|badly poisoned}} is a temporary condition in [[Pokémon battle|battles]], it is not stored here. Confusion is also not stored here. 0x00 means that the Pokémon is not affected by any major status condition.
+
+===Type===
+The [[type]] of the Pokémon. If the Pokémon has only one type, both values are the same. It seems redundant, as there is no way a Pokémon can change type in Generation I besides [[Evolution|evolving]], and through the use of Conversion. Values between 0x09 and 0x13 inclusive are dummy types named "Normal".
+
+{| style="border: 1px solid #88a; background: #f8f8ff; padding: 0.5em; border-collapse: collapse; margin: 0 0 0.5em 0.5em;" cellspacing="1" cellpadding="2"
+|- 
+! style="text-align: center; background: #ccf;" | '''#'''
+! style="text-align: center; background: #ccf;" | '''Hex'''
+! style="text-align: center; background: #ccf;" | '''Type'''
+|-
+| 00 || 0x00 || Normal
+|-
+| 01 || 0x01 || Fighting
+|-
+| 02 || 0x02 || Flying
+|-
+| 03 || 0x03 || Poison
+|-
+| 04 || 0x04 || Ground
+|-
+| 05 || 0x05 || Rock
+|-
+| 06 || 0x06 || {{t|Bird}} ''(unused)''
+|-
+| 07 || 0x07 || Bug
+|-
+| 08 || 0x08 || Ghost
+|-
+| 20 || 0x14 || Fire
+|-
+| 21 || 0x15 || Water
+|-
+| 22 || 0x16 || Grass
+|-
+| 23 || 0x17 || Electric
+|-
+| 24 || 0x18 || Psychic
+|-
+| 25 || 0x19 || Ice
+|-
+| 26 || 0x1A || Dragon
+|}
+
+===Catch rate/Held item===
+The [[catch rate]] for the species. This is set when the Pokémon is obtained in a Generation I game and does not change when the Pokémon evolves, even if its Evolution has a different catch rate.
+
+When trading with {{3v2|Gold|Silver|Crystal}}, this field is co-opted for storing the Pokémon's [[held item]]. Items are preserved when traded from Generation II to Generation I and back, but some catch rates from Generation I do not have corresponding items in Generation II. In these cases, the value in this field is translated to a different value the first time it is traded to Generation II.
+
+In {{game|Yellow}}, two Pokémon have their held item set to a value other than their catch rate. [[Pikachu (Yellow)|The partner Pikachu]]'s held item value is specially set to 163 (as opposed to regular Pikachu's catch rate of 190) when it is obtained, which causes it to hold a [[Light Ball]] when traded over. A wild {{p|Kadabra}}'s held item value is set to 96 upon capture (as opposed to 100), which gives it a [[TwistedSpoon]] when traded over.
+
+[[Gift Pokémon]] from [[Pokémon Stadium]] also have their held item set to a value other than their catch rate. The Pokémon obtained for clearing the [[Gym Leader Castle]] have their held item set to the [[Normal Box]] or [[Gorgeous Box]], depending on whether it was cleared as Round 1 or Round 2. The {{DL|Pokémon Stadium|Amnesia Psyduck}} has its held item set to the [[Gorgeous Box]].
+
+The following catch rates correspond with bad items in Generation II (usually [[Teru-sama]]), and are converted into other items upon trading, as follows:
+
+{| style="margin:auto; background: #{{crystal color dark}}; {{roundy}}; border: 5px solid #{{silver color}};"
+|-
+|
+{| border="1" style="background: #fff; border: 1px solid #{{crystal color dark}}; border-collapse:collapse;"
+|- style="background:#{{crystal color dark}};"
+! style="background:#{{gold color}}; {{roundytl|5px}};" | {{color|{{gold color dark}}|Old #}}
+! style="background:#{{gold color}};" | {{color|{{gold color dark}}|Old Hex}}
+! style="background:#{{gold color}};" | {{color|{{gold color dark}}|Old Item}}
+! style="background:#{{gold color}};" | {{color|{{gold color dark}}|New #}}
+! style="background:#{{gold color}};" | {{color|{{gold color dark}}|New Hex}}
+! style="background:#{{gold color}};" | {{color|{{gold color dark}}|New Item}}
+|- style="text-align: center;"
+|025||0x19||[[Teru-sama]]||146||0x92||[[Leftovers]]
+|- style="text-align: center;"
+|045||0x2D||Teru-sama||083||0x53||[[Bitter Berry]]
+|- style="text-align: center;"
+|050||0x32||Teru-sama||174||0xAE||[[Gold Berry]]
+|- style="text-align: center;"
+|090||0x5A||Teru-sama||173||0xAD||{{i|Berry}}
+|- style="text-align: center;"
+|100||0x64||Teru-sama||173||0xAD||Berry
+|- style="text-align: center;"
+|120||0x78||Teru-sama||173||0xAD||Berry
+|- style="text-align: center;"
+|127||0x7F||{{ka|Card Key}}||173||0xAD||Berry
+|- style="text-align: center;"
+|190||0xBE||Teru-sama||173||0xAD||Berry
+|- style="text-align: center;"
+|255||0xFF||[[Cancel]]||173||0xAD||Berry
+|}
+|}
+
+For example, a wild {{p|Snorlax}} caught in Generation I has a catch rate of 25. However, this is a [[Teru-sama]] in Generation II, so the value is automatically converted into 146, [[Leftovers]].
+
+A value of <code>0x00</code> in this field represents no held item.
+
+===Original Trainer ID number===
+The [[Trainer ID number|ID number]] of the {{pkmn|Trainer}} who [[caught Pokémon|caught]] the Pokémon.
+
+===Experience===
+The number of [[Experience]] points accumulated by the Pokémon. The [[level]] of the Pokémon should correspond with the value according to the growth formula for the Pokémon species.
+
+===Stat experience===
+{{main|Effort values}}
+The stat experience accumulated by the Pokémon in each of the 5 permanent stats after battling or receiving [[vitamin]]s.
+
+===PP===
+{{main|PP}}
+The PP for each move the Pokémon knows. The lowest 6 bits of each of these values is the current amount of PP for the move, and the highest 2 bits are the number of [[PP Up]]s applied to the move.
+
+This explains the behavior of {{m|Hyper Beam}} and other such multi-turn moves when they [[glitch]]: the game subtracts 1 from the entire byte, and 0x00 rolls over to 0xFF, which applies 3 PP Ups to the move and makes its current PP 63. However, if one or more PP Ups are already applied to the move, the byte does not roll over in this way, so one PP Up is removed from the move. For example, if the move has 2 PP Ups applied, the byte is 0x80, which becomes 0x7F, which specifies 63 PP and one PP Up.
+
+===Maximum HP===
+The HP that the Pokémon has when at full health.
+
+===Attack, Defense, Speed, and Special===
+The values of the Pokémon's Attack, Defense, Speed and Special stats, as they were last calculated from the [[base stats]] of the species, the Pokémon's individual values and its stat experience. This occurs at level-up and when the Pokémon is withdrawn from Bill's PC.
+
+==Storage==
+
+The following are RAM offsets for the beginning of the party structure while walking around:
+
+* Red/Blue (en): 0xD163
+* Yellow (en): 0xD162
+
+====6-Pokémon Party Structure====
+
+{| style="border: 1px solid #88a; background: #f8f8ff; padding: 1.0em; border-collapse: collapse; margin: 0 0 0.5em 0.5em;" cellspacing="1" cellpadding="3"
+|- 
+! style="text-align: center; background: #ccf;" | '''Offset'''
+! style="text-align: center; background: #ccf;" | '''Contents'''
+! style="text-align: center; background: #ccf;" | '''Size'''
+|-
+| 0x00 || Number of Pokémon in party || 1 Byte
+|-
+| 0x01 || List of Party Pokémon Species Index values || 7 Bytes
+|-
+| 0x08 || 1st Pokémon's structure || 44 Bytes
+|-
+| 0x34 || 2nd Pokémon's structure || 44 Bytes
+|-
+| 0x60 || 3rd Pokémon's structure || 44 Bytes
+|-
+| 0x8C || 4th Pokémon's structure || 44 Bytes
+|-
+| 0xB8 || 5th Pokémon's structure || 44 Bytes
+|-
+| 0xE4 || 6th Pokémon's structure || 44 Bytes
+|-
+| 0x110 || 1st Pokémon's OT name || 10 Bytes
+|-
+| 0x11B || 2nd Pokémon's OT name || 10 Bytes
+|-
+| 0x126 || 3rd Pokémon's OT name || 10 Bytes
+|-
+| 0x131 || 4th Pokémon's OT name || 10 Bytes
+|-
+| 0x13C || 5th Pokémon's OT name || 10 Bytes
+|-
+| 0x147 || 6th Pokémon's OT name || 10 Bytes
+|-
+| 0x152 || 1st Pokémon's Nickname || 10 Bytes
+|-
+| 0x15D || 2nd Pokémon's Nickname || 10 Bytes
+|-
+| 0x168 || 3rd Pokémon's Nickname || 10 Bytes
+|-
+| 0x173 || 4th Pokémon's Nickname || 10 Bytes
+|-
+| 0x17E || 5th Pokémon's Nickname || 10 Bytes
+|-
+| 0x189 || 6th Pokémon's Nickname || 10 Bytes
+|}
+
+Also of note is that the storage of the current Pokémon's information during battle. The internal index of the current Pokémon is stored at 0xCF91, and the current Pokémon's data structure begins at 0xCF98.
+
+==Related articles==
+{{Data structure}}
+{{Project Games notice|data structure}}
