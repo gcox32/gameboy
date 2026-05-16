@@ -22,6 +22,7 @@ export interface SaveStateModel {
     description?: string;
     img?: string;
     imgFile?: File;
+    connected?: boolean;
     createdAt?: string;
     updatedAt?: string;
 }

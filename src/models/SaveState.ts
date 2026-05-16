@@ -7,6 +7,7 @@ export interface ISaveState extends Document {
     description?: string;
     filePath: string;
     img?: string;
+    connected: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -19,6 +20,7 @@ const SaveStateSchema = new Schema<ISaveState>(
         description: { type: String },
         filePath: { type: String, required: true },
         img: { type: String },
+        connected: { type: Boolean, default: false },
     },
     { timestamps: true, toJSON: { virtuals: true } }
 );

@@ -8,6 +8,7 @@ export interface IUser extends Document {
     verificationTokenExpiry?: Date;
     resetToken?: string;
     resetTokenExpiry?: Date;
+    appTrainerId?: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -21,6 +22,7 @@ const UserSchema = new Schema<IUser>(
         verificationTokenExpiry: { type: Date },
         resetToken: { type: String },
         resetTokenExpiry: { type: Date },
+        appTrainerId: { type: Number },
     },
     { timestamps: true }
 );
