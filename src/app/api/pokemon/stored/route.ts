@@ -115,5 +115,5 @@ export async function POST(req: NextRequest) {
     await SaveState.updateOne({ _id: saveStateId }, { $set: { filePath: blob.url } });
     try { await del(oldFilePath); } catch { /* non-fatal */ }
 
-    return NextResponse.json({ created, updatedSaveStateId: saveState.id }, { status: 201 });
+    return NextResponse.json({ created, updatedSaveStateId: saveState.id, updatedFilePath: blob.url }, { status: 201 });
 }

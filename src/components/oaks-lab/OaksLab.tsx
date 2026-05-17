@@ -151,12 +151,13 @@ function ExtractTab({ games }: { games: GameModel[] }) {
 
     useEffect(() => { fetchSaveStates(gameId); setSaveStateId(''); }, [gameId, fetchSaveStates]);
 
-    const loadSaveFile = useCallback(async () => {
-        if (!currentSave?.filePath) return;
+    const loadSaveFile = useCallback(async (overrideUrl?: string) => {
+        const url = overrideUrl ?? currentSave?.filePath;
+        if (!url) return;
         setLoadingSave(true);
         setParty([]); setBoxes([]); setSelected(new Set()); setSelectedBox(0);
         try {
-            const res = await fetch(currentSave.filePath, { cache: 'no-store' });
+            const res = await fetch(url, { cache: 'no-store' });
             if (!res.ok) {
                 setToast(`Could not load save file (${res.status}). Check the file URL.`);
                 return;
@@ -239,10 +240,12 @@ function ExtractTab({ games }: { games: GameModel[] }) {
         });
 
         if (res.ok) {
-            const { created } = await res.json();
+            const { created, updatedFilePath } = await res.json();
             setToast(`${created.length} Pokémon sent to the Ranch!`);
-            setSelected(new Set());
-            await loadSaveFile();
+            await Promise.all([
+                fetchSaveStates(gameId),
+                loadSaveFile(updatedFilePath),
+            ]);
         } else {
             setToast('Something went wrong.');
         }
