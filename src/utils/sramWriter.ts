@@ -50,6 +50,47 @@ const BOX_DATA_OFFSET = 22;
 const BOX_OT_OFFSET = 22 + 20 * 33;
 const BOX_NICK_OFFSET = 22 + 20 * 33 + 20 * 11;
 
+// Stamps appTrainerId into the Player ID field and all existing Pokémon OT IDs.
+// Called on Connect so every slot in party/boxes is owned by the app trainer,
+// matching the Player ID that will be stamped on all future catches.
+export function stampTrainerId(sramData: Uint8Array, appTrainerId: number): Uint8Array {
+    const sram = new Uint8Array(sramData);
+
+    // Player ID at 0x2605–0x2606, little-endian (game-side storage format)
+    sram[0x2605] = appTrainerId & 0xFF;
+    sram[0x2606] = (appTrainerId >> 8) & 0xFF;
+
+    const hiId = (appTrainerId >> 8) & 0xFF;
+    const loId = appTrainerId & 0xFF;
+
+    // Party: OT ID at data+0x0C–0x0D (big-endian), 44-byte slots
+    const partyCount = Math.min(sram[PARTY_COUNT], 6);
+    for (let i = 0; i < partyCount; i++) {
+        const base = PARTY_DATA + i * 44;
+        if (!sram[base]) continue;
+        sram[base + 0x0C] = hiId;
+        sram[base + 0x0D] = loId;
+    }
+
+    // All 12 boxes: OT ID at data+0x0C–0x0D (big-endian), 33-byte slots
+    const currentBoxIdx = sram[0x284C] & 0x0F;
+    let didWriteCurrentBox = false;
+    for (let b = 0; b < 12; b++) {
+        const base = b === currentBoxIdx ? BOX_MIRROR_BASE : boxBankedBase(b + 1);
+        const count = Math.min(sram[base], 20);
+        for (let i = 0; i < count; i++) {
+            const dataBase = base + BOX_DATA_OFFSET + i * 33;
+            if (!sram[dataBase]) continue;
+            sram[dataBase + 0x0C] = hiId;
+            sram[dataBase + 0x0D] = loId;
+        }
+        if (b === currentBoxIdx) didWriteCurrentBox = true;
+    }
+    if (didWriteCurrentBox) syncCurrentBoxToBanked(sram, currentBoxIdx + 1);
+
+    return sram;
+}
+
 export function clearSlot(sramData: Uint8Array, slot: WriteSlot): Uint8Array {
     const sram = new Uint8Array(sramData);
 

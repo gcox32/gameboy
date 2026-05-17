@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { User, SaveState, Game } from '@/models';
 import { SRAMParser } from '@/utils/sramParser';
+import { stampTrainerId } from '@/utils/sramWriter';
 import { saveBlobPath } from '@/utils/blobPaths';
 
 type Params = { params: Promise<{ id: string }> };
@@ -60,11 +61,8 @@ export async function POST(_req: NextRequest, { params }: Params) {
         const json = await fileRes.json() as { MBCRam: number[] };
         if (!Array.isArray(json.MBCRam)) throw new Error('Save file is missing MBCRam');
 
-        const sram = new Uint8Array(json.MBCRam);
-
-        // Trainer ID is stored little-endian on the Game Boy
-        sram[0x2605] = appTrainerId & 0xFF;
-        sram[0x2606] = (appTrainerId >> 8) & 0xFF;
+        // Stamp appTrainerId into Player ID field and all existing Pokémon OT IDs
+        const sram = stampTrainerId(new Uint8Array(json.MBCRam), appTrainerId);
 
         const parser = new SRAMParser(Array.from(sram));
         sram[0x3523] = parser.calculateMainDataChecksum();
