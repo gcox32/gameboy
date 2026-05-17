@@ -112,8 +112,7 @@ export async function POST(req: NextRequest) {
     );
     const patched = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
     const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: true });
-    saveState.filePath = blob.url;
-    await saveState.save();
+    await SaveState.updateOne({ _id: saveStateId }, { $set: { filePath: blob.url } });
     try { await del(oldFilePath); } catch { /* non-fatal */ }
 
     return NextResponse.json({ created, updatedSaveStateId: saveState.id }, { status: 201 });

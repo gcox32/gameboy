@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { del } from '@vercel/blob';
 import { auth } from '@/auth';
+import { sanitizeEmail } from '@/utils/blobPaths';
 
 // DELETE /api/blob?url=<blobUrl>
 export async function DELETE(req: NextRequest) {
@@ -16,8 +17,9 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ error: 'url is required' }, { status: 400 });
     }
 
-    // Verify the URL contains the user's ID (or user is admin)
-    if (!url.includes(session.user.id) && !session.user.admin) {
+    const emailSlug = session.user.email ? sanitizeEmail(session.user.email) : null;
+    const ownedByUser = url.includes(session.user.id) || (emailSlug && url.includes(emailSlug));
+    if (!ownedByUser && !session.user.admin) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

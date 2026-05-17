@@ -26,9 +26,24 @@ function boxBase(sram: Uint8Array, boxNumber: number): number {
     // wCurrentBoxNum at 0x284C: bits 0–6 = 0-indexed box number; bit 7 = "has switched" flag.
     const currentBoxIdx = sram[0x284C] & 0x0F;
     if ((boxNumber - 1) === currentBoxIdx) return BOX_MIRROR_BASE;
+    return boxBankedBase(boxNumber);
+}
+
+// Always returns the banked-slot base, regardless of which box is current.
+function boxBankedBase(boxNumber: number): number {
     const bankBase = boxNumber <= 6 ? 0x4000 : 0x6000;
     const idx = boxNumber <= 6 ? boxNumber - 1 : boxNumber - 7;
     return bankBase + idx * BOX_SIZE;
+}
+
+// After any write to the current box's mirror buffer, copy it to the banked slot so
+// the game's OpenBox routine (which repopulates the mirror from the banked slot on PC
+// entry) sees our changes and doesn't silently discard them.
+function syncCurrentBoxToBanked(sram: Uint8Array, boxNumber: number): void {
+    const currentBoxIdx = sram[0x284C] & 0x0F;
+    if ((boxNumber - 1) !== currentBoxIdx) return;
+    const banked = boxBankedBase(boxNumber);
+    sram.copyWithin(banked, BOX_MIRROR_BASE, BOX_MIRROR_BASE + BOX_SIZE);
 }
 
 const BOX_DATA_OFFSET = 22;
@@ -104,6 +119,7 @@ function clearBoxSlot(sram: Uint8Array, boxNumber: number, slotIndex: number): v
     shiftNames(sram, base + BOX_NICK_OFFSET, slotIndex, count, 20);
 
     sram[base] = count - 1;
+    syncCurrentBoxToBanked(sram, boxNumber);
 }
 
 export function injectPokemon(
@@ -199,6 +215,7 @@ function injectBox(
     writeNameAt(sram, base + BOX_NICK_OFFSET + count * 11, nickname);
 
     sram[base] = count + 1;
+    syncCurrentBoxToBanked(sram, boxNumber);
 }
 
 function shiftNames(sram: Uint8Array, base: number, from: number, count: number, _max: number): void {

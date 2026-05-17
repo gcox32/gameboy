@@ -78,8 +78,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     const patchedJson = Buffer.from(JSON.stringify({ MBCRam: Array.from(patched) }));
     const blob = await put(blobPath, patchedJson, { access: 'public', addRandomSuffix: true });
 
-    saveState.filePath = blob.url;
-    await saveState.save();
+    await SaveState.updateOne({ _id: targetSaveStateId }, { $set: { filePath: blob.url } });
     try { await del(oldFilePath); } catch { /* non-fatal */ }
 
     pokemon.status = 'in_game';
