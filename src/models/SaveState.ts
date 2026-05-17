@@ -18,7 +18,7 @@ const SaveStateSchema = new Schema<ISaveState>(
         gameId: { type: Schema.Types.ObjectId, ref: 'Game', required: true },
         title: { type: String, required: true, trim: true },
         description: { type: String },
-        filePath: { type: String, required: true },
+        filePath: { type: String, default: '' },
         img: { type: String },
         connected: { type: Boolean, default: false },
     },

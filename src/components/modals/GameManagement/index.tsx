@@ -15,6 +15,7 @@ import GameEditForm from './GameEditForm';
 import { useToast } from '@/components/ui';
 import { getS3Url } from '@/utils/saveLoad';
 import { uploadBlob } from '@/utils/blobUpload';
+import { gameBlobDir } from '@/utils/blobPaths';
 import { GameModel } from '@/types';
 import buttons from '@/styles/buttons.module.css';
 
@@ -82,8 +83,9 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
 
             let imagePath = gameData.img || '';
             if (gameData.imageFile) {
+                const identity = user?.email || user?.userId || '';
                 const ext = gameData.imageFile.name.split('.').pop() ?? 'jpg';
-                const coverPath = `games/${user?.userId}/${gameData.id}/cover.${ext}`;
+                const coverPath = `${gameBlobDir(identity, gameData.title, gameData.id)}/cover.${ext}`;
                 imagePath = await uploadBlob(gameData.imageFile, coverPath);
             }
 
@@ -153,6 +155,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             return (
                 <ImportGame
                     userId={user?.userId}
+                    userEmail={user?.email}
                     onSuccess={() => { setShowImport(false); loadGames(); onGameDeleted(); }}
                     onCancel={() => setShowImport(false)}
                 />

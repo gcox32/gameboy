@@ -42,16 +42,19 @@ export class TextEncoder {
   };
 
   static decodeString(data: TextString): string {
-    return data
-      .map(byte => this.CHAR_TABLE[byte] || '')
-      .join('')
-      .replace(/\x50$/, ''); // Remove terminator
+    const chars: string[] = [];
+    for (const byte of data) {
+      if (byte === 0x50) break;
+      const ch = this.CHAR_TABLE[byte];
+      if (ch) chars.push(ch);
+    }
+    return chars.join('');
   }
 
   static encodeString(text: string): TextString {
     const reverseTable: Record<string, number> = {};
     for (const [key, value] of Object.entries(this.CHAR_TABLE)) {
-      reverseTable[value] = parseInt(key, 16);
+      reverseTable[value] = parseInt(key, 10);
     }
     
     return text

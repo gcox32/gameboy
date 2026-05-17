@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { del, put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
-import { User, SaveState, StoredPokemon } from '@/models';
+import { User, SaveState, StoredPokemon, Game } from '@/models';
 import { injectPokemon } from '@/utils/sramWriter';
+import { saveBlobPath } from '@/utils/blobPaths';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     }
 
     // Fetch save blob (JSON format: { MBCRam: number[] })
-    const res = await fetch(saveState.filePath);
+    const res = await fetch(saveState.filePath, { cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ error: 'Failed to fetch save file' }, { status: 502 });
     const json = await res.json() as { MBCRam: number[] };
     if (!Array.isArray(json.MBCRam)) {
@@ -57,28 +58,38 @@ export async function POST(req: NextRequest, { params }: Params) {
 
     // Inject the Pokémon into the target slot
     const rawBoxData = Buffer.from(pokemon.rawBoxData);
-    const patched = injectPokemon(
-        sram,
-        rawBoxData,
-        pokemon.nickname,
-        pokemon.otName,
-        user.appTrainerId,
-        targetSlot
-    );
+    let patched: Uint8Array;
+    try {
+        patched = injectPokemon(sram, rawBoxData, pokemon.nickname, pokemon.otName, user.appTrainerId, targetSlot);
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Inject failed';
+        return NextResponse.json({ error: msg }, { status: 422 });
+    }
 
     // Upload patched save (JSON format: { MBCRam: number[] })
-    const blobPath = `saves/${session.user.id}/${targetSaveStateId}/save.sav`;
+    const oldFilePath = saveState.filePath;
+    const game = await Game.findById(saveState.gameId);
+    const blobPath = saveBlobPath(
+        session.user.email ?? session.user.id,
+        game?.title ?? 'game',
+        saveState.title ?? 'save',
+        targetSaveStateId,
+    );
     const patchedJson = Buffer.from(JSON.stringify({ MBCRam: Array.from(patched) }));
-    const blob = await put(blobPath, patchedJson, { access: 'public', addRandomSuffix: false, allowOverwrite: true });
+    const blob = await put(blobPath, patchedJson, { access: 'public', addRandomSuffix: true });
 
     saveState.filePath = blob.url;
     await saveState.save();
+    try { await del(oldFilePath); } catch { /* non-fatal */ }
 
     pokemon.status = 'in_game';
     pokemon.currentGameId = saveState.gameId;
-    // Update rawBoxData with the healed/modified version written to the save
     pokemon.rawBoxData = Buffer.from(rawBoxData);
     await pokemon.save();
 
-    return NextResponse.json({ pokemon: pokemon.toJSON(), updatedSaveStateId: saveState.id });
+    return NextResponse.json({
+        pokemon: pokemon.toJSON(),
+        updatedSaveStateId: saveState.id,
+        updatedFilePath: blob.url,
+    });
 }

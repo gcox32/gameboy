@@ -120,7 +120,7 @@ function ControlPanel({
     const handleLoadSaveState = async (selectedSaveState: SaveStateModel) => {
         try {
             // filePath is a Vercel Blob permanent URL — fetch directly
-            const response = await fetch(selectedSaveState.filePath);
+            const response = await fetch(selectedSaveState.filePath, { cache: 'no-store' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

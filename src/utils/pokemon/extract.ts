@@ -48,6 +48,10 @@ function extractFromParty(sram: number[], slotIndex: number): RawExtractedPokemo
     const dataStart = partyBase + PARTY_DATA_OFFSET + slotIndex * 44;
     const rawBoxData = Buffer.from(sram.slice(dataStart, dataStart + 33));
 
+    // Byte 0x03 (box level) may be stale for party Pokémon that leveled up without
+    // being deposited. The authoritative party level is at byte 0x21 of the 44-byte form.
+    rawBoxData[0x03] = sram[dataStart + 0x21];
+
     const otStart = partyBase + PARTY_OT_OFFSET + slotIndex * 11;
     const nickStart = partyBase + PARTY_NICK_OFFSET + slotIndex * 11;
 
@@ -55,12 +59,14 @@ function extractFromParty(sram: number[], slotIndex: number): RawExtractedPokemo
 }
 
 function extractFromBox(sram: number[], boxNumber: number, slotIndex: number): RawExtractedPokemon {
-    // Box 1–6 in bank2 (0x4000), box 7–12 in bank3 (0x6000)
-    // Each bank holds 6 boxes; box size = 0x462 bytes per OAKS_LAB.md
     const BOX_SIZE = 0x462;
     const bankBase = boxNumber <= 6 ? 0x4000 : 0x6000;
     const boxIndex = boxNumber <= 6 ? boxNumber - 1 : boxNumber - 7;
-    const boxBase = bankBase + boxIndex * BOX_SIZE;
+
+    // Active box live data lives at 0x30C0, not in the banked slot (which is stale).
+    // wCurrentBoxNum at 0x284C: bits 0–6 = 0-indexed box number; bit 7 = "has switched" flag.
+    const currentBoxIdx = sram[0x284C] & 0x0F;
+    const boxBase = (boxNumber - 1) === currentBoxIdx ? 0x30C0 : bankBase + boxIndex * BOX_SIZE;
 
     const count = sram[boxBase + BOX_COUNT_OFFSET];
     if (slotIndex >= count) throw new Error(`Box ${boxNumber} slot ${slotIndex} is empty`);

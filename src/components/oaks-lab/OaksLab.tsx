@@ -156,7 +156,7 @@ function ExtractTab({ games }: { games: GameModel[] }) {
         setLoadingSave(true);
         setParty([]); setBoxes([]); setSelected(new Set()); setSelectedBox(0);
         try {
-            const res = await fetch(currentSave.filePath);
+            const res = await fetch(currentSave.filePath, { cache: 'no-store' });
             if (!res.ok) {
                 setToast(`Could not load save file (${res.status}). Check the file URL.`);
                 return;
@@ -242,7 +242,7 @@ function ExtractTab({ games }: { games: GameModel[] }) {
             const { created } = await res.json();
             setToast(`${created.length} Pokémon sent to the Ranch!`);
             setSelected(new Set());
-            loadSaveFile();
+            await loadSaveFile();
         } else {
             setToast('Something went wrong.');
         }
@@ -362,10 +362,11 @@ function PortInTab({ games }: { games: GameModel[] }) {
     const [ranch, setRanch] = useState<RanchPokemon[]>([]);
     const [selectedPokemon, setSelectedPokemon] = useState<RanchPokemon | null>(null);
     const [targetSlotType, setTargetSlotType] = useState<'party' | 'box'>('party');
-    const [targetSlotIndex, setTargetSlotIndex] = useState(0);
     const [targetBoxNumber, setTargetBoxNumber] = useState(1);
+    const [occupancy, setOccupancy] = useState<{ partyCount: number; boxCounts: number[] } | null>(null);
     const [porting, setPorting] = useState(false);
     const [toast, setToast] = useState('');
+    const [portedSave, setPortedSave] = useState<{ party: SlotPokemon[]; boxes: SlotPokemon[][] } | null>(null);
 
     const currentSave = saveStates.find(s => s.id === saveStateId);
 
@@ -375,21 +376,38 @@ function PortInTab({ games }: { games: GameModel[] }) {
         setSaveStates(await res.json());
     }, []);
 
+    const fetchRanch = useCallback(async () => {
+        try {
+            const data = await fetch('/api/pokemon/stored?status=stashed').then(r => r.json());
+            setRanch(data);
+        } catch {}
+    }, []);
+
     useEffect(() => { fetchSaveStates(gameId); setSaveStateId(''); }, [gameId, fetchSaveStates]);
+    useEffect(() => { fetchRanch(); }, [fetchRanch]);
 
     useEffect(() => {
-        fetch('/api/pokemon/stored?status=stashed')
+        if (!saveStateId || !currentSave?.connected || !currentSave.filePath) {
+            setOccupancy(null);
+            return;
+        }
+        fetch(currentSave.filePath, { cache: 'no-store' })
             .then(r => r.json())
-            .then(setRanch)
+            .then((json: { MBCRam: number[] }) => {
+                if (!Array.isArray(json.MBCRam)) return;
+                const parsed = parseSaveFile(new Uint8Array(json.MBCRam));
+                setOccupancy({ partyCount: parsed.party.length, boxCounts: parsed.boxes.map(b => b.length) });
+            })
             .catch(() => {});
-    }, []);
+    }, [saveStateId, currentSave?.connected, currentSave?.filePath]);
 
     const handlePort = async () => {
         if (!selectedPokemon || !saveStateId) return;
         setPorting(true);
+        setPortedSave(null);
         const targetSlot = targetSlotType === 'party'
-            ? { location: 'party', slotIndex: targetSlotIndex }
-            : { location: 'box', boxNumber: targetBoxNumber, slotIndex: targetSlotIndex };
+            ? { location: 'party', slotIndex: 0 }
+            : { location: 'box', boxNumber: targetBoxNumber, slotIndex: 0 };
 
         const res = await fetch(`/api/pokemon/stored/${selectedPokemon.id}/port`, {
             method: 'POST',
@@ -398,9 +416,19 @@ function PortInTab({ games }: { games: GameModel[] }) {
         });
 
         if (res.ok) {
+            const { updatedFilePath } = await res.json() as { updatedFilePath: string };
             setToast(`${selectedPokemon.nickname} sent to ${currentSave?.title ?? 'your game'}!`);
-            setRanch(prev => prev.filter(p => p.id !== selectedPokemon.id));
             setSelectedPokemon(null);
+            await Promise.all([fetchRanch(), fetchSaveStates(gameId)]);
+            try {
+                const saveRes = await fetch(updatedFilePath, { cache: 'no-store' });
+                const saveJson = await saveRes.json() as { MBCRam: number[] };
+                if (Array.isArray(saveJson.MBCRam)) {
+                    const fresh = parseSaveFile(new Uint8Array(saveJson.MBCRam));
+                    setPortedSave(fresh);
+                    setOccupancy({ partyCount: fresh.party.length, boxCounts: fresh.boxes.map(b => b.length) });
+                }
+            } catch {}
         } else {
             const err = await res.json().catch(() => ({}));
             setToast(err.error ?? 'Something went wrong.');
@@ -461,56 +489,94 @@ function PortInTab({ games }: { games: GameModel[] }) {
                 <div className={styles.boxSection}>
                     <div className={styles.boxTitle}>Target Slot</div>
                     <div className={styles.slotPicker}>
-                        {(['party', 'box'] as const).map(loc => (
-                            <button
-                                key={loc}
-                                className={`${styles.slotPickerBtn} ${targetSlotType === loc ? styles.pickerActive : ''}`}
-                                onClick={() => { setTargetSlotType(loc); setTargetSlotIndex(0); }}
-                            >
-                                {loc === 'party' ? 'Party' : 'PC Box'}
-                            </button>
-                        ))}
+                        {(['party', 'box'] as const).map(loc => {
+                            const full = loc === 'party'
+                                ? (occupancy?.partyCount ?? 0) >= 6
+                                : false;
+                            return (
+                                <button
+                                    key={loc}
+                                    className={`${styles.slotPickerBtn} ${targetSlotType === loc ? styles.pickerActive : ''}`}
+                                    onClick={() => setTargetSlotType(loc)}
+                                    disabled={full}
+                                >
+                                    {loc === 'party'
+                                        ? `Party${occupancy ? ` (${occupancy.partyCount}/6)` : ''}`
+                                        : 'PC Box'}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {targetSlotType === 'box' && (
                         <div className={styles.slotPicker}>
-                            {Array.from({ length: 12 }, (_, i) => (
-                                <button
-                                    key={i}
-                                    className={`${styles.slotPickerBtn} ${targetBoxNumber === i + 1 ? styles.pickerActive : ''}`}
-                                    onClick={() => setTargetBoxNumber(i + 1)}
-                                >
-                                    Box {i + 1}
-                                </button>
-                            ))}
+                            {Array.from({ length: 12 }, (_, i) => {
+                                const count = occupancy?.boxCounts[i] ?? 0;
+                                const full = count >= 20;
+                                return (
+                                    <button
+                                        key={i}
+                                        className={`${styles.slotPickerBtn} ${targetBoxNumber === i + 1 ? styles.pickerActive : ''}`}
+                                        onClick={() => setTargetBoxNumber(i + 1)}
+                                        disabled={full}
+                                    >
+                                        {`Box ${i + 1}${occupancy ? ` (${count}/20)` : ''}`}
+                                    </button>
+                                );
+                            })}
                         </div>
                     )}
-
-                    <div className={styles.slotPicker}>
-                        {Array.from({ length: targetSlotType === 'party' ? 6 : 20 }, (_, i) => (
-                            <button
-                                key={i}
-                                className={`${styles.slotPickerBtn} ${targetSlotIndex === i ? styles.pickerActive : ''}`}
-                                onClick={() => setTargetSlotIndex(i)}
-                            >
-                                Slot {i + 1}
-                            </button>
-                        ))}
-                    </div>
                 </div>
             )}
 
             {toast && <p style={{ color: '#c8a0f0', marginBottom: '1rem' }}>{toast}</p>}
 
-            {selectedPokemon && saveStateId && currentSave?.connected && (
-                <div className={styles.sendBar}>
-                    <p>
-                        Send <strong>{selectedPokemon.nickname}</strong> to{' '}
-                        {targetSlotType === 'party' ? `Party slot ${targetSlotIndex + 1}` : `Box ${targetBoxNumber} slot ${targetSlotIndex + 1}`}
-                    </p>
-                    <button className={styles.btnPrimary} onClick={handlePort} disabled={porting}>
-                        {porting ? 'Sending...' : `Send to ${currentSave?.title ?? 'Game'}`}
-                    </button>
+            {selectedPokemon && saveStateId && currentSave?.connected && (() => {
+                const nextSlot = targetSlotType === 'party'
+                    ? `Party — slot ${(occupancy?.partyCount ?? 0) + 1}`
+                    : `Box ${targetBoxNumber} — slot ${(occupancy?.boxCounts[targetBoxNumber - 1] ?? 0) + 1}`;
+                const isFull = targetSlotType === 'party'
+                    ? (occupancy?.partyCount ?? 0) >= 6
+                    : (occupancy?.boxCounts[targetBoxNumber - 1] ?? 0) >= 20;
+                return (
+                    <div className={styles.sendBar}>
+                        <p>
+                            Send <strong>{selectedPokemon.nickname}</strong> to{' '}
+                            {nextSlot} (next available)
+                        </p>
+                        <button className={styles.btnPrimary} onClick={handlePort} disabled={porting || isFull}>
+                            {porting ? 'Sending...' : isFull ? 'Full' : `Send to ${currentSave?.title ?? 'Game'}`}
+                        </button>
+                    </div>
+                );
+            })()}
+
+            {portedSave && (
+                <div className={styles.boxSection}>
+                    <div className={styles.boxTitle}>
+                        {currentSave?.title ?? 'Target save'} — current state
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(232,224,244,0.5)', marginBottom: '0.5rem' }}>
+                        Party: {portedSave.party.length} · Boxes: {portedSave.boxes.reduce((n, b) => n + b.length, 0)} total
+                    </div>
+                    <div className={styles.slotGrid}>
+                        {[...portedSave.party, ...portedSave.boxes.flat()].map(s => (
+                            <div key={`${s.location}-${s.boxNumber ?? 'p'}-${s.slotIndex}`} className={styles.slotCard}>
+                                {spriteUrl(s.speciesIndex) && (
+                                    <Image
+                                        src={spriteUrl(s.speciesIndex)}
+                                        alt={s.nickname}
+                                        width={56}
+                                        height={56}
+                                        className={styles.slotSprite}
+                                        unoptimized
+                                    />
+                                )}
+                                <div className={styles.slotName}>{s.nickname}</div>
+                                <div className={styles.slotLevel}>Lv. {s.level}</div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

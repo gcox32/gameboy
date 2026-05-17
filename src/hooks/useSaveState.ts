@@ -1,13 +1,15 @@
+'use client';
+
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { uploadBlob } from '@/utils/blobUpload';
+import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
+import { saveBlobPath } from '@/utils/blobPaths';
 import { GameModel, SaveStateModel } from '@/types';
 
 interface GameInstance {
     saveSRAMState: () => number[];
 }
 
-export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel, userId: string) => {
+export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel, userId: string, userEmail: string) => {
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -19,50 +21,63 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel,
             const MBCRam = gameInstance.saveSRAMState();
             if (MBCRam.length === 0) throw new Error('No save data available');
 
-            const saveStateId = (isUpdate && saveData.id) ? saveData.id : uuidv4();
             const gameId = currentGame.id;
-
             if (!userId) throw new Error('Cannot save: user ID is missing');
             if (!gameId) throw new Error('Cannot save: game ID is missing');
 
-            // Upload save file
-            const safeTitle = (saveData.title || 'save').replace(/\//g, '-').trim() || 'save';
-            const saveBlob = new Blob([JSON.stringify({ MBCRam })], { type: 'application/json' });
-            const saveFile = new File([saveBlob], `${safeTitle}.sav`, { type: 'application/json' });
-            const savePath = `save-states/${userId}/${gameId}/${saveStateId}/${safeTitle}.sav`;
+            // For creates, register the record first to get the MongoDB ID.
+            // For updates, the existing ID is used directly.
+            let saveStateId: string;
+            if (isUpdate && saveData.id) {
+                saveStateId = saveData.id;
+            } else {
+                const createRes = await fetch('/api/save-states', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        gameId,
+                        title: saveData.title,
+                        description: saveData.description || '',
+                        img: saveData.img || '',
+                    }),
+                });
+                if (!createRes.ok) throw new Error('Failed to create save state record');
+                const created: SaveStateModel = await createRes.json();
+                saveStateId = created.id!;
+            }
 
-            // For updates, we re-upload to the same path (Vercel Blob overwrites)
+            const identity = userEmail || userId;
+            const saveFile = new File(
+                [JSON.stringify({ MBCRam })],
+                'save.sav',
+                { type: 'application/json' },
+            );
+            const savePath = saveBlobPath(identity, currentGame.title, saveData.title ?? 'save', saveStateId);
+            const oldFilePath = isUpdate ? saveData.filePath : '';
             const filePath = await uploadBlob(saveFile, savePath);
 
             // Upload screenshot if provided
             let imgPath = saveData.img || '';
             if (saveData.imgFile && saveData.imgFile.type.startsWith('image/')) {
                 const ext = saveData.imgFile.name.split('.').pop() ?? 'png';
-                const screenshotPath = `save-states/${userId}/${gameId}/${saveStateId}/screenshot.${ext.replace(/\//g, '')}`;
+                const screenshotPath = savePath.replace('/save.sav', `/screenshot.${ext.replace(/\//g, '')}`);
                 imgPath = await uploadBlob(saveData.imgFile, screenshotPath);
             }
 
-            // Persist to DB
-            const method = isUpdate ? 'PUT' : 'POST';
-            const url = isUpdate ? `/api/save-states/${saveStateId}` : '/api/save-states';
-            const body = isUpdate
-                ? { filePath, img: imgPath }
-                : {
-                    gameId,
-                    title: saveData.title,
-                    description: saveData.description || '',
-                    filePath,
-                    img: imgPath,
-                };
-
-            const res = await fetch(url, {
-                method,
+            // Update the record with the blob URL (and img if changed)
+            const updateRes = await fetch(`/api/save-states/${saveStateId}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
+                body: JSON.stringify({ filePath, img: imgPath }),
             });
-            if (!res.ok) throw new Error('Failed to save state to database');
+            if (!updateRes.ok) throw new Error('Failed to update save state record');
+            const saved: SaveStateModel = await updateRes.json();
 
-            const saved: SaveStateModel = await res.json();
+            // Delete old blob if the URL changed (title rename or first-ever upload)
+            if (oldFilePath && oldFilePath !== filePath) {
+                deleteBlob(oldFilePath).catch(() => {});
+            }
+
             return saved;
         } catch (err) {
             const e = err instanceof Error ? err : new Error('An unknown error occurred');

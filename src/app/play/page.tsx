@@ -69,7 +69,8 @@ export default function App() {
 	const { saveThisState, isSaving } = useSaveState(
 		gameBoyInstance.current || { saveSRAMState: () => [] },
 		activeROM || { id: '', userId: '', title: '', filePath: '', metadata: {} },
-		currentUser?.userId || ''
+		currentUser?.userId || '',
+		currentUser?.email || '',
 	);
 
 	// Mobile immersive mode - handles fullscreen, orientation lock, PWA detection

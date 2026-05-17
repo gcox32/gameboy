@@ -27,10 +27,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { gameId, title, description, filePath, img } = body;
+    const { gameId, title, description, filePath = '', img } = body;
 
-    if (!gameId || !title || !filePath) {
-        return NextResponse.json({ error: 'gameId, title and filePath are required' }, { status: 400 });
+    if (!gameId || !title) {
+        return NextResponse.json({ error: 'gameId and title are required' }, { status: 400 });
     }
 
     await dbConnect();

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { del, put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { SaveState, Game, StoredPokemon } from '@/models';
 import { extractFromSRAM, SourceSlot } from '@/utils/pokemon/extract';
 import { clearSlot } from '@/utils/sramWriter';
+import { saveBlobPath } from '@/utils/blobPaths';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
     if (!game) return NextResponse.json({ error: 'Game not found' }, { status: 404 });
 
     // Fetch the save blob (JSON format: { MBCRam: number[] })
-    const res = await fetch(saveState.filePath);
+    const res = await fetch(saveState.filePath, { cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ error: 'Failed to fetch save file' }, { status: 502 });
     const json = await res.json() as { MBCRam: number[] };
     if (!Array.isArray(json.MBCRam)) {
@@ -102,11 +103,18 @@ export async function POST(req: NextRequest) {
     }
 
     // Upload patched save blob (JSON format: { MBCRam: number[] })
-    const blobPath = `saves/${session.user.id}/${saveStateId}/save.sav`;
+    const oldFilePath = saveState.filePath;
+    const blobPath = saveBlobPath(
+        session.user.email ?? session.user.id,
+        game.title,
+        saveState.title ?? 'save',
+        saveStateId,
+    );
     const patched = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
-    const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: false, allowOverwrite: true });
+    const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: true });
     saveState.filePath = blob.url;
     await saveState.save();
+    try { await del(oldFilePath); } catch { /* non-fatal */ }
 
     return NextResponse.json({ created, updatedSaveStateId: saveState.id }, { status: 201 });
 }

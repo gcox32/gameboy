@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { del, put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
-import { User, SaveState } from '@/models';
+import { User, SaveState, Game } from '@/models';
 import { SRAMParser } from '@/utils/sramParser';
+import { saveBlobPath } from '@/utils/blobPaths';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -53,7 +54,7 @@ export async function POST(_req: NextRequest, { params }: Params) {
     // Patch the save file with the appTrainerId. Non-fatal: if this fails, the save state
     // is still marked connected and the user can work with the original file.
     try {
-        const fileRes = await fetch(saveState.filePath);
+        const fileRes = await fetch(saveState.filePath, { cache: 'no-store' });
         if (!fileRes.ok) throw new Error(`Fetch failed: ${fileRes.status}`);
 
         const json = await fileRes.json() as { MBCRam: number[] };
@@ -68,11 +69,19 @@ export async function POST(_req: NextRequest, { params }: Params) {
         const parser = new SRAMParser(Array.from(sram));
         sram[0x3523] = parser.calculateMainDataChecksum();
 
+        const oldFilePath = saveState.filePath;
+        const game = await Game.findById(saveState.gameId);
+        const blobPath = saveBlobPath(
+            session.user.email ?? session.user.id,
+            game?.title ?? 'game',
+            saveState.title ?? 'save',
+            id,
+        );
         const patched = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
-        const blobPath = `saves/${session.user.id}/${id}/save.sav`;
-        const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: false, allowOverwrite: true });
+        const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: true });
 
         await SaveState.updateOne({ _id: id }, { $set: { filePath: blob.url } });
+        try { await del(oldFilePath); } catch { /* non-fatal */ }
     } catch (err) {
         console.error('[connect] File patching failed — save state is still marked connected:', err);
     }

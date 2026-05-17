@@ -29,10 +29,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, filePath, img, metadata } = body;
+    const { title, filePath = '', img, metadata } = body;
 
-    if (!title || !filePath) {
-        return NextResponse.json({ error: 'title and filePath are required' }, { status: 400 });
+    if (!title) {
+        return NextResponse.json({ error: 'title is required' }, { status: 400 });
     }
 
     await dbConnect();

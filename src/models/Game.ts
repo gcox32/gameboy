@@ -32,7 +32,7 @@ const GameSchema = new Schema<IGame>(
     {
         userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         title: { type: String, required: true, trim: true },
-        filePath: { type: String, required: true },
+        filePath: { type: String, default: '' },
         img: { type: String },
         metadata: {
             description: String,

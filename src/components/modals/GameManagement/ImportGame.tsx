@@ -1,5 +1,4 @@
 import { useState, FormEvent } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import {
     Flex,
     TextField,
@@ -11,15 +10,18 @@ import {
 import { ImageUpload } from '@/components/common/ImageUpload';
 import FileUploadZone from '@/components/common/FileUploadZone';
 import { uploadBlob } from '@/utils/blobUpload';
+import { gameBlobDir } from '@/utils/blobPaths';
+import { GameModel } from '@/types';
 import buttons from '@/styles/buttons.module.css';
 
 interface ImportGameProps {
     userId: string | undefined;
+    userEmail: string | undefined;
     onSuccess: () => void;
     onCancel: () => void;
 }
 
-export default function ImportGame({ userId, onSuccess, onCancel }: ImportGameProps) {
+export default function ImportGame({ userId, userEmail, onSuccess, onCancel }: ImportGameProps) {
     const [gameFile, setGameFile] = useState<File | null>(null);
     const [imageFile, setImageFile] = useState<File | string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -66,43 +68,50 @@ export default function ImportGame({ userId, onSuccess, onCancel }: ImportGamePr
         setUploadProgress(0);
 
         try {
-            const gameId = uuidv4();
+            const identity = userEmail || userId;
+            if (!identity) throw new Error('Not authenticated');
 
-            // Upload ROM file
+            // Create the record first to get the MongoDB ID for path construction
             setUploadProgress(10);
-            const romPath = `games/${userId}/${gameId}/${gameFile.name}`;
-            const filePath = await uploadBlob(gameFile, romPath);
-            setUploadProgress(60);
-
-            // Upload cover image if provided
-            let imgPath = '';
-            if (imageFile) {
-                if (typeof imageFile === 'string') {
-                    // Preset URL — store directly
-                    imgPath = imageFile;
-                } else {
-                    const ext = imageFile.name.split('.').pop() ?? 'jpg';
-                    const coverPath = `games/${userId}/${gameId}/cover.${ext}`;
-                    imgPath = await uploadBlob(imageFile, coverPath);
-                }
-            }
-            setUploadProgress(90);
-
-            // Create game record
-            const res = await fetch('/api/games', {
+            const createRes = await fetch('/api/games', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title: formData.title,
-                    filePath,
-                    img: imgPath,
                     metadata: {
                         description: formData.description,
                         memoryWatchers: formData.memoryWatchers,
                     },
                 }),
             });
-            if (!res.ok) throw new Error('Failed to save game record');
+            if (!createRes.ok) throw new Error('Failed to create game record');
+            const created: GameModel = await createRes.json();
+            const dir = gameBlobDir(identity, formData.title, created.id);
+
+            // Upload ROM file
+            setUploadProgress(30);
+            const filePath = await uploadBlob(gameFile, `${dir}/${gameFile.name}`);
+            setUploadProgress(70);
+
+            // Upload cover image if provided
+            let imgPath = '';
+            if (imageFile) {
+                if (typeof imageFile === 'string') {
+                    imgPath = imageFile;
+                } else {
+                    const ext = imageFile.name.split('.').pop() ?? 'jpg';
+                    imgPath = await uploadBlob(imageFile, `${dir}/cover.${ext}`);
+                }
+            }
+            setUploadProgress(90);
+
+            // Update record with blob URLs
+            const res = await fetch(`/api/games/${created.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filePath, img: imgPath }),
+            });
+            if (!res.ok) throw new Error('Failed to update game record');
 
             setUploadProgress(100);
             onSuccess();

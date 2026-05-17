@@ -21,7 +21,11 @@ const BOX_MIRROR_BASE = 0x30C0;
 // PC box layout
 const BOX_SIZE = 0x462;
 
-function boxBase(boxNumber: number): number {
+function boxBase(sram: Uint8Array, boxNumber: number): number {
+    // Active box live data is in the mirror at 0x30C0; its banked slot is stale.
+    // wCurrentBoxNum at 0x284C: bits 0–6 = 0-indexed box number; bit 7 = "has switched" flag.
+    const currentBoxIdx = sram[0x284C] & 0x0F;
+    if ((boxNumber - 1) === currentBoxIdx) return BOX_MIRROR_BASE;
     const bankBase = boxNumber <= 6 ? 0x4000 : 0x6000;
     const idx = boxNumber <= 6 ? boxNumber - 1 : boxNumber - 7;
     return bankBase + idx * BOX_SIZE;
@@ -75,7 +79,7 @@ function clearPartySlot(sram: Uint8Array, slotIndex: number): void {
 }
 
 function clearBoxSlot(sram: Uint8Array, boxNumber: number, slotIndex: number): void {
-    const base = boxBase(boxNumber);
+    const base = boxBase(sram, boxNumber);
     const count = sram[base];
     if (slotIndex >= count) return;
 
@@ -147,9 +151,9 @@ function injectParty(
     const speciesIndex = rawBoxData[0x00];
     const level = rawBoxData[0x03];
 
-    // Species list
-    sram[PARTY_SPECIES + slotIndex] = speciesIndex;
-    sram[PARTY_SPECIES + count] = 0xFF; // terminator
+    // Gen 1 slots are contiguous — always append at count; terminator goes one beyond.
+    sram[PARTY_SPECIES + count] = speciesIndex;
+    sram[PARTY_SPECIES + count + 1] = 0xFF;
 
     // Build 44-byte party form
     const partyBytes = new Uint8Array(44);
@@ -161,11 +165,11 @@ function injectParty(
     writeUint16BE(partyBytes, 0x28, stats.speed);
     writeUint16BE(partyBytes, 0x2A, stats.special);
 
-    const dataStart = PARTY_DATA + slotIndex * 44;
+    const dataStart = PARTY_DATA + count * 44;
     sram.set(partyBytes, dataStart);
 
-    writeNameAt(sram, PARTY_OT + slotIndex * 11, otName);
-    writeNameAt(sram, PARTY_NICK + slotIndex * 11, nickname);
+    writeNameAt(sram, PARTY_OT + count * 11, otName);
+    writeNameAt(sram, PARTY_NICK + count * 11, nickname);
 
     sram[PARTY_COUNT] = count + 1;
 }
@@ -178,20 +182,21 @@ function injectBox(
     boxNumber: number,
     slotIndex: number
 ): void {
-    const base = boxBase(boxNumber);
+    const base = boxBase(sram, boxNumber);
     const count = sram[base];
     if (count >= 20) throw new Error('Box is full');
 
     const speciesIndex = rawBoxData[0x00];
 
-    sram[base + 1 + slotIndex] = speciesIndex;
-    sram[base + 1 + count] = 0xFF;
+    // Gen 1 slots are contiguous — always append at count; terminator goes one beyond.
+    sram[base + 1 + count] = speciesIndex;
+    sram[base + 1 + count + 1] = 0xFF;
 
-    const dataStart = base + BOX_DATA_OFFSET + slotIndex * 33;
+    const dataStart = base + BOX_DATA_OFFSET + count * 33;
     sram.set(rawBoxData.slice(0, 33), dataStart);
 
-    writeNameAt(sram, base + BOX_OT_OFFSET + slotIndex * 11, otName);
-    writeNameAt(sram, base + BOX_NICK_OFFSET + slotIndex * 11, nickname);
+    writeNameAt(sram, base + BOX_OT_OFFSET + count * 11, otName);
+    writeNameAt(sram, base + BOX_NICK_OFFSET + count * 11, nickname);
 
     sram[base] = count + 1;
 }

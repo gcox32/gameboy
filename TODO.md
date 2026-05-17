@@ -2,6 +2,13 @@
 
 ## UX / UI Overhaul
 
+### General Improvements
+- [ ] Simplify save state path structure (make it reasonable)
+- [ ] Build out type system for multiple gens (I, II, III)
+- [ ] Style Ranch view
+- [ ] Style Lab view
+- [ ] Build "Connect" into full blown feature
+
 ### Modal System
 - [ ] Establish a consistent modal design language (spacing, typography, header/footer patterns)
 - [ ] **Profile modal** — rebuild layout; avatar upload UX, bio editing, clear save/cancel flow
@@ -78,16 +85,8 @@
 
 ---
 
-## Infrastructure
-
-- [ ] Error logging service (Sentry or similar)
-- [ ] Rate limiting on auth routes
-- [ ] Admin audit log (who did what, when)
-
----
 
 ## Stretch Goals
 
-- [ ] Save state sharing (public link with expiry)
 - [ ] Community features (view others' progress, team comparison)
 - [ ] Advanced game analysis tools
