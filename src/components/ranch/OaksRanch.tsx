@@ -163,21 +163,24 @@ export default function OaksRanch() {
                     priority
                     unoptimized
                 />
-                <div className={styles.heroText}>
-                    <h1>Oak&apos;s Ranch</h1>
-                    <p>Your Pokémon in storage</p>
-                </div>
+                <div className={styles.heroOverlay} />
             </div>
 
             <div className={styles.main}>
-                <div className={styles.filters}>
-                    <input
-                        className={styles.searchInput}
-                        placeholder="Search by name or species..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                    />
-                    <span className={styles.filterCount}>{filtered.length} Pokémon</span>
+                <div className={styles.pageHeader}>
+                    <div>
+                        <h1>Oak&apos;s Ranch</h1>
+                        <p>Your Pokémon in storage</p>
+                    </div>
+                    <div className={styles.pageHeaderRight}>
+                        <input
+                            className={styles.searchInput}
+                            placeholder="Search..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                        <span className={styles.filterCount}>{filtered.length} Pokémon</span>
+                    </div>
                 </div>
 
                 {loading ? (

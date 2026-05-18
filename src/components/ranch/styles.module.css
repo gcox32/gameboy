@@ -1,15 +1,13 @@
 .page {
     min-height: 100dvh;
-    background: #0d0d1a;
     color: #e8e0f4;
+    width: 80%;
 }
 
 .hero {
-    position: relative;
-    height: 220px;
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
 }
 
 .heroImg {
@@ -19,17 +17,25 @@
     height: 100%;
     object-fit: cover;
     object-position: center top;
-    opacity: 0.55;
 }
 
-.heroText {
-    position: relative;
-    z-index: 2;
-    padding: 1.5rem 2rem;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+.heroOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 13, 26, 0.62);
 }
 
-.heroText h1 {
+.pageHeader {
+    padding: 5.5rem 2rem 1.5rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.pageHeader h1 {
     margin: 0;
     font-size: 2rem;
     font-weight: 900;
@@ -38,29 +44,32 @@
     color: #fff;
 }
 
-.heroText p {
+.pageHeader p {
     margin: 0.25rem 0 0;
     font-size: 0.9rem;
     color: rgba(232, 224, 244, 0.7);
 }
 
-.main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 1.5rem 1rem 4rem;
+.pageHeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.15rem;
+    flex-shrink: 0;
+    text-shadow: none;
 }
 
-/* Filter bar */
+.main {
+    width: min(1600px, calc(100% - 2rem));
+    height: 100dvh;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+    background: rgba(13, 13, 26, 0.5);
+}
+
+/* Filter bar — now lives in the page header */
 .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
+    display: none;
 }
 
 .searchInput {
@@ -277,7 +286,7 @@
     .detailGrid {
         grid-template-columns: 1fr;
     }
-    .heroText h1 {
+    .pageHeader h1 {
         font-size: 1.5rem;
     }
     .grid {

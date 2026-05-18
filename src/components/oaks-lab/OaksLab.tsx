@@ -289,47 +289,30 @@ function ExtractTab({ games }: { games: GameModel[] }) {
     );
 
     return (
-        <div>
-            <div className={styles.selectorRow}>
-                <select className={styles.select} value={gameId} onChange={e => setGameId(e.target.value)}>
-                    <option value="">Select a game...</option>
-                    {games.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
-                </select>
-                <select className={styles.select} value={saveStateId} onChange={e => setSaveStateId(e.target.value)} disabled={!gameId}>
-                    <option value="">Select a save state...</option>
-                    {saveStates.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
-                </select>
-            </div>
+        <div className={styles.twoCol}>
+            <div className={styles.sidebar}>
+                <div className={styles.selectorRow}>
+                    <select className={styles.select} value={gameId} onChange={e => setGameId(e.target.value)}>
+                        <option value="">Select a game...</option>
+                        {games.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
+                    </select>
+                    <select className={styles.select} value={saveStateId} onChange={e => setSaveStateId(e.target.value)} disabled={!gameId}>
+                        <option value="">Select a save state...</option>
+                        {saveStates.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
+                    </select>
+                </div>
 
-            {saveStateId && !currentSave?.connected && (
-                <div className={styles.connectBanner}>
-                    <div>
+                {saveStateId && !currentSave?.connected && (
+                    <div className={styles.connectBanner}>
                         <p>This save is not connected to Oak&apos;s Lab. Connect it to enable transfers and stamp your Trainer ID.</p>
-                        {connectError && <p style={{ color: '#e05555', fontSize: '0.8rem', marginTop: '0.4rem' }}>{connectError}</p>}
+                        {connectError && <p style={{ color: '#e05555' }}>{connectError}</p>}
+                        <button className={styles.btnPrimary} onClick={handleConnect} disabled={connecting}>
+                            {connecting ? 'Connecting...' : 'Connect to Lab'}
+                        </button>
                     </div>
-                    <button className={styles.btnPrimary} onClick={handleConnect} disabled={connecting}>
-                        {connecting ? 'Connecting...' : 'Connect to Lab'}
-                    </button>
-                </div>
-            )}
+                )}
 
-            {selected.size > 0 && (
-                <div className={styles.sendBar}>
-                    <p>{selected.size} Pokémon selected</p>
-                    <button className={styles.btnPrimary} onClick={handleSend} disabled={sending}>
-                        {sending ? 'Sending...' : 'Send to Ranch'}
-                    </button>
-                </div>
-            )}
-
-            {toast && <p style={{ color: '#c8a0f0', marginBottom: '1rem' }}>{toast}</p>}
-
-            {loadingSave && <p style={{ color: 'rgba(232,224,244,0.5)' }}>Loading save file...</p>}
-
-            {currentSave?.connected && !loadingSave && (party.length > 0 || boxes.some(b => b.length > 0)) && (
-                <>
-                    {renderSlotGrid(party, 'Party')}
-
+                {currentSave?.connected && !loadingSave && (party.length > 0 || boxes.some(b => b.length > 0)) && (
                     <div className={styles.boxSection}>
                         <div className={styles.boxTitle}>PC Boxes</div>
                         <div className={styles.boxNav}>
@@ -348,10 +331,29 @@ function ExtractTab({ games }: { games: GameModel[] }) {
                             ))}
                         </div>
                     </div>
+                )}
+            </div>
 
-                    {renderSlotGrid(boxes[selectedBox] ?? [], `Box ${selectedBox + 1}`)}
-                </>
-            )}
+            <div className={styles.content}>
+                {selected.size > 0 && (
+                    <div className={styles.sendBar}>
+                        <p>{selected.size} Pokémon selected</p>
+                        <button className={styles.btnPrimary} onClick={handleSend} disabled={sending}>
+                            {sending ? 'Sending...' : 'Send to Ranch'}
+                        </button>
+                    </div>
+                )}
+
+                {toast && <p style={{ color: '#c8a0f0', marginBottom: '1rem' }}>{toast}</p>}
+                {loadingSave && <p style={{ color: 'rgba(232,224,244,0.5)' }}>Loading save file...</p>}
+
+                {currentSave?.connected && !loadingSave && (party.length > 0 || boxes.some(b => b.length > 0)) && (
+                    <>
+                        {renderSlotGrid(party, 'Party')}
+                        {renderSlotGrid(boxes[selectedBox] ?? [], `Box ${selectedBox + 1}`)}
+                    </>
+                )}
+            </div>
         </div>
     );
 }
@@ -441,147 +443,150 @@ function PortInTab({ games }: { games: GameModel[] }) {
     };
 
     return (
-        <div>
-            <div className={styles.selectorRow}>
-                <select className={styles.select} value={gameId} onChange={e => setGameId(e.target.value)}>
-                    <option value="">Select target game...</option>
-                    {games.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
-                </select>
-                <select className={styles.select} value={saveStateId} onChange={e => setSaveStateId(e.target.value)} disabled={!gameId}>
-                    <option value="">Select save state...</option>
-                    {saveStates.map(s => <option key={s.id} value={s.id}>{s.title}{!s.connected ? ' (not connected)' : ''}</option>)}
-                </select>
-            </div>
-
-            {saveStateId && !currentSave?.connected && (
-                <div className={styles.connectBanner}>
-                    <p>This save is not connected to Oak&apos;s Lab. Connect it first to receive Pokémon.</p>
+        <div className={styles.twoCol}>
+            <div className={styles.sidebar}>
+                <div className={styles.selectorRow}>
+                    <select className={styles.select} value={gameId} onChange={e => setGameId(e.target.value)}>
+                        <option value="">Select target game...</option>
+                        {games.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
+                    </select>
+                    <select className={styles.select} value={saveStateId} onChange={e => setSaveStateId(e.target.value)} disabled={!gameId}>
+                        <option value="">Select save state...</option>
+                        {saveStates.map(s => <option key={s.id} value={s.id}>{s.title}{!s.connected ? ' (not connected)' : ''}</option>)}
+                    </select>
                 </div>
-            )}
 
-            <p className={styles.infoNote}>Select a Pokémon from your Ranch to port into the target save.</p>
-
-            {ranch.length === 0 ? (
-                <p style={{ color: 'rgba(232,224,244,0.4)', fontSize: '0.9rem' }}>No Pokémon at the Ranch.</p>
-            ) : (
-                <div className={styles.ranchGrid}>
-                    {ranch.map(p => (
-                        <div
-                            key={p.id}
-                            className={`${styles.ranchCard} ${selectedPokemon?.id === p.id ? styles.selectedRanch : ''}`}
-                            onClick={() => setSelectedPokemon(prev => prev?.id === p.id ? null : p)}
-                        >
-                            {spriteUrl(p.speciesIndex) && (
-                                <Image
-                                    src={spriteUrl(p.speciesIndex)}
-                                    alt={p.nickname}
-                                    width={64}
-                                    height={64}
-                                    className={styles.slotSprite}
-                                    unoptimized
-                                />
-                            )}
-                            <div className={styles.slotName}>{p.nickname}</div>
-                            <div className={styles.slotLevel}>Lv. {p.level}</div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {selectedPokemon && (
-                <div className={styles.boxSection}>
-                    <div className={styles.boxTitle}>Target Slot</div>
-                    <div className={styles.slotPicker}>
-                        {(['party', 'box'] as const).map(loc => {
-                            const full = loc === 'party'
-                                ? (occupancy?.partyCount ?? 0) >= 6
-                                : false;
-                            return (
-                                <button
-                                    key={loc}
-                                    className={`${styles.slotPickerBtn} ${targetSlotType === loc ? styles.pickerActive : ''}`}
-                                    onClick={() => setTargetSlotType(loc)}
-                                    disabled={full}
-                                >
-                                    {loc === 'party'
-                                        ? `Party${occupancy ? ` (${occupancy.partyCount}/6)` : ''}`
-                                        : 'PC Box'}
-                                </button>
-                            );
-                        })}
+                {saveStateId && !currentSave?.connected && (
+                    <div className={styles.connectBanner}>
+                        <p>This save is not connected to Oak&apos;s Lab. Connect it first to receive Pokémon.</p>
                     </div>
+                )}
 
-                    {targetSlotType === 'box' && (
+                {selectedPokemon && (
+                    <div className={styles.boxSection}>
+                        <div className={styles.boxTitle}>Target Slot</div>
                         <div className={styles.slotPicker}>
-                            {Array.from({ length: 12 }, (_, i) => {
-                                const count = occupancy?.boxCounts[i] ?? 0;
-                                const full = count >= 20;
+                            {(['party', 'box'] as const).map(loc => {
+                                const full = loc === 'party'
+                                    ? (occupancy?.partyCount ?? 0) >= 6
+                                    : false;
                                 return (
                                     <button
-                                        key={i}
-                                        className={`${styles.slotPickerBtn} ${targetBoxNumber === i + 1 ? styles.pickerActive : ''}`}
-                                        onClick={() => setTargetBoxNumber(i + 1)}
+                                        key={loc}
+                                        className={`${styles.slotPickerBtn} ${targetSlotType === loc ? styles.pickerActive : ''}`}
+                                        onClick={() => setTargetSlotType(loc)}
                                         disabled={full}
                                     >
-                                        {`Box ${i + 1}${occupancy ? ` (${count}/20)` : ''}`}
+                                        {loc === 'party'
+                                            ? `Party${occupancy ? ` (${occupancy.partyCount}/6)` : ''}`
+                                            : 'PC Box'}
                                     </button>
                                 );
                             })}
                         </div>
-                    )}
-                </div>
-            )}
 
-            {toast && <p style={{ color: '#c8a0f0', marginBottom: '1rem' }}>{toast}</p>}
+                        {targetSlotType === 'box' && (
+                            <div className={styles.slotPicker}>
+                                {Array.from({ length: 12 }, (_, i) => {
+                                    const count = occupancy?.boxCounts[i] ?? 0;
+                                    const full = count >= 20;
+                                    return (
+                                        <button
+                                            key={i}
+                                            className={`${styles.slotPickerBtn} ${targetBoxNumber === i + 1 ? styles.pickerActive : ''}`}
+                                            onClick={() => setTargetBoxNumber(i + 1)}
+                                            disabled={full}
+                                        >
+                                            {`Box ${i + 1}${occupancy ? ` (${count}/20)` : ''}`}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                )}
 
-            {selectedPokemon && saveStateId && currentSave?.connected && (() => {
-                const nextSlot = targetSlotType === 'party'
-                    ? `Party — slot ${(occupancy?.partyCount ?? 0) + 1}`
-                    : `Box ${targetBoxNumber} — slot ${(occupancy?.boxCounts[targetBoxNumber - 1] ?? 0) + 1}`;
-                const isFull = targetSlotType === 'party'
-                    ? (occupancy?.partyCount ?? 0) >= 6
-                    : (occupancy?.boxCounts[targetBoxNumber - 1] ?? 0) >= 20;
-                return (
-                    <div className={styles.sendBar}>
-                        <p>
-                            Send <strong>{selectedPokemon.nickname}</strong> to{' '}
-                            {nextSlot} (next available)
-                        </p>
-                        <button className={styles.btnPrimary} onClick={handlePort} disabled={porting || isFull}>
-                            {porting ? 'Sending...' : isFull ? 'Full' : `Send to ${currentSave?.title ?? 'Game'}`}
-                        </button>
-                    </div>
-                );
-            })()}
+                {selectedPokemon && saveStateId && currentSave?.connected && (() => {
+                    const nextSlot = targetSlotType === 'party'
+                        ? `Party — slot ${(occupancy?.partyCount ?? 0) + 1}`
+                        : `Box ${targetBoxNumber} — slot ${(occupancy?.boxCounts[targetBoxNumber - 1] ?? 0) + 1}`;
+                    const isFull = targetSlotType === 'party'
+                        ? (occupancy?.partyCount ?? 0) >= 6
+                        : (occupancy?.boxCounts[targetBoxNumber - 1] ?? 0) >= 20;
+                    return (
+                        <div className={styles.sendBar}>
+                            <p>
+                                Send <strong>{selectedPokemon.nickname}</strong> to {nextSlot}
+                            </p>
+                            <button className={styles.btnPrimary} onClick={handlePort} disabled={porting || isFull}>
+                                {porting ? 'Sending...' : isFull ? 'Full' : `Send to ${currentSave?.title ?? 'Game'}`}
+                            </button>
+                        </div>
+                    );
+                })()}
+            </div>
 
-            {portedSave && (
-                <div className={styles.boxSection}>
-                    <div className={styles.boxTitle}>
-                        {currentSave?.title ?? 'Target save'} — current state
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(232,224,244,0.5)', marginBottom: '0.5rem' }}>
-                        Party: {portedSave.party.length} · Boxes: {portedSave.boxes.reduce((n, b) => n + b.length, 0)} total
-                    </div>
-                    <div className={styles.slotGrid}>
-                        {[...portedSave.party, ...portedSave.boxes.flat()].map(s => (
-                            <div key={`${s.location}-${s.boxNumber ?? 'p'}-${s.slotIndex}`} className={styles.slotCard}>
-                                {spriteUrl(s.speciesIndex) && (
+            <div className={styles.content}>
+                <p className={styles.infoNote}>Select a Pokémon from your Ranch to port into the target save.</p>
+
+                {ranch.length === 0 ? (
+                    <p style={{ color: 'rgba(232,224,244,0.4)', fontSize: '0.9rem' }}>No Pokémon at the Ranch.</p>
+                ) : (
+                    <div className={styles.ranchGrid}>
+                        {ranch.map(p => (
+                            <div
+                                key={p.id}
+                                className={`${styles.ranchCard} ${selectedPokemon?.id === p.id ? styles.selectedRanch : ''}`}
+                                onClick={() => setSelectedPokemon(prev => prev?.id === p.id ? null : p)}
+                            >
+                                {spriteUrl(p.speciesIndex) && (
                                     <Image
-                                        src={spriteUrl(s.speciesIndex)}
-                                        alt={s.nickname}
-                                        width={56}
-                                        height={56}
+                                        src={spriteUrl(p.speciesIndex)}
+                                        alt={p.nickname}
+                                        width={64}
+                                        height={64}
                                         className={styles.slotSprite}
                                         unoptimized
                                     />
                                 )}
-                                <div className={styles.slotName}>{s.nickname}</div>
-                                <div className={styles.slotLevel}>Lv. {s.level}</div>
+                                <div className={styles.slotName}>{p.nickname}</div>
+                                <div className={styles.slotLevel}>Lv. {p.level}</div>
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
+                )}
+
+                {toast && <p style={{ color: '#c8a0f0', marginBottom: '1rem' }}>{toast}</p>}
+
+                {portedSave && (
+                    <div className={styles.boxSection}>
+                        <div className={styles.boxTitle}>
+                            {currentSave?.title ?? 'Target save'} — current state
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(232,224,244,0.5)', marginBottom: '0.5rem' }}>
+                            Party: {portedSave.party.length} · Boxes: {portedSave.boxes.reduce((n, b) => n + b.length, 0)} total
+                        </div>
+                        <div className={styles.slotGrid}>
+                            {[...portedSave.party, ...portedSave.boxes.flat()].map(s => (
+                                <div key={`${s.location}-${s.boxNumber ?? 'p'}-${s.slotIndex}`} className={styles.slotCard}>
+                                    {spriteUrl(s.speciesIndex) && (
+                                        <Image
+                                            src={spriteUrl(s.speciesIndex)}
+                                            alt={s.nickname}
+                                            width={56}
+                                            height={56}
+                                            className={styles.slotSprite}
+                                            unoptimized
+                                        />
+                                    )}
+                                    <div className={styles.slotName}>{s.nickname}</div>
+                                    <div className={styles.slotLevel}>Lv. {s.level}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
@@ -610,13 +615,14 @@ export default function OaksLab() {
                     priority
                     unoptimized
                 />
-                <div className={styles.heroText}>
-                    <h1>Oak&apos;s Lab</h1>
-                    <p>Transfer Pokémon between your save files</p>
-                </div>
+                <div className={styles.heroOverlay} />
             </div>
 
             <div className={styles.main}>
+                <div className={styles.pageHeader}>
+                    <h1>Oak&apos;s Lab</h1>
+                    <p>Transfer Pokémon between your save files</p>
+                </div>
                 <div className={styles.tabs}>
                     <button
                         className={`${styles.tab} ${tab === 'extract' ? styles.active : ''}`}

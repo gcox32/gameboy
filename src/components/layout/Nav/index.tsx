@@ -16,6 +16,8 @@ import Settings from './Settings';
 import MobileFooter from './MobileFooter';
 import Friends from './Friends';
 import AdminLink from './AdminLink';
+import LabLink from './LabLink';
+import RanchLink from './RanchLink';
 import { NotificationModel, ProfileModel } from '@/types';
 
 const Nav = () => {
@@ -131,6 +133,8 @@ const Nav = () => {
                     {user ? (
                         <>
                             {userProfile?.admin && <AdminLink />}
+                            <LabLink />
+                            <RanchLink />
                             <Friends handleFriendsClick={() => setIsFriendsOpen(true)} />
                             <Settings handleSettingsClick={() => setIsSettingsModalOpen(true)} />
                             <Notifications
