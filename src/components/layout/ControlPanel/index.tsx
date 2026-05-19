@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import Cartridges from "../Cartridges";
-import SystemControls from "../SystemControls";
+import Cartridges from "./Cartridges";
+import SystemControls from "./SystemControls";
 import HideShowButton from "@/components/common/HideShowButton";
 import styles from './styles.module.css';
 import ConfirmModal from "@/components/modals/utilities/ConfirmModal";
@@ -235,7 +235,7 @@ function ControlPanel({
                 editingGame={editingGame}
                 setEditingGame={(game) => setEditingGame(game)}
             />
-            
+
         </>
     )
 }

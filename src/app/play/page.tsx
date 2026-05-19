@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSaveState } from '@/hooks/useSaveState';
 import { useMobileImmersive } from '@/hooks/useMobileImmersive';
 import Console from '@/components/console/GameConsole';
-import ControlPanel from '@/components/layout/left/ControlPanel';
+import ControlPanel from '@/components/layout/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
 import MobileControls from '@/components/mobile/MobileControls';
 import styles from './play.module.css';
