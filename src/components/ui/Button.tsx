@@ -1,145 +1,67 @@
 'use client';
 
-import styled, { css } from 'styled-components';
-import { ReactNode, MouseEvent, FC } from 'react';
+import { ReactNode, FC, ButtonHTMLAttributes } from 'react';
+import { cn } from '@/lib/cn';
 import { Loader } from './Loader';
 
 type ButtonVariation = 'primary' | 'secondary' | 'destructive' | 'link';
 type ButtonSize = 'small' | 'medium' | 'large';
 
-interface ButtonProps {
-  $variation?: ButtonVariation;
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'disabled'> {
+  variation?: ButtonVariation;
   size?: ButtonSize;
-  
-  $isDisabled?: boolean;
-  $isLoading?: boolean;
+  disabled?: boolean;
+  isLoading?: boolean;
   loadingText?: string;
-  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
-  type?: 'button' | 'submit' | 'reset';
   children: ReactNode;
-  className?: string;
 }
 
-const getVariationStyles = (variation: ButtonVariation = 'primary') => {
-  const variations = {
-    primary: css`
-      background-color: #6200ea;
-      color: white;
-      &:hover:not(:disabled) {
-        background-color: #3700b3;
-      }
-    `,
-    secondary: css`
-      background-color: transparent;
-      border: 1px solid #6200ea;
-      color: #6200ea;
-      &:hover:not(:disabled) {
-        background-color: rgba(98, 0, 234, 0.1);
-      }
-    `,
-    destructive: css`
-      background-color: #dc3545;
-      color: white;
-      &:hover:not(:disabled) {
-        background-color: #c82333;
-      }
-    `,
-    link: css`
-      background-color: transparent;
-      border: none;
-      color: #6200ea;
-      padding: 0;
-      &:hover:not(:disabled) {
-        text-decoration: underline;
-      }
-    `
-  };
-  return variations[variation];
+const variantClasses: Record<ButtonVariation, string> = {
+  primary: 'bg-[#6200ea] text-white hover:bg-[#3700b3] border-none',
+  secondary: 'bg-transparent border border-[#6200ea] text-[#6200ea] hover:bg-[rgba(98,0,234,0.1)]',
+  destructive: 'bg-[#dc3545] text-white hover:bg-[#c82333] border-none',
+  link: 'bg-transparent border-none text-[#6200ea] !p-0 hover:underline',
 };
 
-const getSizeStyles = (size: ButtonSize = 'medium') => {
-  const sizes = {
-    small: css`
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-    `,
-    medium: css`
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-    `,
-    large: css`
-      padding: 1rem 2rem;
-      font-size: 1.125rem;
-    `
-  };
-  return sizes[size];
+const sizeClasses: Record<ButtonSize, string> = {
+  small: 'px-4 py-2 text-sm',
+  medium: 'px-6 py-3 text-base',
+  large: 'px-8 py-4 text-lg',
 };
-
-const StyledButton = styled.button.attrs<ButtonProps>(props => ({
-  type: props.type || 'button',
-  disabled: props.$isDisabled || props.$isLoading,
-}))<ButtonProps>`
-  /* Base styles */
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  
-  /* Variation and size styles as a lower specificity */
-  ${props => getVariationStyles(props.$variation)}
-  ${props => getSizeStyles(props.size)}
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(98, 0, 234, 0.2);
-  }
-
-  /* Custom className styles will take precedence */
-  &.${props => props.className} {
-    /* This ensures any styles from className override the default styles */
-  }
-`;
-
-const LoaderWrapper = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-`;
 
 export const Button: FC<ButtonProps> = ({
   children,
-  $isLoading,
+  isLoading,
   loadingText,
-  
-  $isDisabled,
+  disabled,
+  variation = 'primary',
+  size = 'medium',
+  className,
+  type = 'button',
   ...props
 }) => {
   return (
-    <StyledButton
-      $isLoading={$isLoading}
-      $isDisabled={$isDisabled}
+    <button
+      type={type}
+      disabled={disabled || isLoading}
+      className={cn(
+        'inline-flex items-center justify-center gap-2 rounded font-medium transition-all cursor-pointer',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
+        'focus:outline-none focus:ring-2 focus:ring-[#6200ea]/20',
+        variation !== 'link' && sizeClasses[size],
+        variantClasses[variation],
+        className
+      )}
       {...props}
     >
-      {$isLoading ? (
+      {isLoading ? (
         <>
-          <LoaderWrapper>
+          <span className="inline-flex items-center justify-center">
             <Loader />
-          </LoaderWrapper>
+          </span>
           {loadingText || children}
         </>
-      ) : (
-        children
-      )}
-    </StyledButton>
+      ) : children}
+    </button>
   );
-}; 
+};

@@ -17,7 +17,7 @@ export default function GameInterruptModal({ isOpen, onClose, onContinue }: Game
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} title="Active Game" size="sm">
             <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                <Text $textAlign="center">
+                <Text textAlign="center">
                     You have an active game of <strong>{gameState.activeGame?.title}</strong>. Continuing will turn off the emulator.
                 </Text>
 

@@ -15,9 +15,6 @@ import {
 } from '@/components/admin/AdminLayout';
 import styles from '@/styles/admin.module.css';
 import { useAuth } from '@/contexts/AuthContext';
-import { ThemeProvider } from 'styled-components';
-import { theme } from '@/theme';
-import { GlobalStyles } from '@/theme/GlobalStyles';
 import { ToastProvider } from '@/components/ui';
 import Nav from '@/components/layout/Nav';
 
@@ -69,12 +66,9 @@ function Admin() {
 
 export default function AdminPage() {
     return (
-        <ThemeProvider theme={theme}>
-            <GlobalStyles />
-            <ToastProvider>
-                <Nav />
-                <Admin />
-            </ToastProvider>
-        </ThemeProvider>
+        <ToastProvider>
+            <Nav />
+            <Admin />
+        </ToastProvider>
     );
 }

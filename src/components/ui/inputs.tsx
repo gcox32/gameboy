@@ -1,100 +1,76 @@
 'use client';
 
-import styled, { css } from 'styled-components';
-import { JSX, ChangeEvent, FC } from 'react';
-import { theme } from '@/theme';
+import { ChangeEvent, FC, ElementType, ReactNode, CSSProperties, TextareaHTMLAttributes } from 'react';
+import { cn } from '@/lib/cn';
 
-// Text variations
 type TextVariation = 'primary' | 'secondary' | 'error' | 'success' | 'warning' | 'light' | 'dark';
+type FontSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+type FontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 
-const getTextVariationStyles = (variation?: TextVariation) => {
-  if (!variation) return '';
-  
-  const variations = {
-    primary: css`
-      color: ${({ theme }) => theme.colors.primary};
-    `,
-    secondary: css`
-      color: ${({ theme }) => theme.colors.secondary};
-    `,
-    error: css`
-      color: ${({ theme }) => theme.colors.danger};
-    `,
-    success: css`
-      color: ${({ theme }) => theme.colors.success};
-    `,
-    warning: css`
-      color: ${({ theme }) => theme.colors.warning};
-    `,
-    light: css`
-      color: ${({ theme }) => theme.colors.text.light};
-    `,
-    dark: css`
-      color: ${({ theme }) => theme.colors.text.dark};
-    `
-  };
-  return variations[variation];
+const textVariationClasses: Record<TextVariation, string> = {
+  primary: 'text-[var(--foreground-rgb)]',
+  secondary: 'text-[#6c757d]',
+  error: 'text-[#dc3545]',
+  success: 'text-[#28a745]',
+  warning: 'text-[#ffc107]',
+  light: 'text-white',
+  dark: 'text-black',
 };
 
-// Base styled components
-const StyledInput = styled.input<{ isReadOnly?: boolean, $flex?: string }>`
-  padding: 0.5rem;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 4px;
-  font-size: 1rem;
-  width: 100%;
-  outline: 1px solid var(--border-color);
-  flex: ${({ $flex }) => $flex || '1'};
-  background-color: ${({ isReadOnly, theme }) => 
-    isReadOnly ? theme.colors.background.secondary : 'transparent'};
-  
-  &:focus {
-    outline: 1px solid var(--accent-color);
-    border-color: ${({ theme }) => theme.colors.primary};
-  }
-  
-  &:read-only {
-    cursor: default;
-  }
-`;
+const fontSizeClasses: Record<FontSize, string> = {
+  xs: 'text-xs',
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-lg',
+  xl: 'text-xl',
+  '2xl': 'text-2xl',
+  '3xl': 'text-3xl',
+};
 
-const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 0.875rem;
-`;
+const fontWeightClasses: Record<FontWeight, string> = {
+  normal: 'font-normal',
+  medium: 'font-medium',
+  semibold: 'font-semibold',
+  bold: 'font-bold',
+};
 
 interface TextProps {
-  $variation?: TextVariation;
-  $fontSize?: keyof typeof theme.typography.fontSizes;
-  $fontWeight?: keyof typeof theme.typography.fontWeights;
-  $textAlign?: 'left' | 'center' | 'right' | 'justify';
-  as?: keyof JSX.IntrinsicElements;
+  variation?: TextVariation;
+  fontSize?: FontSize;
+  fontWeight?: FontWeight;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  as?: ElementType;
+  className?: string;
+  children?: ReactNode;
+  style?: CSSProperties;
 }
 
-export const Text = styled.span<TextProps>`
-  color: ${({ theme, $variation = 'primary' }) =>
-    $variation === 'primary' ? 'var(--foreground-rgb)' : theme.colors.text[$variation]};
-  font-size: ${({ theme, $fontSize = 'md' }) => theme.typography.fontSizes[$fontSize]};
-  font-weight: ${({ theme, $fontWeight = 'normal' }) => theme.typography.fontWeights[$fontWeight]};
-  text-align: ${({ $textAlign }) => $textAlign || 'left'};
-`;
+export const Text: FC<TextProps> = ({
+  variation = 'primary',
+  fontSize = 'md',
+  fontWeight = 'normal',
+  textAlign = 'left',
+  as: Tag = 'span',
+  className,
+  children,
+  ...props
+}) => (
+  <Tag
+    className={cn(
+      textVariationClasses[variation],
+      fontSizeClasses[fontSize],
+      fontWeightClasses[fontWeight],
+      `text-${textAlign}`,
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </Tag>
+);
 
-const ErrorMessage = styled.span`
-  color: ${({ theme }) => theme.colors.danger};
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-`;
+const inputBaseClasses = 'px-2 py-1 border border-[var(--border-color)] rounded text-base w-full outline outline-1 outline-[var(--border-color)] focus:outline-[var(--accent-color)] focus:border-[#6200ea]';
 
-const InputWrapper = styled.div<{ orientation?: 'horizontal' | 'vertical' }>`
-  display: flex;
-  flex-direction: ${({ orientation = 'vertical' }) => orientation === 'horizontal' ? 'row' : 'column'};
-  gap: 0.25rem;
-  width: 100%;
-`;
-
-// Interface for TextField props
 interface TextFieldProps {
   label?: string;
   value?: string;
@@ -105,13 +81,13 @@ interface TextFieldProps {
   hasError?: boolean;
   errorMessage?: string;
   name?: string;
-  $isReadOnly?: boolean;
-  $isDisabled?: boolean;
+  readOnly?: boolean;
+  disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
-  $flex?: string;
+  flex?: string;
+  className?: string;
 }
 
-// TextField Component
 export const TextField: FC<TextFieldProps> = ({
   label,
   value,
@@ -122,52 +98,38 @@ export const TextField: FC<TextFieldProps> = ({
   hasError,
   errorMessage,
   name,
-  $isReadOnly,
-  $isDisabled,
-  $flex,
+  readOnly,
+  disabled,
+  flex,
   orientation = 'horizontal',
+  className,
   ...props
-}) => {
-  return (
-    <InputWrapper orientation={orientation}>
-      {label && (
-        <Label>
-          {label}
-          {required && <span style={{ color: 'red' }}> *</span>}
-        </Label>
-      )}
-      <StyledInput
-        type={type}
-        value={value}
-        onChange={onChange}
-        required={required}
-        placeholder={placeholder}
-        name={name}
-        readOnly={$isReadOnly}
-        disabled={$isDisabled}
-        $flex={$flex}
-        {...props}
-      />
-      {hasError && errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-    </InputWrapper>
-  );
-};
-
-// TextArea components remain the same...
-export const TextArea = styled.textarea`
-  padding: 0.5rem;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 4px;
-  font-size: 1rem;
-  width: 100%;
-  min-height: 100px;
-  resize: vertical;
-  outline: 1px solid var(--border-color);
-  &:focus {
-    outline: 1px solid var(--accent-color);
-    border-color: ${({ theme }) => theme.colors.primary};
-  }
-`;
+}) => (
+  <div className={cn('flex w-full gap-1', orientation === 'horizontal' ? 'flex-row' : 'flex-col')}>
+    {label && (
+      <label className="block mb-2 text-(--foreground-rgb) text-sm">
+        {label}
+        {required && <span className="text-red-500"> *</span>}
+      </label>
+    )}
+    <input
+      type={type}
+      value={value}
+      onChange={onChange}
+      required={required}
+      placeholder={placeholder}
+      name={name}
+      readOnly={readOnly}
+      disabled={disabled}
+      className={cn(inputBaseClasses, readOnly && 'bg-(--hover-background-color) cursor-default', className)}
+      style={flex ? { flex } : undefined}
+      {...props}
+    />
+    {hasError && errorMessage && (
+      <span className="text-[#dc3545] text-xs mt-1">{errorMessage}</span>
+    )}
+  </div>
+);
 
 interface TextAreaFieldProps {
   label?: string;
@@ -182,6 +144,13 @@ interface TextAreaFieldProps {
   orientation?: 'horizontal' | 'vertical';
 }
 
+export const TextArea: FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = ({ className, ...props }) => (
+  <textarea
+    className={cn(inputBaseClasses, 'min-h-25 resize-y', className)}
+    {...props}
+  />
+);
+
 export const TextAreaField: FC<TextAreaFieldProps> = ({
   label,
   value,
@@ -194,25 +163,25 @@ export const TextAreaField: FC<TextAreaFieldProps> = ({
   name,
   orientation = 'horizontal',
   ...props
-}) => {
-  return (
-    <InputWrapper orientation={orientation}>
-      {label && (
-        <Label>
-          {label}
-          {required && <span style={{ color: 'red' }}> *</span>}
-        </Label>
-      )}
-      <TextArea
-        value={value}
-        onChange={onChange}
-        required={required}
-        placeholder={placeholder}
-        rows={rows}
-        name={name}
-        {...props}
-      />
-      {hasError && errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-    </InputWrapper>
-  );
-}; 
+}) => (
+  <div className={cn('flex w-full gap-1', orientation === 'horizontal' ? 'flex-row' : 'flex-col')}>
+    {label && (
+      <label className="block mb-2 text-(--foreground-rgb) text-sm">
+        {label}
+        {required && <span className="text-red-500"> *</span>}
+      </label>
+    )}
+    <TextArea
+      value={value}
+      onChange={onChange}
+      required={required}
+      placeholder={placeholder}
+      rows={rows}
+      name={name}
+      {...props}
+    />
+    {hasError && errorMessage && (
+      <span className="text-[#dc3545] text-xs mt-1">{errorMessage}</span>
+    )}
+  </div>
+);

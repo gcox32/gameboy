@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState, ReactNode } from "react";
-import styled, { DefaultTheme } from "styled-components";
+import { cn } from "@/lib/cn";
 
 type ToastType = "success" | "error" | "info";
 
@@ -17,85 +17,11 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-const getToastColors = (theme: DefaultTheme, type: ToastType) => {
-  switch (type) {
-    case "success":
-      return {
-        bg: theme.colors.background.success,
-        fg: theme.colors.text.success,
-        border: theme.colors.border.success,
-      };
-    case "error":
-      return {
-        bg: theme.colors.background.error,
-        fg: theme.colors.text.error,
-        border: theme.colors.border.error,
-      };
-    default:
-      return {
-        bg: theme.colors.background.secondary,
-        fg: theme.colors.text.primary,
-        border: theme.colors.border.default,
-      };
-  }
+const toastTypeClasses: Record<ToastType, string> = {
+  success: "bg-[#e8f5e9] text-[#28a745] border-l-[#28a745]",
+  error: "bg-[#fde8e8] text-[#dc3545] border-l-[#dc3545]",
+  info: "bg-[var(--hover-background-color)] text-[var(--foreground-rgb)] border-l-[var(--border-color)]",
 };
-
-const ToastStack = styled.div`
-  position: fixed;
-  left: 16px;
-  bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 1000;
-
-  @media (max-width: 768px) {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 8px;
-  }
-`;
-
-const ToastCard = styled.div<{ $type: ToastType }>`
-  ${({ theme, $type }) => {
-    const { bg, fg, border } = getToastColors(theme, $type);
-    return `
-      background: ${bg};
-      color: ${fg};
-      border-left: 4px solid ${border};
-    `;
-  }}
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  padding: 12px 14px;
-  min-width: 260px;
-  max-width: 360px;
-  font-size: ${({ theme }) => theme.typography.fontSizes.sm};
-
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: unset;
-    border-radius: 8px 8px 0 0;
-  }
-`;
-
-const ToastMessage = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-`;
-
-const CloseButton = styled.button`
-  appearance: none;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px 6px;
-`;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -124,18 +50,33 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <ToastStack role="status" aria-live="polite">
+      <div
+        role="status"
+        aria-live="polite"
+        className="fixed left-4 bottom-4 flex flex-col gap-2 z-100 max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:p-2"
+      >
         {toasts.map((toast) => (
-          <ToastCard key={toast.id} $type={toast.type}>
-            <ToastMessage>
+          <div
+            key={toast.id}
+            className={cn(
+              "shadow-[0_4px_16px_rgba(0,0,0,0.15)] rounded-lg p-3 min-w-65 max-w-90 text-sm border-l-4",
+              "max-sm:w-full max-sm:max-w-none max-sm:rounded-t-lg max-sm:rounded-b-none",
+              toastTypeClasses[toast.type]
+            )}
+          >
+            <div className="flex items-center justify-between gap-3">
               <span>{toast.message}</span>
-              <CloseButton aria-label="Dismiss notification" onClick={() => hide(toast.id)}>
+              <button
+                aria-label="Dismiss notification"
+                onClick={() => hide(toast.id)}
+                className="appearance-none border-none bg-transparent text-inherit cursor-pointer text-sm px-1.5 py-1"
+              >
                 ×
-              </CloseButton>
-            </ToastMessage>
-          </ToastCard>
+              </button>
+            </div>
+          </div>
         ))}
-      </ToastStack>
+      </div>
     </ToastContext.Provider>
   );
 }
@@ -145,5 +86,3 @@ export function useToast() {
   if (!ctx) throw new Error("useToast must be used within a ToastProvider");
   return ctx;
 }
-
-

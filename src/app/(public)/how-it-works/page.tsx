@@ -1,15 +1,15 @@
 "use client";
 
-import { Container, Heading, Paragraph, Card, Section, List, OrderedList } from '@/components/ui';
+import { Heading, Paragraph } from '@/components/ui';
 
 export default function HowItWorks() {
     return (
-        <Container>
+        <div className="max-w-[1200px] mx-auto p-8 w-full h-screen overflow-scroll">
             <Heading as="h1">How It Works</Heading>
 
-            <Section>
+            <section className="mb-8">
                 <Heading as="h2">Overview</Heading>
-                <Card>
+                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
                     <Paragraph>
                         This GameBoy emulator is designed to work with any GameBoy (.gb) or GameBoy Color (.gbc) ROM files.
                         While it supports all standard GameBoy games, it includes special features specifically optimized for first-generation Pokémon games (Red, Blue, Green, and Yellow),
@@ -18,61 +18,61 @@ export default function HowItWorks() {
                     <Paragraph>
                         Special Pokémon features include:
                     </Paragraph>
-                    <List>
+                    <ul className="mb-4 pl-8 [&_li]:mb-1">
                         <li>Active party monitoring</li>
                         <li>Gym badge tracking</li>
                         <li>Location-based dynamic backgrounds</li>
                         <li>Advanced save state management</li>
-                    </List>
-                </Card>
-            </Section>
+                    </ul>
+                </div>
+            </section>
 
-            <Section>
+            <section className="mb-8">
                 <Heading as="h2">Getting Started</Heading>
 
                 <Heading as="h3">1. Importing Games</Heading>
-                <Card>
+                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
                     <Paragraph>
                         To import a game:
                     </Paragraph>
-                    <OrderedList>
+                    <ol className="mb-4 pl-8 [&_li]:mb-1">
                         <li>{`Click the "Import Game" button in your library`}</li>
                         <li>{`Upload your .gb or .gbc ROM file`}</li>
                         <li>{`Select a preset cover image or upload your own`}</li>
                         <li>{`Fill in the game details`}</li>
                         <li>{`For Pokémon games, verify the memory watcher configurations`}</li>
-                    </OrderedList>
-                </Card>
+                    </ol>
+                </div>
 
                 <Heading as="h3">2. Memory Watcher Configuration</Heading>
-                <Card>
+                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
                     <Paragraph>
                         For Pokémon games, memory watchers need to be properly configured to enable special features. Default values are:
                     </Paragraph>
-                    <List>
+                    <ul className="mb-4 pl-8 [&_li]:mb-1">
                         <li>Active Party: Base Address: 0xD163, Offset: 0x00, Size: 0x195</li>
                         <li>Gym Badges: Base Address: 0xD2F6, Offset: 0x60, Size: 0x1</li>
                         <li>Location: Base Address: 0xD2F6, Offset: 0x68, Size: 0x1</li>
-                    </List>
+                    </ul>
                     <Paragraph>
                         Troubleshooting Tips:
                     </Paragraph>
-                    <List>
+                    <ul className="mb-4 pl-8 [&_li]:mb-1">
                         <li>{`Pokémon Blue (Original): Location offset should be 0x68`}</li>
                         <li>{`If party data isn't showing, try adjusting the base address by ±1`}</li>
                         <li>{`Different ROM versions may require slightly different memory addresses. Consider `}<a href="https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)#bank1_main_curmap" target="_blank">bulbapedia</a>{` as a reference.`}</li>
-                    </List>
-                </Card>
+                    </ul>
+                </div>
 
                 <Heading as="h3">3. Save States</Heading>
-                <Card>
+                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
                     <Paragraph>
                         The emulator supports two types of saves:
                     </Paragraph>
-                    <List>
+                    <ul className="mb-4 pl-8 [&_li]:mb-1">
                         <li>In-game saves (just like on a real GameBoy)</li>
                         <li>Save states (save at any point in the game)</li>
-                    </List>
+                    </ul>
                     <Paragraph>
                         To create a save state:
                     </Paragraph>
@@ -80,18 +80,18 @@ export default function HowItWorks() {
                         {`Critically, it is important to understand that the Save and Save As features save a copy of your save data. 
                         This means whatever you save in the game will be saved to the cloud. Do not treat the Save or Save As features as in-game saves.`}
                     </Paragraph>
-                    <OrderedList>
+                    <ol className="mb-4 pl-8 [&_li]:mb-1">
                         <li>{`Save within the state of the game.`}</li>
                         <li>{`Click "Save" or "Save As"`}</li>
                         <li>{`Add a description (optional)`}</li>
                         <li>{`Your save state will be stored in the cloud`}</li>
-                    </OrderedList>
-                </Card>
-            </Section>
+                    </ol>
+                </div>
+            </section>
 
-            <Section>
+            <section className="mb-8">
                 <Heading as="h2">Advanced Features</Heading>
-                <Card>
+                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
                     <Heading as="h4">Dynamic Backgrounds</Heading>
                     <Paragraph>
                         In Pokémon games, the background will automatically change based on your in-game location when enabled in settings.
@@ -101,8 +101,8 @@ export default function HowItWorks() {
                     <Paragraph>
                         Adjust emulation speed and sound settings in the control panel. Mobile users can also adjust zoom levels for better visibility.
                     </Paragraph>
-                </Card>
-            </Section>
-        </Container>
+                </div>
+            </section>
+        </div>
     );
 }

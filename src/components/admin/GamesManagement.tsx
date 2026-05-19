@@ -115,8 +115,8 @@ export default function GamesManagement() {
                         <Image src={game.img} alt={game.title} className={styles.gameImage} width={32} height={32} />
                     )}
                     <Flex $direction="column">
-                        <Text $fontWeight="medium">{game.title}</Text>
-                        {game.metadata?.series && <Text $fontSize="sm" $variation="secondary">{game.metadata.series}</Text>}
+                        <Text fontWeight="medium">{game.title}</Text>
+                        {game.metadata?.series && <Text fontSize="sm" variation="secondary">{game.metadata.series}</Text>}
                     </Flex>
                 </Flex>
             )
@@ -126,7 +126,7 @@ export default function GamesManagement() {
             header: 'Owner',
             sortable: true,
             render: (game: GameModel) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
                     {usernameBySub[game.userId] || `${game.userId?.substring(0, 8) ?? ''}...`}
                 </Text>
             )
@@ -137,9 +137,9 @@ export default function GamesManagement() {
             sortable: false,
             render: (game: GameModel) => (
                 <Flex $direction="column" $gap="0.25rem">
-                    {game.metadata?.generation && <Text $fontSize="sm">Gen: {game.metadata.generation}</Text>}
-                    {game.metadata?.releaseDate && <Text $fontSize="sm" $variation="secondary">{new Date(game.metadata.releaseDate).getFullYear()}</Text>}
-                    {game.metadata?.description && <Text $fontSize="sm" $variation="secondary">{game.metadata.description.substring(0, 50)}...</Text>}
+                    {game.metadata?.generation && <Text fontSize="sm">Gen: {game.metadata.generation}</Text>}
+                    {game.metadata?.releaseDate && <Text fontSize="sm" variation="secondary">{new Date(game.metadata.releaseDate).getFullYear()}</Text>}
+                    {game.metadata?.description && <Text fontSize="sm" variation="secondary">{game.metadata.description.substring(0, 50)}...</Text>}
                 </Flex>
             )
         },
@@ -148,7 +148,7 @@ export default function GamesManagement() {
             header: 'File',
             sortable: false,
             render: (game: GameModel) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>{game.filePath.split('/').pop()}</Text>
+                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>{game.filePath.split('/').pop()}</Text>
             )
         },
         {
@@ -171,12 +171,12 @@ export default function GamesManagement() {
                 <div />
             </Flex>
 
-            {error && <Alert $variation="error" isDismissible>{error}</Alert>}
+            {error && <Alert variation="error" isDismissible>{error}</Alert>}
 
             <DataTable data={sortedGames} columns={columns} loading={loading} emptyMessage="No games found" onSort={handleSort} currentSort={sortConfig} />
 
             <div className={styles.tableFooter}>
-                <Text $fontSize="sm" $variation="secondary">Total: {games.length} games</Text>
+                <Text fontSize="sm" variation="secondary">Total: {games.length} games</Text>
             </div>
 
             <AdminModal

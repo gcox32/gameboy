@@ -126,7 +126,7 @@ export default function ImportGame({ userId, userEmail, onSuccess, onCancel }: I
     return (
         <form onSubmit={handleSubmit}>
             <Flex $direction="column" $gap="1rem">
-                {error && <Alert $variation="error">{error}</Alert>}
+                {error && <Alert variation="error">{error}</Alert>}
 
                 <View $flexDirection="column" $alignItems="center">
                     <Text>Game ROM File</Text>

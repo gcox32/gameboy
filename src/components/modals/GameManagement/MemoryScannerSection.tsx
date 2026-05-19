@@ -127,16 +127,16 @@ export default function MemoryScannerSection({
         <>
             {scanResult && !isScanning && scanResult.success && (
                 <div className={styles.scanBanner}>
-                    <Alert $variation="info" isDismissible={false}>
-                        <Text $fontSize="sm">{scanResult.details}</Text>
+                    <Alert variation="info" isDismissible={false}>
+                        <Text fontSize="sm">{scanResult.details}</Text>
                     </Alert>
                 </div>
             )}
 
             {scanResult && !isScanning && !scanResult.success && (
                 <div className={styles.scanBanner}>
-                    <Alert $variation="warning" isDismissible={false}>
-                        <Text $fontSize="sm">{scanResult.details}</Text>
+                    <Alert variation="warning" isDismissible={false}>
+                        <Text fontSize="sm">{scanResult.details}</Text>
                     </Alert>
                 </div>
             )}
@@ -152,7 +152,7 @@ export default function MemoryScannerSection({
                         </div>
                         <div className={styles.scanStatus}>
                             <div className={styles.scanIndicator} />
-                            <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                            <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
                                 {statusMessage}
                             </Text>
                         </div>
@@ -173,7 +173,7 @@ export default function MemoryScannerSection({
                 )}
 
                 {!canScan && !isScanning && (
-                    <Text $fontSize="sm" $variation="secondary">
+                    <Text fontSize="sm" variation="secondary">
                         Start a game to enable memory scanning
                     </Text>
                 )}
@@ -182,7 +182,7 @@ export default function MemoryScannerSection({
                     <View className={styles.scanResults}>
                         {scanResult.candidates && scanResult.candidates.length > 0 && (
                             <View className={styles.candidateList}>
-                                <Text $fontWeight="bold" $fontSize="sm">Select address:</Text>
+                                <Text fontWeight="bold" fontSize="sm">Select address:</Text>
                                 {scanResult.candidates.map((candidate, index) => (
                                     <button
                                         key={candidate.address}
@@ -191,7 +191,7 @@ export default function MemoryScannerSection({
                                         onClick={() => setSelectedCandidate(candidate)}
                                     >
                                         <Flex $direction="row" $justifyContent="space-between" $alignItems="center" $gap="0.5rem">
-                                            <Text $fontWeight="bold" style={{ fontFamily: 'monospace' }}>
+                                            <Text fontWeight="bold" style={{ fontFamily: 'monospace' }}>
                                                 {candidate.address}
                                             </Text>
                                             <span
@@ -201,7 +201,7 @@ export default function MemoryScannerSection({
                                                 {candidate.confidence}
                                             </span>
                                         </Flex>
-                                        <Text $fontSize="sm" $variation="secondary">{candidate.preview}</Text>
+                                        <Text fontSize="sm" variation="secondary">{candidate.preview}</Text>
                                     </button>
                                 ))}
                             </View>
@@ -232,8 +232,8 @@ export default function MemoryScannerSection({
                 {children}
 
                 <div className={styles.currentConfig}>
-                    <Text $fontSize="sm" $variation="secondary">Current:</Text>
-                    <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                    <Text fontSize="sm" variation="secondary">Current:</Text>
+                    <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
                         {currentConfig.baseAddress}
                         {currentConfig.offset && currentConfig.offset !== '0x00' && ` + ${currentConfig.offset}`}
                         {currentConfig.size && ` (${currentConfig.size})`}

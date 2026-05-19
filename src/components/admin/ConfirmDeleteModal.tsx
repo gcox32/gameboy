@@ -28,10 +28,10 @@ export default function ConfirmDeleteModal({
         <BaseModal isOpen={isOpen} onClose={onClose} className={styles.modalSmall}>
             <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
                 <Flex $direction="column" $gap="0.5rem">
-                    <Text $fontWeight="semibold" $fontSize="lg">{title}</Text>
-                    <Text $variation="secondary">{message}</Text>
+                    <Text fontWeight="semibold" fontSize="lg">{title}</Text>
+                    <Text variation="secondary">{message}</Text>
                     {itemName && (
-                        <Text $fontWeight="medium" style={{
+                        <Text fontWeight="medium" style={{
                             padding: '0.75rem',
                             background: 'var(--hover-background-color)',
                             borderRadius: '6px',

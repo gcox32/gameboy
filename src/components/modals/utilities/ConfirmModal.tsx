@@ -27,7 +27,7 @@ function ConfirmModal({
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} title="Confirm" size="sm">
             <Flex $direction="column" $gap="1.5rem" $padding="1.5rem" $alignItems="center">
-                <Text $textAlign="center">{children}</Text>
+                <Text textAlign="center">{children}</Text>
 
                 <div className={buttons.buttonGroup} style={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <button className={buttons.retroButton} onClick={onClose}>Cancel</button>
@@ -40,9 +40,9 @@ function ConfirmModal({
                     value="skip"
                     checked={skipConfirmation}
                     onChange={toggleSkipConfirmation}
-                    $justifyContent="center"
-                    $alignItems="center"
-                    $labelPosition="end"
+                    justifyContent="center"
+                    alignItems="center"
+                    labelPosition="end"
                 />
             </Flex>
         </BaseModal>

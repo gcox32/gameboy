@@ -58,17 +58,17 @@ export default function AdminModal({
 
                 <Flex $justifyContent="flex-end" $gap="1rem" className={styles.formActions}>
                     <Button
-                        $variation="secondary"
+                        variation="secondary"
                         onClick={handleCancel}
-                        $isDisabled={loading}
+                        disabled={loading}
                     >
                         {cancelText}
                     </Button>
                     {onSave && (
                         <Button
-                            $variation="primary"
+                            variation="primary"
                             onClick={handleSave}
-                            $isDisabled={loading}
+                            disabled={loading}
                         >
                             {loading ? 'Saving...' : saveText}
                         </Button>

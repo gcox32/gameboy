@@ -10,6 +10,7 @@
 - [x] Build "Connect" into full blown feature
 - [ ] Ditch styled components
 - [ ] Tailwindcss?
+- [ ] Better music option: https://www.youtube.com/watch?v=SUOUQLdXnf4 (johto)
 
 ### Modal System
 - [ ] Establish a consistent modal design language (spacing, typography, header/footer patterns)

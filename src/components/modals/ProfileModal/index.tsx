@@ -132,7 +132,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} title="User Profile" size="sm">
             <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                {error && <Alert $variation="error">{error}</Alert>}
+                {error && <Alert variation="error">{error}</Alert>}
 
                 {userProfile && (
                     <Flex $direction="column" $gap="1.5rem">
@@ -157,7 +157,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                                 style={{ display: 'none' }}
                                                 aria-label="Upload profile picture"
                                             />
-                                            <Button onClick={() => fileInputRef.current?.click()} size="small" $variation="link" className={styles.uploadButton}>
+                                            <Button onClick={() => fileInputRef.current?.click()} size="small" variation="link" className={styles.uploadButton}>
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                                     <polyline points="17 8 12 3 7 8" />
@@ -167,7 +167,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                             </Button>
                                         </div>
                                         {imagePreview && (
-                                            <Button onClick={handleRemoveImage} size="small" $variation="destructive" className={styles.removeButton}>
+                                            <Button onClick={handleRemoveImage} size="small" variation="destructive" className={styles.removeButton}>
                                                 Remove
                                             </Button>
                                         )}
@@ -179,7 +179,7 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         {isEditing ? (
                             <Flex $direction="column" $gap="1.5rem">
                                 <TextField label="Username" value={formData.username} onChange={e => handleInputChange('username', e.target.value)} placeholder="Enter username" orientation="vertical" />
-                                <TextField label="Email" value={formData.email} placeholder="Enter email" type="email" $isReadOnly={true} $isDisabled={true} orientation="vertical" />
+                                <TextField label="Email" value={formData.email} placeholder="Enter email" type="email" readOnly={true} disabled={true} orientation="vertical" />
                                 <TextAreaField label="Bio" value={formData.bio} onChange={e => handleInputChange('bio', e.target.value)} placeholder="Tell us about yourself" rows={3} orientation="vertical" />
                                 <div className={buttons.buttonGroup} style={{ flexDirection: 'row', gap: '1rem' }}>
                                     <button className={buttons.retroButton} onClick={handleEditToggle}>Cancel</button>
@@ -189,19 +189,19 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                         ) : (
                             <Flex $direction="column" $gap="1rem">
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text $variation="secondary">Username</Text>
+                                    <Text variation="secondary">Username</Text>
                                     <Text>{userProfile.username}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text $variation="secondary">Email</Text>
+                                    <Text variation="secondary">Email</Text>
                                     <Text>{userProfile.email}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text $variation="secondary">Bio</Text>
+                                    <Text variation="secondary">Bio</Text>
                                     <Text>{userProfile.bio || 'No bio yet'}</Text>
                                 </View>
                                 <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text $variation="secondary">OT ID</Text>
+                                    <Text variation="secondary">OT ID</Text>
                                     <Text>{userProfile.appTrainerId !== undefined ? userProfile.appTrainerId : 'Not yet assigned'}</Text>
                                 </View>
                                 <div className={buttons.buttonGroup}>

@@ -149,7 +149,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
 
     const renderContent = () => {
         if (loading) return <Loader variation="linear" />;
-        if (error) return <Alert $variation="error">{error}</Alert>;
+        if (error) return <Alert variation="error">{error}</Alert>;
 
         if (showImport) {
             return (
@@ -188,7 +188,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
         if (games.length === 0) {
             return (
                 <View $textAlign="center" $padding="3rem 2rem">
-                    <Text $variation="secondary">No games yet. Import a ROM to get started.</Text>
+                    <Text variation="secondary">No games yet. Import a ROM to get started.</Text>
                     <div style={{ marginTop: '1.5rem' }}>
                         <button onClick={() => setShowImport(true)} className={buttons.retroButton}>Import Game</button>
                     </div>

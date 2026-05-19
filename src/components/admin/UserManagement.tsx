@@ -121,7 +121,7 @@ export default function UserManagement() {
                             height={32}
                         />
                     )}
-                    <Text $fontWeight="medium">{user.username}</Text>
+                    <Text fontWeight="medium">{user.username}</Text>
                 </Flex>
             )
         },
@@ -141,7 +141,7 @@ export default function UserManagement() {
             header: 'User ID',
             sortable: false,
             render: (user: Profile) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
                     {user.userId ?? ''}
                 </Text>
             )
@@ -174,7 +174,7 @@ export default function UserManagement() {
                 </div>
             </Flex>
 
-            {error && <Alert $variation="error" isDismissible>{error}</Alert>}
+            {error && <Alert variation="error" isDismissible>{error}</Alert>}
 
             <DataTable
                 data={sortedUsers}
@@ -186,7 +186,7 @@ export default function UserManagement() {
             />
 
             <div className={styles.tableFooter}>
-                <Text $fontSize="sm" $variation="secondary">Total: {users.length} users</Text>
+                <Text fontSize="sm" variation="secondary">Total: {users.length} users</Text>
             </div>
 
             <AdminModal

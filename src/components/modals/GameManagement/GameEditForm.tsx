@@ -153,7 +153,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
 
     return (
         <form onSubmit={handleSubmit} className={styles.editForm}>
-            {error && <Alert $variation="error">{error}</Alert>}
+            {error && <Alert variation="error">{error}</Alert>}
 
             <div className={styles.imageSection}>
                 <ImageUpload

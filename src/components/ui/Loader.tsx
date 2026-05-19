@@ -1,68 +1,29 @@
 'use client';
 
 import { FC } from 'react';
-import styled, { keyframes } from 'styled-components';
-
-type LoaderVariation = 'circular' | 'linear';
+import { cn } from '@/lib/cn';
 
 interface LoaderProps {
-  variation?: LoaderVariation;
+  variation?: 'circular' | 'linear';
   size?: 'small' | 'medium' | 'large';
 }
 
-const spin = keyframes`
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-`;
-
-const slide = keyframes`
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-`;
-
-const getLoaderSize = (size: LoaderProps['size'] = 'medium') => {
-  const sizes = {
-    small: '16px',
-    medium: '24px',
-    large: '32px'
-  };
-  return sizes[size];
+const sizeClasses = {
+  small: 'w-4 h-4',
+  medium: 'w-6 h-6',
+  large: 'w-8 h-8',
 };
-
-const CircularLoader = styled.div<LoaderProps>`
-  display: inline-block;
-  width: ${props => getLoaderSize(props.size)};
-  height: ${props => getLoaderSize(props.size)};
-  border: 2px solid ${({ theme }) => theme.colors.border.primary};
-  border-top-color: ${({ theme }) => theme.colors.button.primary.background};
-  border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
-`;
-
-const LinearLoaderContainer = styled.div`
-  width: 100%;
-  height: 4px;
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  overflow: hidden;
-  position: relative;
-`;
-
-const LinearLoaderBar = styled.div`
-  width: 30%;
-  height: 100%;
-  background-color: ${({ theme }) => theme.colors.button.primary.background};
-  position: absolute;
-  animation: ${slide} 1s infinite ease-in-out;
-`;
 
 export const Loader: FC<LoaderProps> = ({ variation = 'circular', size = 'medium' }) => {
   if (variation === 'linear') {
     return (
-      <LinearLoaderContainer>
-        <LinearLoaderBar />
-      </LinearLoaderContainer>
+      <div className="w-full h-1 bg-gray-200 overflow-hidden relative">
+        <div className="w-[30%] h-full bg-[#6200ea] absolute animate-[loader-slide_1s_infinite_ease-in-out]" />
+      </div>
     );
   }
 
-  return <CircularLoader size={size} />;
-}; 
+  return (
+    <div className={cn('inline-block border-2 border-gray-300 border-t-[#6200ea] rounded-full animate-spin', sizeClasses[size])} />
+  );
+};

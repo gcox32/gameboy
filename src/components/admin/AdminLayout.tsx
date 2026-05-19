@@ -1,175 +1,124 @@
 'use client';
 
-import styled from 'styled-components';
+import { FC, ReactNode, HTMLAttributes } from 'react';
+import { cn } from '@/lib/cn';
 
-export const AdminDashboard = styled.div.attrs({ 'data-theme': 'dark' } as object)`
-    display: flex;
-    min-height: 100vh;
-    background: #0d1120;
-    color: var(--foreground-rgb);
-`;
+export const AdminDashboard: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+  <div
+    data-theme="dark"
+    className={cn('flex min-h-screen bg-[#0d1120] text-[var(--foreground-rgb)]', className)}
+    {...props}
+  >
+    {children}
+  </div>
+);
 
-export const AdminSidebar = styled.aside`
-    width: 260px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
+export const AdminSidebar: FC<HTMLAttributes<HTMLElement>> = ({ className, children, ...props }) => (
+  <aside
+    className={cn(
+      'w-[260px] flex-shrink-0 flex flex-col sticky top-0 h-screen',
+      'bg-[rgba(13,17,32,0.75)] backdrop-blur-[12px] saturate-[130%]',
+      'border-r border-[rgba(255,255,255,0.07)] shadow-[4px_0_24px_rgba(0,0,0,0.3)]',
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </aside>
+);
 
-    background: rgba(13, 17, 32, 0.75);
-    -webkit-backdrop-filter: blur(12px) saturate(130%);
-    backdrop-filter: blur(12px) saturate(130%);
-    border-right: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
-`;
+export const SidebarBrand: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+  <div className={cn('p-6 border-b border-[rgba(255,255,255,0.07)]', className)} {...props}>
+    {children}
+  </div>
+);
 
-export const SidebarBrand = styled.div`
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+export const SidebarNav: FC<HTMLAttributes<HTMLElement>> = ({ className, children, ...props }) => (
+  <nav className={cn('flex-1 py-4 overflow-y-auto', className)} {...props}>
+    {children}
+  </nav>
+);
 
-    h1 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin: 0;
-        color: rgba(255, 255, 255, 0.92);
-        letter-spacing: 2px;
-        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
-    }
+export const SidebarFooter: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+  <div className={cn('p-3 border-t border-[rgba(255,255,255,0.07)]', className)} {...props}>
+    {children}
+  </div>
+);
 
-    span {
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.35);
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-    }
-`;
+export const NavSection: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+  <div className={cn('px-3 mb-6', className)} {...props}>
+    {children}
+  </div>
+);
 
-export const SidebarNav = styled.nav`
-    flex: 1;
-    padding: 1rem 0;
-    overflow-y: auto;
-`;
+export const NavSectionTitle: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+  <div
+    className={cn('text-[0.625rem] font-semibold uppercase tracking-[0.1em] text-[var(--neutral-500)] px-3 mb-2', className)}
+    {...props}
+  >
+    {children}
+  </div>
+);
 
-export const SidebarFooter = styled.div`
-    padding: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-`;
-
-export const NavSection = styled.div`
-    padding: 0 0.75rem;
-    margin-bottom: 1.5rem;
-`;
-
-export const NavSectionTitle = styled.div`
-    font-size: 0.625rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--neutral-500);
-    padding: 0 0.75rem;
-    margin-bottom: 0.5rem;
-`;
-
-interface NavItemProps {
-    $active?: boolean;
+interface NavItemProps extends HTMLAttributes<HTMLButtonElement> {
+  active?: boolean;
 }
 
-export const NavItem = styled.button<NavItemProps>`
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    background: ${props => props.$active ? 'rgba(123, 104, 166, 0.18)' : 'transparent'};
-    border-radius: 8px;
-    cursor: pointer;
-    color: ${props => props.$active ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.45)'};
-    font-size: 0.875rem;
-    font-weight: ${props => props.$active ? '600' : '500'};
-    text-align: left;
-    transition: all 0.15s ease;
-    position: relative;
+export const NavItem: FC<NavItemProps> = ({ active, className, children, ...props }) => (
+  <button
+    className={cn(
+      'relative flex items-center gap-3 w-full px-3 py-3 border-none rounded-lg cursor-pointer text-sm text-left transition-all duration-150',
+      active
+        ? 'bg-[rgba(123,104,166,0.18)] text-[rgba(255,255,255,0.92)] font-semibold'
+        : 'bg-transparent text-[rgba(255,255,255,0.45)] font-medium hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.85)]',
+      className
+    )}
+    {...props}
+  >
+    {active && (
+      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] bg-[#7b68a6] rounded-r-sm" />
+    )}
+    {children}
+  </button>
+);
 
-    ${props => props.$active && `
-        &::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 60%;
-            background: #7b68a6;
-            border-radius: 0 2px 2px 0;
-        }
-    `}
+export const NavItemBadge: FC<HTMLAttributes<HTMLSpanElement>> = ({ className, children, ...props }) => (
+  <span
+    className={cn('ml-auto bg-[#7b68a6] text-white text-[0.625rem] font-semibold px-2 py-0.5 rounded-[10px] min-w-5 text-center', className)}
+    {...props}
+  >
+    {children}
+  </span>
+);
 
-    &:hover {
-        background: rgba(255, 255, 255, 0.06);
-        color: rgba(255, 255, 255, 0.85);
-    }
+export const AdminMain: FC<HTMLAttributes<HTMLElement>> = ({ className, children, ...props }) => (
+  <main className={cn('flex-1 flex flex-col min-w-0 w-[calc(100%-260px)] overflow-hidden', className)} {...props}>
+    {children}
+  </main>
+);
 
-    svg {
-        font-size: 1.125rem;
-        flex-shrink: 0;
-    }
-`;
+export const AdminHeader: FC<HTMLAttributes<HTMLElement>> = ({ className, children, ...props }) => (
+  <header className={cn('px-8 py-6 border-b border-[rgba(255,255,255,0.07)] bg-transparent', className)} {...props}>
+    {children}
+  </header>
+);
 
-export const NavItemBadge = styled.span`
-    margin-left: auto;
-    background: #7b68a6;
-    color: white;
-    font-size: 0.625rem;
-    font-weight: 600;
-    padding: 0.125rem 0.5rem;
-    border-radius: 10px;
-    min-width: 1.25rem;
-    text-align: center;
-`;
+export const AdminContent: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+  <div className={cn('flex-1 p-8 overflow-y-auto overflow-x-hidden min-h-[500px] w-full', className)} {...props}>
+    {children}
+  </div>
+);
 
-export const AdminMain = styled.main`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0; /* Prevent flex item from overflowing */
-    width: calc(100% - 260px); /* Fixed width relative to sidebar */
-    overflow: hidden;
-`;
-
-export const AdminHeader = styled.header`
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    background: transparent;
-
-    h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0;
-        color: rgba(255, 255, 255, 0.92);
-        letter-spacing: 1px;
-    }
-`;
-
-export const AdminContent = styled.div`
-    flex: 1;
-    padding: 2rem;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 500px; /* Prevents content area height jumps */
-    width: 100%;
-`;
-
-export const ContentPanel = styled.div`
-    background: rgba(20, 20, 40, 0.5);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(8px);
-    min-height: 500px;
-    padding: 1rem;
-    width: 100%;
-    overflow-x: auto;
-`;
+export const ContentPanel: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+  <div
+    className={cn(
+      'bg-[rgba(20,20,40,0.5)] rounded-xl border border-[rgba(255,255,255,0.07)]',
+      'shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-[8px]',
+      'min-h-[500px] p-4 w-full overflow-x-auto',
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </div>
+);

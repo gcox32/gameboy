@@ -1,12 +1,9 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { ThemeProvider } from 'styled-components';
-import { theme } from '@/theme';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
 import Nav from '@/components/layout/Nav';
-import { GlobalStyles } from '@/theme/GlobalStyles';
 import { ToastProvider } from '@/components/ui';
 import Footer from '@/components/layout/Footer';
 
@@ -22,21 +19,13 @@ export default function PlayLayout({ children }: { children: ReactNode }) {
         }
     }, [user, loading, router]);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (!user) {
-        return null;
-    }
+    if (loading) return <div>Loading...</div>;
+    if (!user) return null;
 
     return (
-        <ThemeProvider theme={theme}>
-            <GlobalStyles />
-            <ToastProvider>
-                <Nav />
-                {children}
-            </ToastProvider>
-        </ThemeProvider>
+        <ToastProvider>
+            <Nav />
+            {children}
+        </ToastProvider>
     );
 }

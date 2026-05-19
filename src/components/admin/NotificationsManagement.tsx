@@ -136,7 +136,7 @@ export default function NotificationsManagement() {
             sortable: true,
             render: (n: Notification) => (
                 <Flex $direction="column">
-                    <Text $fontWeight="medium">{n.title}</Text>
+                    <Text fontWeight="medium">{n.title}</Text>
                     <span className={`${styles.statusBadge} ${getTypeColor(n.type)}`}>{n.type}</span>
                 </Flex>
             )
@@ -146,7 +146,7 @@ export default function NotificationsManagement() {
             header: 'Message',
             sortable: false,
             render: (n: Notification) => (
-                <Text $fontSize="sm">{n.body?.length > 100 ? `${n.body.substring(0, 100)}...` : n.body}</Text>
+                <Text fontSize="sm">{n.body?.length > 100 ? `${n.body.substring(0, 100)}...` : n.body}</Text>
             )
         },
         {
@@ -154,7 +154,7 @@ export default function NotificationsManagement() {
             header: 'Recipient',
             sortable: true,
             render: (n: Notification) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
                     {n.userId === 'BROADCAST' ? 'All Users' : (usernameBySub[n.userId] || `${n.userId?.substring(0, 8) ?? ''}...`)}
                 </Text>
             )
@@ -164,7 +164,7 @@ export default function NotificationsManagement() {
             header: 'Sender',
             sortable: true,
             render: (n: Notification) => (
-                <Text $fontSize="sm" style={{ fontFamily: 'monospace' }}>
+                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
                     {usernameBySub[n.sender] || n.sender}
                 </Text>
             )
@@ -205,7 +205,7 @@ export default function NotificationsManagement() {
             {showQuickNotification && (
                 <div className={styles.quickNotification}>
                     <h3>Create App Notification</h3>
-                    <Text $fontSize="sm" $variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
+                    <Text fontSize="sm" variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
                         Send a notification to all users
                     </Text>
                     <div className={styles.quickForm}>
@@ -230,8 +230,8 @@ export default function NotificationsManagement() {
                             />
                         </div>
                         <Flex $gap="0.5rem" className={styles.formActions}>
-                            <Button $variation="secondary" size="small" onClick={() => setShowQuickNotification(false)} className={styles.cancelButton}>Cancel</Button>
-                            <Button $variation="primary" size="small" onClick={handleCreateNotification} $isDisabled={loading} className={styles.sendButton}>
+                            <Button variation="secondary" size="small" onClick={() => setShowQuickNotification(false)} className={styles.cancelButton}>Cancel</Button>
+                            <Button variation="primary" size="small" onClick={handleCreateNotification} disabled={loading} className={styles.sendButton}>
                                 {loading ? 'Sending...' : 'Send to All'}
                             </Button>
                         </Flex>
@@ -239,13 +239,13 @@ export default function NotificationsManagement() {
                 </div>
             )}
 
-            {error && <Alert $variation="error" isDismissible>{error}</Alert>}
+            {error && <Alert variation="error" isDismissible>{error}</Alert>}
 
             <DataTable data={sortedNotifications} columns={columns} loading={loading} emptyMessage="No notifications found" onSort={handleSort} currentSort={sortConfig} />
 
             <div className={styles.tableFooter}>
-                <Text $fontSize="sm" $variation="secondary">Total: {notifications.length} notifications</Text>
-                <Text $fontSize="sm" $variation="secondary">Unread: {notifications.filter(n => !n.readAt).length}</Text>
+                <Text fontSize="sm" variation="secondary">Total: {notifications.length} notifications</Text>
+                <Text fontSize="sm" variation="secondary">Unread: {notifications.filter(n => !n.readAt).length}</Text>
             </div>
 
             <ConfirmDeleteModal

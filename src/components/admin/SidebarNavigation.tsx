@@ -48,7 +48,7 @@ export default function SidebarNavigation({ activeTab, onTabChange }: SidebarNav
                     {navItems.map((item) => (
                         <NavItem
                             key={item.id}
-                            $active={activeTab === item.id}
+                            active={activeTab === item.id}
                             onClick={() => onTabChange(item.id)}
                         >
                             {item.icon}
@@ -61,10 +61,10 @@ export default function SidebarNavigation({ activeTab, onTabChange }: SidebarNav
                 </NavSection>
             </SidebarNav>
             <SidebarFooter>
-                <NavItem as={Link as any} href="/play">
+                <Link href="/play" className="relative flex items-center gap-3 w-full px-3 py-3 rounded-lg cursor-pointer text-sm text-left transition-all duration-150 bg-transparent text-[rgba(255,255,255,0.45)] font-medium hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.85)]">
                     <FaArrowLeft />
                     Back to Game
-                </NavItem>
+                </Link>
             </SidebarFooter>
         </AdminSidebar>
     );
