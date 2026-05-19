@@ -3,11 +3,13 @@
 ## UX / UI Overhaul
 
 ### General Improvements
-- [ ] Simplify save state path structure (make it reasonable)
+- [x] Simplify save state path structure (make it reasonable)
 - [ ] Build out type system for multiple gens (I, II, III)
 - [ ] Style Ranch view
 - [ ] Style Lab view
-- [ ] Build "Connect" into full blown feature
+- [x] Build "Connect" into full blown feature
+- [ ] Ditch styled components
+- [ ] Tailwindcss?
 
 ### Modal System
 - [ ] Establish a consistent modal design language (spacing, typography, header/footer patterns)

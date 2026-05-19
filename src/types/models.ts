@@ -35,6 +35,7 @@ export interface ProfileModel {
     bio: string;
     avatar: string;
     admin?: boolean;
+    appTrainerId?: number;
     createdAt?: string;
     updatedAt?: string;
 }

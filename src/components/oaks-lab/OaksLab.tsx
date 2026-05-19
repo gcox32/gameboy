@@ -7,6 +7,7 @@ import { dexDict } from '@/utils/pokemon/dicts';
 import { TextEncoder as Gen1TextEncoder } from '@/utils/sramParser';
 import { RanchPokemon } from '@/components/ranch/types';
 import styles from './styles.module.css';
+import ConnectModal from './ConnectModal';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -130,7 +131,7 @@ function ExtractTab({ games }: { games: GameModel[] }) {
     const [gameId, setGameId] = useState('');
     const [saveStates, setSaveStates] = useState<SaveStateModel[]>([]);
     const [saveStateId, setSaveStateId] = useState('');
-    const [connecting, setConnecting] = useState(false);
+    const [connectModalOpen, setConnectModalOpen] = useState(false);
     const [loadingSave, setLoadingSave] = useState(false);
     const [party, setParty] = useState<SlotPokemon[]>([]);
     const [boxes, setBoxes] = useState<SlotPokemon[][]>([]);
@@ -138,8 +139,6 @@ function ExtractTab({ games }: { games: GameModel[] }) {
     const [sending, setSending] = useState(false);
     const [toast, setToast] = useState('');
     const [selectedBox, setSelectedBox] = useState(0);
-    const [connectError, setConnectError] = useState('');
-
     const currentSave = saveStates.find(s => s.id === saveStateId);
 
     const fetchSaveStates = useCallback(async (gId: string) => {
@@ -181,31 +180,6 @@ function ExtractTab({ games }: { games: GameModel[] }) {
     useEffect(() => {
         if (saveStateId && currentSave?.connected) loadSaveFile();
     }, [saveStateId, currentSave?.connected, loadSaveFile]);
-
-    const handleConnect = async () => {
-        if (!saveStateId) return;
-        setConnecting(true);
-        setConnectError('');
-        try {
-            const res = await fetch(`/api/save-states/${saveStateId}/connect`, { method: 'POST' });
-            if (res.ok) {
-                // Re-fetch from DB so connected:true and the updated filePath are reflected.
-                // saveStateId is preserved, so currentSave updates, which triggers the
-                // useEffect that calls loadSaveFile.
-                await fetchSaveStates(gameId);
-            } else {
-                const body = await res.json().catch(() => ({}));
-                const msg = body?.error ?? `Server error (${res.status})`;
-                setConnectError(msg);
-                console.error('[connect]', res.status, body);
-            }
-        } catch (err) {
-            setConnectError('Network error — check the console.');
-            console.error('[connect] fetch failed:', err);
-        } finally {
-            setConnecting(false);
-        }
-    };
 
     const slotKey = (s: SlotPokemon) =>
         s.location === 'party' ? `party-${s.slotIndex}` : `box-${s.boxNumber}-${s.slotIndex}`;
@@ -304,13 +278,20 @@ function ExtractTab({ games }: { games: GameModel[] }) {
 
                 {saveStateId && !currentSave?.connected && (
                     <div className={styles.connectBanner}>
-                        <p>This save is not connected to Oak&apos;s Lab. Connect it to enable transfers and stamp your Trainer ID.</p>
-                        {connectError && <p style={{ color: '#e05555' }}>{connectError}</p>}
-                        <button className={styles.btnPrimary} onClick={handleConnect} disabled={connecting}>
-                            {connecting ? 'Connecting...' : 'Connect to Lab'}
+                        <p>This save isn&apos;t connected to Oak&apos;s Lab yet.</p>
+                        <button className={styles.btnPrimary} onClick={() => setConnectModalOpen(true)}>
+                            Connect to Lab
                         </button>
                     </div>
                 )}
+
+                <ConnectModal
+                    isOpen={connectModalOpen}
+                    onClose={() => setConnectModalOpen(false)}
+                    saveStateId={saveStateId}
+                    gameId={gameId}
+                    fetchSaveStates={fetchSaveStates}
+                />
 
                 {currentSave?.connected && !loadingSave && (party.length > 0 || boxes.some(b => b.length > 0)) && (
                     <div className={styles.boxSection}>

@@ -9,7 +9,7 @@ export default function LabLink() {
             className={iconStyles.navIconButton}
             aria-label="Oak's Lab"
         >
-            <FaFlask />
+            <FaFlask className={iconStyles.navIcon} />
             <span className={iconStyles.label}>Oak's Lab</span>
         </Link>
     );

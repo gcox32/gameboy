@@ -200,6 +200,10 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                                     <Text $variation="secondary">Bio</Text>
                                     <Text>{userProfile.bio || 'No bio yet'}</Text>
                                 </View>
+                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
+                                    <Text $variation="secondary">OT ID</Text>
+                                    <Text>{userProfile.appTrainerId !== undefined ? userProfile.appTrainerId : 'Not yet assigned'}</Text>
+                                </View>
                                 <div className={buttons.buttonGroup}>
                                     <button className={buttons.retroButton} onClick={handleEditToggle}>Edit Profile</button>
                                 </div>

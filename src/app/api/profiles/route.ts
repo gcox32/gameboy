@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Profile } from '@/models';
+import User from '@/models/User';
 
 // GET /api/profiles           — current user's profile
 // GET /api/profiles?userId=X  — look up by userId (admin or own)
@@ -30,10 +31,17 @@ export async function GET(req: NextRequest) {
     }
 
     await dbConnect();
-    const profile = await Profile.findOne({ userId: userId ?? session.user.id });
+    const targetId = userId ?? session.user.id;
+    const profile = await Profile.findOne({ userId: targetId });
 
     if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    return NextResponse.json(profile.toJSON());
+
+    const result = profile.toJSON() as unknown as Record<string, unknown>;
+    if (!userId || userId === session.user.id) {
+        const user = await User.findById(session.user.id).select('appTrainerId');
+        if (user?.appTrainerId !== undefined) result.appTrainerId = user.appTrainerId;
+    }
+    return NextResponse.json(result);
 }
 
 // PATCH /api/profiles — update current user's profile fields

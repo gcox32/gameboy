@@ -394,6 +394,103 @@
     margin: 0.5rem 0 1rem;
 }
 
+/* ─── Connect modal body ─────────────────────────────────── */
+.connectModalBody {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.connectModalDesc {
+    margin: 0;
+    font-size: 0.875rem;
+    color: rgba(232, 224, 244, 0.72);
+    line-height: 1.55;
+}
+
+.connectModalLink {
+    color: #c8a0f0;
+    text-underline-offset: 2px;
+}
+
+.connectModalLink:hover {
+    color: #e0c0ff;
+}
+
+.connectSteps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0.75rem 0.875rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+}
+
+.connectStep {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.82rem;
+    color: rgba(232, 224, 244, 0.3);
+    transition: color 0.25s;
+}
+
+.stepDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(232, 224, 244, 0.2);
+    flex-shrink: 0;
+    transition: background 0.25s, border-color 0.25s;
+}
+
+.connectStep.stepActive {
+    color: rgba(232, 224, 244, 0.9);
+}
+
+.connectStep.stepActive .stepDot {
+    border-color: #7b68a6;
+    background: #7b68a6;
+    animation: stepPulse 1s ease-in-out infinite;
+}
+
+.connectStep.stepComplete {
+    color: rgba(232, 224, 244, 0.55);
+}
+
+.connectStep.stepComplete .stepDot {
+    background: #5a4a7a;
+    border-color: #7b68a6;
+}
+
+.connectStep.stepError {
+    color: #e05555;
+}
+
+.connectStep.stepError .stepDot {
+    background: #7b3030;
+    border-color: #e05555;
+}
+
+@keyframes stepPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.connectModalError {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #e05555;
+    line-height: 1.4;
+}
+
+.connectModalActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
 @media (max-width: 860px) {
     .twoCol {
         grid-template-columns: 1fr;
