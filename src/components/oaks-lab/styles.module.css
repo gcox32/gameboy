@@ -75,34 +75,23 @@
     display: flex;
     gap: 0.5rem;
     margin-bottom: 2rem;
-    padding: 0;
-    background: none;
-    border: none;
 }
 
+/* Size override for tab buttons (retroButton base is too large) */
 .tab {
-    flex: none;
-    padding: 0.45rem 1.5rem;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: transparent;
-    color: rgba(232,224,244,0.55);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    padding: 0.45rem 1.5rem !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 1.5px !important;
 }
 
-.tab.active {
-    background: #5a4a7a;
-    border-color: #5a4a7a;
-    color: #fff;
-}
-
-.tab:hover:not(.active) {
-    border-color: rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.06);
-    color: rgba(232,224,244,0.85);
+/* Persistent "selected" look — pressed-in state */
+.tabActive {
+    background: linear-gradient(180deg, #3d2f5c 0%, #2a1f42 100%) !important;
+    box-shadow:
+        0 1px 0 #1a1228,
+        0 2px 6px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    transform: translateY(3px) !important;
 }
 
 /* Save selector */
@@ -113,14 +102,15 @@
     margin-bottom: 1.25rem;
 }
 
-.select {
-    width: 100%;
-    padding: 0.45rem 0.75rem;
-    border-radius: 6px;
-    border: 1px solid #4d3f6e;
-    background: #1e1828;
-    color: #e8e0f4;
-    font-size: 0.9rem;
+/* Picker trigger buttons — layout on top of retroButton base */
+.selectorButton {
+    width: 100% !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.5px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Connect banner */
@@ -142,40 +132,6 @@
     line-height: 1.4;
 }
 
-/* Buttons */
-.btnPrimary {
-    padding: 0.5rem 1.25rem;
-    border-radius: 6px;
-    border: none;
-    background: #5a4a7a;
-    color: #fff;
-    font-size: 0.875rem;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-}
-
-.btnPrimary:hover:not(:disabled) {
-    background: #7b68a6;
-}
-
-.btnPrimary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.btnDanger {
-    padding: 0.5rem 1.25rem;
-    border-radius: 6px;
-    border: 2px solid #7b3030;
-    background: transparent;
-    color: #e05555;
-    font-size: 0.875rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s;
-}
 
 /* Box grid */
 .boxSection {
@@ -329,26 +285,21 @@
     margin-bottom: 1.25rem;
 }
 
+/* Size override for slot-picker buttons */
 .slotPickerBtn {
-    padding: 0.35rem 0.75rem;
-    border-radius: 5px;
-    border: 1px solid #4d3f6e;
-    background: #1e1828;
-    color: rgba(232,224,244,0.7);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: border-color 0.15s, color 0.15s;
+    padding: 0.35rem 0.75rem !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 1px !important;
 }
 
-.slotPickerBtn:hover {
-    border-color: #7b68a6;
-    color: #e8e0f4;
-}
-
-.slotPickerBtn.pickerActive {
-    border-color: #c8a0f0;
-    color: #c8a0f0;
-    background: rgba(123,104,166,0.12);
+/* Persistent selected state for slot-picker */
+.pickerActive {
+    background: linear-gradient(180deg, #3d2f5c 0%, #2a1f42 100%) !important;
+    box-shadow:
+        0 1px 0 #1a1228,
+        0 2px 6px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    transform: translateY(2px) !important;
 }
 
 /* Box navigator */
@@ -358,34 +309,28 @@
     gap: 0.3rem;
 }
 
+/* Size override for box-nav buttons */
 .boxNavBtn {
-    min-width: 34px;
-    height: 34px;
-    padding: 0 0.4rem;
-    border-radius: 5px;
-    border: 1px solid #2d2340;
-    background: #161020;
-    color: rgba(232,224,244,0.3);
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.12s, color 0.12s, background 0.12s;
+    min-width: 34px !important;
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 1px !important;
+    border-radius: 6px !important;
 }
 
-.boxNavBtn:hover {
-    border-color: #7b68a6;
-    color: rgba(232,224,244,0.8);
+/* Dimmed when box is empty */
+.boxNavBtn:not(.boxHasPokemon):not(.boxNavActive) {
+    opacity: 0.45;
 }
 
-.boxNavBtn.boxHasPokemon {
-    border-color: #3d2f5c;
-    color: rgba(232,224,244,0.7);
-}
-
-.boxNavBtn.boxNavActive {
-    border-color: #c8a0f0;
-    color: #c8a0f0;
-    background: rgba(123,104,166,0.15);
+/* Persistent selected state for box-nav */
+.boxNavActive {
+    background: linear-gradient(180deg, #3d2f5c 0%, #2a1f42 100%) !important;
+    box-shadow:
+        0 1px 0 #1a1228,
+        0 2px 6px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    transform: translateY(2px) !important;
 }
 
 .infoNote {

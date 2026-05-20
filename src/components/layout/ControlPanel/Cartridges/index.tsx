@@ -59,7 +59,12 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
                     {loading ? 'Loading…' : (selectedGame?.title ?? 'Select Game')}
                 </button>
                 {error && <span className={styles.errorText}>{error.message}</span>}
-                <button className={buttons.retroButton} onClick={onOpenGameManagement}>Manage Games</button>
+                <button 
+                    className={buttons.retroButton} 
+                    onClick={onOpenGameManagement}
+                >
+                Manage Games
+                </button>
                 <div className={styles.activeGameTitle}>
                     {activeSaveState ? activeSaveState.title : ''}
                 </div>

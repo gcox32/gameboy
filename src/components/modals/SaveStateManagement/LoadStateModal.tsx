@@ -14,7 +14,7 @@ interface LoadStateModalProps {
 	onClose: () => void;
 	saveStates: SaveStateModel[];
 	onConfirm: (saveState: SaveStateModel) => void;
-	onDelete: () => void;
+	onDelete?: () => void;
 }
 
 const saveStateImageStyle = {
@@ -79,7 +79,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 			]);
 			setUpdatedSaveStates(prev => prev.filter(s => s.id !== selectedStateForDeletion.id));
 			setShowConfirmModal(false);
-			onDelete();
+			onDelete?.();
 		} catch (error) {
 			console.error('Error deleting save state:', error);
 		}
@@ -100,12 +100,14 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete }: Lo
 						<h3 className={styles.saveStateTitle}>{state.title}</h3>
 						<p className={styles.lastUpdateText}>{state.createdAt ? formatDate(state.createdAt, false) : ''}</p>
 						<p className={styles.lastUpdateText}>{state.updatedAt ? formatDate(state.updatedAt) : ''}</p>
-						<div className={buttons.buttonGroup}>
-							<button className={buttons.retroButton} onClick={(e) => {
-								e.stopPropagation();
-								handleDeleteClick(state);
-							}}>Delete</button>
-						</div>
+						{onDelete && (
+							<div className={buttons.buttonGroup}>
+								<button className={buttons.retroButton} onClick={(e) => {
+									e.stopPropagation();
+									handleDeleteClick(state);
+								}}>Delete</button>
+							</div>
+						)}
 					</div>
 				))}
 			</div>

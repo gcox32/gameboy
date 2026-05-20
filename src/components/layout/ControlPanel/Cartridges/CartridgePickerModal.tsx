@@ -126,7 +126,6 @@ function CartridgePickerModal({ isOpen, onClose, games, onSelect, selectedFilePa
         <BaseModal isOpen={isOpen} onClose={onClose} title="Select Game" size="lg">
             <div className={styles.body}>
 
-                {/* ── Left: animated card stack ── */}
                 <div
                     className={styles.leftPane}
                     onMouseMove={handleMouseMove}
@@ -173,7 +172,6 @@ function CartridgePickerModal({ isOpen, onClose, games, onSelect, selectedFilePa
                     )}
                 </div>
 
-                {/* ── Right: metadata + confirm ── */}
                 <div className={styles.rightPane}>
                     {pendingGame ? (
                         <div className="flex flex-col h-full justify-between">
