@@ -176,8 +176,8 @@ function CartridgePickerModal({ isOpen, onClose, games, onSelect, selectedFilePa
                 {/* ── Right: metadata + confirm ── */}
                 <div className={styles.rightPane}>
                     {pendingGame ? (
-                        <>
-                            <div className='flex justify-between'>
+                        <div className="flex flex-col h-full justify-between">
+                            <div className='flex justify-between gap-4'>
                                 <div className={styles.metaBody}>
                                     <h2 className={styles.gameTitle}>{pendingGame.title}</h2>
                                     {(m?.series || m?.generation) && (
@@ -214,7 +214,7 @@ function CartridgePickerModal({ isOpen, onClose, games, onSelect, selectedFilePa
                                     Choose
                                 </button>
                             </div>
-                        </>
+                        </div>
                     ) : (
                         <div className={styles.metaEmpty}>
                             Select a cartridge
