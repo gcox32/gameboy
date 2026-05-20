@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, ChangeEvent } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './styles.module.css';
 import { GameModel, SaveStateModel, AuthenticatedUser } from '@/types';
 import buttons from '@/styles/buttons.module.css';
+import CartridgePickerModal from './CartridgePickerModal';
 
 export interface CartridgesProps {
     onROMSelected: (rom: GameModel) => void;
@@ -19,6 +20,8 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
     const [games, setGames] = useState<GameModelExtended[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
 
     const fetchGames = useCallback(async () => {
         if (!currentUser?.userId) return;
@@ -38,30 +41,36 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
         fetchGames();
     }, [fetchGames]);
 
-    const handleROMChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        const selectedROM = games.find(game => game.filePath === e.target.value);
-        onROMSelected(selectedROM as GameModel);
-    };
-
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    const handleGameSelect = useCallback((game: GameModel) => {
+        setSelectedGame(game);
+        onROMSelected(game);
+        setModalOpen(false);
+    }, [onROMSelected]);
 
     return (
         <>
-            <select onChange={handleROMChange} disabled={isDisabled} className={styles.romSelector}>
-                <option value="">Select a Game</option>
-                {games.map(game => (
-                    <option key={game._id} value={game.filePath}>
-                        {game.title}
-                    </option>
-                ))}
-            </select>
             <div className={buttons.buttonGroup}>
+                <button
+                    className={`${styles.pickerButton} ${isDisabled ? styles.pickerDisabled : ''}`}
+                    onClick={() => !isDisabled && !loading && setModalOpen(true)}
+                    disabled={isDisabled || loading}
+                    aria-haspopup="dialog"
+                >
+                    {loading ? 'Loading…' : (selectedGame?.title ?? 'Select Game')}
+                </button>
+                {error && <span className={styles.errorText}>{error.message}</span>}
                 <button className={buttons.retroButton} onClick={onOpenGameManagement}>Manage Games</button>
                 <div className={styles.activeGameTitle}>
                     {activeSaveState ? activeSaveState.title : ''}
                 </div>
             </div>
+            <CartridgePickerModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                games={games}
+                onSelect={handleGameSelect}
+                selectedFilePath={selectedGame?.filePath}
+            />
         </>
     );
 }

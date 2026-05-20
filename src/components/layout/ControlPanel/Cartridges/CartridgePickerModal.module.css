@@ -1,0 +1,310 @@
+/* ── Two-pane body ──────────────────────────────────── */
+
+.body {
+    display: flex;
+    flex-direction: row;
+    min-height: 300px;
+}
+
+/* ── Left pane: animated card stack ────────────────── */
+
+.leftPane {
+    display: flex;
+    align-items: end;
+    max-width: 55%;
+    overflow: auto;
+    padding: 2.5rem 2rem 2rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    scrollbar-width: none;
+}
+
+.leftPane::-webkit-scrollbar { display: none; }
+
+.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: rgba(232, 224, 244, 0.35);
+    font-size: 0.875rem;
+    text-align: center;
+    min-width: 200px;
+}
+
+/* ── 3D scene ───────────────────────────────────────── */
+
+.scene {
+    overflow: visible;
+}
+
+.stack {
+    transform: perspective(500px) rotateY(-30deg);
+    position: relative;
+    margin: 1rem auto;
+}
+
+/* ── Individual card (square — no info row) ─────────── */
+
+.card {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    /* overflow: visible so ::after side face isn't clipped */
+    overflow: visible;
+    background: #17112a;
+    cursor: pointer;
+    will-change: transform, box-shadow;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
+    transition: border-color 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Right side face drawn as a 2D parallelogram.
+   rotateY(-30deg) on .stack makes the right side come toward the viewer, so
+   any child positioned there extends toward the viewer instead of backward.
+   clip-path polygon sidesteps the 3D issue by just drawing the correct shape. */
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(100% - 1px);
+    width: 14px;
+    background: linear-gradient(
+        to bottom,
+        rgba(60, 50, 85, 0.9)  0%,
+        rgba(30, 22, 50, 0.95) 50%,
+        rgba(18, 12, 32, 0.9)  100%
+    );
+    /* Parallelogram: left edge full-height, right edge shifted inward top & bottom.
+       Adjust the 18% values to tune how sharp the taper is. */
+    clip-path: polygon(0% 1%, 100% 0, 100% 90%, 0 100%);
+    pointer-events: none;
+}
+
+.card:focus-visible {
+    outline: 2px solid rgba(123, 104, 166, 0.8);
+    outline-offset: 3px;
+}
+
+.card.pending {
+    border-color: rgba(180, 160, 230, 0.85);
+    box-shadow:
+        0 0 0 2px rgba(123, 104, 166, 0.45),
+        0 4px 10px rgba(0, 0, 0, 0.32);
+}
+
+.card.pending::after {
+    border-color: rgba(123, 104, 166, 0.45);
+    border-left: none;
+}
+
+/* Inner wrapper clips the cover image without clipping the side face */
+.cardInner {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 7px;
+    position: relative;
+}
+
+/* ── Cover image / placeholder ──────────────────────── */
+
+.cover {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.coverImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.coverInitial {
+    font-size: 3rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.65);
+    text-transform: uppercase;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    line-height: 1;
+    user-select: none;
+    filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.12));
+}
+
+.checkBadge {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #7b68a6;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Right pane: metadata ───────────────────────────── */
+
+.rightPane {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 1.75rem 1.5rem;
+}
+
+.metaEmpty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(232, 224, 244, 0.22);
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.metaBody {
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.metaBody::-webkit-scrollbar { display: none; }
+
+.gameTitle {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: rgba(232, 224, 244, 0.95);
+    line-height: 1.25;
+    letter-spacing: 0.3px;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    background: rgba(123, 104, 166, 0.22);
+    border: 1px solid rgba(123, 104, 166, 0.35);
+    color: rgba(200, 180, 240, 0.9);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.metaRow {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.metaLabel {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(232, 224, 244, 0.35);
+    flex-shrink: 0;
+}
+
+.metaValue {
+    font-size: 0.8rem;
+    color: rgba(232, 224, 244, 0.7);
+}
+
+.description {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: rgba(232, 224, 244, 0.55);
+}
+
+.preview {
+    display: block;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Choose button row ──────────────────────────────── */
+
+.chooseRow {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1.25rem;
+    margin-top: 1rem;
+}
+
+.chooseButton {
+    padding: 0.55rem 1.6rem;
+    border-radius: 9999px;
+    border: none;
+    background: linear-gradient(180deg, #7b68a6 0%, #5a4a7a 100%);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow:
+        0 4px 0 #2a1f42,
+        0 6px 14px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: transform 80ms ease, box-shadow 80ms ease, background 0.15s ease;
+}
+
+.chooseButton:hover {
+    background: linear-gradient(180deg, #8b78b6 0%, #6a5a8a 100%);
+    transform: translateY(-1px);
+    box-shadow:
+        0 5px 0 #2a1f42,
+        0 8px 18px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.chooseButton:active {
+    transform: translateY(2px);
+    box-shadow:
+        0 2px 0 #2a1f42,
+        0 3px 8px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 600px) {
+    .body {
+        flex-direction: column;
+    }
+
+    .leftPane {
+        max-width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        padding-bottom: 1.5rem;
+    }
+}
