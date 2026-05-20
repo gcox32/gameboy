@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Profile } from '@/models';
+import User from '@/models/User';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -23,7 +24,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    return NextResponse.json(profile.toJSON());
+    const user = await User.findById(profile.userId).select('admin');
+    return NextResponse.json({ ...profile.toJSON(), admin: user?.admin ?? false });
 }
 
 // PUT /api/profiles/:id — full update (admin only)
@@ -46,10 +48,19 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (email !== undefined) profile.email = email;
     if (bio !== undefined) profile.bio = bio;
     if (avatar !== undefined) profile.avatar = avatar;
-    if (admin !== undefined) profile.admin = admin;
 
     await profile.save();
-    return NextResponse.json(profile.toJSON());
+
+    let resolvedAdmin: boolean | undefined;
+    if (admin !== undefined) {
+        const user = await User.findByIdAndUpdate(profile.userId, { admin }, { new: true }).select('admin');
+        resolvedAdmin = user?.admin ?? false;
+    } else {
+        const user = await User.findById(profile.userId).select('admin');
+        resolvedAdmin = user?.admin ?? false;
+    }
+
+    return NextResponse.json({ ...profile.toJSON(), admin: resolvedAdmin });
 }
 
 // DELETE /api/profiles/:id — admin only

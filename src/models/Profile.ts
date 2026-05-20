@@ -6,7 +6,6 @@ export interface IProfile extends Document {
     email: string;
     bio?: string;
     avatar?: string;
-    admin: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -18,7 +17,6 @@ const ProfileSchema = new Schema<IProfile>(
         email: { type: String, required: true, lowercase: true, trim: true },
         bio: { type: String, default: '' },
         avatar: { type: String },
-        admin: { type: Boolean, default: false },
     },
     { timestamps: true, toJSON: { virtuals: true } }
 );

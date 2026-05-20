@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
             userId: user._id,
             username: email.split('@')[0],
             email: email.toLowerCase(),
-            admin: false,
         });
 
         await sendVerificationEmail(email, verificationToken);

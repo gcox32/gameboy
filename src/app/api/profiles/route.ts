@@ -23,7 +23,13 @@ export async function GET(req: NextRequest) {
         }
         await dbConnect();
         const profiles = await Profile.find().sort({ createdAt: -1 });
-        return NextResponse.json(profiles.map(p => p.toJSON()));
+        const userIds = profiles.map(p => p.userId);
+        const users = await User.find({ _id: { $in: userIds } }).select('admin');
+        const userMap = new Map(users.map(u => [u._id.toString(), u]));
+        return NextResponse.json(profiles.map(p => ({
+            ...p.toJSON(),
+            admin: userMap.get(p.userId.toString())?.admin ?? false,
+        })));
     }
 
     if (userId && userId !== session.user.id && !session.user.admin) {
@@ -38,8 +44,9 @@ export async function GET(req: NextRequest) {
 
     const result = profile.toJSON() as unknown as Record<string, unknown>;
     if (!userId || userId === session.user.id) {
-        const user = await User.findById(session.user.id).select('appTrainerId');
+        const user = await User.findById(session.user.id).select('appTrainerId admin');
         if (user?.appTrainerId !== undefined) result.appTrainerId = user.appTrainerId;
+        result.admin = user?.admin ?? false;
     }
     return NextResponse.json(result);
 }
