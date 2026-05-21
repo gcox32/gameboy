@@ -1,4 +1,5 @@
 export type TransitionDir = 'up' | 'down';
+export const TRANSITION_DURATION = 1500;
 
 type VT = { finished: Promise<void> };
 type DocWithVT = Document & { startViewTransition: (cb: () => void) => VT };

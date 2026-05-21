@@ -28,6 +28,7 @@ import {
 	clearLastEmulation
 } from '@/utils/GameBoyIO';
 import SkyBackground from '@/components/layout/SkyBackground';
+import { TRANSITION_DURATION } from '@/lib/transition';
 
 export default function App() {
 	// Get settings from context
@@ -40,6 +41,7 @@ export default function App() {
 	const mainCanvasRef = useRef<HTMLCanvasElement>(null);
 	const fullscreenCanvasRef = useRef<HTMLCanvasElement>(null);
 	const fullscreenContainerRef = useRef<HTMLDivElement>(null);
+	const skyContainerRef = useRef<HTMLDivElement>(null);
 	const mbcRamRef = useRef<SRAMArray>([]);
 	const inGameMemory = useRef<SRAMArray>([]);
 	const gbcMemory = useRef<SRAMArray>([]);
@@ -333,6 +335,17 @@ export default function App() {
 		setIsLoading(false);
 	}, [auth, router]);
 
+	useEffect(() => {
+		if (isLoading) return;
+		const el = skyContainerRef.current;
+		if (!el) return;
+		el.scrollTop = el.scrollHeight;
+		const timer = setTimeout(() => {
+			el.scrollTo({ top: 0, behavior: 'smooth' });
+		}, TRANSITION_DURATION - 500);
+		return () => clearTimeout(timer);
+	}, [isLoading]);
+
 	// Register GUI events on load
 	useEffect(() => {
 		registerGUIEvents();
@@ -520,7 +533,7 @@ export default function App() {
 	}
 
 	return (
-		<SkyBackground>
+		<SkyBackground ref={skyContainerRef}>
 			<div className={styles.playContainer}>
 				<ControlPanel
 					handleROMSelected={handleROMSelected}
