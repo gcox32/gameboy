@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, ReactNode } from 'react';
+import { useMemo, ReactNode, forwardRef } from 'react';
 import styles from '@/app/home.module.css';
 import { getCurrentSkyConfig } from '@/lib/sky';
 
@@ -8,11 +8,12 @@ interface SkyBackgroundProps {
   children: ReactNode;
 }
 
-export default function SkyBackground({ children }: SkyBackgroundProps) {
+const SkyBackground = forwardRef<HTMLDivElement, SkyBackgroundProps>(
+  function SkyBackground({ children }, ref) {
   const config = useMemo(() => getCurrentSkyConfig(), []);
 
   return (
-    <div className={styles.homeContainer} style={{ background: config.topColor }}>
+    <div ref={ref} className={styles.homeContainer} style={{ background: config.topColor }}>
       {config.starOpacity > 0 && (
         <div
           className={styles.starfield}
@@ -32,4 +33,6 @@ export default function SkyBackground({ children }: SkyBackgroundProps) {
       {children}
     </div>
   );
-}
+});
+
+export default SkyBackground;
