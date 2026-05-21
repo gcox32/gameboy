@@ -3,6 +3,7 @@
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   text-transform: uppercase;
   background: linear-gradient(180deg, #7b68a6 0%, #5a4a7a 100%);
   border: 4px solid #3d2f5c;

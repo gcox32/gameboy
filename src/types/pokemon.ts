@@ -15,12 +15,28 @@ export interface PokemonDetailsModalProps {
     pokemon: PokemonDetails;
 }
 
+/** Crystal only. undefined means the Pokémon was not caught in Crystal (Gold/Silver, traded from Gen 1, or hatched in a non-Crystal game). */
+export interface CaughtData {
+    timeOfDay: 'morning' | 'day' | 'night';
+    caughtLevel: number;
+    otGender: 'male' | 'female';
+    locationIndex: number;
+}
+
 export interface PokemonDetails {
     speciesIndex: number;
     nickname?: string;
     speciesName?: string;
     pokedexNo: string;
     otName?: string;
+    /** Gen 1's catch rate byte occupies the same offset; a Pokémon traded from Gen 1 will have its catch rate read as this value. */
+    heldItem?: number;
+    /** Always assigned a default when entering Gen 2 (even from Gen 1); cleared to 0 on trade to Gen 1. */
+    friendship?: number;
+    /** Cleared to 0 when traded to Gen 1; a round-tripped Pokémon loses its Pokérus status permanently. */
+    pokerus?: number;
+    /** undefined = not caught in Crystal (Gold/Silver native, Gen 1 trade, or 0x0000 blank). */
+    caughtData?: CaughtData;
     structure: {
         type1?: string;
         type2?: string;
@@ -32,6 +48,8 @@ export interface PokemonDetails {
             defense: number;
             speed: number;
             special: number;
+            specialAttack?: number;
+            specialDefense?: number;
         };
         EVs: {
             hp: number;

@@ -252,6 +252,52 @@ export interface PokemonBoxData {
   nicknames: NameString[]; // Pokémon nicknames (20 × 11 bytes)
 }
 
+// Gen 2 Pokémon data structure (Gold/Silver/Crystal, 48 bytes in party, 32 in PC box)
+export interface PokemonDataGen2 {
+  species: SRAMByte;       // 0x00 — species index
+  heldItem: SRAMByte;      // 0x01 — held item index (replaces Gen 1 catch rate)
+  moves: SRAMArray;        // 0x02–0x05 — 4 move indices
+  otId: number;            // 0x06–0x07 — original trainer ID
+  exp: number;             // 0x08–0x0A — experience points (3 bytes)
+  hpEv: number;            // 0x0B–0x0C
+  attackEv: number;        // 0x0D–0x0E
+  defenseEv: number;       // 0x0F–0x10
+  speedEv: number;         // 0x11–0x12
+  specialEv: number;       // 0x13–0x14 — shared by Sp.Atk and Sp.Def
+  iv: number;              // 0x15–0x16 — packed 4-bit IVs: Atk, Def, Spd, Special (HP derived)
+  pp: SRAMArray;           // 0x17–0x1A — PP for 4 moves (2 bits PP Ups + 6 bits current PP each)
+  friendship: SRAMByte;    // 0x1B — friendship (0–255), or remaining egg cycles if egg
+  pokerus: SRAMByte;       // 0x1C — Pokérus status
+  caughtData: number;      // 0x1D–0x1E — caught data (Crystal only; 0x0000 in Gold/Silver)
+  level: SRAMByte;         // 0x1F — level (permanent; always present, even in PC box)
+  // Party-only bytes below (0x20–0x2F; not stored in PC box)
+  status: SRAMByte;        // 0x20 — status condition
+  unused: SRAMByte;        // 0x21
+  currentHp: number;       // 0x22–0x23
+  maxHp: number;           // 0x24–0x25
+  attack: number;          // 0x26–0x27
+  defense: number;         // 0x28–0x29
+  speed: number;           // 0x2A–0x2B
+  specialAttack: number;   // 0x2C–0x2D
+  specialDefense: number;  // 0x2E–0x2F
+}
+
+export interface PokemonPartyDataGen2 {
+  count: SRAMByte;
+  species: SRAMArray;       // Species IDs (6 bytes + 0xFF terminator)
+  pokemon: PokemonDataGen2[]; // 6 × 48 bytes
+  otNames: NameString[];    // 6 × 11 bytes
+  nicknames: NameString[];  // 6 × 11 bytes
+}
+
+export interface PokemonBoxDataGen2 {
+  count: SRAMByte;
+  species: SRAMArray;       // Species IDs (20 bytes + 0xFF terminator)
+  pokemon: PokemonDataGen2[]; // 20 × 32 bytes (party-only fields absent)
+  otNames: NameString[];    // 20 × 11 bytes
+  nicknames: NameString[];  // 20 × 11 bytes
+}
+
 // Item data structures
 export interface ItemEntry {
   item: SRAMByte; // Item ID
