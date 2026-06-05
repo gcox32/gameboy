@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
+import Connector from '@/components/ui/Connector';
 import styles from './styles.module.css';
 
 const STEPS = [
@@ -71,8 +72,17 @@ export default function ConnectModal({ isOpen, onClose, saveStateId, gameId, fet
     const showSteps = phase !== 'idle';
 
     return (
-        <BaseModal isOpen={isOpen} onClose={isConnecting ? () => {} : onClose} title="Connect this Save File" size="sm">
+        <BaseModal isOpen={isOpen} onClose={isConnecting ? () => {} : onClose} title="Connect this Save File" size="md">
             <div className={styles.connectModalBody}>
+                <div className={styles.connectorWrap}>
+                    <Connector
+                        connected={isDone}
+                        plugColor="#c8a0f0"
+                        socketColor="#7b68a6"
+                        width={340}
+                        height={226}
+                    />
+                </div>
                 <p className={styles.connectModalDesc}>
                     This save file isn&apos;t connected to Oak&apos;s Lab yet. Connect it to transfer Pokémon in and out.{' '}
                     <a href="/lab/about" target="_blank" rel="noopener noreferrer" className={styles.connectModalLink}>

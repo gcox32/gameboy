@@ -37,5 +37,11 @@
     "eslint-config-next": "^16.1.6",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true,
+    "sharp@0.34.5": true,
+    "esbuild@0.27.4": true,
+    "unrs-resolver@1.11.1": true
   }
 }
