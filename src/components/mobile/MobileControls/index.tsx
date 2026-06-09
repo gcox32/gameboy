@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { Loader } from '@/components/ui';
 import SaveStateModal, { PartialSaveStateModel } from '@/components/modals/SaveStateManagement/SaveStateModal';
@@ -46,7 +45,6 @@ export default function MobileControls({
     runFromSaveState,
     onDeleteSaveState,
 }: MobileControlsProps) {
-    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [games, setGames] = useState<GameModel[]>([]);
     const [loading, setLoading] = useState(true);
@@ -239,7 +237,7 @@ export default function MobileControls({
                     <div className={styles.section}>
                         <div className={styles.buttonRow}>
                             <button onClick={handlePowerToggle} disabled={!isRomLoaded} className={`${styles.button} ${styles.primary}`}>
-                                {isEmulatorPlaying ? 'Power Off' : 'Start'}
+                                {isEmulatorPlaying ? 'Off' : 'Start'}
                             </button>
                             <button onClick={onPauseResume} disabled={!isEmulatorPlaying} className={styles.button}>
                                 {intervalPaused ? 'Resume' : 'Pause'}
