@@ -186,15 +186,12 @@ body {
   html, body {
     background-color: #cc9e00 !important;
     background-image: none !important;
-    /* Prevent all scrolling and bounce effects */
-    overflow: hidden !important;
+    /* Prevent bounce/pull-to-refresh without using overflow:hidden (which clips fixed elements on iOS) */
     overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     /* Prevent text selection */
     -webkit-user-select: none;
     user-select: none;
-    /* Prevent pull-to-refresh */
-    overscroll-behavior-y: contain;
   }
   
   /* Handle notched phones (iPhone X+, etc.) */
