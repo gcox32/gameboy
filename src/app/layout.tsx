@@ -22,7 +22,7 @@ export const metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "transparent",
+    statusBarStyle: "black-translucent",
     title: "JS GBC"
   },
   formatDetection: {
@@ -37,7 +37,7 @@ export const viewport: Viewport = {
   userScalable: false,
   viewportFit: "cover",
   themeColor: [
-    { media: "(max-width: 768px)", color: "#000000" },
+    { media: "(max-width: 768px)", color: "#cc9e00" },
     { media: "(min-width: 769px)", color: "#add8e6" }
   ]
 };
