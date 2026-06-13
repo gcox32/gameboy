@@ -12,6 +12,7 @@ import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
 import MobileControls from '@/components/mobile/MobileControls';
+import NewMobileControls from '@/components/mobile/NewMobileControls';
 import styles from './play.module.css';
 import { useToast } from '@/components/ui';
 import GameBoyCore from '@/utils/GameBoyCore';
@@ -76,7 +77,7 @@ export default function App() {
 	);
 
 	// Mobile immersive mode - handles fullscreen, orientation lock, PWA detection
-	useMobileImmersive();
+	const { isMobile } = useMobileImmersive();
 
 	// Update game context when emulator state changes
 	useEffect(() => {
@@ -553,11 +554,19 @@ export default function App() {
 					onDeleteSaveState={onDeleteSaveState}
 					activeROM={activeROM}
 				/>
-				<Console
-					isEmulatorOn={isEmulatorOn}
-					mainCanvasRef={mainCanvasRef as RefObject<HTMLCanvasElement>}
-					mobileZoom={mobileZoom}
-				/>
+				{!isMobile && (
+					<Console
+						isEmulatorOn={isEmulatorOn}
+						mainCanvasRef={mainCanvasRef as RefObject<HTMLCanvasElement>}
+						mobileZoom={mobileZoom}
+					/>
+				)}
+				{isMobile && (
+					<NewMobileControls
+						mainCanvasRef={mainCanvasRef as RefObject<HTMLCanvasElement>}
+						isEmulatorOn={isEmulatorOn}
+					/>
+				)}
 				<FullScreenContainer
 					background={fullscreenBackground}
 					fullscreenCanvasRef={fullscreenCanvasRef as RefObject<HTMLCanvasElement>}
