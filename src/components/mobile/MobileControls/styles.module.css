@@ -51,7 +51,7 @@
   .panel {
     display: block;
     position: fixed;
-    bottom: -56px;
+    bottom: 0;
     left: 0;
     right: 0;
     background-color: rgba(20, 20, 20, 0.95);
@@ -62,7 +62,7 @@
     transition: transform 0.3s ease;
     max-height: 70vh;
     overflow-y: auto;
-    padding-bottom: env(safe-area-inset-bottom);
+    /* padding-bottom: env(safe-area-inset-bottom); */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }

@@ -224,9 +224,9 @@
     left: 50%;
     transform: translate(-50%, -50%);
     /* Scale to fit viewport while maintaining aspect ratio */
-    width: min(100vw, calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * (526/928)));
-    height: min(calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)), calc(100vw * (928/526)));
-    max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    width: 100vw;
+    height: calc(100vw * (928/526));
+    max-height: 100vh;
     /* Ensure it's above everything */
     z-index: 100;
     /* Remove border on mobile for cleaner look */
