@@ -22,7 +22,7 @@ export const metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "transparent",
     title: "JS GBC"
   },
   formatDetection: {

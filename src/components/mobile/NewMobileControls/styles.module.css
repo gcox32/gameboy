@@ -135,13 +135,14 @@
     /* Arrow icons via pseudo-elements */
     .dpadUp::after  { content: '▲'; }
     .dpadDown::after { content: '▼'; }
-    .dpadLeft::after { content: '◀'; }
-    .dpadRight::after { content: '▶'; }
+    .dpadLeft::after  { content: '▲'; transform: rotate(-90deg); }
+    .dpadRight::after { content: '▲'; transform: rotate(90deg); }
 
     .dpadUp::after,
     .dpadDown::after,
     .dpadLeft::after,
     .dpadRight::after {
+        display: block;
         font-size: 18px;
         color: rgba(255, 255, 255, 0.2);
         pointer-events: none;
