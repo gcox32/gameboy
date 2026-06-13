@@ -65,7 +65,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 0 12px;
-        padding-bottom: 80px;
+        padding-bottom: 0;
     }
 
     /* ── D-pad ────────────────────────────────────── */
@@ -210,7 +210,7 @@
     /* ── Start / Select ───────────────────────────── */
     .optionsContainer {
         position: absolute;
-        bottom: 20px;
+        bottom: env(safe-area-inset-bottom, 8px);
         left: 50%;
         transform: translateX(-50%);
         display: flex;
