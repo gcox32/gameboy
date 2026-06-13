@@ -184,7 +184,8 @@ body {
 
 @media screen and (max-width: 768px) {
   html, body {
-    background-color: linear-gradient(
+    background-color: #cc9e00 !important;
+    background-image: linear-gradient(
         to right,
         #b88a00 0%,
         #cc9e00 18%,
@@ -194,6 +195,8 @@ body {
         #cc9e00 82%,
         #b88a00 100%
     ) !important;
+    background-size: 100% 100% !important;
+    background-attachment: fixed !important;
     /* Prevent all scrolling and bounce effects */
     overflow: hidden !important;
     overscroll-behavior: none;
@@ -208,9 +211,6 @@ body {
   /* Handle notched phones (iPhone X+, etc.) */
   body {
     padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
   }
 
   /* Prevent iOS rubber-banding/bounce */

@@ -25,7 +25,6 @@
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
         padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
     }
 
     /* ── Screen section ───────────────────────────── */
