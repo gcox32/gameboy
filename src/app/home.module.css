@@ -12,6 +12,12 @@
   padding-bottom: 56px; /* 40px fixed footer + buffer */
 }
 
+@media screen and (max-width: 768px) {
+  .homeContainer {
+    padding-bottom: 0;
+  }
+}
+
 /* Sky gradient layer — fully opaque, terrain layers sit above it */
 .skyGradient {
   position: fixed;

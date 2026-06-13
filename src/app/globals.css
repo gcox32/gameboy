@@ -196,7 +196,7 @@ body {
     /* Prevent pull-to-refresh */
     overscroll-behavior-y: contain;
   }
-
+  
   /* Handle notched phones (iPhone X+, etc.) */
   body {
     padding-top: env(safe-area-inset-top);
