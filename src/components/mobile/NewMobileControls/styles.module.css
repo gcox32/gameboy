@@ -8,10 +8,7 @@
         display: flex;
         flex-direction: column;
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: calc(-1 * env(safe-area-inset-bottom));
+        inset: 0;
         z-index: 120;
         background: linear-gradient(
             to right,
@@ -28,6 +25,7 @@
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
         padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     /* ── Screen section ───────────────────────────── */
@@ -71,10 +69,10 @@
         flex: 1;
         position: relative;
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: space-between;
         padding: 0 12px;
-        padding-bottom: calc(env(safe-area-inset-bottom) + 52px);
+        padding-bottom: 80px;
     }
 
     /* ── D-pad ────────────────────────────────────── */
@@ -83,7 +81,6 @@
         flex-direction: column;
         align-items: center;
         flex-shrink: 0;
-        margin-bottom: 12px;
     }
 
     .dpadMiddleRow {
@@ -168,7 +165,6 @@
         width: 140px;
         height: 130px;
         flex-shrink: 0;
-        margin-bottom: 12px;
     }
 
     .abButton {
@@ -221,7 +217,7 @@
     /* ── Start / Select ───────────────────────────── */
     .optionsContainer {
         position: absolute;
-        bottom: max(env(safe-area-inset-bottom), 10px);
+        bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
         display: flex;

@@ -183,9 +183,17 @@ body {
    =========================================== */
 
 @media screen and (max-width: 768px) {
-  /* Match the console body colour so safe-area gaps stay gold */
   html, body {
-    background-color: #cc9e00 !important;
+    background: linear-gradient(
+        to right,
+        #b88a00 0%,
+        #cc9e00 18%,
+        #e0b200 30%,
+        #f0c000 50%,
+        #e0b200 70%,
+        #cc9e00 82%,
+        #b88a00 100%
+    ) !important;
     /* Prevent all scrolling and bounce effects */
     overflow: hidden !important;
     overscroll-behavior: none;
