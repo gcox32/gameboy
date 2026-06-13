@@ -1,4 +1,4 @@
-import type { Viewport } from 'next';
+import type { Viewport, Metadata } from 'next';
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from 'react';
@@ -12,7 +12,7 @@ import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "JS GBC",
   description: "Javascript Gameboy Color",
   manifest: "/manifest.json",
