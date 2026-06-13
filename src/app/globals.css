@@ -184,7 +184,7 @@ body {
 
 @media screen and (max-width: 768px) {
   html, body {
-    background: linear-gradient(
+    background-color: linear-gradient(
         to right,
         #b88a00 0%,
         #cc9e00 18%,
