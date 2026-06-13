@@ -51,8 +51,7 @@
   .panel {
     display: block;
     position: fixed;
-    margin-bottom: -56px;
-    bottom: 0;
+    bottom: -56px;
     left: 0;
     right: 0;
     background-color: rgba(20, 20, 20, 0.95);
