@@ -13,16 +13,7 @@
         right: 0;
         bottom: 0;
         z-index: 120;
-        background: linear-gradient(
-            to right,
-            #b88a00 0%,
-            #cc9e00 18%,
-            #e0b200 30%,
-            #f0c000 50%,
-            #e0b200 70%,
-            #cc9e00 82%,
-            #b88a00 100%
-        );
+        background: #cc9e00;
         user-select: none;
         touch-action: manipulation;
         -webkit-touch-callout: none;

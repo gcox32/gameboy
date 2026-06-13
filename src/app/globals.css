@@ -185,18 +185,7 @@ body {
 @media screen and (max-width: 768px) {
   html, body {
     background-color: #cc9e00 !important;
-    background-image: linear-gradient(
-        to right,
-        #b88a00 0%,
-        #cc9e00 18%,
-        #e0b200 30%,
-        #f0c000 50%,
-        #e0b200 70%,
-        #cc9e00 82%,
-        #b88a00 100%
-    ) !important;
-    background-size: 100% 100% !important;
-    background-attachment: fixed !important;
+    background-image: none !important;
     /* Prevent all scrolling and bounce effects */
     overflow: hidden !important;
     overscroll-behavior: none;
