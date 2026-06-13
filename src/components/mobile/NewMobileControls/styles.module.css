@@ -25,7 +25,6 @@
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
         padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
     }
 
     /* ── Screen section ───────────────────────────── */
@@ -72,7 +71,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 0 12px;
-        padding-bottom: 80px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 52px);
     }
 
     /* ── D-pad ────────────────────────────────────── */
@@ -217,7 +216,7 @@
     /* ── Start / Select ───────────────────────────── */
     .optionsContainer {
         position: absolute;
-        bottom: 20px;
+        bottom: max(env(safe-area-inset-bottom), 10px);
         left: 50%;
         transform: translateX(-50%);
         display: flex;

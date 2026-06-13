@@ -183,9 +183,9 @@ body {
    =========================================== */
 
 @media screen and (max-width: 768px) {
-  /* Dark surround for console immersion */
+  /* Match the console body colour so safe-area gaps stay gold */
   html, body {
-    background-color: #000 !important;
+    background-color: #cc9e00 !important;
     /* Prevent all scrolling and bounce effects */
     overflow: hidden !important;
     overscroll-behavior: none;
