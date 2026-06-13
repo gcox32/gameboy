@@ -77,8 +77,8 @@ export default function App() {
 	);
 
 	// Mobile immersive mode - handles fullscreen, orientation lock, PWA detection
-	// const { isMobile } = useMobileImmersive();
-	const isMobile = true;
+	const { isMobile } = useMobileImmersive();
+	// const isMobile = true;
 
 	// Update game context when emulator state changes
 	useEffect(() => {
