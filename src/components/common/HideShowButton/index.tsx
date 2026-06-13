@@ -23,7 +23,7 @@ const HideShowButton = ({
             className={`
                 ${styles.toggleButton} 
                 ${mobile ? styles.mobile : styles.desktop}
-                ${isPanelVisible ? styles.visible : styles.hidden}
+                ${isPanelVisible ? 'block' : 'hidden'}
                 ${className || ''}
             `}
             aria-label={isPanelVisible ? 'Hide Panel' : 'Show Panel'}
