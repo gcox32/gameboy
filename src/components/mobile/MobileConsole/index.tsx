@@ -35,8 +35,12 @@ function TouchButton({
         }));
     }, [mapping]);
 
-    const handleStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-        e.preventDefault();
+    const handleStart = useCallback((e: React.PointerEvent) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
         divRef.current?.classList.add(styles.pressed);
         if (navigator.vibrate) navigator.vibrate(30);
         intervalRef.current = setInterval(() => dispatchKey('keydown'), 10);
@@ -61,12 +65,9 @@ function TouchButton({
         <div
             ref={divRef}
             className={className}
-            onMouseDown={handleStart}
-            onMouseUp={handleEnd}
-            onMouseLeave={handleEnd}
-            onTouchStart={handleStart}
-            onTouchEnd={handleEnd}
-            onTouchCancel={handleEnd}
+            onPointerDown={handleStart}
+            onPointerUp={handleEnd}
+            onPointerCancel={handleEnd}
         >
             {label && <span className={styles.buttonLabel}>{label}</span>}
         </div>
