@@ -4,7 +4,7 @@ import { RefObject, useRef, useEffect, useCallback } from 'react';
 import { defaultKeyMappings } from '@/contexts/SettingsContext';
 import styles from './styles.module.css';
 
-interface NewMobileControlsProps {
+interface MobileConsoleProps {
     mainCanvasRef: RefObject<HTMLCanvasElement>;
     isEmulatorOn: boolean;
 }
@@ -73,7 +73,7 @@ function TouchButton({
     );
 }
 
-export default function NewMobileControls({ mainCanvasRef, isEmulatorOn }: NewMobileControlsProps) {
+export default function MobileConsole({ mainCanvasRef, isEmulatorOn }: MobileConsoleProps) {
     return (
         <div className={styles.console}>
             <div className={styles.screenSection}>

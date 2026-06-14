@@ -12,7 +12,7 @@ import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
 import MobileControls from '@/components/mobile/MobileControls';
-import NewMobileControls from '@/components/mobile/NewMobileControls';
+import MobileConsole from '@/components/mobile/MobileConsole';
 import styles from './play.module.css';
 import { useToast } from '@/components/ui';
 import GameBoyCore from '@/utils/GameBoyCore';
@@ -563,7 +563,7 @@ export default function App() {
 					/>
 				)}
 				{isMobile && (
-					<NewMobileControls
+					<MobileConsole
 						mainCanvasRef={mainCanvasRef as RefObject<HTMLCanvasElement>}
 						isEmulatorOn={isEmulatorOn}
 					/>

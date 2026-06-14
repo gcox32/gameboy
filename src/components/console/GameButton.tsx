@@ -4,9 +4,10 @@ import { defaultKeyMappings } from '@/contexts/SettingsContext';
 interface GameButtonProps {
     className: string;
     button: string;
+    label?: string;
 }
 
-function GameButton({className, button }: GameButtonProps) {
+function GameButton({className, button, label }: GameButtonProps) {
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
     const clickBtn = () => {
@@ -65,6 +66,7 @@ function GameButton({className, button }: GameButtonProps) {
             onTouchStart={handleInteractionStart}
             onTouchEnd={handleInteractionEnd}
         >
+            {label}
         </div>
     );
 }
