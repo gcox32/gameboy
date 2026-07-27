@@ -40,8 +40,12 @@
   },
   "allowScripts": {
     "fsevents@2.3.3": true,
-    "sharp@0.34.5": true,
+    "sharp@0.35.3": true,
     "esbuild@0.27.4": true,
     "unrs-resolver@1.11.1": true
+  },
+  "overrides": {
+    "postcss": "^8.5.23",
+    "sharp": "^0.35.3"
   }
 }
