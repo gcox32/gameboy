@@ -1,17 +1,17 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { SRAMArray } from '@/types';
+import { SRAMArray, GameModel, MemoryWatcherConfig } from '@/types';
 import styles from './styles.module.css';
 import Hinge from './Hinge';
 import PokedexButton from './PokedexButton';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import { Pokemon as PokemonData } from '@/types/pokeapi/root';
-import { useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
 
 interface PokedexProps {
     inGameMemory: SRAMArray | number[];
     gbcMemory?: SRAMArray | number[];
-    mbcRam?: SRAMArray | number[];
+    activeROM: GameModel | null;
 }
 
 // Utility functions from the example
@@ -19,7 +19,7 @@ function pickRandom<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export default function Pokedex({ inGameMemory, gbcMemory, mbcRam }: PokedexProps) {
+export default function Pokedex({ inGameMemory, gbcMemory, activeROM }: PokedexProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [selectedPokemon, setSelectedPokemon] = useState<number | null>(null);
     const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
@@ -35,98 +35,66 @@ export default function Pokedex({ inGameMemory, gbcMemory, mbcRam }: PokedexProp
         female: false
     });
 
-    // Watch Pokédex bytes via in-game memory (SRAM window starts at 0xA000 on GB)
-    // Detect Pokédex block offset in inGameMemory using a snapshot from mbcRam (owned 0x25A3, seen 0x25B6)
-    const [pokedexOffset, setPokedexOffset] = useState<number | null>(null);
+    // Read the Pokédex bytes from a fixed WRAM address (via ROM metadata, GBC-aware).
+    // Gen 1: wPokedexOwned 0xD2F7 (19 bytes) is immediately followed by wPokedexSeen 0xD30A (19 bytes).
+    const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
     useEffect(() => {
-        const ram = mbcRam as number[];
-        const expected: number[] = [
-            ...ram.slice(0x25A3, 0x25A3 + 19),
-            ...ram.slice(0x25B6, 0x25B6 + 19)
-        ];
-        if (expected.length !== 38) return;
+        if (!activeROM) return;
+        const config = parseMetadata(activeROM, 'pokedex', {
+            baseAddress: '0xD2F7',
+            offset: '0x00',
+            size: '0x26', // owned (19) + seen (19) = 38 bytes
+        });
+        setWatcherConfig(config);
+    }, [activeROM]);
 
-        const haystack = inGameMemory as number[];
-        const limit = haystack.length - expected.length;
+    const handlePokedexBytes = useCallback((slice: number[]) => {
+        if (!slice || slice.length < 0x26) return;
+        setLoadingPokedex(false);
 
-        const popcount = (v: number) => {
-            v &= 0xFF;
-            v = v - ((v >> 1) & 0x55);
-            v = (v & 0x33) + ((v >> 2) & 0x33);
-            return (((v + (v >> 4)) & 0x0F) * 0x01) & 0xFF;
-        };
-
-        let bestIndex = -1;
-        let bestBits = Number.POSITIVE_INFINITY;
-        for (let i = 0; i <= limit; i++) {
-            let diffBits = 0;
-            for (let j = 0; j < 38; j++) {
-                const a = haystack[i + j] ?? 0;
-                const b = expected[j] ?? 0;
-                diffBits += popcount(a ^ b);
-                if (diffBits >= bestBits) break;
-            }
-            if (diffBits < bestBits) {
-                bestBits = diffBits;
-                bestIndex = i;
-                if (bestBits === 0) break;
-            }
+        const ownedBytes = slice.slice(0, 19);
+        const seenBytes = slice.slice(19, 38);
+        const nextOwned = new Set<number>();
+        const nextSeen = new Set<number>();
+        for (let speciesId = 0; speciesId < 151; speciesId++) {
+            const byteIndex = Math.floor(speciesId / 8);
+            const bitIndex = speciesId % 8;
+            const ownedInMemory = ((ownedBytes[byteIndex] >> bitIndex) & 1) === 1;
+            const seenInMemory = ((seenBytes[byteIndex] >> bitIndex) & 1) === 1;
+            if (ownedInMemory) nextOwned.add(speciesId + 1);
+            if (seenInMemory) nextSeen.add(speciesId + 1);
         }
 
-        // Accept if close enough (<= 8 differing bits across 38 bytes)
-        if (bestIndex >= 0 && bestBits <= 8) {
-            setPokedexOffset(bestIndex);
-            setLoadingPokedex(false);
-        }
-    }, [inGameMemory, mbcRam]);
+        // Only update state if the data has actually changed
+        setOwnedIds(prevOwned => {
+            if (prevOwned.size !== nextOwned.size) return nextOwned;
+            for (const id of nextOwned) {
+                if (!prevOwned.has(id)) return nextOwned;
+            }
+            for (const id of prevOwned) {
+                if (!nextOwned.has(id)) return nextOwned;
+            }
+            return prevOwned; // No change, return same reference
+        });
+
+        setSeenIds(prevSeen => {
+            if (prevSeen.size !== nextSeen.size) return nextSeen;
+            for (const id of nextSeen) {
+                if (!prevSeen.has(id)) return nextSeen;
+            }
+            for (const id of prevSeen) {
+                if (!nextSeen.has(id)) return nextSeen;
+            }
+            return prevSeen; // No change, return same reference
+        });
+    }, []);
 
     useInGameMemoryWatcher(
         inGameMemory,
-        '0x0000',
-        pokedexOffset !== null ? `0x${pokedexOffset.toString(16).toUpperCase()}` : undefined, // 0xD257 or 54007
-        pokedexOffset !== null ? '0x26' : undefined,
-        (slice: number[]) => {
-            if (!slice || slice.length < 0x26) return;
-            const ownedBytes = slice.slice(0, 19);
-            const seenBytes = slice.slice(19, 38);
-            const nextOwned = new Set<number>();
-            const nextSeen = new Set<number>();
-            for (let speciesId = 0; speciesId < 151; speciesId++) {
-                const byteIndex = Math.floor(speciesId / 8);
-                const bitIndex = speciesId % 8;
-                const ownedInMemory = ((ownedBytes[byteIndex] >> bitIndex) & 1) === 1;
-                const seenInMemory = ((seenBytes[byteIndex] >> bitIndex) & 1) === 1;
-                if (ownedInMemory) nextOwned.add(speciesId + 1);
-                if (seenInMemory) nextSeen.add(speciesId + 1);
-            }
-            if (pokedexOffset) {
-                console.log(`0x${pokedexOffset.toString(16).toUpperCase()}`)
-                console.log(slice.length);
-            }
-
-            // Only update state if the data has actually changed
-            setOwnedIds(prevOwned => {
-                if (prevOwned.size !== nextOwned.size) return nextOwned;
-                for (const id of nextOwned) {
-                    if (!prevOwned.has(id)) return nextOwned;
-                }
-                for (const id of prevOwned) {
-                    if (!nextOwned.has(id)) return nextOwned;
-                }
-                return prevOwned; // No change, return same reference
-            });
-
-            setSeenIds(prevSeen => {
-                if (prevSeen.size !== nextSeen.size) return nextSeen;
-                for (const id of nextSeen) {
-                    if (!prevSeen.has(id)) return nextSeen;
-                }
-                for (const id of prevSeen) {
-                    if (!nextSeen.has(id)) return nextSeen;
-                }
-                return prevSeen; // No change, return same reference
-            });
-        },
+        watcherConfig?.baseAddress,
+        watcherConfig?.offset,
+        watcherConfig?.size,
+        handlePokedexBytes,
         1000,
         gbcMemory
     );
@@ -245,28 +213,24 @@ export default function Pokedex({ inGameMemory, gbcMemory, mbcRam }: PokedexProp
                     </div>
                 </div>
             ) : (
-                <>
-                    {ownedIds.size > 0 && (
-                        <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
-                            <div className={styles.header}>
-                                <div className={styles.title}>
-                                    <h3>pokédex</h3>
-                                    <div className={styles.stats}>
-                                        <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
-                                    </div>
-                                    <div className={styles.stats}>
-                                        <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.owned} caught`}</span>
-                                    </div>
-                                </div>
-                                <PokedexButton onClick={() => {
-                                    if (loadingPokedex) return;
-                                    setIsExpanded(!isExpanded);
-                                    setUseDefault(true);
-                                }} />
+                <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
+                    <div className={styles.header}>
+                        <div className={styles.title}>
+                            <h3>pokédex</h3>
+                            <div className={styles.stats}>
+                                <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
+                            </div>
+                            <div className={styles.stats}>
+                                <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.owned} caught`}</span>
                             </div>
                         </div>
-                    )}
-                </>
+                        <PokedexButton onClick={() => {
+                            if (loadingPokedex) return;
+                            setIsExpanded(!isExpanded);
+                            setUseDefault(true);
+                        }} />
+                    </div>
+                </div>
             )}
         </>
     );

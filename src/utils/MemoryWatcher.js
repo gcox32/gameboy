@@ -107,7 +107,7 @@ export const parseMetadata = (activeROM, key, defaultConfig = {}) => {
     const metadata = typeof raw === 'string' ? JSON.parse(raw) : raw;
     try {
         const config = metadata?.memoryWatchers?.[key];
-        return config;
+        return config ?? defaultConfig;
     } catch (error) {
         console.error('Error parsing metadata:', error);
         return defaultConfig;

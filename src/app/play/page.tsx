@@ -546,6 +546,7 @@ export default function App() {
 					handleReset={handleReset}
 					handlePowerToggle={handlePowerToggle}
 					toggleFullscreenMode={toggleFullscreenMode}
+					isFullscreen={isFullscreen}
 					isRomLoaded={isRomLoaded}
 					onSaveConfirmed={onSaveConfirmed}
 					userSaveStates={userSaveStates}
@@ -576,7 +577,6 @@ export default function App() {
 					activeState={activeState}
 					inGameMemory={inGameMemory.current}
 					gbcMemory={gbcMemory.current}
-					mbcRam={mbcRamRef.current}
 					onPauseResume={handlePauseResume}
 					intervalPaused={intervalPaused}
 				/>

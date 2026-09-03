@@ -1,0 +1,50 @@
+/*
+ * Small system-control icons stacked vertically just outside the bottom-right
+ * edge of the fullscreen console screen.
+ *
+ * The screen canvas (see FullScreenContainer/styles.module.css) is centred in
+ * the viewport at:  width: calc(62vh * (321 / 286));  height: 62vh;
+ * so its right edge sits at   calc(50vw + 31vh * (321 / 286) - 2px)
+ * and its bottom edge at      81vh  (i.e. 19vh from the viewport bottom)
+ */
+.iconStrip {
+    position: fixed;
+    right: calc(50vw + 32vh * (321 / 286));
+    bottom: 19vh;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 4;
+}
+
+.iconButton {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.2s ease-in-out;
+}
+
+.iconButton:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.iconButton:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .iconStrip {
+        display: none;
+    }
+}

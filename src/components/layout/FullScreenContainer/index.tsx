@@ -18,7 +18,6 @@ interface FullScreenContainerProps {
   activeState: SaveStateModel | null;
   inGameMemory: number[];
   gbcMemory: SRAMArray | number[];
-  mbcRam: SRAMArray | number[];
   onPauseResume: () => void;
   intervalPaused: boolean;
 }
@@ -33,7 +32,6 @@ export default function FullScreenContainer({
   activeState,
   inGameMemory,
   gbcMemory,
-  mbcRam,
   onPauseResume,
   intervalPaused
 }: FullScreenContainerProps) {
@@ -150,7 +148,7 @@ export default function FullScreenContainer({
         <Pokedex
           inGameMemory={inGameMemory}
           gbcMemory={gbcMemory}
-          mbcRam={mbcRam}
+          activeROM={activeROM}
         />
       }
       {showTeamPhoto && activeROM && activeState && <TeamPhoto />}

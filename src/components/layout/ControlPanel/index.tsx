@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Cartridges from "./Cartridges";
 import SystemControls from "./SystemControls";
+import FullscreenSystemIcons from "./SystemControls/FullscreenSystemIcons";
 import HideShowButton from "@/components/common/HideShowButton";
 import styles from './styles.module.css';
 import ConfirmModal from "@/components/modals/utilities/ConfirmModal";
@@ -19,6 +20,7 @@ interface ControlPanelProps {
     handleReset: () => void;
     handlePowerToggle: () => void;
     toggleFullscreenMode: () => void;
+    isFullscreen: boolean;
     isRomLoaded: boolean;
     onSaveConfirmed: (saveData: SaveStateModel, isSaveAs: boolean) => Promise<void>;
     userSaveStates: SaveStateModel[];
@@ -38,6 +40,7 @@ function ControlPanel({
     handleReset,
     handlePowerToggle,
     toggleFullscreenMode,
+    isFullscreen,
     isRomLoaded,
     onSaveConfirmed,
     userSaveStates,
@@ -177,6 +180,19 @@ function ControlPanel({
                 />
 
             </div>
+            {isFullscreen && (
+                <FullscreenSystemIcons
+                    intervalPaused={intervalPaused}
+                    isEmulatorPlaying={isEmulatorPlaying}
+                    isRomLoaded={isRomLoaded}
+                    isSaving={isSaving}
+                    onPowerToggle={handlePowerToggleConfirm}
+                    onPauseResume={handlePauseResume}
+                    onReset={handleResetConfirm}
+                    onSave={handleSaveState}
+                    onSaveAs={handleSaveAs}
+                />
+            )}
             <HideShowButton
                 onClick={togglePanel}
                 isPanelVisible={isPanelVisible}
