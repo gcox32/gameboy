@@ -1,11 +1,12 @@
 import React from 'react';
-import { Power, Pause, Play, RotateCcw, Save, FolderDown } from 'lucide-react';
+import { Power, Pause, Play, RotateCcw, Save, FolderDown, Maximize, Minimize } from 'lucide-react';
 import { Loader } from '@/components/ui';
 import styles from './FullscreenSystemIcons.module.css';
 
 interface FullscreenSystemIconsProps {
     intervalPaused: boolean;
     isEmulatorPlaying: boolean;
+    isBrowserFullscreen: boolean;
     isRomLoaded: boolean;
     isSaving: boolean;
     onPowerToggle: () => void;
@@ -13,11 +14,13 @@ interface FullscreenSystemIconsProps {
     onReset: () => void;
     onSave: () => void;
     onSaveAs: () => void;
+    onFullscreenToggle: () => void;
 }
 
 export default function FullscreenSystemIcons({
     intervalPaused,
     isEmulatorPlaying,
+    isBrowserFullscreen,
     isRomLoaded,
     isSaving,
     onPowerToggle,
@@ -25,6 +28,7 @@ export default function FullscreenSystemIcons({
     onReset,
     onSave,
     onSaveAs,
+    onFullscreenToggle,
 }: FullscreenSystemIconsProps) {
     return (
         <div className={styles.iconStrip}>
@@ -81,6 +85,16 @@ export default function FullscreenSystemIcons({
                 className={styles.iconButton}
             >
                 {isSaving ? <Loader /> : <FolderDown size={18} />}
+            </button>
+
+            <button
+                type="button"
+                title={isBrowserFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                aria-label={isBrowserFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                onClick={onFullscreenToggle}
+                className={styles.iconButton}
+            >
+                {isBrowserFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
             </button>
         </div>
     );

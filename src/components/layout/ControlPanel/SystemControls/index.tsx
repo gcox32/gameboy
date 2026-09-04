@@ -95,7 +95,7 @@ export default function SystemControls({
 						disabled={!isRomLoaded}
 						className={`${buttons.retroButton} ${buttons.desktop}`}
 					>
-						Fullscreen
+						Immersive
 					</button>
 				</div>
             </div>

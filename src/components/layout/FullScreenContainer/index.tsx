@@ -1,5 +1,6 @@
 import { useState, useEffect, RefObject, CSSProperties } from 'react';
 import GameElementsBar from '@/components/layout/GameElementsBar';
+import FullscreenSystemIcons from './FullscreenSystemIcons';
 import ActiveParty from '@/components/pokemon/ActiveParty';
 import GymBadgeCase from '@/components/pokemon/GymBadgeCase';
 import TownMap from '@/components/pokemon/TownMap';
@@ -20,6 +21,15 @@ interface FullScreenContainerProps {
   gbcMemory: SRAMArray | number[];
   onPauseResume: () => void;
   intervalPaused: boolean;
+  isEmulatorPlaying: boolean;
+  isRomLoaded: boolean;
+  isBrowserFullscreen: boolean;
+  isSaving: boolean;
+  onPowerToggle: () => void;
+  onReset: () => void;
+  onSave: () => void;
+  onSaveAs: () => void;
+  onFullscreenToggle: () => void;
 }
 
 const locationsImgUrl = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/locations/'
@@ -33,7 +43,16 @@ export default function FullScreenContainer({
   inGameMemory,
   gbcMemory,
   onPauseResume,
-  intervalPaused
+  intervalPaused,
+  isEmulatorPlaying,
+  isRomLoaded,
+  isBrowserFullscreen,
+  isSaving,
+  onPowerToggle,
+  onReset,
+  onSave,
+  onSaveAs,
+  onFullscreenToggle
 }: FullScreenContainerProps) {
 
   const [showActiveParty, setShowActiveParty] = useState(true);
@@ -112,8 +131,24 @@ export default function FullScreenContainer({
       }}
     >
       <canvas id="fullscreen" className={styles.fullscreen} ref={fullscreenCanvasRef}></canvas>
-      
-      {activeROM && activeState && inGameMemory && 
+
+      {activeROM && isEmulatorPlaying &&
+        <FullscreenSystemIcons
+          intervalPaused={intervalPaused}
+          isEmulatorPlaying={isEmulatorPlaying}
+          isBrowserFullscreen={isBrowserFullscreen}
+          isRomLoaded={isRomLoaded}
+          isSaving={isSaving}
+          onPowerToggle={onPowerToggle}
+          onPauseResume={onPauseResume}
+          onReset={onReset}
+          onSave={onSave}
+          onSaveAs={onSaveAs}
+          onFullscreenToggle={onFullscreenToggle}
+        />
+      }
+
+      {activeROM && activeState && inGameMemory &&
       <GameElementsBar
         elementsEnabled={true}
         onActivePartyClick={() => setShowActiveParty(!showActiveParty)}

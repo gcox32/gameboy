@@ -1,20 +1,24 @@
 /*
  * Small system-control icons stacked vertically just outside the bottom-right
- * edge of the fullscreen console screen.
+ * edge of the fullscreen console screen. Rendered as a sibling of the
+ * `.fullscreen` canvas (see FullScreenContainer/styles.module.css) inside the
+ * same `.fullscreenContainer`, which is itself `position: fixed` and fills
+ * the viewport — so positioning `absolute` here is equivalent to the old
+ * viewport-relative `fixed` positioning, but keeps the icons on the same
+ * stacking plane as the canvas instead of a separate fixed layer.
  *
- * The screen canvas (see FullScreenContainer/styles.module.css) is centred in
- * the viewport at:  width: calc(62vh * (321 / 286));  height: 62vh;
+ * The canvas is centred at:  width: calc(62vh * (321 / 286));  height: 62vh;
  * so its right edge sits at   calc(50vw + 31vh * (321 / 286) - 2px)
  * and its bottom edge at      81vh  (i.e. 19vh from the viewport bottom)
  */
 .iconStrip {
-    position: fixed;
+    position: absolute;
     right: calc(50vw + 32vh * (321 / 286));
     bottom: 19vh;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    z-index: 4;
+    z-index: 1; /* same plane as .fullscreen canvas; DOM order keeps it on top */
 }
 
 .iconButton {

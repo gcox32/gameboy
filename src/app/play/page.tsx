@@ -8,11 +8,15 @@ import { useGame } from '@/contexts/GameContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSaveState } from '@/hooks/useSaveState';
 import { useMobileImmersive } from '@/hooks/useMobileImmersive';
+import { useBrowserFullscreen } from '@/hooks/useBrowserFullscreen';
+import { useSystemActions } from '@/hooks/useSystemActions';
 import Console from '@/components/console/GameConsole';
 import ControlPanel from '@/components/layout/ControlPanel';
 import FullScreenContainer from '@/components/layout/FullScreenContainer';
 import MobileControls from '@/components/mobile/MobileControls';
 import MobileConsole from '@/components/mobile/MobileConsole';
+import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
+import SaveStateModal from '@/components/modals/SaveStateManagement/SaveStateModal';
 import styles from './play.module.css';
 import { useToast } from '@/components/ui';
 import GameBoyCore from '@/utils/GameBoyCore';
@@ -79,6 +83,11 @@ export default function App() {
 	// Mobile immersive mode - handles fullscreen, orientation lock, PWA detection
 	const { isMobile } = useMobileImmersive();
 	// const isMobile = true;
+
+	// Real browser Fullscreen API for the fullscreen view container (distinct
+	// from `isFullscreen` above, which is the app's own overlay/canvas-swap mode)
+	const { isFullscreen: isBrowserFullscreen, toggle: toggleBrowserFullscreen } =
+		useBrowserFullscreen(fullscreenContainerRef);
 
 	// Update game context when emulator state changes
 	useEffect(() => {
@@ -310,6 +319,28 @@ export default function App() {
 			showToast(`Save failed: ${message}`, 'error');
 		}
 	};
+
+	// Shared power/reset/save confirmation + Save State modal wiring, used by
+	// both the desktop ControlPanel and the fullscreen icon strip.
+	const {
+		setActiveROMData,
+		handlePowerToggleConfirm,
+		handleResetConfirm,
+		handleSaveState,
+		handleSaveAs,
+		confirmModalMessage,
+		confirmModalProps,
+		saveStateModalProps,
+	} = useSystemActions({
+		isRomLoaded,
+		isEmulatorPlaying,
+		intervalPaused,
+		handlePowerToggle,
+		handleReset,
+		handlePauseResume,
+		onSaveConfirmed,
+	});
+
 	const runFromSaveState = (sramArray: SRAMArray, selectedSaveState: SaveStateModel) => {
 		console.log('Initiating state from load...');
 
@@ -543,18 +574,19 @@ export default function App() {
 					activeSaveState={activeState}
 					intervalPaused={intervalPaused}
 					handlePauseResume={handlePauseResume}
-					handleReset={handleReset}
-					handlePowerToggle={handlePowerToggle}
 					toggleFullscreenMode={toggleFullscreenMode}
-					isFullscreen={isFullscreen}
 					isRomLoaded={isRomLoaded}
-					onSaveConfirmed={onSaveConfirmed}
 					userSaveStates={userSaveStates}
 					runFromSaveState={runFromSaveState}
 					currentUser={currentUser}
 					isSaving={isSaving}
 					onDeleteSaveState={onDeleteSaveState}
 					activeROM={activeROM}
+					handlePowerToggleConfirm={handlePowerToggleConfirm}
+					handleResetConfirm={handleResetConfirm}
+					handleSaveState={handleSaveState}
+					handleSaveAs={handleSaveAs}
+					setActiveROMData={setActiveROMData}
 				/>
 				{!isMobile && (
 					<Console
@@ -579,6 +611,15 @@ export default function App() {
 					gbcMemory={gbcMemory.current}
 					onPauseResume={handlePauseResume}
 					intervalPaused={intervalPaused}
+					isEmulatorPlaying={isEmulatorPlaying}
+					isRomLoaded={isRomLoaded}
+					isBrowserFullscreen={isBrowserFullscreen}
+					isSaving={isSaving}
+					onPowerToggle={handlePowerToggleConfirm}
+					onReset={handleResetConfirm}
+					onSave={handleSaveState}
+					onSaveAs={handleSaveAs}
+					onFullscreenToggle={toggleBrowserFullscreen}
 				/>
 				<MobileControls
 					onROMSelected={handleROMSelected}
@@ -595,6 +636,21 @@ export default function App() {
 					onSaveConfirmed={onSaveConfirmed}
 					runFromSaveState={runFromSaveState}
 					onDeleteSaveState={onDeleteSaveState}
+				/>
+				<ConfirmModal
+					isOpen={confirmModalProps.isOpen}
+					onClose={confirmModalProps.onClose}
+					onConfirm={confirmModalProps.onConfirm}
+					skipConfirmation={confirmModalProps.skipConfirmation}
+					toggleSkipConfirmation={confirmModalProps.toggleSkipConfirmation}
+				>
+					{confirmModalMessage}
+				</ConfirmModal>
+				<SaveStateModal
+					isOpen={saveStateModalProps.isOpen}
+					onClose={saveStateModalProps.onClose}
+					onConfirm={saveStateModalProps.onConfirm}
+					initialData={saveStateModalProps.initialData}
 				/>
 			</div>
 		</SkyBackground>
