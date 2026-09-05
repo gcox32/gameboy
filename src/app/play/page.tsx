@@ -145,7 +145,7 @@ export default function App() {
 			// console.log('Selected ROM:', selectedROM);
 			// console.log('Current user:', currentUser);
 			try {
-				const response = await loadInGameFile(selectedROM.filePath);
+				const response = await loadInGameFile(selectedROM.filePath, selectedROM.updatedAt);
 				const blob = await response.blob();
 				const reader = new FileReader();
 				reader.onloadend = () => {

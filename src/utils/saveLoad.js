@@ -12,8 +12,16 @@ export async function fetchUserSaveStates(userId, gameId) {
     }
 }
 
-export async function loadInGameFile(filePath) {
-    return fetch(filePath);
+export async function loadInGameFile(filePath, version) {
+    // ROMs are overwritten in-place in Vercel Blob (same URL), and blobs are served
+    // with a long-lived, immutable Cache-Control. Append a version token (the game's
+    // updatedAt) so a replaced ROM produces a distinct browser/CDN cache key.
+    let url = filePath;
+    if (version !== undefined && version !== null && version !== '') {
+        const token = encodeURIComponent(String(version));
+        url += (filePath.includes('?') ? '&' : '?') + `v=${token}`;
+    }
+    return fetch(url);
 }
 
 // Vercel Blob URLs are permanent — just return the value stored in the DB directly.

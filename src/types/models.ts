@@ -57,4 +57,6 @@ export interface GameModel {
             location?: MemoryWatcherConfig;
         };
     };
+    createdAt?: string;
+    updatedAt?: string;
 }
