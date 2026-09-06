@@ -200,7 +200,7 @@ export const dexDict: Record<number, { name: string, pokedexNo: string }> = {
     172: { 'name': 'missingno', 'pokedexNo': 'NULL' },
     173: { 'name': 'magnemite', 'pokedexNo': '081' },
     174: { 'name': 'missingno', 'pokedexNo': 'NULL' },
-    175: { 'name': 'missingno', 'pokedexNo': 'NULL' },
+    175: { 'name': 'donphan', 'pokedexNo': '232' },
     176: { 'name': 'charmander', 'pokedexNo': '004' },
     177: { 'name': 'squirtle', 'pokedexNo': '007' },
     178: { 'name': 'charmeleon', 'pokedexNo': '005' },
