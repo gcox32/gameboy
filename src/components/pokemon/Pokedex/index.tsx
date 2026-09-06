@@ -117,7 +117,7 @@ export default function Pokedex({ inGameMemory, gbcMemory, activeROM }: PokedexP
 
     // Load Pokemon data via internal API route
     const loadPokemonData = useCallback(async (pokemonId: number) => {
-
+        if (pokemonId === 152) {pokemonId = 232}; // translate for one-off Donphan
         // Start the API calls and minimum processing time in parallel
         const apiData = await (async () => {
             try {
