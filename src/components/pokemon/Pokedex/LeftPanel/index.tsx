@@ -2,8 +2,6 @@ import { memo } from 'react';
 import styles from '../styles.module.css';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { Pokemon as PokemonData } from '@/types/pokeapi/root';
-import SpriteControls from './Controls/SpriteControls';
-import DPad from '@/components/console/DPad';
 import SpriteFrame from './SpriteFrame';
 import LeftPanelControls from './Controls';
 
