@@ -45,11 +45,11 @@ function parsePokemonStructure(structureData: number[]) {
         ],
         originalTrainerID: structureData[0x0C] + (structureData[0x0D] << 8),
         EVs: {
-            hp: structureData[0x12],
-            attack: structureData[0x14],
-            defense: structureData[0x16],
-            speed: structureData[0x18],
-            special: structureData[0x1A]
+            hp: (structureData[0x11] << 8) | structureData[0x12],
+            attack: (structureData[0x13] << 8) | structureData[0x14],
+            defense: (structureData[0x15] << 8) | structureData[0x16],
+            speed: (structureData[0x17] << 8) | structureData[0x18],
+            special: (structureData[0x19] << 8) | structureData[0x1A]
         },
         IVs: calculateIVs(structureData[0x1B] + (structureData[0x1C] << 8)),
         levelStats: {

@@ -164,6 +164,17 @@
   padding: 0.5rem 0;
 }
 
+.statValue span:first-child {
+  width: 3.5em;
+  flex-shrink: 0;
+}
+
+.statValue span:last-child {
+  width: 3.5em;
+  text-align: right;
+  flex-shrink: 0;
+}
+
 .statBar {
   flex: 1;
   height: 6px;

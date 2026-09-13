@@ -19,7 +19,7 @@ export default function CurrentStats({ renderStatBar, structure }: CurrentStatsP
         <div>
         <h3>Stats</h3>
         <div className={styles.statValue}>
-            <span style={{ marginRight: "1em" }}>HP:</span>
+            <span>HP:</span>
             {renderStatBar(structure.levelStats.maxHP, 255, 'stat')}
             <span>{structure.levelStats.maxHP}</span>
         </div>
