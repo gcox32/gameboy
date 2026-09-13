@@ -6,13 +6,15 @@
     min-height: 300px;
 }
 
-/* ── Left pane: animated card stack ────────────────── */
+/* ── Left pane: shelf of cartridges ─────────────────── */
 
 .leftPane {
     display: flex;
-    align-items: end;
-    max-width: 55%;
-    overflow: auto;
+    align-items: flex-start;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding: 2.5rem 2rem 2rem;
     border-right: 1px solid rgba(255, 255, 255, 0.07);
     scrollbar-width: none;
@@ -34,55 +36,43 @@
 /* ── 3D scene ───────────────────────────────────────── */
 
 .scene {
+    flex: 1;
+    min-width: 0;
     overflow: visible;
+    padding: 0.5rem 0.5rem 1.25rem;
 }
 
-.stack {
-    transform: perspective(500px) rotateY(-30deg);
+/* Stage: cards sit along the top edge; picking one docks it centered
+   below, as if pulled out of the row for a closer look. min-width so
+   centering is relative to the full pane, not just the row's own content
+   width when there are only a few games. */
+.stage {
     position: relative;
-    margin: 1rem auto;
+    min-width: 100%;
 }
 
-/* ── Individual card (square — no info row) ─────────── */
+/* ── Individual cartridge ────────────────────────────── */
 
 .card {
     position: absolute;
-    width: 140px;
-    height: 140px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    /* overflow: visible so ::after side face isn't clipped */
-    overflow: visible;
-    background: #17112a;
+    perspective: 900px;
     cursor: pointer;
-    will-change: transform, box-shadow;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
-    transition: border-color 0.15s ease;
+    filter: brightness(0.82);
+    will-change: transform, filter, width, left, top;
+    transition:
+        width 0.55s cubic-bezier(0.22, 0.9, 0.3, 1.1),
+        left 0.55s cubic-bezier(0.22, 0.9, 0.3, 1.1),
+        top 0.55s cubic-bezier(0.22, 0.9, 0.3, 1.1),
+        margin-left 0.55s cubic-bezier(0.22, 0.9, 0.3, 1.1),
+        transform 0.18s ease,
+        filter 0.18s ease;
     user-select: none;
     -webkit-user-select: none;
 }
 
-/* Right side face drawn as a 2D parallelogram.
-   rotateY(-30deg) on .stack makes the right side come toward the viewer, so
-   any child positioned there extends toward the viewer instead of backward.
-   clip-path polygon sidesteps the 3D issue by just drawing the correct shape. */
-.card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: calc(100% - 1px);
-    width: 14px;
-    background: linear-gradient(
-        to bottom,
-        rgba(60, 50, 85, 0.9)  0%,
-        rgba(30, 22, 50, 0.95) 50%,
-        rgba(18, 12, 32, 0.9)  100%
-    );
-    /* Parallelogram: left edge full-height, right edge shifted inward top & bottom.
-       Adjust the 18% values to tune how sharp the taper is. */
-    clip-path: polygon(0% 1%, 100% 0, 100% 90%, 0 100%);
-    pointer-events: none;
+.card:hover {
+    transform: translateY(-6px);
+    filter: brightness(1.08);
 }
 
 .card:focus-visible {
@@ -90,37 +80,62 @@
     outline-offset: 3px;
 }
 
-.card.pending {
-    border-color: rgba(180, 160, 230, 0.85);
-    box-shadow:
-        0 0 0 2px rgba(123, 104, 166, 0.45),
-        0 4px 10px rgba(0, 0, 0, 0.32);
-}
-
-.card.pending::after {
-    border-color: rgba(123, 104, 166, 0.45);
-    border-left: none;
-}
-
-/* Inner wrapper clips the cover image without clipping the side face */
+/* Turns to reveal the front face once docked */
 .cardInner {
+    position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    border-radius: 7px;
-    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.22, 0.9, 0.3, 1.1);
 }
 
-/* ── Cover image / placeholder ──────────────────────── */
+.cardInner.pending {
+    transform: translateZ(60px) rotateY(180deg);
+}
 
-.cover {
-    position: relative;
-    width: 100%;
-    height: 100%;
+.faceSpine,
+.faceFront {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* ── Spine face (resting state) ─────────────────────── */
+
+.faceSpine {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px 0;
+    background: linear-gradient(135deg, #4a4a52 0%, #34343a 100%);
+}
+
+.spineTitle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 100%;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Front / cover face (picked state) ──────────────── */
+
+.faceFront {
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #17112a;
 }
 
 .coverImg {
@@ -156,13 +171,13 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    z-index: 1;
 }
 
 /* ── Right pane: metadata ───────────────────────────── */
 
 .rightPane {
-    flex: 1;
-    min-width: 0;
+    flex: 0 0 260px;
     display: flex;
     flex-direction: column;
     padding: 1.75rem 1.75rem 1.5rem;
@@ -242,13 +257,6 @@
     color: rgba(232, 224, 244, 0.55);
 }
 
-.preview {
-    display: block;
-    border-radius: 6px;
-    object-fit: cover;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
 /* ── Choose button row ──────────────────────────────── */
 
 .chooseRow {
@@ -306,5 +314,9 @@
         border-right: none;
         border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         padding-bottom: 1.5rem;
+    }
+
+    .rightPane {
+        flex: 1 1 auto;
     }
 }
