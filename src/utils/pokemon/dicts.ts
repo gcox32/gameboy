@@ -81,7 +81,7 @@ export const dexDict: Record<number, { name: string, pokedexNo: string }> = {
     53: { 'name': 'electabuzz', 'pokedexNo': '125' },
     54: { 'name': 'magneton', 'pokedexNo': '082' },
     55: { 'name': 'koffing', 'pokedexNo': '109' },
-    56: { 'name': 'weezing', 'pokedexNo': '110' }, // "floating weezing"
+    56: { 'name': 'magneton', 'pokedexNo': '082' }, // "floating magneton"
     57: { 'name': 'mankey', 'pokedexNo': '056' },
     58: { 'name': 'seel', 'pokedexNo': '086' },
     59: { 'name': 'diglett', 'pokedexNo': '050' },
@@ -171,7 +171,7 @@ export const dexDict: Record<number, { name: string, pokedexNo: string }> = {
     143: { 'name': 'weezing', 'pokedexNo': '110' },
     144: { 'name': 'persian', 'pokedexNo': '053' },
     145: { 'name': 'marowak', 'pokedexNo': '105' },
-    146: { 'name': 'magneton', 'pokedexNo': '082' },
+    146: { 'name': 'weezing', 'pokedexNo': '110' }, // floating weezing
     147: { 'name': 'haunter', 'pokedexNo': '093' },
     148: { 'name': 'abra', 'pokedexNo': '063' },
     149: { 'name': 'alakazam', 'pokedexNo': '065' },
