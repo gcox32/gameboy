@@ -36,10 +36,15 @@ export function calcGen1Stats(rawBoxData: ArrayLike<number>): Gen1Stats {
     };
 }
 
+// Gen 1 stat exp bonus: ceil(sqrt(statExp)) capped at 255, then divided by 4.
+function statExpBonus(ev: number): number {
+    return Math.floor(Math.min(255, Math.ceil(Math.sqrt(ev))) / 4);
+}
+
 function calcStat(base: number, iv: number, ev: number, level: number): number {
-    return Math.floor(((base + iv) * 2 + Math.floor(Math.sqrt(ev))) * level / 100) + 5;
+    return Math.floor(((base + iv) * 2 + statExpBonus(ev)) * level / 100) + 5;
 }
 
 function calcHP(base: number, iv: number, ev: number, level: number): number {
-    return Math.floor(((base + iv) * 2 + Math.floor(Math.sqrt(ev))) * level / 100) + level + 10;
+    return Math.floor(((base + iv) * 2 + statExpBonus(ev)) * level / 100) + level + 10;
 }

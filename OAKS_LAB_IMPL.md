@@ -1,5 +1,7 @@
 # Oak's Lab — Implementation Reference
 
+> Known issues and open follow-ups: see [OAKS_LAB_REVIEW.md](OAKS_LAB_REVIEW.md).
+
 How the cross-game Pokémon transfer system actually works, end to end.
 
 ---
@@ -21,7 +23,7 @@ Before any transfer can happen, a save state must be **connected** to Oak's Lab.
 1. **Generates an `appTrainerId`** (16-bit, `0–65535`) on the user's `User` record if they don't already have one. This ID is permanent and unique across all users — it is the user's identity inside every game they connect.
 
 2. **Stamps the save file.** `stampTrainerId()` in `sramWriter.ts` does three things atomically:
-   - Writes `appTrainerId` to `0x2605–0x2606` (little-endian) — the Player ID field, so all future catches get the app Trainer ID as their OT ID.
+   - Writes `appTrainerId` to `0x2605–0x2606` (big-endian, high byte first) — the Player ID field, so all future catches get the app Trainer ID as their OT ID. The game compares Player ID and OT ID byte-for-byte, so both must use the same byte order. Saves stamped before this was fixed are re-stamped automatically by the extract and port routes (`hasTrainerId()` check).
    - Iterates every occupied party slot (44-byte form) and overwrites the OT ID bytes at data+`0x0C–0x0D` (big-endian).
    - Iterates every occupied slot in all 12 PC boxes (33-byte form) and overwrites the same bytes. The current box mirror is synced to its banked slot afterward.
 
@@ -190,8 +192,8 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 Used both for display (Ranch stat block) and for expanding 33-byte box data into the 44-byte party form on port-in:
 
 ```
-stat  = floor(((base + IV) * 2 + floor(sqrt(EV))) * level / 100) + 5
-maxHP = floor(((base_HP + IV) * 2 + floor(sqrt(HP_EV))) * level / 100) + level + 10
+stat  = floor(((base + IV) * 2 + floor(min(255, ceil(sqrt(EV))) / 4)) * level / 100) + 5
+maxHP = floor(((base_HP + IV) * 2 + floor(min(255, ceil(sqrt(HP_EV))) / 4)) * level / 100) + level + 10
 ```
 
 IV packing (2 bytes at offset `0x1B`):

@@ -15,6 +15,8 @@ const PARTY_DATA = PARTY_BASE + 8;         // 44 bytes per slot
 const PARTY_OT = PARTY_BASE + 8 + 6 * 44;
 const PARTY_NICK = PARTY_BASE + 8 + 6 * 44 + 6 * 11;
 
+const PLAYER_ID = 0x2605;
+
 // Current box (mirror) at 0x30C0
 const BOX_MIRROR_BASE = 0x30C0;
 
@@ -50,18 +52,38 @@ const BOX_DATA_OFFSET = 22;
 const BOX_OT_OFFSET = 22 + 20 * 33;
 const BOX_NICK_OFFSET = 22 + 20 * 33 + 20 * 11;
 
+// True if the save's Player ID already equals appTrainerId (big-endian).
+export function hasTrainerId(sram: Uint8Array, appTrainerId: number): boolean {
+    return sram[PLAYER_ID] === ((appTrainerId >> 8) & 0xFF) && sram[PLAYER_ID + 1] === (appTrainerId & 0xFF);
+}
+
+// Validates an untrusted slot from a request body.
+export function isValidSlot(slot: unknown): slot is WriteSlot {
+    if (!slot || typeof slot !== 'object') return false;
+    const { location, boxNumber, slotIndex } = slot as Record<string, unknown>;
+    if (location === 'party') {
+        return Number.isInteger(slotIndex) && (slotIndex as number) >= 0 && (slotIndex as number) < 6;
+    }
+    if (location === 'box') {
+        return Number.isInteger(boxNumber) && (boxNumber as number) >= 1 && (boxNumber as number) <= 12
+            && Number.isInteger(slotIndex) && (slotIndex as number) >= 0 && (slotIndex as number) < 20;
+    }
+    return false;
+}
+
 // Stamps appTrainerId into the Player ID field and all existing Pokémon OT IDs.
 // Called on Connect so every slot in party/boxes is owned by the app trainer,
 // matching the Player ID that will be stamped on all future catches.
 export function stampTrainerId(sramData: Uint8Array, appTrainerId: number): Uint8Array {
     const sram = new Uint8Array(sramData);
 
-    // Player ID at 0x2605–0x2606, little-endian (game-side storage format)
-    sram[0x2605] = appTrainerId & 0xFF;
-    sram[0x2606] = (appTrainerId >> 8) & 0xFF;
-
     const hiId = (appTrainerId >> 8) & 0xFF;
     const loId = appTrainerId & 0xFF;
+
+    // Player ID at 0x2605–0x2606, big-endian. The game compares wPlayerID byte-for-byte
+    // against a mon's OT ID (also big-endian), so both must use the same byte order.
+    sram[PLAYER_ID] = hiId;
+    sram[PLAYER_ID + 1] = loId;
 
     // Party: OT ID at data+0x0C–0x0D (big-endian), 44-byte slots
     const partyCount = Math.min(sram[PARTY_COUNT], 6);

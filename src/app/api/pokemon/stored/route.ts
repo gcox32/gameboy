@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { del, put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
-import { SaveState, Game, StoredPokemon } from '@/models';
+import { User, SaveState, Game, StoredPokemon } from '@/models';
 import { extractFromSRAM, SourceSlot } from '@/utils/pokemon/extract';
-import { clearSlot } from '@/utils/sramWriter';
+import { clearSlot, hasTrainerId, isValidSlot, stampTrainerId } from '@/utils/sramWriter';
 import { saveBlobPath } from '@/utils/blobPaths';
 
 export async function GET(req: NextRequest) {
@@ -42,8 +42,15 @@ export async function POST(req: NextRequest) {
         slots: SourceSlot[];
     };
 
-    if (!saveStateId || !slots?.length) {
+    if (!saveStateId || !Array.isArray(slots) || !slots.length) {
         return NextResponse.json({ error: 'saveStateId and slots are required' }, { status: 400 });
+    }
+    if (!slots.every(isValidSlot)) {
+        return NextResponse.json({ error: 'Invalid slot' }, { status: 400 });
+    }
+    const slotKeys = new Set(slots.map(s => `${s.location}-${s.boxNumber ?? 0}-${s.slotIndex}`));
+    if (slotKeys.size !== slots.length) {
+        return NextResponse.json({ error: 'Duplicate slots' }, { status: 400 });
     }
 
     await dbConnect();
@@ -67,6 +74,19 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Save file is missing MBCRam data' }, { status: 502 });
     }
     let sram: Uint8Array = new Uint8Array(json.MBCRam);
+
+    // A Gen 1 save must always have at least one party Pokémon.
+    const partyCount = sram[0x2F2C];
+    const partySlots = slots.filter(s => s.location === 'party').length;
+    if (partySlots > 0 && partySlots >= partyCount) {
+        return NextResponse.json({ error: 'At least one Pokémon must stay in the party' }, { status: 422 });
+    }
+
+    // Repair saves connected before the Player ID byte-order fix.
+    const user = await User.findById(session.user.id);
+    if (user?.appTrainerId !== undefined && !hasTrainerId(sram, user.appTrainerId)) {
+        sram = stampTrainerId(sram, user.appTrainerId);
+    }
 
     // Sort slots in reverse order so clearing doesn't shift remaining indices
     // (party slots cleared high-to-low; box slots within same box cleared high-to-low)

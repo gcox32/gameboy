@@ -199,8 +199,10 @@ function ExtractTab({ games }: { games: GameModel[] }) {
         });
     };
 
+    const emptiesParty = party.length > 0 && party.every(s => selected.has(slotKey(s)));
+
     const handleSend = async () => {
-        if (!selected.size) return;
+        if (!selected.size || emptiesParty) return;
         setSending(true);
         const allSlots = [
             ...party,
@@ -333,11 +335,15 @@ function ExtractTab({ games }: { games: GameModel[] }) {
             <div className={styles.content}>
                 {selected.size > 0 && (
                     <div className={styles.sendBar}>
-                        <p>{selected.size} Pokémon selected</p>
+                        <p>
+                            {emptiesParty
+                                ? 'At least one Pokémon must stay in your party'
+                                : `${selected.size} Pokémon selected`}
+                        </p>
                         <button
                             className={buttons.retroButton}
                             onClick={handleSend}
-                            disabled={sending}
+                            disabled={sending || emptiesParty}
                         >
                             {sending ? 'Sending...' : 'Send to Ranch'}
                         </button>

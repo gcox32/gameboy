@@ -3,7 +3,7 @@ import { del, put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { User, SaveState, StoredPokemon, Game } from '@/models';
-import { injectPokemon } from '@/utils/sramWriter';
+import { hasTrainerId, injectPokemon, isValidSlot, stampTrainerId } from '@/utils/sramWriter';
 import { saveBlobPath } from '@/utils/blobPaths';
 
 type Params = { params: Promise<{ id: string }> };
@@ -20,6 +20,9 @@ export async function POST(req: NextRequest, { params }: Params) {
 
     if (!targetSaveStateId || !targetSlot) {
         return NextResponse.json({ error: 'targetSaveStateId and targetSlot are required' }, { status: 400 });
+    }
+    if (!isValidSlot(targetSlot)) {
+        return NextResponse.json({ error: 'Invalid targetSlot' }, { status: 400 });
     }
 
     await dbConnect();
@@ -54,7 +57,12 @@ export async function POST(req: NextRequest, { params }: Params) {
     if (!Array.isArray(json.MBCRam)) {
         return NextResponse.json({ error: 'Save file is missing MBCRam data' }, { status: 502 });
     }
-    const sram = new Uint8Array(json.MBCRam);
+    let sram: Uint8Array = new Uint8Array(json.MBCRam);
+
+    // Repair saves connected before the Player ID byte-order fix.
+    if (!hasTrainerId(sram, user.appTrainerId)) {
+        sram = stampTrainerId(sram, user.appTrainerId);
+    }
 
     // Inject the Pokémon into the target slot
     const rawBoxData = Buffer.from(pokemon.rawBoxData);

@@ -310,8 +310,8 @@ New route: `src/app/ranch/page.tsx`
 
 Gen 1 formulas:
 ```
-stat = floor(((base + IV) * 2 + floor(sqrt(EV))) * level / 100) + 5
-maxHP = floor(((base_HP + IV) * 2 + floor(sqrt(HP_EV))) * level / 100) + level + 10
+stat = floor(((base + IV) * 2 + floor(min(255, ceil(sqrt(EV))) / 4)) * level / 100) + 5
+maxHP = floor(((base_HP + IV) * 2 + floor(min(255, ceil(sqrt(HP_EV))) / 4)) * level / 100) + level + 10
 ```
 
 IV extraction from 2-byte IV field:
@@ -336,8 +336,8 @@ The write utilities live in Phase 2. This phase wires up the stat recalculation 
 Gen 1 formulas (used to expand 33-byte box data → 44-byte party data, and for Ranch display):
 
 ```
-stat   = floor(((base + IV) * 2 + floor(sqrt(EV))) * level / 100) + 5
-maxHP  = floor(((base_HP + IV) * 2 + floor(sqrt(HP_EV))) * level / 100) + level + 10
+stat   = floor(((base + IV) * 2 + floor(min(255, ceil(sqrt(EV))) / 4)) * level / 100) + 5
+maxHP  = floor(((base_HP + IV) * 2 + floor(min(255, ceil(sqrt(HP_EV))) / 4)) * level / 100) + level + 10
 ```
 
 IV extraction from the packed 2-byte IV field at `0x1B`:
