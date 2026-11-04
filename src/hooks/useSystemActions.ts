@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SaveStateModel } from '@/types';
 import { PartialSaveStateModel } from '@/components/modals/SaveStateManagement/SaveStateModal';
+import { useModalPause } from '@/hooks/useModalPause';
 
 /**
  * Shared confirmation + save-state-modal wiring for the system controls
@@ -33,13 +34,14 @@ export function useSystemActions({
     const [confirmModalMessage, setConfirmModalMessage] = useState('');
     const [skipConfirmation, setSkipConfirmation] = useState(false);
     const [activeROMData, setActiveROMData] = useState<SaveStateModel | null>(null);
+    const { pauseForModal, resumeAfterModal } = useModalPause(intervalPaused, handlePauseResume);
 
     const handleActionWithConfirmation = (action: () => void, message: string) => {
         if (skipConfirmation) {
             action();
             return;
         }
-        if (!intervalPaused) handlePauseResume();
+        pauseForModal();
         setConfirmModalMessage(message);
         setShowConfirmModal(true);
         setConfirmAction(() => action);
@@ -68,14 +70,14 @@ export function useSystemActions({
                 console.error('Error during save:', error);
             }
         } else {
-            if (!intervalPaused) handlePauseResume();
+            pauseForModal();
             setShowSaveStateModal(true);
         }
     };
 
     const handleSaveAs = () => {
         if (!isRomLoaded || !isEmulatorPlaying) return;
-        if (!intervalPaused) handlePauseResume();
+        pauseForModal();
         setShowSaveStateModal(true);
     };
 
@@ -83,7 +85,7 @@ export function useSystemActions({
         isOpen: showConfirmModal,
         onClose: () => {
             setShowConfirmModal(false);
-            if (intervalPaused) handlePauseResume();
+            resumeAfterModal();
         },
         onConfirm: () => {
             if (confirmAction) confirmAction();
@@ -97,7 +99,7 @@ export function useSystemActions({
         isOpen: showSaveStateModal,
         onClose: () => {
             setShowSaveStateModal(false);
-            if (intervalPaused) handlePauseResume();
+            resumeAfterModal();
         },
         onConfirm: async (saveData: PartialSaveStateModel) => {
             try {

@@ -66,6 +66,7 @@ export interface PokemonDetails {
             special: number;
         };
         currentHP: number;
+        statusCondition?: string;
     }
 }
 

@@ -1,12 +1,3 @@
-export const statusDict: Record<number, string> = {
-    0: 'HEALTHY',
-    3: 'ASLEEP',
-    4: 'POISON',
-    5: 'BURNED',
-    6: 'FROZEN',
-    7: 'PARALYZED'
-};
-
 export const typeDict: Record<number, string> = {
     0: 'NORMAL',
     1: 'FIGHTING',

@@ -1,6 +1,21 @@
 import { translateIntegerArray } from "../MemoryWatcher";
-import { typeDict, statusDict, dexDict } from "./dicts";
+import { typeDict, dexDict } from "./dicts";
 import { PokemonDetails, PartyDataStructure } from "@/types/pokemon";
+
+// HP and stats are stored big-endian (see party_struct in pokered)
+function readWord(data: number[], offset: number) {
+    return (data[offset] << 8) | data[offset + 1];
+}
+
+// The low 3 bits count remaining sleep turns; the other conditions are single bits
+function parseStatus(statusByte: number) {
+    if (statusByte & 0b0000111) return 'ASLEEP';
+    if (statusByte & 0b0001000) return 'POISON';
+    if (statusByte & 0b0010000) return 'BURNED';
+    if (statusByte & 0b0100000) return 'FROZEN';
+    if (statusByte & 0b1000000) return 'PARALYZED';
+    return 'HEALTHY';
+}
 
 export function parseParty(dataArray: number[]) {
     const numberOfPokemon = dataArray[0]; // Number of Pokémon in party
@@ -31,9 +46,9 @@ export function parseParty(dataArray: number[]) {
 function parsePokemonStructure(structureData: number[]) {
     return {
         pokedexNo: dexDict[structureData[0x00]].pokedexNo,
-        currentHP: structureData[0x02],
+        currentHP: readWord(structureData, 0x01),
         level: structureData[0x21],
-        statusCondition: statusDict[structureData[0x04]],
+        statusCondition: parseStatus(structureData[0x04]),
         type1: typeDict[structureData[0x05]],
         type2: typeDict[structureData[0x06]],
         catchRateHeldItem: structureData[0x07],
@@ -43,7 +58,7 @@ function parsePokemonStructure(structureData: number[]) {
             parseMove(structureData[0x0A], structureData[0x1F]),
             parseMove(structureData[0x0B], structureData[0x20])
         ],
-        originalTrainerID: structureData[0x0C] + (structureData[0x0D] << 8),
+        originalTrainerID: readWord(structureData, 0x0C),
         EVs: {
             hp: (structureData[0x11] << 8) | structureData[0x12],
             attack: (structureData[0x13] << 8) | structureData[0x14],
@@ -51,13 +66,14 @@ function parsePokemonStructure(structureData: number[]) {
             speed: (structureData[0x17] << 8) | structureData[0x18],
             special: (structureData[0x19] << 8) | structureData[0x1A]
         },
-        IVs: calculateIVs(structureData[0x1B] + (structureData[0x1C] << 8)),
+        // First DV byte is attack/defense, second is speed/special (see CalcStat in pokered)
+        IVs: calculateIVs(readWord(structureData, 0x1B)),
         levelStats: {
-            maxHP: structureData[0x23],
-            attack: structureData[0x25],
-            defense: structureData[0x27],
-            speed: structureData[0x29],
-            special: structureData[0x2B]
+            maxHP: readWord(structureData, 0x22),
+            attack: readWord(structureData, 0x24),
+            defense: readWord(structureData, 0x26),
+            speed: readWord(structureData, 0x28),
+            special: readWord(structureData, 0x2A)
         }
     };
 }

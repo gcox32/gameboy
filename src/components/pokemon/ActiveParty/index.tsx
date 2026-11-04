@@ -7,9 +7,11 @@ import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 import { MemoryWatcherConfig } from "@/types";
 import { FaCamera, FaExchangeAlt } from 'react-icons/fa';
+import { useModalPause } from "@/hooks/useModalPause";
 
 function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
     const partyArray = useRef([])
+    const { pauseForModal, resumeAfterModal } = useModalPause(intervalPaused, onPauseResume);
     const [partyData, setPartyData] = useState<PokemonDetails[]>([]);
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,11 +54,11 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
     const handlePokemonClick = (index: number) => {
         setSelectedPokemonIndex(index);
         setIsModalOpen(true);
-        if (!intervalPaused) onPauseResume();
+        pauseForModal();
     };
 
     const handlePokemonModalClose = () => {
-        if (intervalPaused) onPauseResume();
+        resumeAfterModal();
         setIsModalOpen(false);
     };
 
@@ -76,8 +78,6 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
                     cyclePokemon(-1);
                 } else if (e.key === 'ArrowRight') {
                     cyclePokemon(1);
-                } else if (e.key === 'Escape' && isModalOpen) {
-                    handlePokemonModalClose();
                 }
             }
         };
@@ -112,7 +112,7 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
                     <div className={styles.partySlots}>
                         {partyData.map((pokemon: PokemonDetails, index: number) => (
                             <PartySlot
-                                key={pokemon.pokedexNo || index}
+                                key={index}
                                 pokemon={pokemon}
                                 onClick={() => handlePokemonClick(index)}
                                 useStadiumSprites={useStadiumSprites}

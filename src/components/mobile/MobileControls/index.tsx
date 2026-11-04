@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { signOut } from 'next-auth/react';
+import { useModalPause } from '@/hooks/useModalPause';
 import { Loader } from '@/components/ui';
 import SaveStateModal, { PartialSaveStateModel } from '@/components/modals/SaveStateManagement/SaveStateModal';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
@@ -62,6 +63,7 @@ export default function MobileControls({
     const [userProfile, setUserProfile] = useState<ProfileModel | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+    const { pauseForModal, resumeAfterModal } = useModalPause(intervalPaused, onPauseResume);
 
     const fetchGames = useCallback(async () => {
         if (!currentUser?.userId) return;
@@ -126,7 +128,7 @@ export default function MobileControls({
 
     const handleActionWithConfirmation = (action: () => void, message: string) => {
         if (skipConfirmation) { action(); return; }
-        if (!intervalPaused) onPauseResume();
+        pauseForModal();
         setConfirmMessage(message);
         setShowConfirmModal(true);
         setConfirmAction(() => action);
@@ -147,7 +149,7 @@ export default function MobileControls({
             try { await onSaveConfirmed(activeROMData, true); setIsOpen(false); }
             catch (error) { console.error('Error during save:', error); }
         } else {
-            if (!intervalPaused) onPauseResume();
+            pauseForModal();
             setShowSaveModal(true);
         }
     };
@@ -253,7 +255,7 @@ export default function MobileControls({
                             <button onClick={handleSave} disabled={!isEmulatorPlaying} className={`${styles.button} ${styles.primary}`}>
                                 {isSaving ? <Loader /> : 'Save'}
                             </button>
-                            <button onClick={() => { if (!isRomLoaded || !isEmulatorPlaying) return; if (!intervalPaused) onPauseResume(); setShowSaveModal(true); }} disabled={!isEmulatorPlaying} className={styles.button}>
+                            <button onClick={() => { if (!isRomLoaded || !isEmulatorPlaying) return; pauseForModal(); setShowSaveModal(true); }} disabled={!isEmulatorPlaying} className={styles.button}>
                                 Save As
                             </button>
                             <button onClick={() => setShowLoadModal(true)} disabled={!isRomLoaded || isEmulatorPlaying || userSaveStates.length === 0} className={styles.button}>
@@ -266,7 +268,7 @@ export default function MobileControls({
 
             <ConfirmModal
                 isOpen={showConfirmModal}
-                onClose={() => { setShowConfirmModal(false); if (intervalPaused) onPauseResume(); }}
+                onClose={() => { setShowConfirmModal(false); resumeAfterModal(); }}
                 onConfirm={() => { if (confirmAction) confirmAction(); setShowConfirmModal(false); }}
                 skipConfirmation={skipConfirmation}
                 toggleSkipConfirmation={() => setSkipConfirmation(!skipConfirmation)}
@@ -274,7 +276,7 @@ export default function MobileControls({
 
             <SaveStateModal
                 isOpen={showSaveModal}
-                onClose={() => { setShowSaveModal(false); if (intervalPaused) onPauseResume(); }}
+                onClose={() => { setShowSaveModal(false); resumeAfterModal(); }}
                 onConfirm={async (saveData: PartialSaveStateModel) => {
                     try {
                         await onSaveConfirmed(saveData as SaveStateModel, false);

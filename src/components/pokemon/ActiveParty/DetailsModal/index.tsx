@@ -31,7 +31,7 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon }: PokemonDetailsModalPr
     };
 
     const renderStatBar = (value: number, max: number = 255, type: 'stat' | 'ev' | 'iv' = 'stat') => {
-        const percentage = (value / max) * 100;
+        const percentage = Math.min((value / max) * 100, 100);
         return (
             <div className={styles.statBar}>
                 <div 
