@@ -1,8 +1,10 @@
-import React from "react";
+import { useState } from "react";
 import BaseModal from "@/components/modals/BaseModal";
 import Image from "next/image";
+import { badgeImgPath } from "@/../config";
+import caseStyles from "../styles.module.css";
 import styles from "./styles.module.css";
-import { Gym } from '@/types/pokemon';
+import { Badge, Gym } from '@/types/pokemon';
 
 interface GymModalProps {
     isOpen: boolean;
@@ -10,45 +12,60 @@ interface GymModalProps {
     gym: Gym;
 }
 
+function getBadgePerks({ statBoost, hm, obeyLevel }: Badge) {
+    const perks: string[] = [];
+    if (statBoost) perks.push(`Boosts ${statBoost[0].toUpperCase()}${statBoost.slice(1)} in battle`);
+    if (hm) perks.push(`Use ${hm.name} outside of battle`);
+    if (obeyLevel) {
+        perks.push(obeyLevel >= 100
+            ? 'All traded Pokémon obey you'
+            : `Traded Pokémon up to Lv. ${obeyLevel} obey you`);
+    }
+    return perks;
+}
+
 export default function GymModal({ isOpen, onClose, gym }: GymModalProps) {
+    const [portraitFailed, setPortraitFailed] = useState(false);
+
     if (!isOpen) return null;
-    
+
+    const badgeImage = `${badgeImgPath}${gym.badge.image}`;
+
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} className={`${styles.modalContent} ${styles.gymModal}`}>
-            {gym.leaderImage && (
-                <Image
-                    src={gym.leaderImage}
-                    className={styles.gymLeaderImage}
-                    alt={gym.leader}
-                    layout="responsive"
-                    width={300} 
-                    height={300}
-                />
-            )}
-            <div className={styles.gymDetails}>
-                <h2 className={styles.gymTitle}>{gym.name}</h2>
-                {gym.leaderDescription && <h3 className={styles.gymSubtitle}>{gym.leaderDescription}</h3>}
-                <hr />
-                <div className={styles.gymInfo}>
-                    <p><strong>Gym Leader:</strong> {gym.leader}</p>
-                    {gym.gymLocation && <p><strong>Location:</strong> {gym.gymLocation}</p>}
-                    <p><strong>Badge:</strong> {gym.badge.name}</p>
-                    {gym.badge.hm && (
-                        <p><strong>HM Reward:</strong> {gym.badge.hm.name} {gym.badge.hm.hiddenMachine ? '(HM)' : '(TM)'}</p>
-                    )}
-                    {gym.badge.obeyLevel && (
-                        <p><strong>Obey Level:</strong> Up to level {gym.badge.obeyLevel}</p>
-                    )}
-                    {gym.badge.statBoost && (
-                        <p><strong>Stat Boost:</strong> +{gym.badge.statBoost}</p>
+            <div className={styles.card}>
+                <div className={styles.portraitPanel}>
+                    {gym.leaderImage && !portraitFailed ? (
+                        <Image
+                            src={gym.leaderImage}
+                            className={styles.portrait}
+                            alt={gym.leader}
+                            width={1080}
+                            height={1080}
+                            sizes="280px"
+                            onError={() => setPortraitFailed(true)}
+                        />
+                    ) : (
+                        <Image src={badgeImage} alt="" width={80} height={80} className={styles.portraitFallback} />
                     )}
                 </div>
-                {gym.description && (
-                    <>
-                        <hr />
-                        <p className={styles.gymDescription}>{gym.description}</p>
-                    </>
-                )}
+
+                <div className={styles.info}>
+                    <div className={styles.gymName}>{gym.name}</div>
+                    <h2 className={styles.leaderName}>{gym.leader}</h2>
+                    {gym.leaderDescription && <p className={styles.tagline}>{gym.leaderDescription}</p>}
+                    {gym.description && <p className={styles.description}>{gym.description}</p>}
+
+                    <div className={`${caseStyles.felt} ${styles.reward}`}>
+                        <Image src={badgeImage} alt="" width={80} height={80} className={styles.rewardBadge} />
+                        <div>
+                            <div className={styles.rewardName}>{gym.badge.name}</div>
+                            <ul className={styles.perks}>
+                                {getBadgePerks(gym.badge).map(perk => <li key={perk}>{perk}</li>)}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </BaseModal>
     );

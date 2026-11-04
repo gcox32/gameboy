@@ -23,7 +23,6 @@ export const badges: Badge[] = [
 export const gyms: Gym[] = [
     {
         name: 'Pewter Gym',
-        description: '...',
         gymLocation: 'Pewter City',
         badge: badges[0],
         leader: 'Brock',
@@ -32,7 +31,6 @@ export const gyms: Gym[] = [
     },
     {
         name: 'Cerulean Gym',
-        description: '...',
         gymLocation: 'Cerulean City',
         badge: badges[1],
         leader: 'Misty',
@@ -41,7 +39,6 @@ export const gyms: Gym[] = [
     },
     {
         name: 'Vermillion Gym',
-        description: '...',
         gymLocation: 'Vermillion City',
         badge: badges[2],
         leader: 'Lt. Surge',
@@ -50,7 +47,6 @@ export const gyms: Gym[] = [
     },
     {
         name: 'Celadon Gym',
-        description: '...',
         gymLocation: 'Celadon City',
         badge: badges[3],
         leader: 'Erika',
@@ -59,7 +55,6 @@ export const gyms: Gym[] = [
     },
     {
         name: 'Fuchsia Gym',
-        description: '...',
         gymLocation: 'Fuchsia City',
         badge: badges[4],
         leader: 'Koga',
@@ -68,7 +63,6 @@ export const gyms: Gym[] = [
     },
     {
         name: 'Saffron Gym',
-        description: '...',
         gymLocation: 'Saffron City',
         badge: badges[5],
         leader: 'Sabrina',
@@ -77,7 +71,6 @@ export const gyms: Gym[] = [
     },
     {
         name: 'Cinnabar Gym',
-        description: '...',
         gymLocation: 'Cinnabar Island',
         badge: badges[6],
         leader: 'Blaine',
@@ -86,11 +79,9 @@ export const gyms: Gym[] = [
     },
     {
         name: 'Viridian Gym',
-        description: '...',
         gymLocation: 'Indigo Plateau',
         badge: badges[7],
         leader: 'Giovanni',
         leaderImage: imgUrl + '8_Giovanni.png',
-        leaderDescription: '...',
     }
 ]

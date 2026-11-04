@@ -1,65 +1,103 @@
 .modalContent.gymModal {
-    max-width: 800px;
-    overflow-y: scroll;
+    max-width: 760px;
 }
 
-.modalContent.gymModal img:hover {
-    cursor: default !important;
-    outline: none !important;
+.card {
+    display: grid;
+    grid-template-columns: 280px 1fr;
 }
 
-.gymDetails {
-    width: 600px;
+/* Printed paper behind the portrait. The scans have stray white patches that blend into it */
+.portraitPanel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background:
+        radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+        #f7f1df;
 }
 
-.gymDetails p {
-    text-align: justify;
+.portrait {
+    width: 100%;
+    height: auto;
 }
 
-.gymLeaderImage {
-    border-radius: 8px;
-    margin-bottom: 1rem;
+.portraitFallback {
+    width: 120px;
+    height: 120px;
 }
 
-.gymTitle {
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-    font-size: 1.8rem;
+.info {
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 1.5rem 1.5rem;
 }
 
-.gymSubtitle {
-    color: #7f8c8d;
-    font-style: italic;
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
+.gymName {
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #b7a6d6;
 }
 
-.gymInfo {
-    margin: 1rem 0;
+.leaderName {
+    margin: 0.75rem 0;
+    font-size: 2.6rem;
+    line-height: 1.1;
 }
 
-.gymInfo p {
-    margin: 0.5rem 0;
+.tagline {
     font-size: 1rem;
+    line-height: 1.6;
+    color: #c8b0e8;
 }
 
-.gymInfo strong {
-    color: #34495e;
-    font-weight: 600;
-}
-
-.gymDescription {
-    font-style: italic;
-    color: #555;
+.description {
+    margin-top: 1rem;
+    font-size: 1rem;
     line-height: 1.6;
 }
 
-@media (max-width: 768px) {
-    .modalContent.gymModal {
-        max-width: 100%;
+.info .reward {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: auto;
+    margin-top: auto;
+    padding: 14px 16px;
+    color: #fff;
+}
+
+.rewardBadge {
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+}
+
+.rewardName {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.perks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #d5dcf7;
+}
+
+@media (max-width: 640px) {
+    .card {
+        grid-template-columns: 1fr;
     }
 
-    .gymDetails {
-        width: 100%;
+    .portrait {
+        width: 200px;
+    }
+
+    .info .reward {
+        margin-top: 1.5rem;
     }
 }
