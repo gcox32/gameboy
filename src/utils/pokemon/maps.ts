@@ -4,6 +4,10 @@ const ROM_BANK_SIZE = 0x4000;
 const EXTERNAL_ENTRY_SIZE = 3; // coordinates, name pointer
 const INTERNAL_ENTRY_SIZE = 4; // last map ID + 1, coordinates, name pointer
 const INTERNAL_TABLE_END = 0xFF;
+const PARTY_TO_CURRENT_MAP = 0x1FB; // wCurMap - wPartyCount
+const POKEDEX_TO_CURRENT_MAP = 0x67; // wCurMap - wPokedexOwned
+const BADGES_TO_CURRENT_MAP = 0x08; // wCurMap - wObtainedBadges
+const DEFAULT_POKEDEX_ADDRESS = 0xD2F7; // Red and Blue, for ROMs where wCurMap can't be found
 
 // Instruction patterns from the game's own routines, with null for bytes that
 // vary. Hacks move RAM and tables around, but these routines keep their shape.
@@ -122,6 +126,28 @@ function getMapData(rom: Rom) {
 /** The RAM address holding the current map ID (wCurMap) in this ROM. */
 export function getCurrentMapAddress(rom: Rom | null) {
     return rom ? getMapData(rom).currentMapAddress : null;
+}
+
+// Builds shift the player's RAM as a whole, so these stay a fixed distance before wCurMap
+function addressBeforeCurrentMap(rom: Rom | null, distance: number) {
+    const currentMapAddress = getCurrentMapAddress(rom);
+    return currentMapAddress === null ? null : currentMapAddress - distance;
+}
+
+/** The RAM address of the party data (wPartyCount), or null if this ROM's layout isn't recognised. */
+export function getPartyAddress(rom: Rom | null) {
+    return addressBeforeCurrentMap(rom, PARTY_TO_CURRENT_MAP);
+}
+
+/** The RAM address of the earned badges (wObtainedBadges), or null if this ROM's layout isn't recognised. */
+export function getBadgesAddress(rom: Rom | null) {
+    return addressBeforeCurrentMap(rom, BADGES_TO_CURRENT_MAP);
+}
+
+/** The RAM address of the Pokédex flags (wPokedexOwned) in this ROM. */
+export function getPokedexAddress(rom: Rom | null) {
+    if (!rom) return null;
+    return addressBeforeCurrentMap(rom, POKEDEX_TO_CURRENT_MAP) ?? DEFAULT_POKEDEX_ADDRESS;
 }
 
 /** The place name the ROM's town map shows for a map ID. */

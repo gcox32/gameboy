@@ -1,6 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import PartySlot from "./PartySlot";
+import { useGame } from "@/contexts/GameContext";
+import { toHex } from "@/types/ingame";
 import { useInGameMemoryWatcher, parseMetadata } from "@/utils/MemoryWatcher";
+import { getPartyAddress } from "@/utils/pokemon/maps";
 import { parseParty } from "@/utils/pokemon/parse";
 import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
@@ -16,13 +19,19 @@ const BALLS_OPEN_DELAY_MS = 150;
 // Balls shut in turn, then the belt fades out. Matches the timings in styles.module.css
 const PARTY_SHUT_MS = 860;
 
+const DEFAULT_WATCHER_CONFIG: MemoryWatcherConfig = {
+    baseAddress: '0xD163',
+    offset: '0x00',
+    size: '0x195'
+};
+
 function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, activeROM, isOpen, onClosed }: ActivePartyProps) {
     const partyArray = useRef([])
     const { pauseForModal, resumeAfterModal } = useModalPause(intervalPaused, onPauseResume);
     const [partyData, setPartyData] = useState<PokemonDetails[]>([]);
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
+    const { rom } = useGame();
     const [useStadiumSprites, setUseStadiumSprites] = useState(false);
     const [areBallsOpen, setAreBallsOpen] = useState(false);
     const hasParty = partyData.length > 0;
@@ -41,15 +50,12 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
         return () => clearTimeout(timer);
     }, [isOpen, hasParty, onClosed]);
 
-    useEffect(() => {
-        if (!activeROM) return;
-        const watcherConfig = parseMetadata(activeROM, 'activeParty', {
-            baseAddress: '0xD163', // default fallback for Pokemon games
-            offset: '0x00',
-            size: '0x195'
-        });
-        setWatcherConfig(watcherConfig);
-    }, [activeROM]);
+    // The ROM's own layout wins, as imported games all have the Red and Blue address saved
+    const watcherConfig = useMemo(() => {
+        const partyAddress = getPartyAddress(rom);
+        if (partyAddress === null) return parseMetadata<MemoryWatcherConfig>(activeROM, 'activeParty', DEFAULT_WATCHER_CONFIG);
+        return { ...DEFAULT_WATCHER_CONFIG, baseAddress: toHex(partyAddress) };
+    }, [activeROM, rom]);
 
     useInGameMemoryWatcher(
         inGameMemory,

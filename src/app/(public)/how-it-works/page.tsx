@@ -40,25 +40,20 @@ export default function HowItWorks() {
                         <li>{`Upload your .gb or .gbc ROM file`}</li>
                         <li>{`Select a preset cover image or upload your own`}</li>
                         <li>{`Fill in the game details`}</li>
-                        <li>{`For Pokémon games, verify the memory watcher configurations`}</li>
                     </ol>
                 </div>
 
                 <Heading as="h3">2. Memory Watcher Configuration</Heading>
                 <div className="bg-white rounded border p-6 mb-4 shadow-sm">
                     <Paragraph>
-                        For Pokémon games, memory watchers need to be properly configured to enable special features. Default values are:
+                        {`Memory watchers power features like the party view and badge case. For most Gen 1 Pokémon games, including many ROM hacks, the addresses are detected automatically from the ROM, so there's nothing to configure.`}
                     </Paragraph>
-                    <ul className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>Active Party: Base Address: 0xD163, Offset: 0x00, Size: 0x195</li>
-                        <li>Gym Badges: Base Address: 0xD2F6, Offset: 0x60, Size: 0x1</li>
-                    </ul>
                     <Paragraph>
-                        Troubleshooting Tips:
+                        {`For games that can't be detected, you can set the Active Party and Gym Badges addresses under Memory Watchers when editing the game:`}
                     </Paragraph>
                     <ul className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>{`If party data isn't showing, try adjusting the base address by ±1`}</li>
-                        <li>{`Different ROM versions may require slightly different memory addresses. Consider `}<a href="https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)" target="_blank">bulbapedia</a>{` as a reference.`}</li>
+                        <li>{`Use the memory scanner, or enter the addresses by hand`}</li>
+                        <li>{`Different ROM versions may require different memory addresses. Consider `}<a href="https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)" target="_blank">bulbapedia</a>{` as a reference.`}</li>
                     </ul>
                 </div>
 

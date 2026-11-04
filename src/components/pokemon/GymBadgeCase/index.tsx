@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import GymBadge from './GymBadge';
 import GymModal from './GymModal';
+import { useGame } from '@/contexts/GameContext';
 import { parseMetadata, sliceMemoryWithGBC, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { getBadgesAddress } from '@/utils/pokemon/maps';
 import clsx from 'clsx';
 import styles from './styles.module.css';
 import { GameModel, MemoryWatcherConfig, SRAMArray } from '@/types';
+import { toHex } from '@/types/ingame';
 import { badges as badgesData, gyms as gymsData } from '@/utils/pokemon/gyms';
 import { Badge } from '@/types/pokemon';
 
@@ -36,10 +39,13 @@ function toBadges(badgesByte: number) {
 }
 
 function GymBadgeCase({ inGameMem, gbcMemory, activeROM, isOpen, onClosed }: GymBadgeCaseProps) {
-    const watcherConfig = useMemo(
-        () => parseMetadata<MemoryWatcherConfig>(activeROM, 'gymBadges', DEFAULT_WATCHER_CONFIG),
-        [activeROM]
-    );
+    const { rom } = useGame();
+    // The ROM's own layout wins, as imported games all have the Red and Blue address saved
+    const watcherConfig = useMemo(() => {
+        const badgesAddress = getBadgesAddress(rom);
+        if (badgesAddress === null) return parseMetadata<MemoryWatcherConfig>(activeROM, 'gymBadges', DEFAULT_WATCHER_CONFIG);
+        return { baseAddress: toHex(badgesAddress), offset: '0x00', size: '0x1' };
+    }, [activeROM, rom]);
     // Read once up front so the lid opens onto the right badges, without replaying the earned animation
     const [badges, setBadges] = useState(() => {
         const address = parseInt(watcherConfig.baseAddress ?? '', 16) + parseInt(watcherConfig.offset ?? '', 16);

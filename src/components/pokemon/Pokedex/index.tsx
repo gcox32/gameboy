@@ -1,18 +1,19 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { SRAMArray, GameModel, MemoryWatcherConfig } from '@/types';
+import { SRAMArray } from '@/types';
 import clsx from 'clsx';
+import { useGame } from '@/contexts/GameContext';
 import styles from './styles.module.css';
 import Hinge from './Hinge';
 import PokedexButton from './PokedexButton';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import { Pokemon as PokemonData } from '@/types/pokeapi/root';
-import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { getPokedexAddress } from '@/utils/pokemon/maps';
 
 interface PokedexProps {
     inGameMemory: SRAMArray | number[];
     gbcMemory?: SRAMArray | number[];
-    activeROM: GameModel | null;
     isOpen: boolean;
     onClosed: () => void;
 }
@@ -26,7 +27,7 @@ function pickRandom<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export default function Pokedex({ inGameMemory, gbcMemory, activeROM, isOpen, onClosed }: PokedexProps) {
+export default function Pokedex({ inGameMemory, gbcMemory, isOpen, onClosed }: PokedexProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showInterior, setShowInterior] = useState(false);
     const [selectedPokemon, setSelectedPokemon] = useState<number | null>(null);
@@ -57,18 +58,10 @@ export default function Pokedex({ inGameMemory, gbcMemory, activeROM, isOpen, on
         return () => clearTimeout(timer);
     }, [isExpanded]);
 
-    // Read the Pokédex bytes from a fixed WRAM address (via ROM metadata, GBC-aware).
-    // Gen 1: wPokedexOwned 0xD2F7 (19 bytes) is immediately followed by wPokedexSeen 0xD30A (19 bytes).
-    const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
-    useEffect(() => {
-        if (!activeROM) return;
-        const config = parseMetadata(activeROM, 'pokedex', {
-            baseAddress: '0xD2F7',
-            offset: '0x00',
-            size: '0x26', // owned (19) + seen (19) = 38 bytes
-        });
-        setWatcherConfig(config);
-    }, [activeROM]);
+    // wPokedexOwned (19 bytes) is immediately followed by wPokedexSeen (19 bytes).
+    // The address varies by ROM: Red and Blue use 0xD2F7, Yellow uses 0xD2F6.
+    const { rom } = useGame();
+    const pokedexAddress = getPokedexAddress(rom);
 
     const handlePokedexBytes = useCallback((slice: number[]) => {
         if (!slice || slice.length < 0x26) return;
@@ -113,9 +106,9 @@ export default function Pokedex({ inGameMemory, gbcMemory, activeROM, isOpen, on
 
     useInGameMemoryWatcher(
         inGameMemory,
-        watcherConfig?.baseAddress,
-        watcherConfig?.offset,
-        watcherConfig?.size,
+        pokedexAddress === null ? undefined : `0x${pokedexAddress.toString(16)}`,
+        '0x0',
+        '0x26', // owned (19) + seen (19) = 38 bytes
         handlePokedexBytes,
         1000,
         gbcMemory

@@ -195,7 +195,6 @@ export default function FullScreenContainer({
         <Pokedex
           inGameMemory={inGameMemory}
           gbcMemory={gbcMemory}
-          activeROM={activeROM}
           isOpen={showPokedex}
           onClosed={handlePokedexClosed}
         />

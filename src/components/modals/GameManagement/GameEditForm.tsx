@@ -213,6 +213,9 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
                     </span>
                 </div>
                 <div className={`${styles.watchersSectionContent} ${!watchersExpanded ? styles.collapsed : ''}`}>
+                    <p className={styles.watchersNote}>
+                        Addresses are detected automatically for most Gen 1 games. These settings only apply to games that can&apos;t be detected.
+                    </p>
                     {renderWatcherFields('activeParty', 'Active Party')}
                     {renderWatcherFields('gymBadges', 'Gym Badges')}
                 </div>
