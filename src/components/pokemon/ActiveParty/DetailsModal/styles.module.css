@@ -58,189 +58,414 @@
   background-color: var(--dragon);
 }
 
-/* modal */
-.modalContent {
-  max-width: 1000px;
-  background: linear-gradient(to bottom right, #2a2a2a, #1a1a1a) !important;
-  color: #fff;
-  border-radius: 16px;
-  padding: 2rem;
+.modalContent.detailsModal {
+  max-width: 920px;
 }
 
-.pokemonDetailsRow {
+.card {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+}
+
+/* Printed paper, matching the gym leader portraits */
+.paperPanel {
   display: flex;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: #181818;
+  background:
+    radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+    #f7f1df;
 }
 
-.pokemonDetailsSection {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.5rem;
-  width: 300px;
+.art {
   position: relative;
-  transition: all 0.3s ease;
-  flex: 1;
-  transform-style: preserve-3d;
-  height: 300px;
-}
-
-.cursorPointer {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  background: none;
+  border: none;
   cursor: pointer;
 }
 
-.pokemonDetailsSection.top {
-  height: 200px;
+.artImage {
+  object-fit: contain;
 }
 
-.pokemonDetailsSection.back {
-  transform: rotateY(180deg);
-}
-
-.pokemonDetailsSection.expanded {
-  flex: 2;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.pokemonDetailsSection h2 {
-  color: #fff;
-  margin: 0 0 1rem;
-  font-size: 1.8rem;
-}
-
-.pokemonDetailsSection h3 {
-  color: #fff;
-  margin: 0 0 1rem;
-  font-size: 1.2rem;
-}
-
-.pokemonDetailsSection h4 {
-  color: #fff;
-  margin: -0.25rem auto 0.5rem;
-  font-size: 1.2rem;
-}
-
-.pokemonDetailsSection p {
-  color: #ccc;
-  margin: 0;
-  font-size: 1rem;
-}
-
-.centered {
+.artSets {
   display: flex;
   justify-content: center;
-  align-items: center;
-  position: relative;
+  gap: 4px;
 }
 
-.pokemonMove {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  margin: 0.5rem 0;
-  transition: background-color 0.2s;
+.artSet {
+  padding: 3px 6px;
+  font-size: 8px;
+  line-height: 10px;
+  color: #6b5d3e;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
-.pokemonMove:hover {
-  background: rgba(255, 255, 255, 0.1);
+.artSet:hover {
+  border-color: #6b5d3e;
+}
+
+.artSetActive {
+  color: #f7f1df;
+  background: #3a3220;
+}
+
+.species {
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.types {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
 }
 
 .typeTag {
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin: 0.5rem;
+  flex-shrink: 0;
+  padding: 3px 6px;
+  font-size: 8px;
+  line-height: 10px;
+  text-align: center;
   text-transform: uppercase;
+  color: #181818;
+  background-color: #cfcfcf;
+  border: 1px solid #181818;
+  border-radius: 3px;
 }
 
-.statValue {
+.trainer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: auto 0 0;
+  padding-top: 0.5rem;
+  font-size: 8px;
+  line-height: 10px;
+  border-top: 1px solid rgba(58, 50, 32, 0.4);
+}
+
+.trainer div {
   display: flex;
   justify-content: space-between;
+}
+
+.trainer dt {
+  color: #6b5d3e;
+}
+
+.trainer dd {
+  margin: 0;
+}
+
+.info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem 1.5rem 1.5rem;
+}
+
+.header {
+  display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.identity {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.name {
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.level {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #c8b0e8;
+}
+
+.navButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #b7a6d6;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.navButton:hover {
+  color: #fff;
+}
+
+.navSprite {
+  position: relative;
+  display: block;
+  width: 36px;
+  height: 36px;
+  background: #e8efdc;
+  border: 2px solid #111;
+  border-radius: 50%;
+}
+
+.navSpriteImage {
+  object-fit: contain;
+  padding: 2px;
+  image-rendering: pixelated;
+}
+
+.hp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1.25rem;
+  font-size: 1rem;
+}
+
+.hpLabel {
+  color: #c8b0e8;
+}
+
+.hpBar {
+  flex: 1;
+  height: 10px;
+  overflow: hidden;
+  background: #2a1f42;
+  border: 2px solid #4d3f6e;
+  border-radius: 3px;
+}
+
+.hpFill {
+  display: block;
+  height: 100%;
+  transition: width 300ms ease;
+}
+
+.hpGreen {
+  background: #38b048;
+}
+
+.hpYellow {
+  background: #e8b820;
+}
+
+.hpRed {
+  background: #e03828;
+}
+
+.hpValue {
+  white-space: nowrap;
+}
+
+.status {
+  padding: 2px 4px;
+  font-size: 8px;
+  line-height: 10px;
+  color: #fff;
+  background: #8a5a14;
+  border-radius: 3px;
+}
+
+.statusFainted {
+  background: #b01818;
+}
+
+.tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+  border-bottom: 2px solid #3d2f5c;
+}
+
+.tab {
+  margin-bottom: -2px;
   padding: 0.5rem 0;
+  font-size: 1rem;
+  color: #b7a6d6;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
 }
 
-.statValue span:first-child {
-  width: 3.5em;
-  flex-shrink: 0;
+.tab:hover {
+  color: #fff;
 }
 
-.statValue span:last-child {
-  width: 3.5em;
-  text-align: right;
+.tabActive {
+  color: #fff;
+  border-bottom-color: #ffd08a;
+}
+
+/* A fixed height stops the modal jumping when switching tabs */
+.tabPanel {
+  min-height: 270px;
+  padding-top: 0.75rem;
+}
+
+.moves {
+  display: flex;
+  flex-direction: column;
+}
+
+.move {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 4px;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #2f2546;
+}
+
+.move:last-child {
+  border-bottom: none;
+}
+
+.move .typeTag {
+  grid-row: span 2;
+}
+
+.moveName {
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.movePP {
+  grid-row: span 2;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  color: #c8b0e8;
+}
+
+.movePPEmpty {
+  color: #ff6b6b;
+}
+
+.moveMeta {
+  grid-column: 2;
+  font-size: 8px;
+  line-height: 10px;
+  color: #b7a6d6;
+}
+
+.modes {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.mode {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  color: #b7a6d6;
+  background: none;
+  border: 1px solid #3d2f5c;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.mode:hover {
+  color: #fff;
+}
+
+.modeActive {
+  color: #1e1828;
+  background: #c8b0e8;
+  border-color: #c8b0e8;
+}
+
+.modeActive:hover {
+  color: #1e1828;
+}
+
+.statsLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.statRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.statRow > span:first-child {
+  width: 2.5em;
   flex-shrink: 0;
+  color: #c8b0e8;
 }
 
 .statBar {
   flex: 1;
+  min-width: 0;
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  margin: 0 1rem;
   overflow: hidden;
+  background: #2a1f42;
+  border-radius: 3px;
 }
 
-.statBarFill {
+.statFill {
+  display: block;
   height: 100%;
-  background: linear-gradient(to right, #4CAF50, #8BC34A);
-  transition: width 0.3s ease;
+  transition: width 300ms ease;
 }
 
-.statBarFill.ev {
-  background: linear-gradient(to right, #FF6B6B, #FF8E8E);
+.statValue {
+  width: 4.5em;
+  flex-shrink: 0;
+  text-align: right;
 }
 
-.statBarFill.iv {
-  background: linear-gradient(to right, #4ECDC4, #45B7AF);
-}
-
-.statBarFill.stat {
-  background: linear-gradient(to right, #4CAF50, #8BC34A);
-}
-
-.expandButton {
-  background: none;
-  border: none;
-  color: #999;
-  padding: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: -1.5rem;
-}
-
-.expandButton:hover {
-  color: #fff;
-}
-
-.movesetContent {
-  margin-top: 8px;
+.radar {
+  position: relative;
+  width: 210px;
 }
 
 @media (max-width: 768px) {
-  .modalContent {
-    max-width: 100%;
-    padding: 1rem;
+  .card {
+    grid-template-columns: 1fr;
   }
 
-  .pokemonDetailsRow {
-    flex-direction: column;
-    gap: 1rem;
+  .art {
+    width: 200px;
+    margin: 0 auto;
   }
 
-  .pokemonDetailsSection {
-    width: 100%;
-    height: auto;
-    min-height: 200px;
+  .statsLayout {
+    grid-template-columns: 1fr;
   }
 
-  .pokemonDetailsSection.top {
-    height: auto;
-    min-height: 150px;
+  .radar {
+    margin: 0 auto;
   }
 }

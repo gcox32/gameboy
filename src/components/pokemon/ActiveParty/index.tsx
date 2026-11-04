@@ -6,10 +6,17 @@ import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 import { MemoryWatcherConfig } from "@/types";
-import { FaCamera, FaExchangeAlt } from 'react-icons/fa';
+import { FaExchangeAlt } from 'react-icons/fa';
 import { useModalPause } from "@/hooks/useModalPause";
+import clsx from "clsx";
 
-function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, activeROM }: ActivePartyProps) {
+const PARTY_SIZE = 6;
+// Hold the closed balls briefly before they open
+const BALLS_OPEN_DELAY_MS = 150;
+// Balls shut in turn, then the belt fades out. Matches the timings in styles.module.css
+const PARTY_SHUT_MS = 860;
+
+function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, activeROM, isOpen, onClosed }: ActivePartyProps) {
     const partyArray = useRef([])
     const { pauseForModal, resumeAfterModal } = useModalPause(intervalPaused, onPauseResume);
     const [partyData, setPartyData] = useState<PokemonDetails[]>([]);
@@ -17,6 +24,22 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
     const [useStadiumSprites, setUseStadiumSprites] = useState(false);
+    const [areBallsOpen, setAreBallsOpen] = useState(false);
+    const hasParty = partyData.length > 0;
+
+    useEffect(() => {
+        if (!isOpen) {
+            setAreBallsOpen(false);
+            const timer = setTimeout(onClosed, PARTY_SHUT_MS);
+            return () => clearTimeout(timer);
+        }
+        if (!hasParty) {
+            setAreBallsOpen(false);
+            return;
+        }
+        const timer = setTimeout(() => setAreBallsOpen(true), BALLS_OPEN_DELAY_MS);
+        return () => clearTimeout(timer);
+    }, [isOpen, hasParty, onClosed]);
 
     useEffect(() => {
         if (!activeROM) return;
@@ -92,41 +115,46 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
     return (
         <>
             {partyData.length > 0 && (
-                <div className={styles.activeParty}>
-                    <div className={styles.partyControls}>
-                        <button
-                            className={styles.partyControlButton}
-                            onClick={() => setUseStadiumSprites(!useStadiumSprites)}
-                            title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
-                        >
-                            <FaExchangeAlt />
-                        </button>
-                        <button
-                            className={styles.partyControlButton}
-                            onClick={() => { }}
-                            title={`Take a photo of your team`}
-                        >
-                            <FaCamera />
-                        </button>
-                    </div>
+                <div className={clsx(styles.activeParty, !isOpen && styles.closing)}>
+                    <button
+                        type="button"
+                        className={styles.buckle}
+                        onClick={() => setUseStadiumSprites(!useStadiumSprites)}
+                        title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
+                        aria-label={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
+                    >
+                        <FaExchangeAlt />
+                    </button>
                     <div className={styles.partySlots}>
-                        {partyData.map((pokemon: PokemonDetails, index: number) => (
-                            <PartySlot
-                                key={index}
-                                pokemon={pokemon}
-                                onClick={() => handlePokemonClick(index)}
-                                useStadiumSprites={useStadiumSprites}
-                            />
-                        ))}
+                        {Array.from({ length: PARTY_SIZE }, (_, index) => {
+                            const pokemon = partyData[index];
+                            return pokemon ? (
+                                <PartySlot
+                                    key={index}
+                                    pokemon={pokemon}
+                                    index={index}
+                                    isBallOpen={areBallsOpen}
+                                    onClick={() => handlePokemonClick(index)}
+                                    useStadiumSprites={useStadiumSprites}
+                                />
+                            ) : (
+                                <div key={index} className={styles.emptySocket} />
+                            );
+                        })}
                     </div>
-                    {(selectedPokemonIndex !== null && partyData.length) && (
-                        <PokemonDetailsModal
-                            isOpen={isModalOpen}
-                            onClose={handlePokemonModalClose}
-                            pokemon={partyData[selectedPokemonIndex]}
-                        />
-                    )}
                 </div>
+            )}
+            {/* Outside the belt so it isn't trapped in the belt's stacking context */}
+            {selectedPokemonIndex !== null && partyData.length > 0 && (
+                <PokemonDetailsModal
+                    isOpen={isModalOpen}
+                    onClose={handlePokemonModalClose}
+                    pokemon={partyData[selectedPokemonIndex]}
+                    previousPokemon={partyData.length > 1 ? partyData[(selectedPokemonIndex - 1 + partyData.length) % partyData.length] : undefined}
+                    nextPokemon={partyData.length > 1 ? partyData[(selectedPokemonIndex + 1) % partyData.length] : undefined}
+                    onPrevious={() => cyclePokemon(-1)}
+                    onNext={() => cyclePokemon(1)}
+                />
             )}
         </>
     );

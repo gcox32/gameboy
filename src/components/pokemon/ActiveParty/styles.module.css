@@ -1,83 +1,164 @@
+/* A trainer's leather belt */
 .activeParty {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    min-width: 1050px;
-    /* min-height: 158px; */
+    --ball-size: clamp(72px, 11vh, 104px);
     position: absolute;
-    margin: 0 auto;
-    bottom: 40px;
+    bottom: 24px;
     z-index: 3;
-    padding-left: 56px; /* ensure centered slots do not overlap left controls */
-    border: 2px rgba(255, 255, 255, 0.5) solid;
-    border-radius: 25px;
-}
-
-.partyControls {
-    position: absolute;
-    left: 16px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding-top: 8px;
-    gap: 8px;
-    flex-direction: column;
-    background: rgba(255, 255, 255, 0.5);
-    height: 100%;
-    width: 56px;
+    gap: 10px;
+    padding: 8px 14px 8px 8px;
+    background: #bb8861;
+    border: 2px solid #24150a;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    animation: beltAppear 120ms linear;
 }
 
-.partyControlButton {
-    background: rgba(255, 255, 255, 0.5);
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
+.activeParty::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-block: 1px dashed rgba(222, 180, 120, 0.55);
+    pointer-events: none;
+}
+
+/* Timing adds up to PARTY_SHUT_MS in index.tsx: balls shut in turn, then fade out */
+.closing {
+    opacity: 0;
+    transition: opacity 150ms linear 710ms;
+}
+
+@keyframes beltAppear {
+    from {
+        opacity: 0;
+    }
+}
+
+.buckle {
+    position: relative;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 44px;
+    height: 64px;
+    color: #4a4a4a;
+    background: linear-gradient(135deg, #f2f2f2, #a8a8a8 55%, #d6d6d6);
+    border: 2px solid #4f4f4f;
+    border-radius: 6px;
     cursor: pointer;
-    color: gray;
-    transition: 0.2s ease-in-out;
+    transition: color 120ms ease, filter 120ms ease;
 }
 
-.partyControlButton:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: scale(1.1);
+.buckle:hover {
+    color: #000;
+    filter: brightness(1.08);
 }
 
 .partySlots {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.partySlot {
-    height: 12vh;
-    width: 12vh;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 50%;
-    border: 8px rgba(255, 255, 255, 0.5) solid;
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
-    cursor: pointer;
-    transition: 0.1s ease-in-out;
-}
-
-.partySlot div {
     position: relative;
-    width: 100%;
-    border-radius: 50%;
+    display: flex;
+    gap: 10px;
+}
+
+.ball {
+    position: relative;
+    display: block;
+    flex-shrink: 0;
+    width: var(--ball-size);
+    height: var(--ball-size);
+    padding: 0;
     overflow: hidden;
-    background-color: transparent;
+    border: 3px solid #111;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #f4f7ea, #cfd8bf);
+    cursor: pointer;
+    transition: transform 120ms ease;
 }
 
-.partySlot:hover {
-    border-color: rgba(255, 255, 255, 1);
-    background-color: rgba(255, 255, 255, 0.5);
+.ball:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px #ffd08a;
 }
 
-/* removed old absolute-positioned .spriteToggle in favor of .partyControlButton */
+.sprite {
+    position: absolute;
+    inset: 7%;
+}
+
+.spriteImage {
+    object-fit: contain;
+}
+
+.spritePixelated {
+    image-rendering: pixelated;
+}
+
+/* The two halves of the shell slide apart to reveal the sprite */
+.shellTop,
+.shellBottom {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1) calc(var(--slot-index) * 60ms);
+}
+
+.shellTop {
+    top: 0;
+    background: linear-gradient(to bottom, #f0564a, #bd2020);
+    border-bottom: 2px solid #111;
+}
+
+.shellBottom {
+    bottom: 0;
+    background: linear-gradient(to bottom, #fff, #d6d6d6);
+    border-top: 2px solid #111;
+}
+
+/* Center button, carried away with the top half */
+.shellTop::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 28%;
+    aspect-ratio: 1;
+    transform: translate(-50%, 50%);
+    background: #fff;
+    border: 3px solid #111;
+    border-radius: 50%;
+}
+
+.ballOpen .shellTop {
+    transform: translateY(-130%);
+}
+
+.ballOpen .shellBottom {
+    transform: translateY(100%);
+}
+
+.ballFainted .shellTop,
+.ballFainted .shellBottom {
+    filter: grayscale(0.7) brightness(0.8);
+}
+
+/* An empty socket on the belt */
+.emptySocket {
+    flex-shrink: 0;
+    width: var(--ball-size);
+    height: var(--ball-size);
+    border: 2px dashed rgba(222, 180, 120, 0.4);
+    border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .activeParty,
+    .closing,
+    .shellTop,
+    .shellBottom {
+        animation: none;
+        transition: none;
+    }
+}

@@ -58,6 +58,9 @@ export default function FullScreenContainer({
 }: FullScreenContainerProps) {
 
   const [showActiveParty, setShowActiveParty] = useState(true);
+  // Stays true after hiding so the balls can shut before the belt is removed
+  const [isPartyMounted, setIsPartyMounted] = useState(true);
+  const handlePartyClosed = useCallback(() => setIsPartyMounted(false), []);
   const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
   // Stays true after hiding so the case can shut before it's removed
   const [isBadgeCaseMounted, setIsBadgeCaseMounted] = useState(false);
@@ -144,7 +147,10 @@ export default function FullScreenContainer({
       {activeROM && activeState && inGameMemory &&
       <GameElementsBar
         elementsEnabled={true}
-        onActivePartyClick={() => setShowActiveParty(!showActiveParty)}
+        onActivePartyClick={() => {
+          if (!showActiveParty) setIsPartyMounted(true);
+          setShowActiveParty(!showActiveParty);
+        }}
         onGymBadgeCaseClick={() => {
           if (!showGymBadgeCase) setIsBadgeCaseMounted(true);
           setShowGymBadgeCase(!showGymBadgeCase);
@@ -158,13 +164,15 @@ export default function FullScreenContainer({
         showPokedex={showPokedex}
         showTeamPhoto={showTeamPhoto}
       />}
-      {showActiveParty && activeROM && activeState && inGameMemory &&
+      {isPartyMounted && activeROM && activeState && inGameMemory &&
         <ActiveParty
           inGameMemory={inGameMemory}
           gbcMemory={gbcMemory}
           onPauseResume={onPauseResume}
           intervalPaused={intervalPaused}
           activeROM={activeROM}
+          isOpen={showActiveParty}
+          onClosed={handlePartyClosed}
         />
       }
       {isBadgeCaseMounted && activeROM && activeState && inGameMemory &&

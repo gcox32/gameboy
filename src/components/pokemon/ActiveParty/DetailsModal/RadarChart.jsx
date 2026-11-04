@@ -1,74 +1,48 @@
 import { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 
-const RadarChart = ({ stats, chartTitle }) => {
+const RadarChart = ({ labels, values, max, color }) => {
     const chartRef = useRef(null);
-    const chartInstance = useRef(null);
 
     useEffect(() => {
-        if (chartInstance.current) {
-            chartInstance.current.destroy();
-        }
-        
-        const ctx = chartRef.current.getContext('2d');
-        chartInstance.current = new Chart(ctx, {
+        const chart = new Chart(chartRef.current.getContext('2d'), {
             type: 'radar',
             data: {
-                labels: Object.keys(stats).map(key => key.toUpperCase()).reverse(),
+                labels,
                 datasets: [{
-                    label: chartTitle,
-                    data: Object.values(stats).reverse(),
+                    data: values,
                     fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    backgroundColor: `${color}33`,
+                    borderColor: color,
+                    borderWidth: 2,
+                    pointBackgroundColor: color,
                     pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)'
                 }]
             },
             options: {
                 scales: {
                     r: {
-                        angleLines: {
-                            color: 'rgba(255, 255, 255, 0.2)'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.2)'
-                        },
-                        ticks: {
-                            display: false // This removes the numbers
-                        },
+                        min: 0,
+                        max, // A fixed scale keeps shapes comparable between Pokémon
+                        angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                        ticks: { display: false },
                         pointLabels: {
-                            color: '#fff',
-                            font: {
-                                size: 12
-                            }
+                            color: '#e8e0f4',
+                            font: { family: 'gameboy', size: 8 }
                         },
-                        beginAtZero: true
                     }
                 },
                 plugins: {
-                    legend: {
-                        display: false // This removes the legend
-                    }
+                    legend: { display: false }
                 },
-                elements: {
-                    line: {
-                        borderWidth: 2
-                    }
-                }
             }
         });
 
-        return () => {
-            if (chartInstance.current) {
-                chartInstance.current.destroy();
-            }
-        };
-    }, [stats, chartTitle]);
+        return () => chart.destroy();
+    }, [labels, values, max, color]);
 
-    return <canvas ref={chartRef} style={{ transform: 'rotateY(180deg)' }}></canvas>;
+    return <canvas ref={chartRef}></canvas>;
 };
 
 export default RadarChart;

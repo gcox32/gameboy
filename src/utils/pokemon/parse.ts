@@ -33,6 +33,7 @@ export function parseParty(dataArray: number[]) {
         const pokemonData: PokemonDetails = {
             speciesIndex: dataArray[0x01 + i],
             pokedexNo: dexDict[dataArray[0x01 + i]].pokedexNo,
+            speciesName: dexDict[dataArray[0x01 + i]].name,
             structure: parsePokemonStructure(dataArray.slice(baseOffset, baseOffset + 44)),
             otName: translateIntegerArray(dataArray.slice(otNameOffset, otNameOffset + 11)),
             nickname: translateIntegerArray(dataArray.slice(nicknameOffset, nicknameOffset + 11))

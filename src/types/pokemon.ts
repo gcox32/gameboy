@@ -7,6 +7,8 @@ export interface ActivePartyProps {
     onPauseResume: () => void;
     intervalPaused: boolean;
     activeROM: GameModel;
+    isOpen: boolean;
+    onClosed: () => void;
 }
 
 export interface PokemonDetailsModalProps {
@@ -67,6 +69,7 @@ export interface PokemonDetails {
         };
         currentHP: number;
         statusCondition?: string;
+        originalTrainerID?: number;
     }
 }
 
