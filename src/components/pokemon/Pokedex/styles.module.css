@@ -1,24 +1,120 @@
-/* Pokedex Container - Game Boy style */
-.pokedexContainer {
+/*
+ * One device, split at the spine. It sits small while closed, about the size of
+ * the old card, and grows to full size as the cover swings open. It stays anchored
+ * at its top right corner. Timings match index.tsx.
+ */
+.device {
+  --closed-scale: 0.515;
   position: fixed;
   top: 80px;
   right: 130px;
+  z-index: 4;
+  width: 870px;
+  height: 630px;
+  color: #000;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+  transform: scale(var(--closed-scale));
+  transform-origin: top right;
+  transition: transform 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms linear;
+  animation: dexAppear 200ms linear;
+}
+
+.deviceOpen {
+  transform: scale(1);
+}
+
+.hiding {
+  opacity: 0;
+}
+
+@keyframes dexAppear {
+  from {
+    opacity: 0;
+  }
+}
+
+.half {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: #bb3434;
+  border: double #891313 16px;
+  pointer-events: auto;
+}
+
+.halfLeft {
+  left: 0;
+  padding: 24px 35px 24px 24px;
+  border-right: none;
+  border-radius: 15px 0 0 15px;
+}
+
+.halfRight {
+  right: 0;
+  padding: 24px 24px 24px 35px;
+  border-left: none;
+  border-radius: 0 15px 15px 0;
+}
+
+.halfContent {
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* 180deg is shut over the right half, 0deg is open */
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: right center;
+  transform-style: preserve-3d;
+  transform: perspective(2400px) rotateY(180deg);
+  transition: transform 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.coverOpen {
+  transform: perspective(2400px) rotateY(0deg);
+}
+
+.coverInside {
+  width: 100%;
+  backface-visibility: hidden;
+}
+
+.coverOutside {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  pointer-events: auto;
+}
+
+/* Scaled back up by the same amount the device is scaled down, so the card keeps its true size */
+.closedCard {
+  width: calc(100% * var(--closed-scale));
+  height: calc(100% * var(--closed-scale));
   background: #bb3434;
   border: double #891313 16px;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  color: #000;
-  z-index: 1000;
-  transition: all 0.3s ease;
-  max-width: 300px;
-  min-width: 200px;
-  z-index: 4;
+  transform: scale(calc(1 / var(--closed-scale)));
+  transform-origin: top left;
 }
 
-.pokedexContainer.expanded {
-  max-width: 1400px;
-  min-width: 800px;
-  background: #bb3434;
+.closedCard .header {
+  height: 100%;
+}
+
+.spine {
+  position: absolute;
+  top: 40px;
+  bottom: 40px;
+  left: 50%;
+  display: flex;
+  transform: translateX(-50%);
 }
 
 /* Header - always visible */
@@ -140,34 +236,6 @@
   border: 5px double #460f0f;
   opacity: 0.75;
   pointer-events: none;
-}
-
-/* Content - only visible when expanded */
-.content {
-  padding: 2rem;
-  overflow-y: auto;
-  flex: 1;
-  position: relative;
-}
-
-.content::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #a0a88a;
-  transform: translateX(-50%);
-  z-index: 1;
-}
-
-/* Detailed View Layout */
-.detailedView {
-  display: flex;
-  width: 100%;
-  position: relative;
-  height: 550px;
 }
 
 .leftPanel {
@@ -343,16 +411,9 @@
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
-  .pokedexContainer {
+  .device {
     top: 10px;
     right: 10px;
-    max-width: 250px;
-    min-width: 180px;
-  }
-
-  .pokedexContainer.expanded {
-    max-width: 350px;
-    min-width: 280px;
   }
 
   .header {
@@ -368,10 +429,6 @@
   .stats {
     font-size: 0.625rem;
     gap: 0.5rem;
-  }
-
-  .content {
-    padding: 0.75rem;
   }
 
   .pokemonGrid {
@@ -394,19 +451,20 @@
 }
 
 @media screen and (max-width: 480px) {
-  .pokedexContainer {
+  .device {
     top: 5px;
     right: 5px;
-    max-width: 200px;
-    min-width: 160px;
-  }
-
-  .pokedexContainer.expanded {
-    max-width: 300px;
-    min-width: 240px;
   }
 
   .pokemonGrid {
     grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .device,
+  .cover {
+    animation: none;
+    transition: none;
   }
 }

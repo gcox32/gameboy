@@ -67,6 +67,9 @@ export default function FullScreenContainer({
   const handleBadgeCaseClosed = useCallback(() => setIsBadgeCaseMounted(false), []);
   const [showMap, setShowMap] = useState(false);
   const [showPokedex, setShowPokedex] = useState(false);
+  // Stays true after hiding so the Pokédex can fade out before it's removed
+  const [isPokedexMounted, setIsPokedexMounted] = useState(false);
+  const handlePokedexClosed = useCallback(() => setIsPokedexMounted(false), []);
   const [showTeamPhoto, setShowTeamPhoto] = useState(false);
   const [dynamicBackground, setDynamicBackground] = useState<string | null>(null);
   const [currentBackground, setCurrentBackground] = useState(background);
@@ -156,7 +159,10 @@ export default function FullScreenContainer({
           setShowGymBadgeCase(!showGymBadgeCase);
         }}
         onMapClick={() => setShowMap(!showMap)}
-        onPokedexClick={() => setShowPokedex(!showPokedex)}
+        onPokedexClick={() => {
+          if (!showPokedex) setIsPokedexMounted(true);
+          setShowPokedex(!showPokedex);
+        }}
         onCameraClick={() => setShowTeamPhoto(!showTeamPhoto)}
         showActiveParty={showActiveParty}
         showGymBadgeCase={showGymBadgeCase}
@@ -185,11 +191,13 @@ export default function FullScreenContainer({
         />
       }
       {showMap && activeROM && activeState && <TownMap />}
-      {showPokedex && activeROM && activeState && inGameMemory &&
+      {isPokedexMounted && activeROM && activeState && inGameMemory &&
         <Pokedex
           inGameMemory={inGameMemory}
           gbcMemory={gbcMemory}
           activeROM={activeROM}
+          isOpen={showPokedex}
+          onClosed={handlePokedexClosed}
         />
       }
       {showTeamPhoto && activeROM && activeState && <TeamPhoto />}

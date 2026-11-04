@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { SRAMArray, GameModel, MemoryWatcherConfig } from '@/types';
+import clsx from 'clsx';
 import styles from './styles.module.css';
 import Hinge from './Hinge';
 import PokedexButton from './PokedexButton';
@@ -12,15 +13,22 @@ interface PokedexProps {
     inGameMemory: SRAMArray | number[];
     gbcMemory?: SRAMArray | number[];
     activeROM: GameModel | null;
+    isOpen: boolean;
+    onClosed: () => void;
 }
+
+// These match the transitions in styles.module.css
+const COVER_SWING_MS = 700;
+const FADE_MS = 200;
 
 // Utility functions from the example
 function pickRandom<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export default function Pokedex({ inGameMemory, gbcMemory, activeROM }: PokedexProps) {
+export default function Pokedex({ inGameMemory, gbcMemory, activeROM, isOpen, onClosed }: PokedexProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [showInterior, setShowInterior] = useState(false);
     const [selectedPokemon, setSelectedPokemon] = useState<number | null>(null);
     const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
     const [description, setDescription] = useState<string>('');
@@ -34,6 +42,20 @@ export default function Pokedex({ inGameMemory, gbcMemory, activeROM }: PokedexP
         shiny: false,
         female: false
     });
+
+    // Fade out, then let the parent remove it
+    useEffect(() => {
+        if (isOpen) return;
+        const timer = setTimeout(onClosed, FADE_MS);
+        return () => clearTimeout(timer);
+    }, [isOpen, onClosed]);
+
+    // The interior only exists while open, so remove it once the cover has shut
+    useEffect(() => {
+        if (isExpanded) return;
+        const timer = setTimeout(() => setShowInterior(false), COVER_SWING_MS);
+        return () => clearTimeout(timer);
+    }, [isExpanded]);
 
     // Read the Pokédex bytes from a fixed WRAM address (via ROM metadata, GBC-aware).
     // Gen 1: wPokedexOwned 0xD2F7 (19 bytes) is immediately followed by wPokedexSeen 0xD30A (19 bytes).
@@ -180,11 +202,28 @@ export default function Pokedex({ inGameMemory, gbcMemory, activeROM }: PokedexP
     }, []);
 
     return (
-        <>
-            {isExpanded ? (
-                <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
-                    <div className={styles.content}>
-                        <div className={styles.detailedView}>
+        <div className={clsx(styles.device, isExpanded && styles.deviceOpen, !isOpen && styles.hiding)}>
+            {/* The fixed half. The closed cover rests on top of it */}
+            <div className={clsx(styles.half, styles.halfRight)}>
+                <div className={styles.halfContent}>
+                    {showInterior && (
+                        <RightPanel
+                            pokemonIds={pokemonList}
+                            isPokemonOwned={isOwned}
+                            isPokemonSeen={isSeen}
+                            onSelect={handlePokemonSelect}
+                            isProcessing={loading}
+                            onClose={handleClose}
+                        />
+                    )}
+                </div>
+            </div>
+
+            {/* The cover swings on the spine: its inside is the left half, its outside is the closed card */}
+            <div className={clsx(styles.cover, isExpanded && styles.coverOpen)}>
+                <div className={clsx(styles.half, styles.halfLeft, styles.coverInside)}>
+                    <div className={styles.halfContent}>
+                        {showInterior && (
                             <LeftPanel
                                 pokemonId={selectedPokemon}
                                 isOwned={selectedPokemon ? isOwned(selectedPokemon - 1) : false}
@@ -198,40 +237,35 @@ export default function Pokedex({ inGameMemory, gbcMemory, activeROM }: PokedexP
                                 toggleFront={toggleFront}
                                 useDefault={useDefault}
                             />
-
-                            <Hinge />
-
-                            <RightPanel
-                                pokemonIds={pokemonList}
-                                isPokemonOwned={isOwned}
-                                isPokemonSeen={isSeen}
-                                onSelect={handlePokemonSelect}
-                                isProcessing={loading}
-                                onClose={handleClose}
-                            />
+                        )}
+                    </div>
+                </div>
+                <div className={styles.coverOutside}>
+                    <div className={styles.closedCard}>
+                        <div className={styles.header}>
+                            <div className={styles.title}>
+                                <h3>pokédex</h3>
+                                <div className={styles.stats}>
+                                    <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
+                                </div>
+                                <div className={styles.stats}>
+                                    <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.owned} caught`}</span>
+                                </div>
+                            </div>
+                            <PokedexButton onClick={() => {
+                                if (loadingPokedex) return;
+                                setShowInterior(true);
+                                setIsExpanded(true);
+                                setUseDefault(true);
+                            }} />
                         </div>
                     </div>
                 </div>
-            ) : (
-                <div className={`${styles.pokedexContainer} ${isExpanded ? styles.expanded : ''}`}>
-                    <div className={styles.header}>
-                        <div className={styles.title}>
-                            <h3>pokédex</h3>
-                            <div className={styles.stats}>
-                                <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.seen} seen`}</span>
-                            </div>
-                            <div className={styles.stats}>
-                                <span className={styles.stat}>{loadingPokedex ? '--' : `${stats.owned} caught`}</span>
-                            </div>
-                        </div>
-                        <PokedexButton onClick={() => {
-                            if (loadingPokedex) return;
-                            setIsExpanded(!isExpanded);
-                            setUseDefault(true);
-                        }} />
-                    </div>
-                </div>
-            )}
-        </>
+            </div>
+
+            <div className={styles.spine}>
+                <Hinge />
+            </div>
+        </div>
     );
 }
