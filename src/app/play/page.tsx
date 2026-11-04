@@ -69,7 +69,7 @@ export default function App() {
 	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
 
-	const { startGame, stopGame, setMemoryRefs } = useGame();
+	const { startGame, stopGame, setMemoryRefs, setRom } = useGame();
 	const { showToast } = useToast();
 
 	// Add hook near other hooks
@@ -125,6 +125,7 @@ export default function App() {
 					gameboyInstance.GBCMemory || [],
 					gameboyInstance.MBCRam
 				);
+				setRom(gameboyInstance.ROM);
 				runInterval.current = setInterval(function () {
 					if (!document.hidden) {
 						gameboyInstance.run();

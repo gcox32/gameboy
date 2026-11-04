@@ -7,9 +7,11 @@ import TownMap from '@/components/pokemon/TownMap';
 import Pokedex from '@/components/pokemon/Pokedex';
 import TeamPhoto from '@/components/pokemon/TeamPhoto';
 import styles from './styles.module.css';
-import { parseMetadata, useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { useInGameMemoryWatcher } from '@/utils/MemoryWatcher';
+import { useGame } from '@/contexts/GameContext';
 import { useSettings } from '@/contexts/SettingsContext';
-import { SRAMArray, SaveStateModel, GameModel, MemoryWatcherConfig } from '@/types';
+import { getCurrentMapAddress, getMapImage } from '@/utils/pokemon/maps';
+import { SRAMArray, SaveStateModel, GameModel } from '@/types';
 
 interface FullScreenContainerProps {
   background: string;
@@ -64,37 +66,25 @@ export default function FullScreenContainer({
   const [currentBackground, setCurrentBackground] = useState(background);
   const [previousBackground, setPreviousBackground] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [watcherConfig, setWatcherConfig] = useState<MemoryWatcherConfig>({});
   const { uiSettings } = useSettings();
   const { isDynamicBackground } = uiSettings;
+  const { rom } = useGame();
+  const currentMapAddress = getCurrentMapAddress(rom);
 
-  // Get location watcher config from ROM metadata or use defaults
+  // The watcher stops without a ROM, so clear the artwork when the game stops
   useEffect(() => {
-    if (!activeROM) return;
-    const watcherConfig = parseMetadata(activeROM, 'location', {
-      baseAddress: '0xD2F6',
-      offset: '0x67', // 0x68 is for original blue
-      size: '0x1'
-    });
-    setWatcherConfig(watcherConfig);
-  }, [activeROM]);
+    if (!rom) setDynamicBackground(null);
+  }, [rom]);
 
   useInGameMemoryWatcher(
     inGameMemory,
-    watcherConfig?.baseAddress,
-    watcherConfig?.offset,
-    watcherConfig?.size,
-    async (array: number[]) => {
+    currentMapAddress === null ? undefined : `0x${currentMapAddress.toString(16)}`,
+    '0x0',
+    '0x1',
+    (array: number[]) => {
       if (isDynamicBackground && activeROM && activeState) {
-        const currentMapByte = array[0];
-
-        const location = await fetch(`/api/pokemon/gen-one/locations?gameId=001&locationId=${currentMapByte}`);
-        const locationData = await location.json();
-
-        if (locationData.img) {
-          const backgroundImage = locationsImgUrl + locationData.img;
-          setDynamicBackground(backgroundImage);
-        }
+        const image = getMapImage(rom, array[0]);
+        if (image) setDynamicBackground(locationsImgUrl + image);
       } else {
         setDynamicBackground(null);
       }

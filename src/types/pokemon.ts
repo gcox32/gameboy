@@ -77,6 +77,7 @@ export interface PartyDataStructure {
 export interface Move {
     id: number;
     pp?: number;
+    ppUps?: number;
     name?: string;
 }
 
@@ -86,7 +87,6 @@ export interface MoveDetails {
     PP: number;
     basepower: number;
     accuracy: number;
-    clean_description: string;
 }
 
 export interface MovesetProps {

@@ -19,13 +19,6 @@ export interface ScanCandidate {
 const GEN1_MAX_SPECIES = 151;
 const GEN2_MAX_SPECIES = 251;
 
-// Common map IDs that indicate valid location data
-const VALID_GEN1_MAP_IDS = new Set([
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, // Pallet, Viridian, etc.
-    13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-    // ... up to ~248 for Gen 1
-]);
-
 /**
  * Scan memory for party data structure
  * Party structure: [count (1-6)][species1-6][0xFF padding][pokemon data...]
@@ -331,100 +324,6 @@ export async function scanForBadgeData(
     };
 }
 
-/**
- * Scan memory for location/map ID data
- */
-export async function scanForLocationData(
-    memory: number[],
-    generation: 1 | 2 = 1,
-    currentMapId?: number,
-    onProgress?: (progress: number, message: string) => void
-): Promise<ScanResult> {
-    const candidates: ScanCandidate[] = [];
-
-    // Valid map ID ranges
-    const maxMapId = generation === 1 ? 248 : 255;
-
-    // Search in WRAM area
-    const searchStart = 0xD000;
-    const searchEnd = 0xE000;
-    const totalAddresses = searchEnd - searchStart;
-
-    onProgress?.(0, 'Initializing location scan...');
-
-    for (let addr = searchStart; addr < searchEnd; addr++) {
-        if ((addr - searchStart) % 100 === 0) {
-            const progress = ((addr - searchStart) / totalAddresses) * 100;
-            onProgress?.(progress, `Scanning address 0x${addr.toString(16).toUpperCase()}...`);
-            
-            // Add small delay to slow down scan and allow UI to update smoothly
-            await new Promise(resolve => setTimeout(resolve, 10));
-        }
-
-        const mapId = memory[addr];
-
-        // Must be valid map ID
-        if (mapId > maxMapId) continue;
-
-        let score = 20;
-
-        // Strong bonus if it matches user's expected map
-        if (currentMapId !== undefined && mapId === currentMapId) {
-            score += 50;
-        }
-
-        // Bonus for being in expected memory range
-        if (generation === 1 && addr >= 0xD350 && addr <= 0xD360) score += 25;
-        if (generation === 2 && addr >= 0xDCB0 && addr <= 0xDCC0) score += 25;
-
-        // Bonus for common starting locations
-        const commonMaps = generation === 1
-            ? [0, 1, 2, 3, 40] // Pallet Town, Viridian, Pewter, etc.
-            : [0, 1, 2, 3, 4]; // New Bark, Cherrygrove, etc.
-        if (commonMaps.includes(mapId)) score += 10;
-
-        // Only include if score is reasonable
-        if (score < 30) continue;
-
-        const confidence: 'high' | 'medium' | 'low' =
-            score >= 70 ? 'high' : score >= 45 ? 'medium' : 'low';
-
-        candidates.push({
-            address: `0x${addr.toString(16).toUpperCase()}`,
-            confidence,
-            preview: `Map ID: ${mapId} (0x${mapId.toString(16).toUpperCase()})`,
-            score,
-        });
-    }
-
-    onProgress?.(100, 'Scan complete! Analyzing results...');
-
-    candidates.sort((a, b) => b.score - a.score);
-
-    if (candidates.length === 0) {
-        return {
-            success: false,
-            config: null,
-            confidence: 'low',
-            details: 'No location data found. Make sure a game is actively running.',
-            candidates: [],
-        };
-    }
-
-    const best = candidates[0];
-    return {
-        success: true,
-        config: {
-            baseAddress: best.address,
-            offset: '0x00',
-            size: '0x01',
-        },
-        confidence: best.confidence,
-        details: `Found ${candidates.length} candidate(s). Best match: ${best.preview}`,
-        candidates: candidates.slice(0, 5),
-    };
-}
-
 // Helper: count set bits in a number
 function countBits(n: number): number {
     let count = 0;
@@ -444,13 +343,13 @@ function hasConsecutiveBits(n: number): boolean {
     return countBits(filled) <= countBits(n) + 1;
 }
 
-export type ScanType = 'activeParty' | 'gymBadges' | 'location';
+export type ScanType = 'activeParty' | 'gymBadges';
 
 export async function scanMemory(
     type: ScanType,
     memory: number[],
     generation: 1 | 2 = 1,
-    hints?: { badgeCount?: number; mapId?: number },
+    hints?: { badgeCount?: number },
     onProgress?: (progress: number, message: string) => void
 ): Promise<ScanResult> {
     switch (type) {
@@ -458,8 +357,6 @@ export async function scanMemory(
             return scanForPartyData(memory, generation, onProgress);
         case 'gymBadges':
             return scanForBadgeData(memory, generation, hints?.badgeCount, onProgress);
-        case 'location':
-            return scanForLocationData(memory, generation, hints?.mapId, onProgress);
         default:
             return {
                 success: false,

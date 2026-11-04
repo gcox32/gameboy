@@ -1,32 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './styles.module.css'
-import { Move, MovesetProps, MoveDetails } from '@/types/pokemon'
+import { Move, MovesetProps } from '@/types/pokemon'
 import { FaExpandAlt, FaCompressAlt } from 'react-icons/fa';
+import { useGame } from '@/contexts/GameContext';
+import { getMaxPP, getMoveDetails } from '@/utils/pokemon/moves';
 
 export default function Moveset({ moves }: MovesetProps) {
-    const [moveDetails, setMoveDetails] = useState<(MoveDetails | null)[]>([]);
+    const { rom } = useGame();
     const [isExpanded, setIsExpanded] = useState(false);
-
-    useEffect(() => {
-        const fetchMoveDetails = async () => {
-            const details = await Promise.all(
-                moves.map(async (move) => {
-                    if (move.id === 0) return null;
-                    try {
-                        const response = await fetch(`/api/pokemon/gen-one/moves?gameId=001&moveId=${move.id}`);
-                        if (!response.ok) return null;
-                        return await response.json();
-                    } catch (error) {
-                        console.error('Error fetching move details:', error);
-                        return null;
-                    }
-                })
-            );
-            setMoveDetails(details);
-        };
-
-        fetchMoveDetails();
-    }, [moves]);
+    const moveDetails = moves.map((move) => getMoveDetails(rom, move.id));
 
     return (
         <div className={`${styles.pokemonDetailsSection} ${styles.top} ${isExpanded ? styles.expanded : ''}`}>
@@ -47,7 +29,7 @@ export default function Moveset({ moves }: MovesetProps) {
                                 <>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span>{moveDetails[index]?.name}</span>
-                                        <span>PP: {move.pp}/{moveDetails[index]?.PP}</span>
+                                        <span>PP: {move.pp}/{getMaxPP(moveDetails[index].PP, move.ppUps)}</span>
                                     </div>
                                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
                                         <span className={`${styles.typeTag} ${styles[moveDetails[index]?.type.toLowerCase() + 'Type']}`}>
@@ -57,14 +39,11 @@ export default function Moveset({ moves }: MovesetProps) {
                                             Power: {moveDetails[index]?.basepower || '-'} | Acc: {moveDetails[index]?.accuracy}%
                                         </span>
                                     </div>
-                                    <p style={{ fontSize: '0.8rem', marginTop: '0.25rem', color: '#999' }}>
-                                        {moveDetails[index]?.clean_description}
-                                    </p>
                                 </>
                             ) : (
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span>{moveDetails[index]?.name}</span>
-                                    <span style={{ color: '#999' }}> {move.pp}/{moveDetails[index]?.PP}</span>
+                                    <span style={{ color: '#999' }}> {move.pp}/{getMaxPP(moveDetails[index].PP, move.ppUps)}</span>
                                 </div>
                             )}
                         </div>

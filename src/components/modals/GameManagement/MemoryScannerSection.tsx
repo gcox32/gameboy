@@ -12,7 +12,7 @@ interface MemoryScannerSectionProps {
     currentConfig: MemoryWatcherConfig;
     generation: 1 | 2;
     onConfigFound: (config: MemoryWatcherConfig) => void;
-    hints?: { badgeCount?: number; mapId?: number };
+    hints?: { badgeCount?: number };
     children?: ReactNode;
 }
 

@@ -39,7 +39,6 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
         const defaultWatchers = {
             activeParty: preset.activeParty,
             gymBadges: preset.gymBadges,
-            location: preset.location,
         };
 
         return {
@@ -83,7 +82,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
     };
 
     const updateWatcherConfig = (
-        watcher: 'activeParty' | 'gymBadges' | 'location',
+        watcher: 'activeParty' | 'gymBadges',
         field: 'baseAddress' | 'offset' | 'size',
         value: string
     ) => {
@@ -100,7 +99,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
     };
 
     const handleScanResult = (
-        watcher: 'activeParty' | 'gymBadges' | 'location',
+        watcher: 'activeParty' | 'gymBadges',
         config: MemoryWatcherConfig
     ) => {
         setFormData(prev => ({
@@ -118,7 +117,7 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
 
     // Render watcher config with scanner and manual fields
     const renderWatcherFields = (
-        watcher: 'activeParty' | 'gymBadges' | 'location',
+        watcher: 'activeParty' | 'gymBadges',
         label: string
     ) => (
         <MemoryScannerSection
@@ -216,7 +215,6 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
                 <div className={`${styles.watchersSectionContent} ${!watchersExpanded ? styles.collapsed : ''}`}>
                     {renderWatcherFields('activeParty', 'Active Party')}
                     {renderWatcherFields('gymBadges', 'Gym Badges')}
-                    {renderWatcherFields('location', 'Location')}
                 </div>
             </div>
 

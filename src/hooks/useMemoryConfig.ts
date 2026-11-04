@@ -3,7 +3,7 @@ import { MemoryWatcherConfig } from '@/types/states';
 import { GameModel } from '@/types';
 import { getPresetByRomTitle, getDefaultPreset, GameMemoryPreset } from '@/data/memoryPresets';
 
-export type MemoryWatcherType = 'activeParty' | 'gymBadges' | 'location';
+export type MemoryWatcherType = 'activeParty' | 'gymBadges';
 
 interface UseMemoryConfigOptions {
     game: GameModel | null;
@@ -89,7 +89,6 @@ export function getMemoryConfigs(
 ): {
     activeParty: MemoryConfigResult;
     gymBadges: MemoryConfigResult;
-    location: MemoryConfigResult;
 } {
     const defaultPreset = getDefaultPreset();
     const preset = romTitle ? getPresetByRomTitle(romTitle) : null;
@@ -140,7 +139,6 @@ export function getMemoryConfigs(
     return {
         activeParty: resolve('activeParty'),
         gymBadges: resolve('gymBadges'),
-        location: resolve('location'),
     };
 }
 
@@ -160,8 +158,7 @@ export function hasUserMemoryConfig(game: GameModel | null): boolean {
 
         return Boolean(
             watchers.activeParty?.baseAddress ||
-            watchers.gymBadges?.baseAddress ||
-            watchers.location?.baseAddress
+            watchers.gymBadges?.baseAddress
         );
     } catch {
         return false;

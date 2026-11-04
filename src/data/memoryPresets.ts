@@ -4,7 +4,6 @@ export interface GameMemoryPreset {
     generation: 1 | 2;
     activeParty: MemoryWatcherConfig;
     gymBadges: MemoryWatcherConfig;
-    location: MemoryWatcherConfig;
     // Pokemon data structure info for parsing
     pokemonDataSize: number; // bytes per Pokemon in party
     maxPartySize: number;
@@ -19,7 +18,6 @@ export const MEMORY_PRESETS: Record<string, GameMemoryPreset> = {
         generation: 1,
         activeParty: { baseAddress: '0xD163', offset: '0x00', size: '0x195' },
         gymBadges: { baseAddress: '0xD356', offset: '0x00', size: '0x01' },
-        location: { baseAddress: '0xD35E', offset: '0x00', size: '0x01' },
         pokemonDataSize: 44,
         maxPartySize: 6,
         totalBadges: 8,
@@ -30,7 +28,6 @@ export const MEMORY_PRESETS: Record<string, GameMemoryPreset> = {
         generation: 1,
         activeParty: { baseAddress: '0xD163', offset: '0x00', size: '0x195' },
         gymBadges: { baseAddress: '0xD356', offset: '0x00', size: '0x01' },
-        location: { baseAddress: '0xD35E', offset: '0x00', size: '0x01' },
         pokemonDataSize: 44,
         maxPartySize: 6,
         totalBadges: 8,
@@ -41,7 +38,6 @@ export const MEMORY_PRESETS: Record<string, GameMemoryPreset> = {
         generation: 1,
         activeParty: { baseAddress: '0xD163', offset: '0x00', size: '0x195' },
         gymBadges: { baseAddress: '0xD356', offset: '0x00', size: '0x01' },
-        location: { baseAddress: '0xD35E', offset: '0x00', size: '0x01' },
         pokemonDataSize: 44,
         maxPartySize: 6,
         totalBadges: 8,
@@ -52,7 +48,6 @@ export const MEMORY_PRESETS: Record<string, GameMemoryPreset> = {
         generation: 2,
         activeParty: { baseAddress: '0xDCD7', offset: '0x00', size: '0x1A0' },
         gymBadges: { baseAddress: '0xD57C', offset: '0x00', size: '0x02' }, // 16 badges = 2 bytes
-        location: { baseAddress: '0xDCB6', offset: '0x00', size: '0x01' },
         pokemonDataSize: 48,
         maxPartySize: 6,
         totalBadges: 16,
@@ -63,7 +58,6 @@ export const MEMORY_PRESETS: Record<string, GameMemoryPreset> = {
         generation: 2,
         activeParty: { baseAddress: '0xDCD7', offset: '0x00', size: '0x1A0' },
         gymBadges: { baseAddress: '0xD57C', offset: '0x00', size: '0x02' },
-        location: { baseAddress: '0xDCB6', offset: '0x00', size: '0x01' },
         pokemonDataSize: 48,
         maxPartySize: 6,
         totalBadges: 16,
@@ -74,7 +68,6 @@ export const MEMORY_PRESETS: Record<string, GameMemoryPreset> = {
         generation: 2,
         activeParty: { baseAddress: '0xDCD7', offset: '0x00', size: '0x1A0' },
         gymBadges: { baseAddress: '0xD57C', offset: '0x00', size: '0x02' },
-        location: { baseAddress: '0xDCB6', offset: '0x00', size: '0x01' },
         pokemonDataSize: 48,
         maxPartySize: 6,
         totalBadges: 16,

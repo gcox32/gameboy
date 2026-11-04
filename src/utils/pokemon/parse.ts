@@ -38,10 +38,10 @@ function parsePokemonStructure(structureData: number[]) {
         type2: typeDict[structureData[0x06]],
         catchRateHeldItem: structureData[0x07],
         moves: [
-            { id: structureData[0x08], pp: structureData[0x1D] },
-            { id: structureData[0x09], pp: structureData[0x1E] },
-            { id: structureData[0x0A], pp: structureData[0x1F] },
-            { id: structureData[0x0B], pp: structureData[0x20] }
+            parseMove(structureData[0x08], structureData[0x1D]),
+            parseMove(structureData[0x09], structureData[0x1E]),
+            parseMove(structureData[0x0A], structureData[0x1F]),
+            parseMove(structureData[0x0B], structureData[0x20])
         ],
         originalTrainerID: structureData[0x0C] + (structureData[0x0D] << 8),
         EVs: {
@@ -60,6 +60,11 @@ function parsePokemonStructure(structureData: number[]) {
             special: structureData[0x2B]
         }
     };
+}
+
+// The PP byte packs PP Ups used into the top 2 bits and current PP into the low 6
+function parseMove(id: number, ppByte: number) {
+    return { id, pp: ppByte & 0x3F, ppUps: ppByte >> 6 };
 }
 
 function calculateIVs(ivNumber: number) {

@@ -13,6 +13,9 @@ interface GameContextValue {
     gbcMemoryRef: MutableRefObject<SRAMArray>;
     mbcRamRef: MutableRefObject<SRAMArray>;
     setMemoryRefs: (inGameMemory: SRAMArray, gbcMemory: SRAMArray, mbcRam: SRAMArray) => void;
+    // Full cartridge image of the running game
+    rom: Uint8Array | number[] | null;
+    setRom: (rom: Uint8Array | number[] | null) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -32,6 +35,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const inGameMemoryRef = useRef<SRAMArray>([]);
     const gbcMemoryRef = useRef<SRAMArray>([]); // GBC WRAM banks (0xD000+ for GBC games)
     const mbcRamRef = useRef<SRAMArray>([]);
+    const [rom, setRom] = useState<Uint8Array | number[] | null>(null);
 
     const startGame = useCallback((gameData: GameModel) => {
         setGameState({
@@ -42,6 +46,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const stopGame = useCallback(() => {
+        setRom(null);
         setGameState(prev => {
             if (prev.isPlaying) {
                 // Clear memory refs when stopping
@@ -73,7 +78,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
             inGameMemoryRef,
             gbcMemoryRef,
             mbcRamRef,
-            setMemoryRefs
+            setMemoryRefs,
+            rom,
+            setRom
         }}>
             {children}
         </GameContext.Provider>

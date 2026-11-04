@@ -52,15 +52,13 @@ export default function HowItWorks() {
                     <ul className="mb-4 pl-8 [&_li]:mb-1">
                         <li>Active Party: Base Address: 0xD163, Offset: 0x00, Size: 0x195</li>
                         <li>Gym Badges: Base Address: 0xD2F6, Offset: 0x60, Size: 0x1</li>
-                        <li>Location: Base Address: 0xD2F6, Offset: 0x68, Size: 0x1</li>
                     </ul>
                     <Paragraph>
                         Troubleshooting Tips:
                     </Paragraph>
                     <ul className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>{`Pokémon Blue (Original): Location offset should be 0x68`}</li>
                         <li>{`If party data isn't showing, try adjusting the base address by ±1`}</li>
-                        <li>{`Different ROM versions may require slightly different memory addresses. Consider `}<a href="https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)#bank1_main_curmap" target="_blank">bulbapedia</a>{` as a reference.`}</li>
+                        <li>{`Different ROM versions may require slightly different memory addresses. Consider `}<a href="https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)" target="_blank">bulbapedia</a>{` as a reference.`}</li>
                     </ul>
                 </div>
 
@@ -94,7 +92,7 @@ export default function HowItWorks() {
                 <div className="bg-white rounded border p-6 mb-4 shadow-sm">
                     <Heading as="h4">Dynamic Backgrounds</Heading>
                     <Paragraph>
-                        In Pokémon games, the background will automatically change based on your in-game location when enabled in settings.
+                        In Generation 1 Pokémon games, the background will automatically change based on your in-game location when enabled in settings. The location is read from the game itself, so there is nothing to configure.
                     </Paragraph>
 
                     <Heading as="h4">Performance Settings</Heading>

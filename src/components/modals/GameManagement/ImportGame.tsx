@@ -32,8 +32,7 @@ export default function ImportGame({ userId, userEmail, onSuccess, onCancel }: I
         description: '',
         memoryWatchers: {
             activeParty: { baseAddress: '0xD163', offset: '0x00', size: '0x195' },
-            gymBadges: { baseAddress: '0xD2F6', offset: '0x60', size: '0x1' },
-            location: { baseAddress: '0xD2F6', offset: '0x68', size: '0x1' }
+            gymBadges: { baseAddress: '0xD2F6', offset: '0x60', size: '0x1' }
         }
     });
 
