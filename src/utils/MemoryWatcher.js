@@ -44,7 +44,7 @@ export function translateIntegerArray(integerArray, breakInt = 80) {
  * Slice memory with GBC memory overlay support
  * For GBC games, addresses 0xD000-0xDFFF are stored in gbcMemory, not main memory
  */
-const sliceMemoryWithGBC = (memory, gbcMemory, startAddr, endAddr) => {
+export const sliceMemoryWithGBC = (memory, gbcMemory, startAddr, endAddr) => {
     // If no GBC memory or reading entirely below 0xD000, use regular memory
     if (!gbcMemory || gbcMemory.length === 0 || endAddr <= 0xD000) {
         return memory.slice(startAddr, endAddr);

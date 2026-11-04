@@ -1,4 +1,4 @@
-import { useState, useEffect, RefObject, CSSProperties } from 'react';
+import { useState, useEffect, useCallback, RefObject, CSSProperties } from 'react';
 import GameElementsBar from '@/components/layout/GameElementsBar';
 import FullscreenSystemIcons from './FullscreenSystemIcons';
 import ActiveParty from '@/components/pokemon/ActiveParty';
@@ -59,6 +59,9 @@ export default function FullScreenContainer({
 
   const [showActiveParty, setShowActiveParty] = useState(true);
   const [showGymBadgeCase, setShowGymBadgeCase] = useState(false);
+  // Stays true after hiding so the case can shut before it's removed
+  const [isBadgeCaseMounted, setIsBadgeCaseMounted] = useState(false);
+  const handleBadgeCaseClosed = useCallback(() => setIsBadgeCaseMounted(false), []);
   const [showMap, setShowMap] = useState(false);
   const [showPokedex, setShowPokedex] = useState(false);
   const [showTeamPhoto, setShowTeamPhoto] = useState(false);
@@ -142,7 +145,10 @@ export default function FullScreenContainer({
       <GameElementsBar
         elementsEnabled={true}
         onActivePartyClick={() => setShowActiveParty(!showActiveParty)}
-        onGymBadgeCaseClick={() => setShowGymBadgeCase(!showGymBadgeCase)}
+        onGymBadgeCaseClick={() => {
+          if (!showGymBadgeCase) setIsBadgeCaseMounted(true);
+          setShowGymBadgeCase(!showGymBadgeCase);
+        }}
         onMapClick={() => setShowMap(!showMap)}
         onPokedexClick={() => setShowPokedex(!showPokedex)}
         onCameraClick={() => setShowTeamPhoto(!showTeamPhoto)}
@@ -161,11 +167,13 @@ export default function FullScreenContainer({
           activeROM={activeROM}
         />
       }
-      {showGymBadgeCase && activeROM && activeState && inGameMemory &&
+      {isBadgeCaseMounted && activeROM && activeState && inGameMemory &&
         <GymBadgeCase
           inGameMem={inGameMemory}
           gbcMemory={gbcMemory}
           activeROM={activeROM}
+          isOpen={showGymBadgeCase}
+          onClosed={handleBadgeCaseClosed}
         />
       }
       {showMap && activeROM && activeState && <TownMap />}

@@ -45,7 +45,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Vermillion City',
         badge: badges[2],
         leader: 'Lt. Surge',
-        leaderImage: imgUrl + '3_Lt_Surge.png',
+        leaderImage: imgUrl + '3_Surge.png',
         leaderDescription: 'The Lightning American!',
     },
     {

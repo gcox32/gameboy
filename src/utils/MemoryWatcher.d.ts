@@ -12,6 +12,13 @@ export function translateInteger(integerValue: number): string;
 
 export function translateIntegerArray(integerArray: number[], breakInt?: number): string;
 
+export function sliceMemoryWithGBC(
+    memory: SRAMArray | number[],
+    gbcMemory: SRAMArray | number[] | null | undefined,
+    startAddr: number,
+    endAddr: number
+): number[];
+
 export function useInGameMemoryWatcher(
     gameMemoryRef: SRAMArray | number[],
     baseAddressHex: string | undefined,

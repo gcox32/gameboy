@@ -1,15 +1,142 @@
 .badgesCase {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    --half-height: 188px; /* two rows of badges plus the frame */
+    --hinge-height: 10px;
     position: absolute;
     bottom: 180px;
     left: 24px;
     width: 400px;
-    border: 4px goldenrod solid;
-    background-color: darkblue;
-    border-radius: 16px;
-    padding: 10px;
+    padding-bottom: 102px; /* room for the open lid, which is outside the layout */
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.45));
+    animation: caseAppear 120ms linear;
+}
+
+/* Timing adds up to CASE_SHUT_MS in index.tsx: lid shuts, pause, fade out */
+.closing {
+    opacity: 0;
+    transition: opacity 150ms linear 700ms;
+}
+
+@keyframes caseAppear {
+    from {
+        opacity: 0;
+    }
+}
+
+/* Orange frame around each half of the open case */
+.caseHalf {
+    position: relative;
+    padding: 6px;
+    background: linear-gradient(to bottom, #f5a742, #dd7f1f);
+    border: 2px solid #8f4a12;
+    box-shadow: inset 0 1px 0 #ffd08a;
+}
+
+.tray {
+    height: var(--half-height);
+    border-radius: 10px 10px 2px 2px;
+    pointer-events: auto;
+}
+
+/* Swings on the hinge's center line: 180deg is shut over the tray, 60deg is leaning open */
+.lid {
+    position: absolute;
+    top: calc(var(--half-height) + var(--hinge-height));
+    left: 0;
+    width: 100%;
+    height: var(--half-height);
+    transform-origin: 50% calc(var(--hinge-height) / -2);
+    transform-style: preserve-3d;
+    transform: perspective(2000px) rotateX(180deg);
+    transition: transform 550ms cubic-bezier(0.55, 0, 0.85, 0.4);
+}
+
+.lidOpen {
+    transform: perspective(2000px) rotateX(60deg);
+    transition: transform 700ms cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+
+.lidFace {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+}
+
+.lidInner {
+    border-radius: 2px 2px 10px 10px;
+}
+
+.lidOuter {
+    border-radius: 10px 10px 2px 2px;
+    transform: rotateX(180deg);
+}
+
+.lidOuter::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 2px solid rgba(143, 74, 18, 0.55);
+    border-radius: 6px;
+}
+
+.hinge {
+    position: relative;
+    height: var(--hinge-height);
+    background: linear-gradient(to bottom, #8f4a12, #f5a742 35%, #dd7f1f 65%, #8f4a12);
+    border-inline: 2px solid #8f4a12;
+}
+
+/* Blue felt lining with a stitched edge */
+.felt {
+    position: relative;
+    height: 100%;
+    background: #1f3da6;
+    border-radius: 4px;
+    box-shadow: inset 0 0 8px rgba(0, 0, 30, 0.6);
+}
+
+.felt::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 2px dashed #0e1f6b;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.badgeGrid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 6px;
+}
+
+.clasp {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 8px;
+    background: linear-gradient(to bottom, #f4f4f4, #a9a9a9);
+    border: 1px solid #5f5f5f;
+    border-radius: 4px;
+}
+
+/* The clasp sits on the lid's free edge, which is at the top of this face */
+.lidOuter .clasp {
+    top: 2px;
+    bottom: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .badgesCase,
+    .closing,
+    .lid,
+    .lidOpen {
+        animation: none;
+        transition: none;
+    }
 }
 
 .badge {
@@ -18,7 +145,7 @@
 }
 
 .badge .silhouette {
-    filter: brightness(0);
+    filter: brightness(0) invert(1);
     opacity: 0.5;
 }
 
@@ -42,10 +169,6 @@
 .badge.earned:not(.animate) {
     transform: scale(1);
     opacity: 1;
-}
-
-.badge .silhouette {
-    filter: brightness(0) invert(1);
 }
 
 .badge .badgeImageWrapper {
