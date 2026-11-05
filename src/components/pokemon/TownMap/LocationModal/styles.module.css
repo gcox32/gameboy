@@ -1,27 +1,121 @@
-.modalContent.locationModal {
-    max-width: 800px;
-    overflow-y: scroll;
+/* A page from a travel guide, printed on the same paper as the map */
+.locationModal.locationModal {
+    --paper: #f3ead3;
+    --paper-edge: #cdbd96;
+    --ink: #3a3020;
+    --ink-soft: #6d5f45;
+    max-width: 640px;
+    border-color: var(--paper-edge);
+    border-width: 1px;
+    border-radius: 4px;
+    background: var(--paper);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    color: var(--ink);
+    color-scheme: light;
 }
 
-.modalContent.locationModal img:hover {
-    cursor: default;
-    outline: 2px gray solid;
+/* The base close button is pale for dark modals */
+.locationModal > button {
+    color: var(--ink);
+    opacity: 0.7;
+    border-radius: 50%;
+    background: var(--paper);
+    width: 2rem;
+    height: 2rem;
+    top: 0.5rem;
+    right: 0.5rem;
 }
 
-.mapLocDetails {
-    width: 600px;
+.page {
+    display: flex;
+    flex-direction: column;
 }
 
-.mapLocDetails p {
-    text-align: justify;
+.photo {
+    position: relative;
+    aspect-ratio: 2;
+    flex-shrink: 0;
+    margin: 12px 12px 0;
+    overflow: hidden;
+    border: 1px solid var(--paper-edge);
+    background: #e6dabc;
+}
+
+.photo img {
+    object-fit: cover;
+}
+
+/* Places without artwork show their part of the town map. Matches CROP_ZOOM and CROP_ASPECT_RATIO */
+.mapCrop {
+    aspect-ratio: 3;
+    flex-shrink: 0;
+    margin: 12px 12px 0;
+    border: 1px solid var(--paper-edge);
+    background-color: #e6dabc;
+    background-repeat: no-repeat;
+    background-size: 250% auto;
+    image-rendering: pixelated;
+}
+
+.details {
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.locType {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+.locationModal .title {
+    margin: 0.25rem 0 0;
+    font-size: 2rem;
+    line-height: 1.15;
+    color: var(--ink);
+}
+
+.slogan {
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--ink-soft);
+}
+
+.description {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem 1.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--paper-edge);
+}
+
+.locationModal .notesHeading {
+    margin: 0 0 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+.notesList {
+    margin: 0;
+    padding: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    list-style: none;
 }
 
 @media (max-width: 768px) {
-    .modalContent.locationModal {
+    .locationModal.locationModal {
         max-width: 100%;
-    }
-
-    .mapLocDetails {
-        width: 100%;
     }
 }

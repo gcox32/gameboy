@@ -66,6 +66,9 @@ export default function FullScreenContainer({
   const [isBadgeCaseMounted, setIsBadgeCaseMounted] = useState(false);
   const handleBadgeCaseClosed = useCallback(() => setIsBadgeCaseMounted(false), []);
   const [showMap, setShowMap] = useState(false);
+  // Stays true after hiding so the map can fold shut before it's removed
+  const [isMapMounted, setIsMapMounted] = useState(false);
+  const handleMapClosed = useCallback(() => setIsMapMounted(false), []);
   const [showPokedex, setShowPokedex] = useState(false);
   // Stays true after hiding so the Pokédex can fade out before it's removed
   const [isPokedexMounted, setIsPokedexMounted] = useState(false);
@@ -158,7 +161,10 @@ export default function FullScreenContainer({
           if (!showGymBadgeCase) setIsBadgeCaseMounted(true);
           setShowGymBadgeCase(!showGymBadgeCase);
         }}
-        onMapClick={() => setShowMap(!showMap)}
+        onMapClick={() => {
+          if (!showMap) setIsMapMounted(true);
+          setShowMap(!showMap);
+        }}
         onPokedexClick={() => {
           if (!showPokedex) setIsPokedexMounted(true);
           setShowPokedex(!showPokedex);
@@ -190,7 +196,14 @@ export default function FullScreenContainer({
           onClosed={handleBadgeCaseClosed}
         />
       }
-      {showMap && activeROM && activeState && <TownMap />}
+      {isMapMounted && activeROM && activeState && inGameMemory &&
+        <TownMap
+          inGameMemory={inGameMemory}
+          gbcMemory={gbcMemory}
+          isOpen={showMap}
+          onClosed={handleMapClosed}
+        />
+      }
       {isPokedexMounted && activeROM && activeState && inGameMemory &&
         <Pokedex
           inGameMemory={inGameMemory}

@@ -98,6 +98,7 @@ export interface MovesetProps {
 }
 
 export interface Location {
+    // Box on the town map art, in its 8px tiles from the top left
     x: number;
     y: number;
     height: number;

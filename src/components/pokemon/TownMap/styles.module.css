@@ -1,38 +1,398 @@
+/*
+ * A paper map, folded in three along vertical creases. The right flap folds over
+ * last, so it opens first. Timings match index.tsx.
+ */
 .townMap {
+    --paper: #f3ead3;
+    --paper-edge: #cdbd96;
+    --ink: #3a3020;
+    --margin: 8px;
+    --art-width: 320px;
+    --art-height: calc(var(--art-width) * 136 / 160);
+    --panel-width: calc(var(--art-width) / 3);
+    /*
+     * The site nav (70px, hidden on mobile) stacks above this whole fullscreen layer
+     * and would swallow clicks, so the larger map has to fit below it, with room for the label.
+     */
+    --nav-height: 70px;
+    --label-height: 40px;
+    --expanded-space: calc(100vh - var(--nav-height) - var(--label-height));
+    --expanded-art-width: min(92vw - 2 * var(--margin), (var(--expanded-space) - 2 * var(--margin)) * 160 / 136);
     position: absolute;
-    left: 60px;
     top: 60px;
+    left: 60px;
+    z-index: 4;
+    width: calc(var(--art-width) + 2 * var(--margin));
+    height: calc(var(--art-height) + 2 * var(--margin));
+    color: var(--ink);
     cursor: url('/images/map-cursor.png') 16 16, auto;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+    transition:
+        top 300ms cubic-bezier(0.4, 0, 0.2, 1),
+        left 300ms cubic-bezier(0.4, 0, 0.2, 1),
+        width 300ms cubic-bezier(0.4, 0, 0.2, 1),
+        height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 200ms linear;
+    animation: mapAppear 200ms linear;
 }
 
-.townMap img {
-    position: relative;
-    width: 100%;
-    height: 300px;
-    border-radius: 8px;
-    border: 2px black solid;
-    overflow: hidden;
+@keyframes mapAppear {
+    from {
+        opacity: 0;
+    }
 }
 
-.mapLocHero {
-    width: 600px !important;
+.closing {
+    opacity: 0;
+    transition-delay: 0ms, 0ms, 0ms, 0ms, 750ms;
+}
+
+.expanded {
+    z-index: 20;
+    top: calc(var(--nav-height) + (var(--expanded-space) - var(--expanded-art-width) * 136 / 160 - 2 * var(--margin)) / 2);
+    left: calc(50vw - var(--expanded-art-width) / 2 - var(--margin));
+    width: calc(var(--expanded-art-width) + 2 * var(--margin));
+    height: calc(var(--expanded-art-width) * 136 / 160 + 2 * var(--margin));
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 19;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms linear;
+}
+
+.backdropVisible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ---- The folding sheet ---- */
+.sheet {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--art-width) + 2 * var(--margin));
+    height: calc(var(--art-height) + 2 * var(--margin));
+    perspective: 1400px;
+}
+
+.panel {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: var(--paper);
+}
+
+.panelCenter {
+    left: calc(var(--margin) + var(--panel-width));
+    width: var(--panel-width);
+}
+
+.flap {
+    background: none;
+    transform-style: preserve-3d;
+    transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flapLeft {
+    left: 0;
+    width: calc(var(--margin) + var(--panel-width));
+    transform: rotateY(180deg);
+    transform-origin: right center;
+    transition-delay: 0ms;
+}
+
+.flapRight {
+    left: calc(var(--margin) + 2 * var(--panel-width));
+    width: calc(var(--margin) + var(--panel-width));
+    transform: rotateY(-180deg);
+    transform-origin: left center;
+    transition-delay: 300ms;
+}
+
+.unfolded .flap {
+    transform: rotateY(0deg);
+}
+
+.unfolded .flapLeft {
+    transition-delay: 300ms;
+}
+
+.unfolded .flapRight {
+    transition-delay: 0ms;
+}
+
+.face {
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    backface-visibility: hidden;
+}
+
+.flapLeft .face {
+    border-radius: 3px 0 0 3px;
+}
+
+.flapRight .face {
+    border-radius: 0 3px 3px 0;
+}
+
+.faceOuter {
+    transform: rotateY(180deg);
+    background:
+        radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+        var(--paper);
+}
+
+.flapLeft .faceOuter {
+    border-radius: 0 3px 3px 0;
+}
+
+.flapRight .faceOuter {
+    border-radius: 3px 0 0 3px;
+}
+
+.art {
+    position: absolute;
+    top: var(--margin);
+    bottom: var(--margin);
+    background-image: var(--map-art);
+    background-size: var(--art-width) var(--art-height);
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+.panelCenter .art {
+    left: 0;
+    right: 0;
+    background-position: calc(var(--panel-width) * -1) 0;
+}
+
+.flapLeft .art {
+    left: var(--margin);
+    right: 0;
+    background-position: 0 0;
+}
+
+.flapRight .art {
+    left: 0;
+    right: var(--margin);
+    background-position: calc(var(--panel-width) * -2) 0;
+}
+
+.cover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--paper-edge);
+    text-align: center;
+}
+
+.coverRegion {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.coverTitle {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+/* ---- The opened map ---- */
+.flatMap {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    background: var(--paper);
+    opacity: 0;
+}
+
+.unfolded .flatMap {
+    opacity: 1;
+    transition: opacity 0ms linear 750ms;
+}
+
+.flatArt {
+    position: absolute;
+    inset: var(--margin);
+    background-image: var(--map-art);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* The creases left by the folds */
+.flatArt::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, transparent calc(100% / 3 - 2px), rgba(58, 48, 32, 0.22) calc(100% / 3), rgba(255, 255, 255, 0.28) calc(100% / 3 + 1px), transparent calc(100% / 3 + 3px)),
+        linear-gradient(90deg, transparent calc(200% / 3 - 2px), rgba(58, 48, 32, 0.22) calc(200% / 3), rgba(255, 255, 255, 0.28) calc(200% / 3 + 1px), transparent calc(200% / 3 + 3px));
+    pointer-events: none;
+}
+
+.mapArea {
+    position: absolute;
+    inset: var(--margin);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.unfolded .mapArea {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 150ms linear 750ms, visibility 0ms linear 750ms;
 }
 
 .townMapLoc {
     position: absolute;
-    transition: 100ms ease-in-out;
-    opacity: 0.5;
-}
-
-.townMapLoc.city,
-.townMapLoc.town {
-    border: 1px black solid;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    border-radius: 1px;
+    background: transparent;
+    cursor: inherit;
+    transition: background-color 100ms ease-in-out, transform 100ms ease-in-out;
 }
 
 .townMapLoc:hover {
-    background-color: yellow;
+    background-color: rgba(255, 225, 40, 0.55);
+}
+
+.townMapLoc:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+    background-color: rgba(255, 225, 40, 0.55);
 }
 
 .townMapLoc:active {
     transform: scale(1.1);
+}
+
+/* ---- Current location ---- */
+.marker {
+    position: absolute;
+    width: clamp(10px, 3.6%, 22px);
+    aspect-ratio: 1;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #d8342b;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.marker::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 2px solid #d8342b;
+    border-radius: 50%;
+    animation: markerPing 1600ms ease-out infinite;
+}
+
+@keyframes markerPing {
+    from {
+        opacity: 0.9;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(2.6);
+    }
+}
+
+.hereLabel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    background: var(--paper);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.unfolded .hereLabel {
+    opacity: 1;
+    transition: opacity 150ms linear 750ms;
+}
+
+.hereDot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #d8342b;
+}
+
+/* ---- Expand ---- */
+.expandButton {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--paper-edge);
+    border-radius: 3px;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background-color 100ms ease-in-out;
+}
+
+.expandButton:hover {
+    background: #fff;
+}
+
+.expandButton:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+}
+
+@media (max-width: 768px) {
+    .townMap {
+        --nav-height: 0px;
+    }
+}
+
+@media (max-width: 480px) {
+    .townMap {
+        --art-width: min(300px, 100vw - 40px);
+        top: 12px;
+        left: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .townMap,
+    .flap,
+    .backdrop {
+        animation: none;
+        transition: none;
+    }
+
+    .marker::after {
+        animation: none;
+        opacity: 0;
+    }
 }

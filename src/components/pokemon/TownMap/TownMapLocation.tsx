@@ -1,27 +1,20 @@
-import React from "react";
 import styles from "./styles.module.css";
 import { Location } from "@/types/pokemon";
+import { getLocationBox } from "./geometry";
 
-function TownMapLocation({ locData, onClick }: { locData: Location | null, onClick: () => void }) {
-    if (!locData) return null;
-    const { x, y, height, width, locType, title } = locData;
-    const locStyle = {
-        left: `${x}px`, 
-        bottom: `${y}px`, 
-        height: `${height}px`, 
-        width: `${width}px`
-    };
+function TownMapLocation({ location, onClick }: { location: Location, onClick: () => void }) {
+    const { left, top, width, height } = getLocationBox(location);
 
     return (
-        <div
-            className={`${styles.townMapLoc} ${locType}`}
-            style={locStyle}
-            title={title}
+        <button
+            type="button"
+            className={styles.townMapLoc}
+            style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
+            title={location.title}
+            aria-label={location.title}
             onClick={onClick}
-        >
-        </div>
-    )
+        />
+    );
 }
-
 
 export default TownMapLocation;

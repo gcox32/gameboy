@@ -38,8 +38,8 @@ export const gyms: Gym[] = [
         leaderDescription: 'The Tomboyish Mermaid!',
     },
     {
-        name: 'Vermillion Gym',
-        gymLocation: 'Vermillion City',
+        name: 'Vermilion Gym',
+        gymLocation: 'Vermilion City',
         badge: badges[2],
         leader: 'Lt. Surge',
         leaderImage: imgUrl + '3_Surge.png',

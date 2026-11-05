@@ -150,26 +150,35 @@ export function getPokedexAddress(rom: Rom | null) {
     return addressBeforeCurrentMap(rom, POKEDEX_TO_CURRENT_MAP) ?? DEFAULT_POKEDEX_ADDRESS;
 }
 
-/** The place name the ROM's town map shows for a map ID. */
-export function getMapName(rom: Rom | null, mapId: number) {
+/** Where the ROM's town map puts a map ID: its place name and its tile position on the map. */
+export function getMapLocation(rom: Rom | null, mapId: number) {
     const townMap = rom && getMapData(rom).townMap;
     if (!rom || !townMap) return null;
 
-    let pointerOffset: number;
+    let coordsOffset: number;
     if (mapId < townMap.firstIndoorMap) {
-        pointerOffset = townMap.externalTable + mapId * EXTERNAL_ENTRY_SIZE + 1;
+        coordsOffset = townMap.externalTable + mapId * EXTERNAL_ENTRY_SIZE;
     } else {
         let entry = townMap.internalTable;
         while (mapId >= rom[entry]) {
             if (rom[entry] === INTERNAL_TABLE_END) return null;
             entry += INTERNAL_ENTRY_SIZE;
         }
-        pointerOffset = entry + 2;
+        coordsOffset = entry + 1;
     }
 
-    const pointer = readWord(rom, pointerOffset);
+    const pointer = readWord(rom, coordsOffset + 1);
     if (pointer < ROM_BANK_SIZE || pointer >= ROM_BANK_SIZE * 2) return null;
-    return readString(rom, townMap.bankStart + pointer - ROM_BANK_SIZE);
+    return {
+        name: readString(rom, townMap.bankStart + pointer - ROM_BANK_SIZE),
+        tileX: rom[coordsOffset] & 0x0F,
+        tileY: rom[coordsOffset] >> 4,
+    };
+}
+
+/** The place name the ROM's town map shows for a map ID. */
+export function getMapName(rom: Rom | null, mapId: number) {
+    return getMapLocation(rom, mapId)?.name ?? null;
 }
 
 /** The artwork file for a map ID, if there is artwork for its place. */
