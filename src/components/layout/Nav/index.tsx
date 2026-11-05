@@ -39,7 +39,7 @@ const Nav = () => {
     const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
     const [isFriendsOpen, setIsFriendsOpen] = useState(false);
 
-    const { isModalOpen, handleContinue, handleClose } = useProtectedNavigation();
+    const { isModalOpen, guardAction, handleStaticPageNavigation, handleContinue, handleClose } = useProtectedNavigation();
 
     const fetchUserProfile = useCallback(async () => {
         if (!user) return;
@@ -48,10 +48,7 @@ const Nav = () => {
             if (!res.ok) return;
             const profile: ProfileModel = await res.json();
             setUserProfile(profile);
-            if (profile.avatar) {
-                const url = await getS3Url(profile.avatar);
-                setAvatarUrl(url);
-            }
+            setAvatarUrl(await getS3Url(profile.avatar));
         } catch (error) {
             console.error('Error fetching user profile:', error);
         }
@@ -133,10 +130,10 @@ const Nav = () => {
                 <div className={`${styles.navMenu} ${isMenuOpen ? styles.open : ''}`}>
                     {user ? (
                         <>
-                            {userProfile?.admin && <AdminLink />}
-                            <PlayLink />
-                            <LabLink />
-                            <RanchLink />
+                            {userProfile?.admin && <AdminLink onNavigate={handleStaticPageNavigation} />}
+                            <PlayLink onNavigate={handleStaticPageNavigation} />
+                            <LabLink onNavigate={handleStaticPageNavigation} />
+                            <RanchLink onNavigate={handleStaticPageNavigation} />
                             <Friends handleFriendsClick={() => setIsFriendsOpen(true)} />
                             <Settings handleSettingsClick={() => setIsSettingsModalOpen(true)} />
                             <Notifications
@@ -154,7 +151,7 @@ const Nav = () => {
                                 avatarUrl={avatarUrl}
                                 onAvatarClick={() => setShowDropdown(!showDropdown)}
                                 onProfileClick={() => { openProfileModal(); setShowDropdown(false); }}
-                                onLogoutClick={handleLogout}
+                                onLogoutClick={() => { setShowDropdown(false); guardAction(handleLogout); }}
                                 isOpen={showDropdown}
                             />
                         </>

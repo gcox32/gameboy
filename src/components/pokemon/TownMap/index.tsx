@@ -66,10 +66,13 @@ function TownMap({ inGameMemory, gbcMemory, isOpen, onClosed }: TownMapProps) {
     useEffect(() => {
         if (!isExpanded || selectedLocation) return;
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') setIsExpanded(false);
+            if (event.key === 'Escape') {
+                event.stopPropagation();
+                setIsExpanded(false);
+            }
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
     }, [isExpanded, selectedLocation]);
 
     return (

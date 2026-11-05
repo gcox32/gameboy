@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ChangeEvent } from 'react';
+import { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Image from 'next/image';
 import BaseModal from '../BaseModal';
 import {
@@ -10,7 +10,6 @@ import {
     View,
     Alert
 } from '@/components/ui';
-import { getS3Url } from '@/utils/saveLoad';
 import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from '../styles.module.css';
@@ -30,6 +29,8 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(userProfile?.avatar || null);
+    // A chosen avatar is only uploaded, and the old one deleted, once the profile saves
+    const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [formData, setFormData] = useState<ProfileModel>({
         username: userProfile?.username || '',
@@ -42,83 +43,84 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
 
     const defaultAvatar = 'https://assets.letmedemo.com/public/gameboy/images/users/default-avatar.png';
 
-    useEffect(() => {
+    const resetDraft = useCallback(() => {
         setFormData({
             username: userProfile?.username || '',
             email: userProfile?.email || '',
             bio: userProfile?.bio || '',
             avatar: userProfile?.avatar || ''
         });
+        setImagePreview(userProfile?.avatar || null);
+        setPendingAvatarFile(null);
+        setError(null);
     }, [userProfile]);
 
+    // Closing the modal abandons an edit, the same as Cancel
     useEffect(() => {
-        const loadAvatarUrl = async () => {
-            if (userProfile?.avatar) {
-                const url = await getS3Url(userProfile.avatar);
-                setImagePreview(url);
-            }
-        };
-        loadAvatarUrl();
-    }, [userProfile?.avatar]);
+        resetDraft();
+        if (!isOpen) setIsEditing(false);
+    }, [isOpen, resetDraft]);
 
-    const handleEditToggle = async () => {
-        if (isEditing) {
-            const avatarUrl = await getS3Url(userProfile?.avatar);
-            setImagePreview(avatarUrl);
-        }
+    useEffect(() => {
+        if (!imagePreview?.startsWith('blob:')) return;
+        return () => URL.revokeObjectURL(imagePreview);
+    }, [imagePreview]);
+
+    const handleEditToggle = () => {
+        if (isEditing) resetDraft();
         setIsEditing(!isEditing);
-        setError(null);
     };
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    const handleImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event?.target?.files?.[0];
         if (!file) return;
         if (!file.type.startsWith('image/')) { setError('Please select an image file.'); return; }
         if (file.size > 5 * 1024 * 1024) { setError('Image size should be less than 5MB.'); return; }
 
-        try {
-            setError(null);
-            const userId = auth?.user?.userId;
-            if (!userId) throw new Error('Not authenticated');
-            const ext = file.name.split('.').pop() ?? 'jpg';
-            const path = `avatars/${userId}/${Date.now()}.${ext}`;
-            const url = await uploadBlob(file, path);
-            setImagePreview(url);
-            setFormData(prev => ({ ...prev, avatar: url }));
-        } catch (err) {
-            console.error('Error uploading avatar:', err);
-            setError('Failed to upload image. Please try again.');
-        }
+        setError(null);
+        setPendingAvatarFile(file);
+        setImagePreview(URL.createObjectURL(file));
     };
 
-    const handleRemoveImage = async () => {
-        try {
-            if (formData.avatar) await deleteBlob(formData.avatar);
-        } catch (err) {
-            console.error('Error removing avatar:', err);
-        }
+    const handleRemoveImage = () => {
+        setPendingAvatarFile(null);
         setFormData(prev => ({ ...prev, avatar: '' }));
         setImagePreview(null);
+    };
+
+    const uploadPendingAvatar = async (file: File) => {
+        const userId = auth?.user?.userId;
+        if (!userId) throw new Error('Not authenticated');
+        const ext = file.name.split('.').pop() ?? 'jpg';
+        return uploadBlob(file, `avatars/${userId}/${Date.now()}.${ext}`);
     };
 
     const handleSubmit = async () => {
         try {
             setIsSaving(true);
             setError(null);
+            const newAvatar = pendingAvatarFile ? await uploadPendingAvatar(pendingAvatarFile) : formData.avatar;
             const res = await fetch('/api/profiles', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     username: formData.username,
                     bio: formData.bio,
-                    avatar: formData.avatar,
+                    avatar: newAvatar,
                 }),
             });
-            if (!res.ok) throw new Error('Update failed');
+            if (!res.ok) {
+                if (pendingAvatarFile && newAvatar) deleteBlob(newAvatar).catch(console.error);
+                throw new Error('Update failed');
+            }
+            if (userProfile.avatar && userProfile.avatar !== newAvatar) {
+                deleteBlob(userProfile.avatar).catch(console.error);
+            }
+            setPendingAvatarFile(null);
             setIsEditing(false);
             onUpdate?.();
         } catch (err) {

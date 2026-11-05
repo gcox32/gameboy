@@ -32,7 +32,10 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
             }
         };
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') toggleNotifications();
+            if (event.key === 'Escape') {
+                event.stopPropagation();
+                toggleNotifications();
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         document.addEventListener('keydown', handleKeyDown);

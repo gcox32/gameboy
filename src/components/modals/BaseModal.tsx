@@ -14,10 +14,14 @@ interface BaseModalProps {
 function BaseModal({ isOpen, onClose, children, className, title, size = 'md', lightCloseButton }: BaseModalProps) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape' && isOpen) onClose();
+            if (event.key === 'Escape' && isOpen) {
+                // Capturing lets the modal claim Escape before the page behind it reacts
+                event.stopPropagation();
+                onClose();
+            }
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
     }, [isOpen, onClose]);
 
     useEffect(() => {

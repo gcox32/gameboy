@@ -52,6 +52,11 @@ function ControlPanel({
     const [showLoadStateModal, setShowLoadStateModal] = useState(false);
     const [isGameManagementOpen, setIsGameManagementOpen] = useState(false);
     const [editingGame, setEditingGame] = useState<GameModel | null>(null);
+    const [libraryVersion, setLibraryVersion] = useState(0);
+
+    const handleLibraryChanged = useCallback(() => {
+        setLibraryVersion(version => version + 1);
+    }, []);
 
     const togglePanel = useCallback(() => {
         setIsPanelVisible(prev => !prev);
@@ -88,16 +93,11 @@ function ControlPanel({
     };
 
     const handleGameEdited = (updatedGame: GameModel) => {
+        handleLibraryChanged();
         // If this is the currently selected ROM, reload it
         if (activeROM && activeROM.id === updatedGame.id) {
             handleROMSelected(updatedGame);
         }
-    };
-
-    const handleGameDeleted = () => {
-        // this will trigger a refresh of the games list in Cartridges
-        // the Cartridges component will handle the refresh internally
-        // we could add a ref to Cartridges to call fetchGames if needed
     };
 
     return (
@@ -109,6 +109,7 @@ function ControlPanel({
                     activeSaveState={activeSaveState}
                     currentUser={currentUser}
                     onOpenGameManagement={() => setIsGameManagementOpen(true)}
+                    libraryVersion={libraryVersion}
                 />
                 <SystemControls
                     intervalPaused={intervalPaused}
@@ -147,7 +148,7 @@ function ControlPanel({
                     setIsGameManagementOpen(false);
                     setEditingGame(null);
                 }}
-                onGameDeleted={handleGameDeleted}
+                onLibraryChanged={handleLibraryChanged}
                 onGameEdited={handleGameEdited}
                 editingGame={editingGame}
                 setEditingGame={(game) => setEditingGame(game)}

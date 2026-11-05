@@ -22,13 +22,13 @@ import buttons from '@/styles/buttons.module.css';
 interface GameManagementProps {
     isOpen: boolean;
     onClose: () => void;
-    onGameDeleted: () => void;
+    onLibraryChanged: () => void;
     onGameEdited?: (updatedGame: GameModel) => void;
     editingGame: GameModel | null;
     setEditingGame: (game: GameModel | null) => void;
 }
 
-export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameEdited, editingGame, setEditingGame }: GameManagementProps) {
+export default function GameManagement({ isOpen, onClose, onLibraryChanged, onGameEdited, editingGame, setEditingGame }: GameManagementProps) {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
     const { user } = auth;
@@ -121,7 +121,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
             setGameToDelete(null);
             setEditingGame(null);
             loadGames();
-            onGameDeleted();
+            onLibraryChanged();
             showToast(`Deleted "${game.title}"`, 'success');
         } catch (err) {
             console.error(err);
@@ -156,7 +156,7 @@ export default function GameManagement({ isOpen, onClose, onGameDeleted, onGameE
                 <ImportGame
                     userId={user?.userId}
                     userEmail={user?.email}
-                    onSuccess={() => { setShowImport(false); loadGames(); onGameDeleted(); }}
+                    onSuccess={() => { setShowImport(false); loadGames(); onLibraryChanged(); }}
                     onCancel={() => setShowImport(false)}
                 />
             );

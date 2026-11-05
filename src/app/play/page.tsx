@@ -393,7 +393,7 @@ export default function App() {
 		};
 	},
 		// eslint-disable-next-line
-		[intervalPaused]
+		[intervalPaused, uiSettings.keyMappings]
 	);
 	// Initialize gameBoyInstance with the first ROMImage on component mount
 	useEffect(() => {

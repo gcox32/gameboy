@@ -2,44 +2,58 @@
 
 import { useState, MouseEvent } from 'react';
 import { useGame } from '@/contexts/GameContext';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
+export type ProtectedNavigateHandler = (e: MouseEvent<HTMLAnchorElement>, path: string) => void;
+
+/**
+ * Holds anything that would end a running game until the player confirms it.
+ * Each call owns its own modal state, so a component must render
+ * GameInterruptModal from the same instance it guards with.
+ */
 export const useProtectedNavigation = () => {
     const { gameState, setGameState } = useGame();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+    const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
     const router = useRouter();
+    const pathname = usePathname();
 
-    const handleStaticPageNavigation = (e: MouseEvent<HTMLAnchorElement>, path: string) => {
-        console.log('gameState', gameState);
+    const guardAction = (action: () => void) => {
+        if (gameState.isPlaying) {
+            setPendingAction(() => action);
+        } else {
+            action();
+        }
+    };
+
+    const handleStaticPageNavigation: ProtectedNavigateHandler = (e, path) => {
+        // A link to this page, or one opening in a new tab, leaves the game running
+        if (path === pathname || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         if (gameState.isPlaying) {
             e.preventDefault();
-            setIsModalOpen(true);
-            setPendingNavigation(path);
+            setPendingAction(() => () => router.push(path));
         }
     };
 
     const handleContinue = () => {
-        if (pendingNavigation) {
+        if (pendingAction) {
             setGameState({
                 ...gameState,
                 isPlaying: false
             });
-            router.push(pendingNavigation);
+            pendingAction();
         }
-        setIsModalOpen(false);
-        setPendingNavigation(null);
+        setPendingAction(null);
     };
 
     const handleClose = () => {
-        setIsModalOpen(false);
-        setPendingNavigation(null);
+        setPendingAction(null);
     };
 
     return {
-        isModalOpen,
+        isModalOpen: pendingAction !== null,
+        guardAction,
         handleStaticPageNavigation,
         handleContinue,
         handleClose
     };
-}; 
+};

@@ -10,13 +10,15 @@ export interface CartridgesProps {
     activeSaveState: SaveStateModel | null;
     currentUser: AuthenticatedUser;
     onOpenGameManagement: () => void;
+    // Changes whenever games are imported, edited or deleted
+    libraryVersion: number;
 }
 
 interface GameModelExtended extends GameModel {
     _id?: string
 }
 
-function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, onOpenGameManagement }: CartridgesProps) {
+function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, onOpenGameManagement, libraryVersion }: CartridgesProps) {
     const [games, setGames] = useState<GameModelExtended[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -29,7 +31,11 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
             setLoading(true);
             const res = await fetch('/api/games');
             if (!res.ok) throw new Error('Failed to fetch games');
-            setGames(await res.json());
+            const fetchedGames: GameModelExtended[] = await res.json();
+            setGames(fetchedGames);
+            setError(null);
+            // Pick up edits to the selected game. A deleted one stays, as its ROM is still loaded.
+            setSelectedGame(prev => fetchedGames.find(game => game.id === prev?.id) ?? prev);
         } catch (err) {
             setError(err as Error);
         } finally {
@@ -39,7 +45,7 @@ function Cartridges({ onROMSelected, isDisabled, activeSaveState, currentUser, o
 
     useEffect(() => {
         fetchGames();
-    }, [fetchGames]);
+    }, [fetchGames, libraryVersion]);
 
     const handleGameSelect = useCallback((game: GameModel) => {
         setSelectedGame(game);

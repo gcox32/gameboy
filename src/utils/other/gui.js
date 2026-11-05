@@ -58,8 +58,19 @@ export function deleteValue(key) {
 	}
 }
 
+// Keys belong to the page, not the game, while typing in a field or using a modal.
+// On-screen buttons dispatch from document, so the target isn't always an element.
+function isGameInputBlocked(event) {
+	const target = event.target;
+	if (target instanceof HTMLElement && (target.isContentEditable || target.matches('input, textarea, select'))) {
+		return true;
+	}
+	return document.querySelector('[role="dialog"][aria-modal="true"]') !== null;
+}
+
 // key press helper functions
 export function keyDown(event, gameboyInstance, keyMappings) {
+	if (isGameInputBlocked(event)) return;
 	const keyPressed = event.key;
 	for (const mapping of keyMappings) {
 		if (mapping.key === keyPressed) {
@@ -72,10 +83,13 @@ export function keyDown(event, gameboyInstance, keyMappings) {
 }
 
 export function keyUp(event, gameboyInstance, keyMappings) {
+	// Always release, so a key held when a modal opens doesn't stick down in the game
+	const isBlocked = isGameInputBlocked(event);
 	const keyPressed = event.key;
 	for (const mapping of keyMappings) {
 		if (mapping.key === keyPressed) {
 			GameBoyKeyUp(mapping.button, gameboyInstance);
+			if (isBlocked) continue;
 			try {
 				event.preventDefault();
 			} catch (error) { }
