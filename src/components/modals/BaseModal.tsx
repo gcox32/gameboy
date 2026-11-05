@@ -7,11 +7,13 @@ interface BaseModalProps {
     children: ReactNode;
     className?: string;
     title?: string;
+    // Names the dialog for screen readers when it has no visible title
+    ariaLabel?: string;
     size?: 'sm' | 'md' | 'lg';
     lightCloseButton?: boolean;
 }
 
-function BaseModal({ isOpen, onClose, children, className, title, size = 'md', lightCloseButton }: BaseModalProps) {
+function BaseModal({ isOpen, onClose, children, className, title, ariaLabel, size = 'md', lightCloseButton }: BaseModalProps) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape' && isOpen) {
@@ -35,7 +37,7 @@ function BaseModal({ isOpen, onClose, children, className, title, size = 'md', l
     const sizeClass = size === 'sm' ? styles.sizeSm : size === 'lg' ? styles.sizeLg : styles.sizeMd;
 
     return (
-        <div className={styles.modal} role="dialog" aria-modal="true" aria-label={title}>
+        <div className={styles.modal} role="dialog" aria-modal="true" aria-label={title ?? ariaLabel}>
             <div className={styles.modalOverlay} onClick={onClose} />
             <div className={`${styles.modalContent} ${sizeClass} ${className || ''}`}>
                 {title ? (

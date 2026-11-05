@@ -1,18 +1,16 @@
 import { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Image from 'next/image';
+import clsx from 'clsx';
 import BaseModal from '../BaseModal';
 import {
-    Flex,
-    Button,
     TextField,
     TextAreaField,
-    Text,
-    View,
     Alert
 } from '@/components/ui';
 import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
 import { useAuth } from '@/contexts/AuthContext';
-import styles from '../styles.module.css';
+import caseStyles from '@/components/pokemon/GymBadgeCase/styles.module.css';
+import styles from './styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 import { ProfileModel } from '@/types';
 
@@ -77,6 +75,8 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
 
     const handleImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event?.target?.files?.[0];
+        // Lets the same file be picked again after removing it
+        event.target.value = '';
         if (!file) return;
         if (!file.type.startsWith('image/')) { setError('Please select an image file.'); return; }
         if (file.size > 5 * 1024 * 1024) { setError('Image size should be less than 5MB.'); return; }
@@ -132,88 +132,92 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
     };
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} title="User Profile" size="sm">
-            <Flex $direction="column" $gap="1.5rem" $padding="1.5rem">
-                {error && <Alert variation="error">{error}</Alert>}
-
-                {userProfile && (
-                    <Flex $direction="column" $gap="1.5rem">
-                        <View className={styles.profileAvatarSection} $alignItems="center" $justifyContent="center">
-                            <div className={styles.avatarContainer}>
-                                <Image
-                                    src={imagePreview || defaultAvatar}
-                                    alt={userProfile.username}
-                                    width={120}
-                                    height={120}
-                                    className={styles.profileAvatar}
-                                    style={{ objectFit: "cover" }}
+        <BaseModal
+            isOpen={isOpen}
+            onClose={onClose}
+            ariaLabel="Profile"
+            className={`${styles.modalContent} ${styles.profileModal}`}
+        >
+            {userProfile && (
+                <div className={styles.card}>
+                    <div className={styles.photoPanel}>
+                        <Image
+                            src={imagePreview || defaultAvatar}
+                            alt={userProfile.username}
+                            width={248}
+                            height={248}
+                            sizes="248px"
+                            className={styles.photo}
+                        />
+                        {isEditing && (
+                            <div className={styles.photoActions}>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleImageSelect}
+                                    accept="image/*"
+                                    hidden
+                                    aria-label="Upload profile picture"
                                 />
-                                {isEditing && (
-                                    <>
-                                        <div className={styles.avatarOverlay}>
-                                            <input
-                                                type="file"
-                                                ref={fileInputRef}
-                                                onChange={handleImageSelect}
-                                                accept="image/*"
-                                                style={{ display: 'none' }}
-                                                aria-label="Upload profile picture"
-                                            />
-                                            <Button onClick={() => fileInputRef.current?.click()} size="small" variation="link" className={styles.uploadButton}>
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                    <polyline points="17 8 12 3 7 8" />
-                                                    <line x1="12" y1="3" x2="12" y2="15" />
-                                                </svg>
-                                                <span>Upload</span>
-                                            </Button>
-                                        </div>
-                                        {imagePreview && (
-                                            <Button onClick={handleRemoveImage} size="small" variation="destructive" className={styles.removeButton}>
-                                                Remove
-                                            </Button>
-                                        )}
-                                    </>
+                                <button type="button" className={styles.photoButton} onClick={() => fileInputRef.current?.click()}>
+                                    Change photo
+                                </button>
+                                {imagePreview && (
+                                    <button type="button" className={styles.photoButton} onClick={handleRemoveImage}>
+                                        Remove
+                                    </button>
                                 )}
                             </div>
-                        </View>
+                        )}
+                    </div>
+
+                    <div className={styles.info}>
+                        <div className={styles.eyebrow}>Profile</div>
+
+                        {error && <div className={styles.error}><Alert variation="error">{error}</Alert></div>}
 
                         {isEditing ? (
-                            <Flex $direction="column" $gap="1.5rem">
+                            <div className={styles.fields}>
                                 <TextField label="Username" value={formData.username} onChange={e => handleInputChange('username', e.target.value)} placeholder="Enter username" orientation="vertical" />
-                                <TextField label="Email" value={formData.email} placeholder="Enter email" type="email" readOnly={true} disabled={true} orientation="vertical" />
                                 <TextAreaField label="Bio" value={formData.bio} onChange={e => handleInputChange('bio', e.target.value)} placeholder="Tell us about yourself" rows={3} orientation="vertical" />
-                                <div className={buttons.buttonGroup} style={{ flexDirection: 'row', gap: '1rem' }}>
-                                    <button className={buttons.retroButton} onClick={handleEditToggle}>Cancel</button>
-                                    <button onClick={handleSubmit} className={buttons.retroButton} disabled={isSaving}>Save</button>
-                                </div>
-                            </Flex>
+                            </div>
                         ) : (
-                            <Flex $direction="column" $gap="1rem">
-                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Username</Text>
-                                    <Text>{userProfile.username}</Text>
-                                </View>
-                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Email</Text>
-                                    <Text>{userProfile.email}</Text>
-                                </View>
-                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">Bio</Text>
-                                    <Text>{userProfile.bio || 'No bio yet'}</Text>
-                                </View>
-                                <View className={styles.profileDetail} $flexDirection="column" $alignItems="center">
-                                    <Text variation="secondary">OT ID</Text>
-                                    <Text>{userProfile.appTrainerId !== undefined ? userProfile.appTrainerId : 'Not yet assigned'}</Text>
-                                </View>
-                                <div className={buttons.buttonGroup}>
-                                    <button className={buttons.retroButton} onClick={handleEditToggle}>Edit Profile</button>
-                                </div>
-                            </Flex>
+                            <>
+                                <h2 className={styles.name}>{userProfile.username}</h2>
+                                <p className={clsx(styles.bio, !userProfile.bio && styles.bioEmpty)}>{userProfile.bio || 'No bio yet'}</p>
+                            </>
                         )}
-                    </Flex>
-                )}
-            </Flex>
+
+                        <dl className={`${caseStyles.felt} ${styles.idPlate}`}>
+                            <div>
+                                <dt>OT ID</dt>
+                                <dd className={styles.trainerId}>
+                                    {userProfile.appTrainerId !== undefined
+                                        ? userProfile.appTrainerId.toString().padStart(5, '0')
+                                        : 'Not yet assigned'}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt>Email</dt>
+                                <dd>{userProfile.email}</dd>
+                            </div>
+                        </dl>
+
+                        <div className={styles.actions}>
+                            {isEditing ? (
+                                <>
+                                    <button type="button" className={`${buttons.retroButton} ${styles.actionButton}`} onClick={handleEditToggle} disabled={isSaving}>Cancel</button>
+                                    <button type="button" className={`${buttons.retroButton} ${styles.actionButton}`} onClick={handleSubmit} disabled={isSaving || !formData.username.trim()}>
+                                        {isSaving ? 'Saving…' : 'Save'}
+                                    </button>
+                                </>
+                            ) : (
+                                <button type="button" className={`${buttons.retroButton} ${styles.actionButton}`} onClick={handleEditToggle}>Edit</button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </BaseModal>
     );
 };
