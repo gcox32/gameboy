@@ -1,0 +1,124 @@
+/* The same printed paper as the gym and profile cards. Its parent must be position: relative */
+.popover {
+    --popover-paper: #f7f1df;
+    --popover-ink: #2b2110;
+    --popover-ink-soft: #4a3a20;
+    --popover-ink-muted: #6f5f40;
+    --popover-line: rgba(70, 50, 20, 0.2);
+    --popover-hover: rgba(70, 50, 20, 0.08);
+    --popover-active: rgba(70, 50, 20, 0.14);
+
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 50;
+    max-width: calc(100vw - 2rem);
+    color: var(--popover-ink);
+    background:
+        radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+        var(--popover-paper);
+    border: 1px solid rgba(70, 50, 20, 0.3);
+    border-radius: 8px;
+    box-shadow:
+        0 2px 4px rgba(40, 28, 10, 0.2),
+        0 12px 28px rgba(40, 28, 10, 0.28);
+    transform-origin: top right;
+    animation: popoverOpen 120ms ease-out;
+}
+
+/* Sits outside .content, which has to clip */
+.popover::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: var(--popover-caret-right);
+    width: 12px;
+    height: 12px;
+    background: var(--popover-paper);
+    border-top: 1px solid rgba(70, 50, 20, 0.3);
+    border-left: 1px solid rgba(70, 50, 20, 0.3);
+    border-top-left-radius: 2px;
+    transform: rotate(45deg);
+}
+
+/* Keeps hover backgrounds inside the rounded corners */
+.content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 7px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--popover-line);
+}
+
+.headerTitle {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--popover-ink-muted);
+}
+
+.divider {
+    height: 1px;
+    background: var(--popover-line);
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    text-align: left;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.item:hover {
+    background: var(--popover-hover);
+}
+
+.item:active {
+    background: var(--popover-active);
+}
+
+.item:focus-visible {
+    outline: 2px solid var(--popover-ink-soft);
+    outline-offset: -2px;
+}
+
+.itemIcon {
+    display: flex;
+    flex-shrink: 0;
+    color: var(--popover-ink-muted);
+    transition: color 0.1s ease;
+}
+
+.item:hover .itemIcon {
+    color: var(--popover-ink);
+}
+
+@keyframes popoverOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.97);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .popover {
+        animation: none;
+    }
+}

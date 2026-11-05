@@ -153,6 +153,7 @@ const Nav = () => {
                                 onProfileClick={() => { openProfileModal(); setShowDropdown(false); }}
                                 onLogoutClick={() => { setShowDropdown(false); guardAction(handleLogout); }}
                                 isOpen={showDropdown}
+                                onClose={() => setShowDropdown(false)}
                             />
                         </>
                     ) : (

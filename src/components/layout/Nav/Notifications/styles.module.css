@@ -46,58 +46,31 @@
     min-height: 8px;
 }
 
-.notifPopover {
-    position: absolute;
-    top: 36px;
-    right: 0;
-    width: 320px;
-    max-height: 420px;
-    background: var(--background-color);
-    border: 1px solid var(--hover-background-color);
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 20;
-}
-
-.notifHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--hover-background-color);
-    font-weight: 600;
-    cursor: default;
-}
-
 .markReadBtn {
-    background: none;
-    border: none;
-    color: var(--link-color);
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    padding: 0.4rem;
+    color: var(--popover-ink-muted);
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.1s ease, color 0.1s ease;
 }
 
 .markReadBtn:hover:not(:disabled) {
-    background-color: var(--hover-background-color);
-    color: var(--primary-color);
+    color: var(--popover-ink);
+    background-color: var(--popover-hover);
 }
 
 .markReadBtn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    cursor: default;
 }
 
+/* Darker than the usual green, to read on paper */
 .markReadBtn.allRead {
-    color: #10b981; /* green-500 */
-    background-color: rgba(16, 185, 129, 0.1);
+    color: #1a7a55;
 }
 
 .markReadBtn svg {
@@ -107,68 +80,67 @@
 
 .notifList {
     overflow-y: auto;
-    max-height: 320px;
+    max-height: 340px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--popover-line) transparent;
 }
 
 .notifEmpty,
 .notifLoading {
-    padding: 1rem;
-    color: var(--muted-foreground-color);
+    padding: 1.5rem 1rem;
+    color: var(--popover-ink-muted);
     text-align: center;
 }
 
-.notifItem {
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--hover-background-color);
-    cursor: pointer;
+/* The list selector outranks the popover item's row layout */
+.notifList .notifItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--popover-line);
 }
 
-.notifItem.unread {
-    background: rgba(125, 211, 252, 0.08);
-    /* light cyan tint */
+.notifList .notifItem:last-child {
+    border-bottom: none;
 }
 
 .notifTitle {
+    font-weight: 500;
+    color: var(--popover-ink-muted);
+    overflow-wrap: anywhere;
+}
+
+/* Unread rows stand out through a darker title and the same dot as the bell */
+.unread .notifTitle {
     font-weight: 600;
+    color: var(--popover-ink);
+}
+
+.unread .notifTitle::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 0.5rem;
+    vertical-align: 0.1em;
+    background: #e11d48;
+    border-radius: 50%;
 }
 
 .notifBody {
-    margin-top: 4px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--popover-ink-soft);
+    overflow-wrap: anywhere;
 }
 
+/* Also used in the dark detail modal, outside the popover and its tokens */
 .notifMeta {
-    margin-top: 6px;
     font-size: 0.75rem;
-    color: var(--muted-foreground-color);
+    color: var(--popover-ink-muted, #9c8cba);
 }
 
-.loadMoreBtn {
-    background: none;
-    border: none;
-    color: var(--link-color);
-    padding: 0.75rem;
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .label {
-        display: inline-block;
-    }
-
-    .notifPopover {
-        position: fixed;
-        top: 70px;
-        right: 2vw;
-        left: 2vw;
-        width: 96vw;
-        max-height: calc(100vh - 70px);
-        border-radius: 8px;
-        border-left: none;
-        border-right: none;
-    }
-
-    .notifList {
-        max-height: calc(100vh - 70px - 42px - 48px);
-    }
+button.loadMoreBtn {
+    justify-content: center;
+    border-top: 1px solid var(--popover-line);
 }
