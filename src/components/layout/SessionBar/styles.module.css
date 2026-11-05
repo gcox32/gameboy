@@ -2,6 +2,7 @@
 .bar {
     --ink: #4a3a20;
     --ink-strong: #2b2110;
+    --button-gap: 2px;
 
     position: fixed;
     top: 50%;
@@ -10,7 +11,7 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 2px;
+    gap: var(--button-gap);
     min-width: 62px; /* fits the speed button, so the bar keeps its width when a game starts */
     padding: 6px 4px;
     color: var(--ink);
@@ -26,6 +27,7 @@
 }
 
 .button {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -38,6 +40,16 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+/* Bridges the gap up to a neighbor in the same group, so its tooltip doesn't drop out between the two */
+.bar > :not(.divider) + :not(.divider) .button::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: var(--button-gap);
 }
 
 .button:hover:not(:disabled) {
@@ -64,7 +76,7 @@
     background: rgba(70, 50, 20, 0.14);
 }
 
-/* Wide enough for saved values like 2.75x, so the bar doesn't shift between speeds */
+/* Wide enough for whole-number speeds. 0.5x and 1.5x need 64px, so they still widen the bar */
 .speedButton {
     min-width: 52px;
     padding: 0 6px;

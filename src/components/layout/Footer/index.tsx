@@ -30,7 +30,7 @@ export default function Footer() {
             </Link>
           ))}
         </div>
-        <div className={styles.footerCopyright}>
+        <div>
           {currentYear} {footerConfig.copyright}
         </div>
       </footer>

@@ -14,6 +14,7 @@ import {
     VolumeX,
 } from 'lucide-react';
 import clsx from 'clsx';
+import Tooltip from '@/components/common/Tooltip';
 import CartridgeIcon from '@/components/icons/CartridgeIcon';
 import GameManagement from '@/components/modals/GameManagement';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
@@ -25,6 +26,8 @@ import { GameModel, SaveStateModel } from '@/types';
 import styles from './styles.module.css';
 
 const ICON_SIZE = 18;
+/** Fits the longest labels, like "Exit Fullscreen" */
+const TOOLTIP_WIDTH = 210;
 
 interface BarButtonProps {
     label: string;
@@ -37,16 +40,17 @@ interface BarButtonProps {
 
 function BarButton({ label, onClick, isActive, disabled, className, children }: BarButtonProps) {
     return (
-        <button
-            type="button"
-            title={label}
-            aria-label={label}
-            onClick={onClick}
-            disabled={disabled}
-            className={clsx(styles.button, isActive && styles.active, className)}
-        >
-            {children}
-        </button>
+        <Tooltip label={label} width={TOOLTIP_WIDTH}>
+            <button
+                type="button"
+                aria-label={label}
+                onClick={onClick}
+                disabled={disabled}
+                className={clsx(styles.button, isActive && styles.active, className)}
+            >
+                {children}
+            </button>
+        </Tooltip>
     );
 }
 
