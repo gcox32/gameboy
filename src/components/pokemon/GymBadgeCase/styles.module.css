@@ -3,7 +3,7 @@
     --hinge-height: 10px;
     position: absolute;
     bottom: 180px;
-    left: 24px;
+    left: 92px; /* clears the session bar */
     width: 400px;
     padding-bottom: 102px; /* room for the open lid, which is outside the layout */
     pointer-events: none;

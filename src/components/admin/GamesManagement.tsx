@@ -11,6 +11,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import Image from 'next/image';
 import { getUsernamesForSubs } from '@/utils/usernames';
 import { useToast } from '@/components/ui';
+import { useGames } from '@/contexts/GamesContext';
 import { GameModel } from '@/types';
 
 export default function GamesManagement() {
@@ -24,6 +25,8 @@ export default function GamesManagement() {
     const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
 
     const { showToast } = useToast();
+    // An admin's own games can be among those edited here
+    const { refreshGames } = useGames();
 
     const loadGames = useCallback(async () => {
         try {
@@ -77,6 +80,7 @@ export default function GamesManagement() {
             if (!res.ok) throw new Error('Update failed');
             setEditingGame(null);
             loadGames();
+            refreshGames();
             showToast(`Saved changes to "${editingGame.title}"`, 'success');
         } catch (err) {
             setError('Failed to update game. Please try again.');
@@ -95,6 +99,7 @@ export default function GamesManagement() {
             if (!res.ok) throw new Error('Delete failed');
             showToast(`Deleted "${deletingGame.title}"`, 'success');
             setDeletingGame(null);
+            refreshGames();
             await loadGames();
         } catch (err) {
             setError('Failed to delete game. Please try again.');

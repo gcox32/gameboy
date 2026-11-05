@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import BaseModal from '../BaseModal';
-import { Flex, TextField, TextAreaField } from '@/components/ui';
-import { ImageUpload } from '@/components/common/ImageUpload';
-import { getS3Url } from '@/utils/saveLoad';
-import buttons from '@/styles/buttons.module.css';
+import { TextField, TextAreaField } from '@/components/ui';
+import paper from '../paper.module.css';
+import styles from './styles.module.css';
 
 export interface PartialSaveStateModel {
     title?: string;
     description?: string;
-    img?: string;
-    imgFile?: File;
 }
 
 interface SaveStateModalProps {
@@ -20,42 +17,30 @@ interface SaveStateModalProps {
 }
 
 function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateModalProps) {
-    const [title, setTitle] = useState(initialData?.title || '');
-    const [description, setDescription] = useState(initialData?.description || '');
-    const [imageFile, setImageFile] = useState(initialData?.img || '');
-    const [previewUrl, setPreviewUrl] = useState(initialData?.img || '');
-
-    const handleSubmit = async () => {
-        onConfirm({
-            title,
-            description,
-            img: initialData?.img || '',
-            imgFile: imageFile as unknown as File
-        });
-        onClose();
-        setTitle('');
-        setDescription('');
-        setImageFile('');
-    };
-
-    const handleImageUpload = (file: File | string) => {
-        setImageFile(file as unknown as string);
-        setPreviewUrl(file as unknown as string);
-    };
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
 
     useEffect(() => {
-        const loadImageUrl = async () => {
-            if (initialData?.img) {
-                const url = await getS3Url(initialData.img);
-                setPreviewUrl(url);
-            }
-        };
-        loadImageUrl();
-    }, [initialData?.img]);
+        if (!isOpen) return;
+        setTitle(initialData?.title || '');
+        setDescription(initialData?.description || '');
+    }, [isOpen, initialData]);
+
+    const handleSubmit = () => {
+        onConfirm({ title, description });
+        onClose();
+    };
 
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} title="Save State" size="sm">
-            <Flex $direction="column" $gap="1.25rem" $padding="1.5rem">
+        <BaseModal
+            isOpen={isOpen}
+            onClose={onClose}
+            ariaLabel="Save State"
+            size="sm"
+            className={`${paper.modalContent} ${paper.paperModal}`}
+        >
+            <h2 className={paper.modalTitle}>Save State</h2>
+            <div className={styles.form}>
                 <TextField
                     label="Title"
                     value={title}
@@ -71,13 +56,11 @@ function SaveStateModal({ isOpen, onClose, onConfirm, initialData }: SaveStateMo
                     rows={3}
                     orientation="vertical"
                 />
-                <ImageUpload onChange={handleImageUpload} value={previewUrl} />
-
-                <div className={buttons.buttonGroup} style={{ flexDirection: 'row' }}>
-                    <button className={buttons.retroButton} onClick={onClose}>Cancel</button>
-                    <button className={buttons.retroButton} onClick={handleSubmit}>Confirm</button>
+                <div className={styles.formActions}>
+                    <button type="button" className={paper.secondaryButton} onClick={onClose}>Cancel</button>
+                    <button type="button" className={paper.primaryButton} onClick={handleSubmit} disabled={!title.trim()}>Confirm</button>
                 </div>
-            </Flex>
+            </div>
         </BaseModal>
     );
 }

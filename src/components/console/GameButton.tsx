@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { defaultKeyMappings } from '@/contexts/SettingsContext';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface GameButtonProps {
     className: string;
@@ -9,14 +9,16 @@ interface GameButtonProps {
 
 function GameButton({className, button, label }: GameButtonProps) {
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+    // The emulator matches keys against the player's mappings, so a press has to send their key
+    const mapping = useSettings().uiSettings.keyMappings.find(m => m.button === button);
 
     const clickBtn = () => {
         const keyEvent = new KeyboardEvent("keydown", {
             bubbles: true,
             cancelable: true,
-            key: defaultKeyMappings.find(mapping => mapping.button === button)?.key,
+            key: mapping?.key,
             shiftKey: false,
-            keyCode: defaultKeyMappings.find(mapping => mapping.button === button)?.keyCode
+            keyCode: mapping?.keyCode
         });
         document.dispatchEvent(keyEvent);
     };
@@ -25,9 +27,9 @@ function GameButton({className, button, label }: GameButtonProps) {
         const keyEvent = new KeyboardEvent("keyup", {
             bubbles: true,
             cancelable: true,
-            key: defaultKeyMappings.find(mapping => mapping.button === button)?.key,
+            key: mapping?.key,
             shiftKey: false,
-            keyCode: defaultKeyMappings.find(mapping => mapping.button === button)?.keyCode
+            keyCode: mapping?.keyCode
         });
         document.dispatchEvent(keyEvent);
         if (intervalId) clearInterval(intervalId);

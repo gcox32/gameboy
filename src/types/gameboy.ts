@@ -305,7 +305,6 @@ export type GameBoyCoreFactory = (
 export interface EmulatorSettings {
   soundEnabled: boolean;
   speed: number;
-  mobileZoom: number;
   sound: boolean;
   bootWithROM: boolean;
   prioritizeGB: boolean;

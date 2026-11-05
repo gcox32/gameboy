@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { SaveStateModel } from '@/types';
 import { PartialSaveStateModel } from '@/components/modals/SaveStateManagement/SaveStateModal';
 import { useModalPause } from '@/hooks/useModalPause';
+import { useSettings } from '@/contexts/SettingsContext';
 
 /**
  * Shared confirmation + save-state-modal wiring for the system controls
- * (power/reset/save/save-as). Used by both the desktop ControlPanel and the
- * fullscreen icon strip so they share one set of confirmation prompts and
- * one Save State modal instead of duplicating the logic in each place.
+ * (power/reset/save/save-as), so the panel, session bar and mobile drawer
+ * share one set of confirmation prompts and one Save State modal.
  */
 interface UseSystemActionsParams {
     isRomLoaded: boolean;
@@ -32,7 +32,8 @@ export function useSystemActions({
     const [showSaveStateModal, setShowSaveStateModal] = useState(false);
     const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
     const [confirmModalMessage, setConfirmModalMessage] = useState('');
-    const [skipConfirmation, setSkipConfirmation] = useState(false);
+    const { uiSettings, updateUISettings } = useSettings();
+    const skipConfirmation = uiSettings.skipConfirmations;
     const [activeROMData, setActiveROMData] = useState<SaveStateModel | null>(null);
     const { pauseForModal, resumeAfterModal } = useModalPause(intervalPaused, handlePauseResume);
 
@@ -57,7 +58,11 @@ export function useSystemActions({
             return;
         }
         if (isEmulatorPlaying) {
-            handleActionWithConfirmation(handlePowerToggle, "Are you sure you want to turn off the game?");
+            handleActionWithConfirmation(() => {
+                // The next game starts with no save, so its first Save must ask for a name
+                setActiveROMData(null);
+                handlePowerToggle();
+            }, "Are you sure you want to turn off the game?");
         }
     };
 
@@ -92,7 +97,7 @@ export function useSystemActions({
             setShowConfirmModal(false);
         },
         skipConfirmation,
-        toggleSkipConfirmation: () => setSkipConfirmation(!skipConfirmation),
+        toggleSkipConfirmation: () => updateUISettings({ skipConfirmations: !skipConfirmation }),
     };
 
     const saveStateModalProps = {
@@ -116,6 +121,7 @@ export function useSystemActions({
     return {
         activeROMData,
         setActiveROMData,
+        handleActionWithConfirmation,
         handlePowerToggleConfirm,
         handleResetConfirm,
         handleSaveState,

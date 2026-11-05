@@ -1,0 +1,86 @@
+/* The same printed paper as the Popover. Mobile keeps these controls in its drawer. */
+.bar {
+    --ink: #4a3a20;
+    --ink-strong: #2b2110;
+
+    position: fixed;
+    top: 50%;
+    left: 14px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    min-width: 62px; /* fits the speed button, so the bar keeps its width when a game starts */
+    padding: 6px 4px;
+    color: var(--ink);
+    background:
+        radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+        #f7f1df;
+    border: 1px solid rgba(70, 50, 20, 0.3);
+    border-radius: 10px;
+    box-shadow:
+        0 2px 4px rgba(40, 28, 10, 0.2),
+        0 8px 20px rgba(40, 28, 10, 0.22);
+    transform: translateY(-50%);
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.button:hover:not(:disabled) {
+    color: var(--ink-strong);
+    background: rgba(70, 50, 20, 0.08);
+}
+
+.button:active:not(:disabled) {
+    background: rgba(70, 50, 20, 0.14);
+}
+
+.button:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: -2px;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.active {
+    color: var(--ink-strong);
+    background: rgba(70, 50, 20, 0.14);
+}
+
+/* Wide enough for saved values like 2.75x, so the bar doesn't shift between speeds */
+.speedButton {
+    min-width: 52px;
+    padding: 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.divider {
+    height: 1px;
+    margin: 4px 4px;
+    background: rgba(70, 50, 20, 0.2);
+}
+
+@media (max-width: 768px) {
+    .bar {
+        display: none;
+    }
+}

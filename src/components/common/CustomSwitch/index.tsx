@@ -10,13 +10,15 @@ interface CustomSwitchProps {
 
 const CustomSwitch = ({ label, isChecked, onChange, className }: CustomSwitchProps) => {
     return (
-        <div className={`${styles.switchContainer} ${className}`}>
-            <label>{label}</label>
-            <button 
+        <div className={`${styles.switchContainer} ${className ?? ''}`}>
+            <span>{label}</span>
+            <button
+                type="button"
                 className={`${styles.switch} ${isChecked ? styles.checked : ''}`}
                 onClick={onChange}
                 role="switch"
                 aria-checked={isChecked}
+                aria-label={label}
             >
                 <span className={styles.thumb} />
             </button>

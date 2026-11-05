@@ -9,6 +9,7 @@ import {
 } from '@/components/ui';
 import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import caseStyles from '@/components/pokemon/GymBadgeCase/styles.module.css';
 import styles from './styles.module.css';
 import buttons from '@/styles/buttons.module.css';
@@ -17,12 +18,11 @@ import { ProfileModel } from '@/types';
 interface ProfileModalProps {
     isOpen: boolean;
     onClose: () => void;
-    userProfile: ProfileModel;
-    onUpdate?: () => void;
 }
 
-const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalProps) => {
+const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     const auth = useAuth();
+    const { profile: userProfile, refreshProfile } = useProfile();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -117,12 +117,12 @@ const ProfileModal = ({ isOpen, onClose, userProfile, onUpdate }: ProfileModalPr
                 if (pendingAvatarFile && newAvatar) deleteBlob(newAvatar).catch(console.error);
                 throw new Error('Update failed');
             }
-            if (userProfile.avatar && userProfile.avatar !== newAvatar) {
+            if (userProfile?.avatar && userProfile.avatar !== newAvatar) {
                 deleteBlob(userProfile.avatar).catch(console.error);
             }
             setPendingAvatarFile(null);
             setIsEditing(false);
-            onUpdate?.();
+            refreshProfile();
         } catch (err) {
             setError('Failed to update profile. Please try again.');
             console.error(err);

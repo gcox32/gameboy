@@ -1,0 +1,36 @@
+/* Sits straight on the page, so the shadow keeps it readable over the sky and backgrounds */
+.nowPlaying {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    z-index: 5;
+    max-width: max(160px, calc(50vw - 300px));
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.game,
+.save {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.game {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.save {
+    font-size: 11px;
+    line-height: 1.6;
+    opacity: 0.85;
+}
+
+/* Mobile shows these in its drawer */
+@media (max-width: 768px) {
+    .nowPlaying {
+        display: none;
+    }
+}

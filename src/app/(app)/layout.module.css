@@ -1,0 +1,11 @@
+/* Adds no box of its own, so the pages lay out as direct children of body as before */
+.shell {
+    display: contents;
+}
+
+.shell:fullscreen,
+.shell:-webkit-full-screen {
+    display: block;
+    overflow: auto;
+    background-color: #cc9e00;
+}

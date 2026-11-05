@@ -7,15 +7,14 @@ import styles from './styles.module.css';
 interface ConsoleProps {
     isEmulatorOn: boolean;
     mainCanvasRef: RefObject<HTMLCanvasElement> | undefined;
-    mobileZoom: boolean;
 }
 
-function Console({ isEmulatorOn, mainCanvasRef, mobileZoom }: ConsoleProps) {
+function Console({ isEmulatorOn, mainCanvasRef }: ConsoleProps) {
 
     return (
         <div className={styles.consoleContainer} id={styles.console}>
             <OnLight isEmulatorOn={isEmulatorOn} />
-            <GameDisplay mainCanvasRef={mainCanvasRef} mobileZoom={mobileZoom}/>
+            <GameDisplay mainCanvasRef={mainCanvasRef} />
             <GameControls />
         </div>
     );

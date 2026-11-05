@@ -19,8 +19,8 @@
     --expanded-space: calc(100vh - var(--nav-height) - var(--label-height));
     --expanded-art-width: min(92vw - 2 * var(--margin), (var(--expanded-space) - 2 * var(--margin)) * 160 / 136);
     position: absolute;
-    top: 60px;
-    left: 60px;
+    top: 64px; /* below the game and save names */
+    left: 92px; /* clears the session bar */
     z-index: 4;
     width: calc(var(--art-width) + 2 * var(--margin));
     height: calc(var(--art-height) + 2 * var(--margin));

@@ -12,7 +12,8 @@ import FileUploadZone from '@/components/common/FileUploadZone';
 import { uploadBlob } from '@/utils/blobUpload';
 import { gameBlobDir } from '@/utils/blobPaths';
 import { GameModel } from '@/types';
-import buttons from '@/styles/buttons.module.css';
+import paper from '@/components/modals/paper.module.css';
+import styles from './styles.module.css';
 
 interface ImportGameProps {
     userId: string | undefined;
@@ -155,9 +156,9 @@ export default function ImportGame({ userId, userEmail, onSuccess, onCancel }: I
                     </div>
                 )}
 
-                <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'center' }}>
-                    <button className={buttons.retroButton} onClick={onCancel} type="button">Cancel</button>
-                    <button className={buttons.retroButton} type="submit" disabled={loading}>
+                <div className={styles.formActions}>
+                    <button className={paper.secondaryButton} onClick={onCancel} type="button">Cancel</button>
+                    <button className={paper.primaryButton} type="submit" disabled={loading}>
                         {loading ? 'Importing…' : 'Import Game'}
                     </button>
                 </div>

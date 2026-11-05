@@ -54,6 +54,7 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel,
             );
             const savePath = saveBlobPath(identity, currentGame.title, saveData.title ?? 'save', saveStateId);
             const oldFilePath = isUpdate ? saveData.filePath : '';
+            const oldImg = isUpdate ? saveData.img : '';
             const filePath = await uploadBlob(saveFile, savePath);
 
             // Upload screenshot if provided
@@ -76,6 +77,9 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel,
             // Delete old blob if the URL changed (title rename or first-ever upload)
             if (oldFilePath && oldFilePath !== filePath) {
                 deleteBlob(oldFilePath).catch(() => {});
+            }
+            if (oldImg && oldImg !== imgPath) {
+                deleteBlob(oldImg).catch(() => {});
             }
 
             return saved;

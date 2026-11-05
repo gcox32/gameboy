@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState, RefObject } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { getAppShell } from '@/lib/appShell';
 
 type FullscreenElement = HTMLElement & { webkitRequestFullscreen?: () => Promise<void> };
 type FullscreenDocument = Document & {
@@ -7,11 +8,11 @@ type FullscreenDocument = Document & {
 };
 
 /**
- * Wraps the real browser Fullscreen API (as opposed to the app's own
- * "fullscreen view" overlay toggle) for a given element, tracking whether
- * the browser is actually fullscreened so a UI icon can reflect it.
+ * Wraps the real browser Fullscreen API for the app shell, so the nav, panels,
+ * modals and toasts all stay on screen. Separate from the app's Immersive view,
+ * and tracks whether the browser is actually fullscreen so a UI icon can reflect it.
  */
-export function useBrowserFullscreen(elementRef: RefObject<HTMLDivElement | null>) {
+export function useBrowserFullscreen() {
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     useEffect(() => {
@@ -39,7 +40,7 @@ export function useBrowserFullscreen(elementRef: RefObject<HTMLDivElement | null
                 return;
             }
 
-            const elem = elementRef.current as FullscreenElement | null;
+            const elem = getAppShell() as FullscreenElement | null;
             if (!elem) return;
             if (elem.requestFullscreen) {
                 await elem.requestFullscreen();
@@ -49,7 +50,7 @@ export function useBrowserFullscreen(elementRef: RefObject<HTMLDivElement | null
         } catch (error) {
             console.error('Failed to toggle browser fullscreen:', error);
         }
-    }, [elementRef]);
+    }, []);
 
     return { isFullscreen, toggle };
 }

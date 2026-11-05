@@ -2,12 +2,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     width: 100%;
-
 }
 
 .switch {
     position: relative;
+    flex-shrink: 0;
     width: 44px;
     height: 24px;
     background-color: var(--neutral-200);

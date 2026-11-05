@@ -134,10 +134,22 @@
     overflow-wrap: anywhere;
 }
 
-/* Also used in the dark detail modal, outside the popover and its tokens */
+/* Also used in the detail modal, which has the paper modal's tokens rather than the popover's */
 .notifMeta {
     font-size: 0.75rem;
-    color: var(--popover-ink-muted, #9c8cba);
+    color: var(--popover-ink-muted, var(--ink-muted));
+}
+
+.detail {
+    padding: 1.25rem 1.75rem 1.75rem;
+}
+
+.detailBody {
+    margin: 1rem 0 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 button.loadMoreBtn {

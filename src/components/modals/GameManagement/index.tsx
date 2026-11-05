@@ -1,85 +1,68 @@
-import { useState, useEffect, useCallback, Fragment } from 'react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import BaseModal from '@/components/modals/BaseModal';
 import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
-import {
-    Flex,
-    Alert,
-    Text,
-    View,
-    Loader
-} from '@/components/ui';
+import { CartridgeShelf } from '@/components/modals/CartridgePicker';
+import paper from '@/components/modals/paper.module.css';
+import { Alert, Loader, useToast } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
-import styles from './styles.module.css';
-import ImportGame from './ImportGame';
-import GameEditForm from './GameEditForm';
-import { useToast } from '@/components/ui';
-import { getS3Url } from '@/utils/saveLoad';
+import { useGames } from '@/contexts/GamesContext';
+import { getAppShell } from '@/lib/appShell';
 import { uploadBlob } from '@/utils/blobUpload';
 import { gameBlobDir } from '@/utils/blobPaths';
 import { GameModel } from '@/types';
-import buttons from '@/styles/buttons.module.css';
+import styles from './styles.module.css';
+import ImportGame from './ImportGame';
+import GameEditForm from './GameEditForm';
 
 interface GameManagementProps {
     isOpen: boolean;
     onClose: () => void;
-    onLibraryChanged: () => void;
+    selectedGame: GameModel | null;
+    onSelect: (game: GameModel) => void;
+    /** When given, stops a game being chosen and says why. Editing stays available. */
+    chooseDisabledReason?: string;
     onGameEdited?: (updatedGame: GameModel) => void;
-    editingGame: GameModel | null;
-    setEditingGame: (game: GameModel | null) => void;
 }
 
-export default function GameManagement({ isOpen, onClose, onLibraryChanged, onGameEdited, editingGame, setEditingGame }: GameManagementProps) {
+/** The player's game library: choose, edit, import and delete games */
+export default function GameManagement({
+    isOpen,
+    onClose,
+    selectedGame,
+    onSelect,
+    chooseDisabledReason,
+    onGameEdited,
+}: GameManagementProps) {
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
     const { user } = auth;
     const { showToast } = useToast();
 
-    const [games, setGames] = useState<GameModel[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [showImport, setShowImport] = useState(false);
+    const { games, isLoading, error: gamesError, refreshGames } = useGames();
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [updateError, setUpdateError] = useState<string | null>(null);
+    const [isImporting, setIsImporting] = useState(false);
+    const [editingGame, setEditingGame] = useState<GameModel | null>(null);
+    // The game to return to on the shelf after editing, rather than the selected one
+    const [lastEditedId, setLastEditedId] = useState<string | null>(null);
     const [gameToDelete, setGameToDelete] = useState<GameModel | null>(null);
     const [skipDeleteConfirmation, setSkipDeleteConfirmation] = useState(false);
-    const [gameImages, setGameImages] = useState<Record<string, string>>({});
 
-    const loadGames = useCallback(async () => {
+    const error = updateError ?? gamesError;
+
+    const handleClose = () => {
+        setIsImporting(false);
+        setEditingGame(null);
+        setLastEditedId(null);
+        setUpdateError(null);
+        onClose();
+    };
+
+    const handleEditGame = async (gameData: GameModel & { imageFile?: File | null }) => {
         try {
-            setLoading(true);
-            setError(null);
-            const res = await fetch('/api/games');
-            if (!res.ok) throw new Error('Failed to load games');
-            setGames(await res.json());
-        } catch (err) {
-            setError('Failed to load games. Please try again.');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (isOpen && user) loadGames();
-    }, [isOpen, user, loadGames]);
-
-    useEffect(() => {
-        const loadImages = async () => {
-            const imageUrls: Record<string, string> = {};
-            for (const game of games) {
-                if (game.img) {
-                    try {
-                        imageUrls[game.id] = await getS3Url(game.img);
-                    } catch { /* ignore */ }
-                }
-            }
-            setGameImages(imageUrls);
-        };
-        if (games.length > 0) loadImages();
-    }, [games]);
-
-    const handleEditGame = async (gameData: GameModel & { imageFile?: File }) => {
-        try {
-            setLoading(true);
-            setError(null);
+            setIsUpdating(true);
+            setUpdateError(null);
 
             let imagePath = gameData.img || '';
             if (gameData.imageFile) {
@@ -101,123 +84,118 @@ export default function GameManagement({ isOpen, onClose, onLibraryChanged, onGa
             if (!res.ok) throw new Error('Update failed');
             const updated: GameModel = await res.json();
 
-            setEditingGame(null);
-            setGames(prev => prev.map(g => g.id === updated.id ? updated : g));
             onGameEdited?.(updated);
-            loadGames();
+            await refreshGames();
+            setEditingGame(null);
             showToast(`Saved changes to "${gameData.title}"`, 'success');
         } catch (err) {
             console.error(err);
-            setError('Failed to update game. Please try again.');
+            setUpdateError('Failed to update game. Please try again.');
             showToast('Failed to update game', 'error');
         } finally {
-            setLoading(false);
+            setIsUpdating(false);
         }
     };
 
     const handleDeleteGame = async (game: GameModel) => {
         try {
-            await fetch(`/api/games/${game.id}`, { method: 'DELETE' });
+            setIsUpdating(true);
+            setUpdateError(null);
+            const res = await fetch(`/api/games/${game.id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Delete failed');
             setGameToDelete(null);
+            await refreshGames();
             setEditingGame(null);
-            loadGames();
-            onLibraryChanged();
             showToast(`Deleted "${game.title}"`, 'success');
         } catch (err) {
             console.error(err);
-            setError('Failed to delete game. Please try again.');
+            setGameToDelete(null);
+            setUpdateError('Failed to delete game. Please try again.');
             showToast('Failed to delete game', 'error');
+        } finally {
+            setIsUpdating(false);
         }
     };
 
-    const renderGameCard = (game: GameModel) => (
-        <div className={styles.gameCardContainer} onClick={() => setEditingGame(game)}>
-            <div
-                className={styles.gameCardCover}
-                style={gameImages[game.id] ? { backgroundImage: `url(${gameImages[game.id]})` } : undefined}
-            >
-                {!gameImages[game.id] && (
-                    <div className={styles.gameCardPlaceholder}>
-                        <span>{game.title.charAt(0).toUpperCase()}</span>
-                    </div>
-                )}
-                <div className={styles.gameCardOverlay} />
-            </div>
-            <p className={styles.gameCardTitle}>{game.title}</p>
-        </div>
-    );
-
     const renderContent = () => {
-        if (loading) return <Loader variation="linear" />;
-        if (error) return <Alert variation="error">{error}</Alert>;
-
-        if (showImport) {
+        if (isImporting) {
             return (
-                <ImportGame
-                    userId={user?.userId}
-                    userEmail={user?.email}
-                    onSuccess={() => { setShowImport(false); loadGames(); onLibraryChanged(); }}
-                    onCancel={() => setShowImport(false)}
-                />
+                <div className={styles.modalBody}>
+                    <ImportGame
+                        userId={user?.userId}
+                        userEmail={user?.email}
+                        onSuccess={() => { setIsImporting(false); refreshGames(); }}
+                        onCancel={() => setIsImporting(false)}
+                    />
+                </div>
             );
         }
 
         if (editingGame) {
             return (
-                <>
+                <div className={styles.modalBody}>
                     <button
                         className={styles.backButton}
-                        onClick={() => setEditingGame(null)}
+                        onClick={() => { setUpdateError(null); setEditingGame(null); }}
                         type="button"
                     >
                         ← Library
                     </button>
                     <GameEditForm
                         game={editingGame}
-                        gameImgRef={gameImages[editingGame.id]}
-                        onSave={handleEditGame as (gameData: GameModel & { imageFile?: File | null }) => Promise<void>}
+                        gameImgRef={editingGame.img ?? ''}
+                        onSave={handleEditGame}
                         onDelete={(game) => {
                             if (skipDeleteConfirmation) handleDeleteGame(game);
                             else setGameToDelete(game);
                         }}
                     />
-                </>
-            );
-        }
-
-        if (games.length === 0) {
-            return (
-                <View $textAlign="center" $padding="3rem 2rem">
-                    <Text variation="secondary">No games yet. Import a ROM to get started.</Text>
-                    <div style={{ marginTop: '1.5rem' }}>
-                        <button onClick={() => setShowImport(true)} className={buttons.retroButton}>Import Game</button>
-                    </div>
-                </View>
+                </div>
             );
         }
 
         return (
-            <Flex $direction="column" $gap="1.5rem">
-                <div className={styles.gameList}>
-                    {games.map(game => <Fragment key={game.id}>{renderGameCard(game)}</Fragment>)}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <button className={buttons.retroButton} onClick={() => setShowImport(true)}>
+            <CartridgeShelf
+                games={games}
+                onSelect={onSelect}
+                selectedFilePath={selectedGame?.filePath}
+                initialGameId={lastEditedId ?? selectedGame?.id}
+                emptyMessage="No games yet. Import a ROM to get started."
+                chooseDisabledReason={chooseDisabledReason}
+                renderActions={(game) => (
+                    <button
+                        type="button"
+                        className={paper.secondaryButton}
+                        onClick={() => { setLastEditedId(game.id); setEditingGame(game); }}
+                    >
+                        Edit
+                    </button>
+                )}
+                footer={
+                    <button type="button" className={paper.secondaryButton} onClick={() => setIsImporting(true)}>
                         + Import Game
                     </button>
-                </div>
-            </Flex>
+                }
+            />
         );
     };
 
-    const modalTitle = showImport ? 'Import Game' : editingGame ? editingGame.title : 'Game Library';
+    if (!isOpen) return null;
 
-    return (
+    const modalTitle = isImporting ? 'Import Game' : editingGame ? editingGame.title : 'Game Library';
+
+    return createPortal(
         <>
-            <BaseModal isOpen={isOpen} onClose={onClose} title={modalTitle} size="lg">
-                <div className={styles.modalBody}>
-                    {renderContent()}
-                </div>
+            <BaseModal
+                isOpen={isOpen}
+                onClose={handleClose}
+                ariaLabel={modalTitle}
+                size="lg"
+                className={`${paper.modalContent} ${paper.paperModal}`}
+            >
+                <h2 className={paper.modalTitle}>{modalTitle}</h2>
+                {error && <div className={styles.error}><Alert variation="error">{error}</Alert></div>}
+                {isLoading || isUpdating ? <div className={styles.modalBody}><Loader variation="linear" /></div> : renderContent()}
             </BaseModal>
 
             <ConfirmModal
@@ -229,6 +207,8 @@ export default function GameManagement({ isOpen, onClose, onLibraryChanged, onGa
             >
                 {`Are you sure you want to delete "${gameToDelete?.title}"? This action cannot be undone.`}
             </ConfirmModal>
-        </>
+        </>,
+        // At the top of the shell, so it sits above the nav and stays visible in fullscreen
+        getAppShell() ?? document.body
     );
 }

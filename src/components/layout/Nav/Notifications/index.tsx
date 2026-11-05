@@ -5,6 +5,7 @@ import { FaBell, FaCheckDouble } from 'react-icons/fa';
 import { useRef, useState } from 'react';
 import clsx from 'clsx';
 import BaseModal from '@/components/modals/BaseModal';
+import paper from '@/components/modals/paper.module.css';
 import Popover, { PopoverHeader, PopoverItem } from '@/components/common/Popover';
 import { NotificationModel } from '@/types';
 
@@ -96,17 +97,24 @@ export default function Notifications({ toggleNotifications, isNotifOpen, unread
                     <PopoverItem className={styles.loadMoreBtn} onClick={() => fetchNotifications(notifNextToken)}>Load more</PopoverItem>
                 )}
             </Popover>
-            <BaseModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)}>
+            <BaseModal
+                isOpen={isDetailOpen}
+                onClose={() => setIsDetailOpen(false)}
+                ariaLabel={activeNotification?.title ?? 'Notification'}
+                className={`${paper.modalContent} ${paper.paperModal}`}
+            >
                 {activeNotification && (
-                    <div style={{ textAlign: 'left' }}>
-                        <h3 style={{ marginTop: 0 }}>{activeNotification.title}</h3>
-                        {activeNotification.createdAt && (
-                            <div className={styles.notifMeta}>{new Date(activeNotification.createdAt).toLocaleString()}</div>
-                        )}
-                        {activeNotification.body && (
-                            <p style={{ marginTop: '1rem', whiteSpace: 'pre-wrap' }}>{activeNotification.body}</p>
-                        )}
-                    </div>
+                    <>
+                        <h2 className={paper.modalTitle}>{activeNotification.title}</h2>
+                        <div className={styles.detail}>
+                            {activeNotification.createdAt && (
+                                <div className={styles.notifMeta}>{new Date(activeNotification.createdAt).toLocaleString()}</div>
+                            )}
+                            {activeNotification.body && (
+                                <p className={styles.detailBody}>{activeNotification.body}</p>
+                            )}
+                        </div>
+                    </>
                 )}
             </BaseModal>
         </div>

@@ -171,57 +171,6 @@
 }
 
 /* ============================================================
-   SAVE STATE MODALS
-   ============================================================ */
-
-.saveStateList {
-  overflow-x: auto;
-  padding: 0.25rem;
-  display: flex;
-  justify-content: flex-start;
-  scrollbar-width: none;
-}
-
-.saveStateList::-webkit-scrollbar {
-  display: none;
-}
-
-.saveStateBlock {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin: 1.5rem;
-  cursor: pointer;
-}
-
-.saveStateTitle {
-  font-size: 1rem;
-  font-weight: 500;
-  margin-top: 0.75rem;
-  margin-bottom: 0;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 220px;
-}
-
-.lastUpdateText {
-  font-size: 0.9rem;
-  opacity: 0.7;
-  margin: 0.2rem 0;
-}
-
-.top {
-  z-index: 20;
-}
-
-.deleteBtn {
-  margin: 0.5rem;
-  cursor: pointer;
-}
-
-/* ============================================================
    RESPONSIVE
    ============================================================ */
 
@@ -258,12 +207,4 @@
     z-index: 400;
   }
 
-  .saveStateList {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .saveStateBlock {
-    margin: 1rem;
-  }
 }

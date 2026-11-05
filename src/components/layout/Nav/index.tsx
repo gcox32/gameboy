@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import clsx from 'clsx';
 import { useAuth } from '@/contexts/AuthContext';
-import { getS3Url } from '@/utils/saveLoad';
+import { useProfile } from '@/contexts/ProfileContext';
 import ProfileModal from '@/components/modals/ProfileModal';
 import SettingsModal from '@/components/modals/SettingsModal';
 import { useProtectedNavigation } from '@/hooks/useProtectedNavigation';
@@ -12,47 +14,32 @@ import GameInterruptModal from '@/components/modals/utilities/GameInterruptModal
 import ProfilePopout from './ProfilePopout';
 import styles from './styles.module.css';
 import Notifications from './Notifications';
-import Settings from './Settings';
-import MobileFooter from './MobileFooter';
-import Friends from './Friends';
-import AdminLink from './AdminLink';
-import PlayLink from './links/PlayLink';
-import LabLink from './links/LabLink';
-import RanchLink from './links/RanchLink';
-import { NotificationModel, ProfileModel } from '@/types';
+import { NotificationModel } from '@/types';
+
+const NAV_LINKS = [
+    { href: '/play', label: 'Play' },
+    { href: '/lab', label: 'Lab' },
+    { href: '/ranch', label: 'Ranch' },
+];
 
 const Nav = () => {
+    const pathname = usePathname();
+    const router = useRouter();
     const auth = useAuth();
     if (!auth) throw new Error('Auth context not available');
 
     const { user } = auth;
-    const [userProfile, setUserProfile] = useState<ProfileModel | null>(null);
-    const [avatarUrl, setAvatarUrl] = useState(null);
+    const { profile: userProfile } = useProfile();
     const [showDropdown, setShowDropdown] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState<number>(0);
     const [notifications, setNotifications] = useState<NotificationModel[]>([]);
     const [notifNextToken, setNotifNextToken] = useState<string | null>(null);
     const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
-    const [isFriendsOpen, setIsFriendsOpen] = useState(false);
 
     const { isModalOpen, guardAction, handleStaticPageNavigation, handleContinue, handleClose } = useProtectedNavigation();
-
-    const fetchUserProfile = useCallback(async () => {
-        if (!user) return;
-        try {
-            const res = await fetch('/api/profiles');
-            if (!res.ok) return;
-            const profile: ProfileModel = await res.json();
-            setUserProfile(profile);
-            setAvatarUrl(await getS3Url(profile.avatar));
-        } catch (error) {
-            console.error('Error fetching user profile:', error);
-        }
-    }, [user]);
 
     const fetchNotifications = useCallback(async (nextToken?: string | null) => {
         if (!user) return;
@@ -108,34 +95,28 @@ const Nav = () => {
     };
 
     useEffect(() => {
-        if (user) {
-            fetchUserProfile();
-            fetchNotifications();
-        }
-    }, [user, fetchUserProfile, fetchNotifications]);
+        if (user) fetchNotifications();
+    }, [user, fetchNotifications]);
 
     return (
         <>
             <nav className={styles.navContainer}>
-                <button
-                    className={`${styles.hamburger} ${isMenuOpen ? styles.open : ''}`}
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    aria-label="Toggle menu"
-                    aria-expanded={isMenuOpen}
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <div className={`${styles.navMenu} ${isMenuOpen ? styles.open : ''}`}>
+                <div className={styles.primary}>
+                    {user && NAV_LINKS.map(({ href, label }) => (
+                        <Link
+                            key={href}
+                            href={href}
+                            className={clsx(styles.link, pathname === href && styles.active)}
+                            aria-current={pathname === href ? 'page' : undefined}
+                            onClick={(e) => handleStaticPageNavigation(e, href)}
+                        >
+                            {label}
+                        </Link>
+                    ))}
+                </div>
+                <div className={styles.actions}>
                     {user ? (
                         <>
-                            {userProfile?.admin && <AdminLink onNavigate={handleStaticPageNavigation} />}
-                            <PlayLink onNavigate={handleStaticPageNavigation} />
-                            <LabLink onNavigate={handleStaticPageNavigation} />
-                            <RanchLink onNavigate={handleStaticPageNavigation} />
-                            <Friends handleFriendsClick={() => setIsFriendsOpen(true)} />
-                            <Settings handleSettingsClick={() => setIsSettingsModalOpen(true)} />
                             <Notifications
                                 toggleNotifications={toggleNotifications}
                                 isNotifOpen={isNotifOpen}
@@ -148,25 +129,26 @@ const Nav = () => {
                             />
                             <ProfilePopout
                                 userProfile={userProfile}
-                                avatarUrl={avatarUrl}
+                                avatarUrl={userProfile?.avatar || null}
                                 onAvatarClick={() => setShowDropdown(!showDropdown)}
                                 onProfileClick={() => { openProfileModal(); setShowDropdown(false); }}
+                                onSettingsClick={() => { setIsSettingsModalOpen(true); setShowDropdown(false); }}
+                                onAdminClick={userProfile?.admin
+                                    ? () => { setShowDropdown(false); guardAction(() => router.push('/admin')); }
+                                    : undefined}
                                 onLogoutClick={() => { setShowDropdown(false); guardAction(handleLogout); }}
                                 isOpen={showDropdown}
                                 onClose={() => setShowDropdown(false)}
                             />
                         </>
                     ) : (
-                        <Link href="login" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                        <Link href="/login" className={styles.link}>Login</Link>
                     )}
-                    <MobileFooter setIsMenuOpen={setIsMenuOpen} />
                 </div>
             </nav>
             <ProfileModal
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
-                userProfile={userProfile as ProfileModel}
-                onUpdate={fetchUserProfile}
             />
             <SettingsModal
                 isOpen={isSettingsModalOpen}

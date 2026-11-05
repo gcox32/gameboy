@@ -12,10 +12,11 @@ export interface KeyMapping {
 interface UISettings {
   speed: number;
   isSoundOn: boolean;
-  mobileZoom: boolean;
   background: string;
   isDynamicBackground: boolean;
   keyMappings: KeyMapping[];
+  /** Skips the prompt before turning off, resetting or loading over a running game */
+  skipConfirmations: boolean;
 }
 
 export const defaultKeyMappings: KeyMapping[] = [
@@ -29,14 +30,19 @@ export const defaultKeyMappings: KeyMapping[] = [
   { button: "start",  keyCode: 13, key: "Enter"     } 
 ];
 
-const defaultUISettings = {
+export const defaultUISettings: UISettings = {
     speed: 1,
     isSoundOn: true,
-    mobileZoom: false,
     background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg',
     isDynamicBackground: false,
-    keyMappings: defaultKeyMappings
+    keyMappings: defaultKeyMappings,
+    skipConfirmations: false
 };
+
+const SPEED_STEPS = [0.5, 1, 1.5, 2, 4];
+
+// A speed between the steps moves on to the next one up
+export const getNextSpeed = (speed: number) => SPEED_STEPS.find(step => step > speed) ?? SPEED_STEPS[0];
 
 const SettingsContext = createContext<{
     uiSettings: UISettings;
@@ -74,7 +80,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         try {
             const savedSettings = localStorage.getItem('gameSettings');
             if (savedSettings) {
-                return JSON.parse(savedSettings);
+                // Fills in anything added since these settings were saved
+                return { ...defaultUISettings, ...JSON.parse(savedSettings) };
             }
         } catch (error) {
             console.error('Error loading settings from localStorage:', error);

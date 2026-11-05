@@ -3,7 +3,7 @@ import { Flex, Text, View, Alert, Heading } from '@/components/ui';
 import { useGame } from '@/contexts/GameContext';
 import { scanMemory, ScanResult, ScanCandidate, ScanType } from '@/utils/memoryScanner';
 import { MemoryWatcherConfig } from '@/types/states';
-import buttons from '@/styles/buttons.module.css';
+import paper from '@/components/modals/paper.module.css';
 import styles from './styles.module.css';
 
 interface MemoryScannerSectionProps {
@@ -162,10 +162,9 @@ export default function MemoryScannerSection({
                     <Heading as="h6" className={styles.scannerLabel}>{label}</Heading>
                     <button
                         type="button"
-                        className={buttons.retroButton}
+                        className={paper.secondaryButton}
                         onClick={handleScan}
                         disabled={!canScan || isScanning}
-                        style={{ padding: '0.4rem 1rem', fontSize: '0.875rem' }}
                     >
                         {isScanning ? 'Scanning...' : 'Scan Memory'}
                     </button>
@@ -210,18 +209,16 @@ export default function MemoryScannerSection({
                         <Flex $direction="row" $gap="0.5rem" $justifyContent="flex-end">
                             <button
                                 type="button"
-                                className={buttons.retroButton}
+                                className={paper.secondaryButton}
                                 onClick={handleScan}
-                                style={{ padding: '0.5rem 1rem' }}
                             >
                                 Scan Again
                             </button>
                             <button
                                 type="button"
-                                className={buttons.retroButton}
+                                className={paper.primaryButton}
                                 onClick={handleApplyConfig}
                                 disabled={!selectedCandidate}
-                                style={{ padding: '0.5rem 1rem' }}
                             >
                                 Apply
                             </button>

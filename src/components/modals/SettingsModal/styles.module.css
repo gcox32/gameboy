@@ -1,63 +1,139 @@
-.settingsSection, .desktopSettingsSection {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    padding: 0.5rem 0;
+/* The same printed paper as the Popover. The tokens below recolor the switch and key mapping controls for it. */
+.modalContent.settingsModal {
+    --ink: #2b2110;
+    --ink-soft: #4a3a20;
+    --ink-muted: #6f5f40;
+    --line: rgba(70, 50, 20, 0.2);
+
+    --neutral-200: rgba(70, 50, 20, 0.3);
+    --button-primary-bg: #4a3a20;
+    --button-primary-text: #f7f1df;
+    --border-color: var(--line);
+    --accent-color: var(--ink-soft);
+    --key-mapping-container-bg: transparent;
+    --key-mapping-bg: rgba(255, 255, 255, 0.35);
+    --key-mapping-text: var(--ink);
+    --key-mapping-dot: var(--ink-muted);
+    --key-mapping-button-bg: rgba(70, 50, 20, 0.08);
+    --key-mapping-button-hover: rgba(70, 50, 20, 0.14);
+    --key-mapping-button-active: var(--ink-soft);
+
+    max-width: 760px;
+    color-scheme: light;
+    color: var(--ink);
+    background:
+        radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+        #f7f1df;
+    border: 1px solid rgba(70, 50, 20, 0.3);
+    box-shadow:
+        0 2px 4px rgba(40, 28, 10, 0.2),
+        0 16px 40px rgba(40, 28, 10, 0.35);
 }
 
-.sectionTitle {
-    font-size: 1.1rem;
-    font-weight: 600;
+/* The modal's floating close button, which is pale by default for dark surfaces */
+.modalContent.settingsModal > button {
+    color: var(--ink-soft);
+    opacity: 0.7;
+}
+
+.modalContent.settingsModal > button:hover {
+    opacity: 1;
+}
+
+.body {
+    padding: 1.75rem;
+}
+
+/* The extra classes outrank the shared modal rule that makes headings pale for dark surfaces */
+.settingsModal .title {
+    margin: 0 0 0.5rem;
+    font-size: 1.75rem;
+    line-height: 1.2;
+    color: var(--ink);
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--line);
+}
+
+.section:first-of-type {
+    border-top: none;
+}
+
+.section:last-child {
+    padding-bottom: 0;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.settingsModal .sectionTitle {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #a990d0;
-    margin-bottom: 0.25rem;
+    color: var(--ink-muted);
+}
+
+.resetButton {
+    padding: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.resetButton:hover {
+    color: var(--ink);
 }
 
 .backgroundOptions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+    grid-template-columns: repeat(7, 1fr);
     gap: 0.75rem;
-    padding: 0.75rem 0;
 }
 
 .backgroundOption {
     aspect-ratio: 1;
-    border-radius: 8px;
-    cursor: pointer;
-    border: 3px solid #3d2f5c;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
     padding: 0;
-    box-shadow: 0 3px 0 #2a1f42;
+    border: 1px solid rgba(70, 50, 20, 0.35);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .backgroundOption:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 0 #2a1f42, 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(40, 28, 10, 0.25);
 }
 
-.backgroundOption:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    transform: none;
+.backgroundOption:focus-visible {
+    outline: 2px solid var(--ink-soft);
+    outline-offset: 2px;
 }
 
 .backgroundOption.selected {
-    border-color: #a990d0;
-    box-shadow: 0 3px 0 #2a1f42, 0 0 0 2px #a990d0;
-    transform: translateY(-1px);
+    border-color: var(--ink-soft);
+    box-shadow: 0 0 0 2px var(--ink-soft);
 }
 
-.dynamicSwitch {
-    margin-bottom: 0.5rem;
-}
-
-@media (max-width: 768px) {
-    .desktopSettingsSection {
-        display: none;
-    }
-
-    .desktop {
-        display: none;
-    }
+.dynamicOption {
+    grid-column: span 2;
+    aspect-ratio: auto;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.25;
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.35);
 }

@@ -1,0 +1,128 @@
+/*
+ * The printed paper surface for modals. Pass `modalContent paperModal` to BaseModal,
+ * and leave out its title, since its header bar is styled for dark surfaces.
+ */
+.modalContent.paperModal {
+    --ink: #2b2110;
+    --ink-soft: #4a3a20;
+    --ink-muted: #6f5f40;
+    --line: rgba(70, 50, 20, 0.2);
+    --line-strong: rgba(70, 50, 20, 0.35);
+    --hover: rgba(70, 50, 20, 0.08);
+
+    /* Recolors the shared inputs and upload zones */
+    --foreground-rgb: var(--ink);
+    --background-color: #f7f1df;
+    --border-color: var(--line-strong);
+    --hover-background-color: var(--hover);
+    --surface-color: rgba(255, 255, 255, 0.5);
+    --accent-color: var(--ink-soft);
+
+    color-scheme: light;
+    color: var(--ink);
+    background:
+        radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+        #f7f1df;
+    border: 1px solid rgba(70, 50, 20, 0.3);
+    box-shadow:
+        0 2px 4px rgba(40, 28, 10, 0.2),
+        0 16px 40px rgba(40, 28, 10, 0.35);
+}
+
+/* The modal's floating close button, which is pale by default for dark surfaces */
+.modalContent.paperModal > button {
+    color: var(--ink-soft);
+    opacity: 0.7;
+}
+
+.modalContent.paperModal > button:hover {
+    opacity: 1;
+}
+
+/* These outrank the shared modal rules that style forms and headings for dark surfaces */
+.modalContent.paperModal input,
+.modalContent.paperModal textarea,
+.modalContent.paperModal select {
+    background-color: rgba(255, 255, 255, 0.55) !important;
+    color: var(--ink) !important;
+    border-color: var(--line-strong) !important;
+}
+
+.modalContent.paperModal input::placeholder,
+.modalContent.paperModal textarea::placeholder {
+    color: var(--ink-muted);
+}
+
+.modalContent.paperModal input:focus,
+.modalContent.paperModal textarea:focus,
+.modalContent.paperModal select:focus {
+    border-color: var(--ink-soft) !important;
+    outline-color: var(--ink-soft) !important;
+}
+
+.modalContent.paperModal label {
+    color: var(--ink-soft) !important;
+}
+
+.modalContent.paperModal h1,
+.modalContent.paperModal h2,
+.modalContent.paperModal h3,
+.modalContent.paperModal h4,
+.modalContent.paperModal h5,
+.modalContent.paperModal h6 {
+    color: var(--ink);
+}
+
+.modalTitle {
+    margin: 0;
+    padding: 1.25rem 3.5rem 1rem 1.75rem;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    border-bottom: 1px solid var(--line);
+}
+
+.primaryButton,
+.secondaryButton {
+    padding: 0.55rem 1.2rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.primaryButton {
+    color: #f7f1df;
+    background: var(--ink-soft);
+    border: 1px solid var(--ink-soft);
+}
+
+.primaryButton:hover:not(:disabled) {
+    background: var(--ink);
+    border-color: var(--ink);
+}
+
+.secondaryButton {
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--line-strong);
+}
+
+.secondaryButton:hover:not(:disabled) {
+    background-color: var(--hover);
+    border-color: var(--ink-soft);
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible {
+    outline: 2px solid var(--ink-soft);
+    outline-offset: 2px;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

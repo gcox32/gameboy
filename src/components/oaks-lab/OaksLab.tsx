@@ -7,10 +7,11 @@ import { dexDict } from '@/utils/pokemon/dicts';
 import { TextEncoder as Gen1TextEncoder } from '@/utils/sramParser';
 import { RanchPokemon } from '@/components/ranch/types';
 import { GameModel, SaveStateModel } from '@/types';
+import { useGames } from '@/contexts/GamesContext';
 import styles from './styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 import ConnectModal from './ConnectModal';
-import CartridgePickerModal from '@/components/layout/ControlPanel/Cartridges/CartridgePickerModal';
+import CartridgePickerModal from '@/components/modals/CartridgePicker';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -649,14 +650,7 @@ function PortInTab({ games }: { games: GameModel[] }) {
 
 export default function OaksLab() {
     const [tab, setTab] = useState<'extract' | 'port'>('extract');
-    const [games, setGames] = useState<GameModel[]>([]);
-
-    useEffect(() => {
-        fetch('/api/games')
-            .then(r => r.json())
-            .then(setGames)
-            .catch(() => {});
-    }, []);
+    const { games } = useGames();
 
     return (
         <div className={styles.page}>

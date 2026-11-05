@@ -235,15 +235,6 @@
   }
 }
 
-@media screen and (max-width: 568px) {
-  #GameBoy.zoom {
-    width: 100vw;
-    height: calc(100vw * (286 / 321));
-    left: 44px !important;
-    top: 34px !important;
-  }
-}
-
 @media screen and (max-width: 400px) {
   .consoleContainer {
     /* On very small screens, prioritize width */
@@ -277,13 +268,6 @@
     height: calc(252px * (286 / 321));
     position: relative;
     transition: 200ms all ease-in-out;
-  }
-
-  #GameBoy.zoom {
-    width: 100vw;
-    height: calc(100vw * (286 / 321));
-    left: 0 !important;
-    top: 11px !important;
   }
 
   #onLight {

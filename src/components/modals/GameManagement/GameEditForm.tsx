@@ -9,7 +9,7 @@ import { GameModel } from '@/types';
 import { MemoryWatcherConfig } from '@/types/states';
 import { getPresetByRomTitle, getDefaultPreset } from '@/data/memoryPresets';
 import MemoryScannerSection from './MemoryScannerSection';
-import buttons from '@/styles/buttons.module.css';
+import paper from '@/components/modals/paper.module.css';
 import styles from './styles.module.css';
 
 interface GameEditFormProps {
@@ -221,22 +221,22 @@ export default function GameEditForm({ game, gameImgRef, onSave, onDelete }: Gam
                 </div>
             </div>
 
-            <div className={buttons.buttonGroup} style={{ marginTop: '1rem', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <button
-                        className={buttons.retroButton}
-                        onClick={() => onDelete(game)}
-                        type="button"
-                    >
-                        Delete Game
-                    </button>
-                    <button
-                        className={buttons.retroButton}
-                        type="submit"
-                        disabled={loading}
-                    >
-                        Save Changes
-                    </button>
-                </div>
+            <div className={styles.formActions}>
+                <button
+                    className={paper.secondaryButton}
+                    onClick={() => onDelete(game)}
+                    type="button"
+                >
+                    Delete Game
+                </button>
+                <button
+                    className={paper.primaryButton}
+                    type="submit"
+                    disabled={loading}
+                >
+                    Save Changes
+                </button>
+            </div>
         </form>
     );
 }

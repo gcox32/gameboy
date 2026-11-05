@@ -1,7 +1,7 @@
 'use client';
 
 import { RefObject, useRef, useEffect, useCallback } from 'react';
-import { defaultKeyMappings } from '@/contexts/SettingsContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import styles from './styles.module.css';
 
 interface MobileConsoleProps {
@@ -23,7 +23,8 @@ function TouchButton({
     const divRef = useRef<HTMLDivElement>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    const mapping = defaultKeyMappings.find(m => m.button === button);
+    // The emulator matches keys against the player's mappings, so a press has to send their key
+    const mapping = useSettings().uiSettings.keyMappings.find(m => m.button === button);
 
     const dispatchKey = useCallback((type: 'keydown' | 'keyup') => {
         if (!mapping) return;

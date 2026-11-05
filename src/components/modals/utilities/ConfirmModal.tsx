@@ -1,11 +1,8 @@
 import { ReactNode } from "react";
 import BaseModal from "../BaseModal";
-import {
-    Flex,
-    CheckboxField,
-    Text
-} from '@/components/ui';
-import buttons from '@/styles/buttons.module.css';
+import { CheckboxField } from '@/components/ui';
+import paper from '../paper.module.css';
+import styles from './styles.module.css';
 
 interface ConfirmModalProps {
     isOpen: boolean;
@@ -25,14 +22,16 @@ function ConfirmModal({
     toggleSkipConfirmation
 }: ConfirmModalProps) {
     return (
-        <BaseModal isOpen={isOpen} onClose={onClose} title="Confirm" size="sm">
-            <Flex $direction="column" $gap="1.5rem" $padding="1.5rem" $alignItems="center">
-                <Text textAlign="center">{children}</Text>
-
-                <div className={buttons.buttonGroup} style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <button className={buttons.retroButton} onClick={onClose}>Cancel</button>
-                    <button className={buttons.retroButton} onClick={onConfirm}>Confirm</button>
-                </div>
+        <BaseModal
+            isOpen={isOpen}
+            onClose={onClose}
+            ariaLabel="Confirm"
+            size="sm"
+            className={`${paper.modalContent} ${paper.paperModal}`}
+        >
+            <h2 className={paper.modalTitle}>Confirm</h2>
+            <div className={styles.body}>
+                <p className={styles.message}>{children}</p>
 
                 <CheckboxField
                     label="Don't ask me again"
@@ -40,11 +39,15 @@ function ConfirmModal({
                     value="skip"
                     checked={skipConfirmation}
                     onChange={toggleSkipConfirmation}
-                    justifyContent="center"
                     alignItems="center"
                     labelPosition="end"
                 />
-            </Flex>
+
+                <div className={styles.actions}>
+                    <button type="button" className={paper.secondaryButton} onClick={onClose}>Cancel</button>
+                    <button type="button" className={paper.primaryButton} onClick={onConfirm}>Confirm</button>
+                </div>
+            </div>
         </BaseModal>
     );
 }
