@@ -16,7 +16,11 @@ interface UseSystemActionsParams {
     handlePowerToggle: () => void;
     handleReset: () => void;
     handlePauseResume: () => void;
-    onSaveConfirmed: (saveData: SaveStateModel, isSaveAs: boolean) => Promise<void>;
+    onSaveConfirmed: (
+        saveData: SaveStateModel,
+        isUpdate: boolean,
+        expectedFilePath?: string,
+    ) => Promise<{ currentFilePath: string } | void>;
 }
 
 export function useSystemActions({
@@ -35,6 +39,8 @@ export function useSystemActions({
     const { uiSettings, updateUISettings } = useSettings();
     const skipConfirmation = uiSettings.skipConfirmations;
     const [activeROMData, setActiveROMData] = useState<SaveStateModel | null>(null);
+    // A save that wasn't written because the file changed, waiting on the player's choice
+    const [saveConflict, setSaveConflict] = useState<{ saveData: SaveStateModel; currentFilePath: string } | null>(null);
     const { pauseForModal, resumeAfterModal } = useModalPause(intervalPaused, handlePauseResume);
 
     const handleActionWithConfirmation = (action: () => void, message: string) => {
@@ -70,7 +76,11 @@ export function useSystemActions({
         if (!isRomLoaded || !isEmulatorPlaying) return;
         if (activeROMData) {
             try {
-                await onSaveConfirmed(activeROMData, true);
+                const conflict = await onSaveConfirmed(activeROMData, true);
+                if (conflict) {
+                    pauseForModal();
+                    setSaveConflict({ saveData: activeROMData, ...conflict });
+                }
             } catch (error) {
                 console.error('Error during save:', error);
             }
@@ -118,6 +128,32 @@ export function useSystemActions({
         initialData: activeROMData as PartialSaveStateModel,
     };
 
+    // Not covered by skipConfirmations: saving over a changed file can undo the Lab's moves.
+    const saveConflictModalProps = {
+        isOpen: saveConflict !== null,
+        onClose: () => {
+            setSaveConflict(null);
+            resumeAfterModal();
+        },
+        onSaveOver: async () => {
+            if (!saveConflict) return;
+            const { saveData, currentFilePath } = saveConflict;
+            const conflict = await onSaveConfirmed(saveData, true, currentFilePath);
+            if (conflict) {
+                // Changed yet again while the player was deciding, so ask again
+                setSaveConflict({ saveData, ...conflict });
+                return;
+            }
+            setSaveConflict(null);
+            resumeAfterModal();
+        },
+        // Already paused, and closing the Save State modal resumes
+        onSaveAsNew: () => {
+            setSaveConflict(null);
+            setShowSaveStateModal(true);
+        },
+    };
+
     return {
         activeROMData,
         setActiveROMData,
@@ -129,5 +165,6 @@ export function useSystemActions({
         confirmModalMessage,
         confirmModalProps,
         saveStateModalProps,
+        saveConflictModalProps,
     };
 }

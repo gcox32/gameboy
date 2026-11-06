@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { User, SaveState, Game } from '@/models';
-import { loadGen1Save, storeSave } from '@/lib/saveFile';
+import { SAVE_CHANGED_MESSAGE, commitSave, loadGen1Save, removeBlob, uploadSave } from '@/lib/saveFile';
 import { stampTrainerId } from '@/utils/sramWriter';
 
 type Params = { params: Promise<{ id: string }> };
@@ -56,11 +56,15 @@ export async function POST(_req: NextRequest, { params }: Params) {
 
     // Stamp appTrainerId into Player ID field and all existing Pokémon OT IDs
     const sram = stampTrainerId(loaded.sram, appTrainerId);
-    await storeSave(saveState, sram, {
+    const newFilePath = await uploadSave(saveState, sram, {
         identity: session.user.email ?? session.user.id,
         gameTitle: game?.title ?? 'game',
-        alsoSet: { connected: true },
     });
+    if (!await commitSave(saveState, newFilePath, { connected: true })) {
+        await removeBlob(newFilePath);
+        return NextResponse.json({ error: SAVE_CHANGED_MESSAGE }, { status: 409 });
+    }
+    await removeBlob(saveState.filePath);
 
     const updated = await SaveState.findById(id);
     return NextResponse.json({ saveState: updated!.toJSON(), appTrainerId });

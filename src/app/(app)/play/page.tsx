@@ -11,6 +11,7 @@ import MobileControls from '@/components/mobile/MobileControls';
 import MobileConsole from '@/components/mobile/MobileConsole';
 import ConfirmModal from '@/components/modals/utilities/ConfirmModal';
 import SaveStateModal from '@/components/modals/SaveStateManagement/SaveStateModal';
+import SaveConflictModal from '@/components/modals/SaveStateManagement/SaveConflictModal';
 import styles from './play.module.css';
 import SkyBackground from '@/components/layout/SkyBackground';
 import { TRANSITION_DURATION } from '@/lib/transition';
@@ -22,6 +23,7 @@ function PlayScreen() {
 		confirmModalMessage,
 		confirmModalProps,
 		saveStateModalProps,
+		saveConflictModalProps,
 	} = useEmulator();
 	const skyContainerRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +75,7 @@ function PlayScreen() {
 					onConfirm={saveStateModalProps.onConfirm}
 					initialData={saveStateModalProps.initialData}
 				/>
+				<SaveConflictModal {...saveConflictModalProps} />
 			</div>
 		</SkyBackground>
 	);

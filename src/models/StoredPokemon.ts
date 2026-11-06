@@ -19,8 +19,14 @@ export interface IStoredPokemon extends Document {
     level: number;
     rawBoxData: Buffer;
     extractedAt: Date;
-    status: 'stashed' | 'in_game';
-    currentGameId?: mongoose.Types.ObjectId;
+    status: 'stashed' | 'transferring';
+    transfer?: {
+        direction: 'to_ranch' | 'to_save';
+        saveStateId: mongoose.Types.ObjectId;
+        fromFilePath: string;
+        toFilePath: string;
+        startedAt: Date;
+    };
 }
 
 const StoredPokemonSchema = new Schema<IStoredPokemon>(
@@ -45,8 +51,21 @@ const StoredPokemonSchema = new Schema<IStoredPokemon>(
         level: { type: Number, required: true },
         rawBoxData: { type: Buffer, required: true },
         extractedAt: { type: Date, required: true },
-        status: { type: String, enum: ['stashed', 'in_game'], default: 'stashed' },
-        currentGameId: { type: Schema.Types.ObjectId, ref: 'Game' },
+        // A record means the Pokémon is at the Ranch. It's deleted once the Pokémon is in a
+        // save, which is then the source of truth. `transferring` is only held mid-move.
+        status: { type: String, enum: ['stashed', 'transferring'], default: 'stashed' },
+        transfer: {
+            type: new Schema(
+                {
+                    direction: { type: String, enum: ['to_ranch', 'to_save'], required: true },
+                    saveStateId: { type: Schema.Types.ObjectId, ref: 'SaveState', required: true },
+                    fromFilePath: { type: String, required: true },
+                    toFilePath: { type: String, required: true },
+                    startedAt: { type: Date, required: true },
+                },
+                { _id: false },
+            ),
+        },
     },
     { timestamps: true, toJSON: { virtuals: true } }
 );

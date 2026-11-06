@@ -76,6 +76,40 @@ Related docs: [OAKS_LAB.md](OAKS_LAB.md) (original plan), [OAKS_LAB_IMPL.md](OAK
 
 **Fix:** `stampTrainerId` stamps it when `0x2CF4` is set, and now also writes the checksum itself.
 
+### 4. Failures part way, and requests at once (high)
+
+**Was:** a failure between the save write and the Ranch write duplicated Pokémon, simultaneous requests overwrote each other, and slots were only indexes, so a request made from a stale page could take the wrong Pokémon.
+
+**Fix:** `src/lib/pokemonTransfer.ts`.
+- Each write gets a unique URL, so `filePath` is the version. `commitSave()` only applies if the save still has the file it was read from, otherwise the request gets a 409.
+- The extract request sends the file its slots were read from, and all slots are checked before anything is changed.
+- A port atomically claims the record, so only one port of a Pokémon can succeed.
+- Records hold `status: 'transferring'` across the gap, with the save's URL before and after. `recoverStaleTransfers()` runs when the Ranch is listed and settles any older than 5 minutes. If the outcome can't be determined it keeps the Pokémon, because a duplicate is better than a loss.
+
+**Rare case left:** if a request dies mid-transfer and the save is then written again before recovery runs, the outcome can't be determined and the Pokémon stays at the Ranch, so it may also be in the save.
+
+### 16. An open game could overwrite the Lab's changes (high)
+
+**Was:** emulator saves used one fixed URL (`save.sav`, overwritten in place) and an unconditional `PUT`. A game open in a second tab or device could undo Lab moves, and because the URL didn't change, the Lab's own version check couldn't see those saves.
+
+**Fix:** emulator uploads now get unique URLs, so every write changes `filePath`. `PUT` needs `expectedFilePath` to change the file and returns a 409 with `currentFilePath` if it's out of date (`updateSaveRecord()`). The game then pauses and `SaveConflictModal` offers Save as new, Save over it or Cancel. It ignores the skip-confirmations setting, because saving over a changed file can undo the Lab's moves.
+
+### 10. `filePath` wasn't validated (medium)
+
+**Was:** `POST` and `PUT /api/save-states` accepted any `filePath`, which the Lab routes then fetched on the server and deleted with the Blob token. That allowed server-side requests to arbitrary URLs and deleting another user's save if its URL was known.
+
+**Fix:** `isUserSaveUrl()` in `blobPaths.ts` only accepts https URLs in our public blob store and in that user's own folder. Admins are exempt, as on the blob routes, and an unchanged value is allowed.
+
+### 8. Ported Pokémon stayed `in_game` forever (medium)
+
+**Decision:** a record means the Pokémon is at the Ranch. It's deleted on port, and the save becomes the only source of truth, which in-save editing also depends on. `in_game` and `currentGameId` are gone. A history of transfers, if ever wanted, should be a separate log.
+
+**Existing data:** `scripts/delete-in-game-pokemon.mjs` removes old `in_game` records. It only lists them unless passed `--apply`.
+
+### 11. Ports between different games (decided)
+
+**Decision:** moving Pokémon between games is the point of the feature, so ports stay open with no block or warning. If a hack's moves or species ever cause problems in a target game, handle it during the port, for example by replacing unknown moves. Move and species constants do differ between builds (against pokered, by 36 and 13 diff lines in pureRGB, 4 and 6 in true-yellow).
+
 ---
 
 ## Still open
@@ -86,39 +120,12 @@ Ordered by recommended priority.
 
 Each box bank has a checksum over all its boxes plus one per box: bank 2 at `0x5A4C` (whole bank) and `0x5A4D–0x5A52` (boxes 1–6), bank 3 the same at `0x7A4C+`. `clearSlot`, `injectPokemon`, `stampTrainerId` and `syncCurrentBoxToBanked` all write to banked boxes without updating them. pokered's `save.asm` only writes these and never checks them on load, so this doesn't affect the game. External save tools may still object (not tested).
 
-### 4. A failure halfway through, or two requests at once — duplication
-
-- Requests identify a Pokémon only by slot index, so if the save changed in another tab the wrong one is taken. Send the expected species too.
-- An empty slot throws mid-batch, after earlier Ranch records were created.
-- `POST /api/pokemon/stored` creates the Ranch records *before* uploading the updated save. If `put()` fails, the Pokémon exist in both the Ranch and the save.
-- `POST /api/pokemon/stored/[id]/port` uploads the save *before* saving the record. If `pokemon.save()` fails, the Pokémon is in the save and still `stashed` in the Ranch, so it can be ported again.
-- There's no locking. Two requests against the same save at once both read the same file, and the last upload wins. That can duplicate or lose Pokémon.
-
-**Direction:** upload the save file first, then write the Ranch records, and on failure undo the file change (point `filePath` back at the old file). For requests running at once, add an optimistic version check (e.g. a `version` field on `SaveState`, updated with a conditional `updateOne`).
-
-### 8. Ported Pokémon stay `in_game` forever
-
-After a port the record is marked `in_game` with `currentGameId`. If the same Pokémon is later sent back to the Ranch, a *new* record is created and the old one stays `in_game` for good. `DELETE` refuses to release `in_game` records, so they pile up and can never be removed.
-
-**Decide:** what does `in_game` mean? Options:
-- Delete the record on port (the save file becomes the only copy, and the Ranch only shows what's stashed).
-- When extracting, find a matching `in_game` record (same user, species, OT ID, DVs, experience) and reuse it instead of creating a new one.
-
-### 10. `filePath` isn't validated
-
-`POST` and `PUT /api/save-states` accept any `filePath`. The Lab routes then fetch that URL on the server and delete it with the Blob token, which allows server-side requests to arbitrary URLs and deleting another user's save if its URL is known. Restrict it to our own blob host and the user's path.
-
-### 11. Ports between different games aren't checked
-
-Move and species constants differ between builds (against pokered, by 36 and 13 diff lines in pureRGB, 4 and 6 in true-yellow), so a port can carry moves the target game doesn't have. A Pikachu ported into Yellow with the player's OT name may also count as the starter (`IsThisMonStarterPikachu` compares species, OT ID and OT name), and stamping makes the OT IDs match. **Decide:** warn or block.
-
 ### 12. Lab UI
 
-- `selectedSave.filePath` is stale after Connect, so the first load uses the deleted file. Use `currentSave`.
 - `portedSave` isn't cleared when switching saves, so old data appears under the new title.
 - Occupancy counts displayable Pokémon while the server uses the count byte.
 - The Take tab says to connect but has no Connect button.
-- A network error leaves "Sending..." stuck, and box selection resets after every send.
+- A network error leaves the port button stuck on "Sending...", and box selection resets after every send.
 - Release removes the Pokémon from the Ranch even if the delete failed.
 - The party check ignores whether the remaining Pokémon are fainted, or the only one with Surf or Cut.
 - Save As creates an unconnected save even though it's already stamped.
@@ -126,7 +133,6 @@ Move and species constants differ between builds (against pokered, by 36 and 13 
 
 ### Other notes
 
-- **An open game session can overwrite the Lab's changes.** This needs a second tab or device, because `EmulatorProvider` lives in the `/play` page and unmounts when you navigate to the Lab. The emulator saves via `PUT /api/save-states/[id]` with a new `filePath`. If a game is open while the Lab changes the same save, the next in-game save overwrites the Lab's edits. Extracted Pokémon reappear (duplicates) or ported ones disappear. This needs a decision about how the emulator and the Lab share a save (lock the save while a game session has it open, or check versions on `PUT`).
 - **Pokédex flags.** Porting in doesn't set the owned/seen bits (`0x25A3` owned, `0x25B6` seen) for the species. Trading in the real game sets them.
 - **Modded games.** `BASE_STATS` comes from vanilla Gen 1. Modded games (e.g. true-yellow) may have different base stats, so party stats written on port-in won't match the game. The game recalculates them on level up or box withdrawal, so the effect is temporary.
 - **`SRAMParser` byte order.** `readUint16` / `readUint24` read low byte first, but every multi-byte field inside a Pokémon (HP, OT ID, experience, stat experience, DVs, party stats) and the Player ID are stored high byte first. Nothing in the Lab or Ranch depends on these parsed values right now (they use their own byte reads), but anything that reads them later will get wrong numbers.

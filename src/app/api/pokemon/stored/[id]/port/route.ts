@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { User, SaveState, StoredPokemon, Game } from '@/models';
-import { loadGen1Save, storeSave } from '@/lib/saveFile';
+import { portToSave } from '@/lib/pokemonTransfer';
+import { SAVE_CHANGED_MESSAGE, loadGen1Save } from '@/lib/saveFile';
 import { BOX_UNAVAILABLE_MESSAGE, isSlotAvailable, isValidSlot } from '@/utils/pokemon/gen1Save';
 import { encodeNameString } from '@/utils/sramParser';
 import { hasTrainerId, injectPokemon, stampTrainerId } from '@/utils/sramWriter';
 
 type Params = { params: Promise<{ id: string }> };
+
+const NOT_AT_RANCH_MESSAGE = 'That Pokémon is no longer at the Ranch.';
 
 export async function POST(req: NextRequest, { params }: Params) {
     const session = await auth();
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest, { params }: Params) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     if (pokemon.status !== 'stashed') {
-        return NextResponse.json({ error: 'Pokémon is not currently stashed at the Ranch' }, { status: 422 });
+        return NextResponse.json({ error: NOT_AT_RANCH_MESSAGE }, { status: 409 });
     }
 
     const saveState = await SaveState.findById(targetSaveStateId);
@@ -82,19 +85,21 @@ export async function POST(req: NextRequest, { params }: Params) {
         return NextResponse.json({ error: msg }, { status: 422 });
     }
 
-    const updatedFilePath = await storeSave(saveState, patched, {
-        identity: session.user.email ?? session.user.id,
-        gameTitle: game?.title ?? 'game',
+    const result = await portToSave({
+        pokemonId: pokemon._id,
+        userId: session.user.id,
+        saveState,
+        patched,
+        owner: { identity: session.user.email ?? session.user.id, gameTitle: game?.title ?? 'game' },
     });
-
-    pokemon.status = 'in_game';
-    pokemon.currentGameId = saveState.gameId;
-    pokemon.rawBoxData = Buffer.from(rawBoxData);
-    await pokemon.save();
+    if (!result.ok) {
+        return result.reason === 'save_changed'
+            ? NextResponse.json({ error: SAVE_CHANGED_MESSAGE }, { status: 409 })
+            : NextResponse.json({ error: NOT_AT_RANCH_MESSAGE }, { status: 409 });
+    }
 
     return NextResponse.json({
-        pokemon: pokemon.toJSON(),
         updatedSaveStateId: saveState.id,
-        updatedFilePath,
+        updatedFilePath: result.updatedFilePath,
     });
 }

@@ -4,12 +4,15 @@
  * Upload a file to Vercel Blob via the /api/blob/upload route.
  * @param file  The File object to upload.
  * @param path  The blob pathname, e.g. "games/{userId}/{gameId}/cover.jpg"
+ * @param options.unique  Give this upload its own URL instead of replacing the file at
+ *                        that path. Save files need this: their URL is their version.
  * @returns     The permanent public URL of the uploaded blob.
  */
-export async function uploadBlob(file: File, path: string): Promise<string> {
+export async function uploadBlob(file: File, path: string, options: { unique?: boolean } = {}): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('path', path);
+    if (options.unique) formData.append('unique', 'true');
 
     const res = await fetch('/api/blob/upload', { method: 'POST', body: formData });
     if (!res.ok) {

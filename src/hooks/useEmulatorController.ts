@@ -3,7 +3,7 @@ import { fetchUserSaveStates, loadInGameFile } from '@/utils/saveLoad';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSaveState } from '@/hooks/useSaveState';
+import { useSaveState, SaveConflictError } from '@/hooks/useSaveState';
 import { useBrowserFullscreen } from '@/hooks/useBrowserFullscreen';
 import { useSystemActions } from '@/hooks/useSystemActions';
 import { useToast } from '@/components/ui';
@@ -282,7 +282,15 @@ export function useEmulatorController() {
         setIsFullscreen(!isFullscreen);
     }, [isFullscreen, gameBoyInstance]);
 
-    const onSaveConfirmed = async (saveModalData: SaveStateModel, isUpdate = false) => {
+    /**
+     * Returns the save's current file if it has changed since this session read it, so
+     * nothing was saved. `expectedFilePath` saves over that file, once the player has chosen to.
+     */
+    const onSaveConfirmed = async (
+        saveModalData: SaveStateModel,
+        isUpdate = false,
+        expectedFilePath?: string,
+    ): Promise<{ currentFilePath: string } | void> => {
         if (!gameBoyInstance.current || !activeROM || !isEmulatorPlaying) return;
 
         // First, before the game moves on while the save uploads
@@ -294,7 +302,7 @@ export function useEmulatorController() {
             const saveData: SaveStateModel = isUpdate ? {
                 ...saveModalData,
                 id: activeState?.id,
-                filePath: activeState?.filePath || '',
+                filePath: expectedFilePath ?? activeState?.filePath ?? '',
                 img: activeState?.img,
                 imgFile,
             } : { ...saveModalData, imgFile };
@@ -315,6 +323,11 @@ export function useEmulatorController() {
                 throw new Error('Save operation failed');
             }
         } catch (error) {
+            if (error instanceof SaveConflictError) {
+                // Load State should offer what's there now
+                setUserSaveStates(await fetchUserSaveStates(currentUser?.userId, activeROM.id));
+                return { currentFilePath: error.currentFilePath };
+            }
             console.error('Save failed:', error);
             const message = error instanceof Error ? error.message : 'Save operation failed';
             showToast(`Save failed: ${message}`, 'error');
@@ -333,6 +346,7 @@ export function useEmulatorController() {
         confirmModalMessage,
         confirmModalProps,
         saveStateModalProps,
+        saveConflictModalProps,
     } = useSystemActions({
         isRomLoaded,
         isEmulatorPlaying,
@@ -621,5 +635,6 @@ export function useEmulatorController() {
         confirmModalMessage,
         confirmModalProps,
         saveStateModalProps,
+        saveConflictModalProps,
     };
 }

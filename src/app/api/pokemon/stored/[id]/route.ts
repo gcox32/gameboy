@@ -37,10 +37,11 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     if (pokemon.userId.toString() !== session.user.id) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    if (pokemon.status === 'in_game') {
-        return NextResponse.json({ error: 'Cannot release a Pokémon that is currently in a game' }, { status: 422 });
-    }
 
-    await pokemon.deleteOne();
+    // Conditional so a release can't race a port of the same Pokémon
+    const { deletedCount } = await StoredPokemon.deleteOne({ _id: id, status: 'stashed' });
+    if (!deletedCount) {
+        return NextResponse.json({ error: 'That Pokémon is being moved right now' }, { status: 409 });
+    }
     return NextResponse.json({ success: true });
 }

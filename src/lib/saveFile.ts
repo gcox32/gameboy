@@ -5,6 +5,9 @@ import type { IGame } from '@/models/Game';
 import { validateGen1Save } from '@/utils/pokemon/gen1Save';
 import { saveBlobPath } from '@/utils/blobPaths';
 
+// An object so tests can replace blob storage
+export const blobStore = { put, del };
+
 export type LoadedSave =
     | { sram: Uint8Array; error?: undefined; status?: undefined }
     | { sram?: undefined; error: string; status: number };
@@ -40,25 +43,68 @@ export async function loadGen1Save(saveState: ISaveState, game: IGame | null): P
     return { sram };
 }
 
-interface StoreOptions {
+export const SAVE_CHANGED_MESSAGE = 'This save changed since it was loaded. Check it and try again.';
+
+export interface SaveOwner {
     identity: string;       // the user's email, or id if they have none
     gameTitle: string;
-    alsoSet?: Partial<Pick<ISaveState, 'connected'>>;
 }
 
 /**
- * Uploads a patched save, points the record at it, then removes the old file. Each write
- * gets a new URL, so the old file stays intact if the upload fails. Returns the new URL.
+ * Writing a save takes three steps, so a caller can do its own work in between:
+ * uploadSave, then commitSave, then removeBlob on whichever file is no longer in use.
  */
-export async function storeSave(saveState: ISaveState, sram: Uint8Array, options: StoreOptions): Promise<string> {
-    const { identity, gameTitle, alsoSet } = options;
-    const oldFilePath = saveState.filePath;
-    const blobPath = saveBlobPath(identity, gameTitle, saveState.title ?? 'save', String(saveState._id));
-    const patched = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
-    const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: true });
-
-    await SaveState.updateOne({ _id: saveState._id }, { $set: { filePath: blob.url, ...alsoSet } });
-    try { await del(oldFilePath); } catch { /* non-fatal: at most one orphaned blob */ }
-
+export async function uploadSave(saveState: ISaveState, sram: Uint8Array, owner: SaveOwner): Promise<string> {
+    const blobPath = saveBlobPath(owner.identity, owner.gameTitle, saveState.title ?? 'save', String(saveState._id));
+    const body = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
+    const blob = await blobStore.put(blobPath, body, { access: 'public', addRandomSuffix: true });
     return blob.url;
+}
+
+/**
+ * Points the record at the uploaded file, only if it still has the file `saveState` was
+ * read with. Every write gets a unique URL, so this is the version check: it returns
+ * false if anything else wrote to the save first, and the caller's upload is then stale.
+ */
+export async function commitSave(
+    saveState: ISaveState,
+    newFilePath: string,
+    alsoSet?: Partial<Pick<ISaveState, 'connected'>>,
+): Promise<boolean> {
+    const result = await SaveState.updateOne(
+        { _id: saveState._id, filePath: saveState.filePath },
+        { $set: { filePath: newFilePath, ...alsoSet } },
+    );
+    return result.matchedCount === 1;
+}
+
+interface SaveRecordFields {
+    title?: string;
+    description?: string;
+    filePath?: string;
+    img?: string;
+}
+
+/**
+ * Applies an edit from the client. A change of file only applies if the record still has
+ * the file the client was working from, the same check as commitSave. Returns the updated
+ * record, or null if the save has changed since.
+ */
+export async function updateSaveRecord(
+    saveState: ISaveState,
+    fields: SaveRecordFields,
+    expectedFilePath?: string,
+): Promise<ISaveState | null> {
+    const changingFile = fields.filePath !== undefined && fields.filePath !== saveState.filePath;
+    const set = Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined));
+    return SaveState.findOneAndUpdate(
+        changingFile ? { _id: saveState._id, filePath: expectedFilePath } : { _id: saveState._id },
+        { $set: set },
+        { new: true, runValidators: true },
+    );
+}
+
+// Non-fatal: the worst case is one orphaned blob.
+export async function removeBlob(url: string): Promise<void> {
+    try { await blobStore.del(url); } catch { /* see above */ }
 }

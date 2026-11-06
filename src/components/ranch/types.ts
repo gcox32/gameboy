@@ -7,11 +7,10 @@ export interface RanchPokemon {
     otId: number;
     level: number;
     rawBoxData: { type: 'Buffer'; data: number[] };
-    status: 'stashed' | 'in_game';
+    status: 'stashed';
     extractedAt: string;
     generation: number;
     sourceGameId: string;
-    currentGameId?: string;
 }
 
 export function getRawBytes(rawBoxData: RanchPokemon['rawBoxData']): number[] {

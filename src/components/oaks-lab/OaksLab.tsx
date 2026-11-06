@@ -58,6 +58,7 @@ function ExtractTab({ games }: { games: GameModel[] }) {
     const [sending, setSending] = useState(false);
     const [toast, setToast] = useState('');
     const [selectedBox, setSelectedBox] = useState(0);
+    const [loadedFilePath, setLoadedFilePath] = useState('');
 
     // Re-derive to pick up refreshed `connected` status after fetchSaveStates
     const currentSave = saveStates.find(s => s.id === selectedSave?.id) ?? selectedSave;
@@ -71,10 +72,13 @@ function ExtractTab({ games }: { games: GameModel[] }) {
 
     useEffect(() => { fetchSaveStates(selectedGame?.id ?? ''); setSelectedSave(null); }, [selectedGame?.id, fetchSaveStates]);
 
-    const loadSaveFile = useCallback(async (overrideUrl?: string) => {
-        const url = overrideUrl ?? selectedSave?.filePath;
+    // Follows currentSave, so it reloads whenever the save's file changes.
+    const filePath = currentSave?.filePath;
+    const loadSaveFile = useCallback(async () => {
+        const url = filePath;
         if (!url) return;
         setLoadingSave(true);
+        setLoadedFilePath('');
         setParty([]); setBoxes([]); setSelected(new Set()); setSelectedBox(0);
         try {
             const res = await fetch(url, { cache: 'no-store' });
@@ -98,17 +102,17 @@ function ExtractTab({ games }: { games: GameModel[] }) {
             setBoxes(parsed.boxes);
             setBoxAvailable(parsed.boxAvailable);
             setSelectedBox(Math.max(parsed.boxAvailable.indexOf(true), 0));
+            setLoadedFilePath(url);
         } catch (err) {
             console.error('[loadSaveFile]', err);
             setToast('Failed to load save file — check the console.');
         } finally {
             setLoadingSave(false);
         }
-    }, [selectedSave?.filePath]);
+    }, [filePath]);
 
     useEffect(() => {
         if (selectedSave?.id && currentSave?.connected) loadSaveFile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedSave?.id, currentSave?.connected, loadSaveFile]);
 
     const slotKey = (s: SlotPokemon) =>
@@ -139,25 +143,28 @@ function ExtractTab({ games }: { games: GameModel[] }) {
             slotIndex: s.slotIndex,
         }));
 
-        const res = await fetch('/api/pokemon/stored', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ saveStateId: selectedSave?.id, slots }),
-        });
+        try {
+            const res = await fetch('/api/pokemon/stored', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ saveStateId: selectedSave?.id, slots, expectedFilePath: loadedFilePath }),
+            });
 
-        if (res.ok) {
-            const { created, updatedFilePath } = await res.json();
-            setToast(`${created.length} Pokémon sent to the Ranch!`);
-            await Promise.all([
-                fetchSaveStates(selectedGame?.id ?? ''),
-                loadSaveFile(updatedFilePath),
-            ]);
-        } else {
-            const err = await res.json().catch(() => ({}));
-            setToast(err.error ?? 'Something went wrong.');
+            if (res.ok) {
+                const { created } = await res.json();
+                setToast(`${created.length} Pokémon sent to the Ranch!`);
+            } else {
+                const err = await res.json().catch(() => ({}));
+                setToast(err.error ?? 'Something went wrong.');
+            }
+            // On success this shows the new file. On a conflict, whatever is there now.
+            await fetchSaveStates(selectedGame?.id ?? '');
+        } catch {
+            setToast('Something went wrong. Check your connection and try again.');
+        } finally {
+            setSending(false);
+            setTimeout(() => setToast(''), 4000);
         }
-        setSending(false);
-        setTimeout(() => setToast(''), 4000);
     };
 
     const renderSlotGrid = (slots: SlotPokemon[], label: string) => (
@@ -343,7 +350,7 @@ function PortInTab({ games }: { games: GameModel[] }) {
 
     const fetchRanch = useCallback(async () => {
         try {
-            const data = await fetch('/api/pokemon/stored?status=stashed').then(r => r.json());
+            const data = await fetch('/api/pokemon/stored').then(r => r.json());
             setRanch(data);
         } catch {}
     }, []);
@@ -403,6 +410,9 @@ function PortInTab({ games }: { games: GameModel[] }) {
         } else {
             const err = await res.json().catch(() => ({}));
             setToast(err.error ?? 'Something went wrong.');
+            // Either side may have moved on, so show what's there now.
+            setSelectedPokemon(null);
+            await Promise.all([fetchRanch(), fetchSaveStates(selectedGame?.id ?? '')]);
         }
         setPorting(false);
         setTimeout(() => setToast(''), 4000);

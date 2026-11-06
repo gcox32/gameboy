@@ -132,7 +132,7 @@ export default function OaksRanch() {
     const [selected, setSelected] = useState<RanchPokemon | null>(null);
 
     useEffect(() => {
-        fetch('/api/pokemon/stored?status=stashed')
+        fetch('/api/pokemon/stored')
             .then(r => r.json())
             .then(data => { setPokemon(data); setLoading(false); })
             .catch(() => setLoading(false));

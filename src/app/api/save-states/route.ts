@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { SaveState } from '@/models';
+import { isUserSaveUrl } from '@/utils/blobPaths';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
@@ -31,6 +32,10 @@ export async function POST(req: NextRequest) {
 
     if (!gameId || !title) {
         return NextResponse.json({ error: 'gameId and title are required' }, { status: 400 });
+    }
+
+    if (filePath && !session.user.admin && !isUserSaveUrl(filePath, session.user)) {
+        return NextResponse.json({ error: 'Invalid filePath' }, { status: 400 });
     }
 
     await dbConnect();

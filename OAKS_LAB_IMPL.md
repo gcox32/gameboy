@@ -30,7 +30,7 @@ Before any transfer can happen, a save state must be **connected** to Oak's Lab.
 
    This ensures existing Pokémon already in the save are owned by the same trainer identity as newly caught ones, making them fully native rather than appearing as trades.
 
-The Bank 1 checksum (`0x3523`) is recalculated after the write. The patched save is uploaded to a new blob, `filePath` and `connected: true` are set in one `updateOne`, and the old blob is deleted. If anything fails first, the save stays unconnected and can be retried.
+The Bank 1 checksum (`0x3523`) is recalculated after the write. The patched save is uploaded to a new blob, `filePath` and `connected: true` are set in one conditional `updateOne` (see Transfers below), and the old blob is deleted. If anything fails first, the save stays unconnected and can be retried.
 
 Connect is **idempotent** — calling it on an already-connected save returns immediately with no changes.
 
@@ -45,18 +45,16 @@ Connect is **idempotent** — calling it on an already-connected save returns im
 1. User selects a game, then a save state. Save states are filtered to connected-only for the actual operation (non-connected saves show a Connect prompt instead).
 2. The `.sav` blob is fetched (`cache: 'no-store'`) and parsed client-side by `parseSaveFile()`. This reads all party slots and all 12 PC boxes directly from the raw SRAM bytes — no emulator involvement.
 3. Pokémon are displayed as a checkbox grid. The user selects one or more across any combination of party/boxes, then clicks "Send to Ranch".
-4. On success the API returns `updatedFilePath` — the URL of the freshly-patched save. The tab immediately reloads its display from that URL (not from the stale `currentSave.filePath`) so the extracted slots disappear in real time. `fetchSaveStates` runs in parallel to sync the DB-backed URL into component state.
+4. The request includes `expectedFilePath`, the file its slots were read from. Afterwards `fetchSaveStates` runs, and the tab reloads whenever `currentSave.filePath` changes, so the extracted slots disappear and a conflict shows what's there now.
 
 ### API (`POST /api/pokemon/stored`)
 
-1. Fetches the `.sav` blob for the save state.
-2. Sorts the requested slots **high-to-low** (by slot index within each box, boxes high-to-low before party) so that clearing one slot doesn't shift the indices of later slots in the same pass.
-3. For each slot:
+1. Returns a 409 if the save's file isn't `expectedFilePath`, then loads and validates the file.
+2. `takeFromSave()` checks every slot is occupied, then works on a copy, high-to-low so that clearing one slot doesn't shift later ones. For each slot:
    - `extractFromSRAM()` — reads the 33-byte box-form data plus the raw OT name and nickname bytes, OT ID, species, and level.
    - `clearSlot()` — removes the Pokémon: zeroes its data block, shifts remaining entries in the species list and data arrays left, decrements the count byte, zeroes the OT/nick entries. Recalculates the Bank 1 checksum.
-   - Creates a `StoredPokemon` document (`status: 'stashed'`).
-4. Uploads the fully-patched SRAM as a new blob (`addRandomSuffix: true`), updates `SaveState.filePath` via `updateOne/$set`, deletes the old blob.
-5. Returns `{ created, updatedSaveStateId, updatedFilePath }`.
+3. `sendToRanch()` uploads the new file, inserts the records as `transferring`, commits the file, marks the records `stashed`, then deletes the old blob.
+4. Returns `{ created, updatedSaveStateId, updatedFilePath }`.
 
 ### Party vs box extraction
 
@@ -85,9 +83,25 @@ Connect is **idempotent** — calling it on an already-connected save returns im
    - Clears status byte (`0x04`) to `0x00` and sets current HP (`0x01–0x02`) to the recalculated max HP — the Pokémon arrives healed.
    - Appends to the target slot (party or box), increments the count byte, inserts the species ID into the species list, writes the stored OT name and nickname bytes unchanged.
    - Recalculates the Bank 1 checksum.
-5. Uploads patched blob (`addRandomSuffix: true`), updates `SaveState.filePath` via `updateOne/$set`, deletes old blob.
-6. Sets `StoredPokemon.status = 'in_game'`, `currentGameId = targetGameId`.
-7. Returns `{ pokemon, updatedSaveStateId, updatedFilePath }`.
+5. `portToSave()` uploads the new file, atomically claims the record (`stashed` → `transferring`), commits the file, deletes the record, then deletes the old blob.
+6. Returns `{ updatedSaveStateId, updatedFilePath }`.
+
+---
+
+## Transfers
+
+A move changes both the save file and the database, which can't be updated atomically (`src/lib/pokemonTransfer.ts`).
+
+- **Version check.** Every write, from the Lab or the emulator, gets a unique URL, so `filePath` is the version. `commitSave()` only applies if the save still has the file it was read from. Otherwise the caller backs out and returns a 409.
+- **Marker.** Records hold `status: 'transferring'` across the gap, with `transfer` recording the direction, the save, and its URL before and after.
+- **Recovery.** `recoverStaleTransfers()` runs whenever the Ranch is listed and settles markers older than 5 minutes by comparing the save's current URL to those two:
+
+| Direction | Save has the new file | Save has the old file | Save has moved on, or is gone |
+|---|---|---|---|
+| To Ranch | keep at Ranch | delete record | keep at Ranch |
+| To save | delete record | keep at Ranch | keep at Ranch |
+
+The last column can't be determined, so it keeps the Pokémon: a possible duplicate is better than a lost Pokémon.
 
 ---
 
@@ -114,6 +128,16 @@ Bit 7 of `wCurrentBoxNum` records that the player has changed boxes at least onc
 
 ---
 
+## Emulator Saves
+
+`useSaveState` uploads with `{ unique: true }`, then sends `PUT /api/save-states/[id]` with the new `filePath` and `expectedFilePath`, the file this session loaded. If the save has changed, the route returns a 409 with `currentFilePath` and the upload is deleted. The game pauses and `SaveConflictModal` offers:
+
+- **Save as new** — opens the Save State dialog, leaving the changed save alone. The new save starts unconnected.
+- **Save over it** — saves again with `expectedFilePath` set to `currentFilePath`. This undoes the other changes, so Pokémon moved in the meantime could be duplicated or lost.
+- **Cancel** — nothing is written. Load State's list is refreshed so the current version can be loaded.
+
+---
+
 ## Blob Storage
 
 All save-related blobs follow a human-readable path scheme defined in `src/utils/blobPaths.ts`:
@@ -130,9 +154,9 @@ saves/gcoxexcel_at_gmail-com/pokemon-red/main-run-a3f8b21c/save-eWNkrcQi.sav
 - **`{email}`** — `@` → `_at_`, `.` → `-`
 - **`{game-slug}`** — lowercased, non-alphanumeric runs → `-`
 - **`{save-slug}-{id[0..8]}`** — save title slug + first 8 chars of MongoDB ObjectId
-- **`save-{random}.sav`** — Vercel Blob's `addRandomSuffix: true` ensures every write produces a unique URL (no CDN staleness)
+- **`save-{random}.sav`** — Vercel Blob's `addRandomSuffix: true` ensures every write produces a unique URL (no CDN staleness). Saves last written before emulator uploads got unique URLs may still be at a plain `save.sav` until their next write.
 
-Every write: upload new blob → `SaveState.updateOne($set, filePath)` → delete old blob. The `del()` is fire-and-forget (failure is non-fatal — at most one orphaned blob; data is never lost because the DB was updated first).
+Every write: upload new blob → conditional `SaveState.updateOne` (`commitSave`) → delete old blob. The `del()` failing is non-fatal: at most one orphaned blob, and data is never lost because the DB was updated first.
 
 Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing either `session.user.id` (legacy) or the sanitized email slug.
 
@@ -160,8 +184,8 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 | `otId` | 2-byte original trainer ID |
 | `level` | Extracted for display/filtering |
 | `rawBoxData` | **33 bytes** — canonical permanent form. Extended stats are recalculated on port-in. |
-| `status` | `'stashed'` = at Ranch; `'in_game'` = lives in `currentGameId`'s save |
-| `currentGameId` | Set on port-in, cleared conceptually on re-extraction |
+| `status` | `'stashed'` = at Ranch; `'transferring'` = mid-move, hidden from the Ranch. The record is deleted once the Pokémon is in a save. |
+| `transfer` | Only while transferring: direction, save, its URL before and after, start time |
 
 ### `User` (addition)
 | Field | Notes |
@@ -181,7 +205,9 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 | API | `src/app/api/pokemon/stored/[id]/route.ts` | DELETE (release) |
 | API | `src/app/api/pokemon/stored/[id]/port/route.ts` | POST (port-in) |
 | Save layout | `src/utils/pokemon/gen1Save.ts` | Offsets, `locateSlot()`, `validateGen1Save()`, `isBoxAvailable()`, `readSaveContents()`, checksum. Server and client. |
-| Save file | `src/lib/saveFile.ts` | `loadGen1Save()` and `storeSave()`, used by every Lab route. Server only. |
+| Save file | `src/lib/saveFile.ts` | `loadGen1Save()`, `uploadSave()`, `commitSave()`, `updateSaveRecord()`, `removeBlob()`. Server only. |
+| Emulator save | `src/hooks/useSaveState.ts`, `src/hooks/useSystemActions.ts`, `SaveConflictModal` | Upload, conditional `PUT`, and the player's choice on a conflict |
+| Transfers | `src/lib/pokemonTransfer.ts` | `sendToRanch()`, `portToSave()`, `recoverStaleTransfers()`. Server only. |
 | SRAM read | `src/utils/pokemon/extract.ts` | `extractFromSRAM()` — reads party/box slots into `RawExtractedPokemon` |
 | SRAM write | `src/utils/sramWriter.ts` | `clearSlot()`, `injectPokemon()`, current-box mirror↔banked sync |
 | SRAM parse | `src/utils/sramParser.ts` | `SRAMParser`, `TextEncoder` (Gen 1 charset), checksum |

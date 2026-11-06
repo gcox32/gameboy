@@ -5,6 +5,13 @@ import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
 import { saveBlobPath } from '@/utils/blobPaths';
 import { GameModel, SaveStateModel } from '@/types';
 
+// The save has changed since this session read it, by the Lab or another tab.
+export class SaveConflictError extends Error {
+    constructor(public currentFilePath: string) {
+        super('This save has changed since it was loaded');
+    }
+}
+
 interface GameInstance {
     saveSRAMState: () => number[];
 }
@@ -55,7 +62,7 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel,
             const savePath = saveBlobPath(identity, currentGame.title, saveData.title ?? 'save', saveStateId);
             const oldFilePath = isUpdate ? saveData.filePath : '';
             const oldImg = isUpdate ? saveData.img : '';
-            const filePath = await uploadBlob(saveFile, savePath);
+            const filePath = await uploadBlob(saveFile, savePath, { unique: true });
 
             // Upload screenshot if provided
             let imgPath = saveData.img || '';
@@ -69,12 +76,18 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel,
             const updateRes = await fetch(`/api/save-states/${saveStateId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filePath, img: imgPath }),
+                body: JSON.stringify({ filePath, img: imgPath, expectedFilePath: oldFilePath }),
             });
+            if (updateRes.status === 409) {
+                // The upload will never be used, and the save's current file stays as it is.
+                deleteBlob(filePath).catch(() => {});
+                const { currentFilePath } = await updateRes.json();
+                throw new SaveConflictError(currentFilePath);
+            }
             if (!updateRes.ok) throw new Error('Failed to update save state record');
             const saved: SaveStateModel = await updateRes.json();
 
-            // Delete old blob if the URL changed (title rename or first-ever upload)
+            // Saves written before uploads got unique URLs can still be at the same one
             if (oldFilePath && oldFilePath !== filePath) {
                 deleteBlob(oldFilePath).catch(() => {});
             }
@@ -85,7 +98,7 @@ export const useSaveState = (gameInstance: GameInstance, currentGame: GameModel,
             return saved;
         } catch (err) {
             const e = err instanceof Error ? err : new Error('An unknown error occurred');
-            setError(e);
+            if (!(e instanceof SaveConflictError)) setError(e);
             throw e;
         } finally {
             setIsSaving(false);

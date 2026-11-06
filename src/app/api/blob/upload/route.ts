@@ -4,7 +4,7 @@ import { auth } from '@/auth';
 import { sanitizeEmail } from '@/utils/blobPaths';
 
 // POST /api/blob/upload
-// FormData: { file: File, path: string }
+// FormData: { file: File, path: string, unique?: 'true' }
 // Returns: { url: string }
 export async function POST(req: NextRequest) {
     const session = await auth();
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const blob = await put(path, file, {
         access: 'public',
         contentType: file.type || 'application/octet-stream',
-        allowOverwrite: true,
+        ...(formData.get('unique') === 'true' ? { addRandomSuffix: true } : { allowOverwrite: true }),
     });
 
     return NextResponse.json({ url: blob.url });
