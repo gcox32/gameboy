@@ -5,7 +5,7 @@ import Image from 'next/image';
 import BaseModal from '@/components/modals/BaseModal';
 import { pokemonGifEndpoint } from '../../../config';
 import { dexDict } from '@/utils/pokemon/dicts';
-import { calcGen1Stats } from '@/utils/pokemon/stats';
+import { calcGen1Stats, decodeIVs } from '@/utils/pokemon/stats';
 import { RanchPokemon, getRawBytes } from './types';
 import styles from './styles.module.css';
 
@@ -29,12 +29,7 @@ function DetailModal({ pokemon, onClose, onRelease }: DetailModalProps) {
     const bytes = getRawBytes(pokemon.rawBoxData);
     const stats = calcGen1Stats(bytes);
 
-    const ivRaw = (bytes[0x1B] << 8) | bytes[0x1C];
-    const atkIV = (ivRaw >> 12) & 0xF;
-    const defIV = (ivRaw >> 8) & 0xF;
-    const spdIV = (ivRaw >> 4) & 0xF;
-    const spcIV = ivRaw & 0xF;
-    const hpIV = ((atkIV & 1) << 3) | ((defIV & 1) << 2) | ((spdIV & 1) << 1) | (spcIV & 1);
+    const ivs = decodeIVs(bytes);
 
     const moves = [bytes[0x08], bytes[0x09], bytes[0x0A], bytes[0x0B]].filter(m => m !== 0);
     const pp = [bytes[0x1D] & 0x3F, bytes[0x1E] & 0x3F, bytes[0x1F] & 0x3F, bytes[0x20] & 0x3F];
@@ -88,8 +83,8 @@ function DetailModal({ pokemon, onClose, onRelease }: DetailModalProps) {
                     <div className={styles.statBlock}>
                         <div className={styles.statBlockTitle}>IVs</div>
                         {[
-                            ['HP', hpIV], ['Atk', atkIV], ['Def', defIV],
-                            ['Spd', spdIV], ['Spc', spcIV],
+                            ['HP', ivs.hp], ['Atk', ivs.attack], ['Def', ivs.defense],
+                            ['Spd', ivs.speed], ['Spc', ivs.special],
                         ].map(([label, value]) => (
                             <div key={label} className={styles.statRow}>
                                 <span className={styles.statLabel}>{label}</span>

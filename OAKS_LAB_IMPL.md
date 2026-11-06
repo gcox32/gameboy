@@ -12,6 +12,7 @@ A Pokémon is extracted from one save file, held in a server-side **Ranch**, and
 
 Two UI surfaces:
 - **Oak's Lab** (`/lab`) — extract tab (Leave) and port-in tab (Take)
+- **Oak's Lab, Edit tab** — changes a Pokémon where it sits in its save, without going through the Ranch
 - **Oak's Ranch** (`/ranch`) — gallery of all currently stashed Pokémon, where they can also be released
 
 ---
@@ -85,6 +86,27 @@ Connect is **idempotent** — calling it on an already-connected save returns im
    - Recalculates the Bank 1 checksum.
 5. `portToSave()` uploads the new file, atomically claims the record (`stashed` → `transferring`), commits the file, deletes the record, then deletes the old blob.
 6. Returns `{ updatedSaveStateId, updatedFilePath }`.
+
+---
+
+## Flow 3: Edit IVs
+
+### UI (`EditTab` and `IvEditor`)
+
+The user picks a save and a Pokémon. The card has one 15-segment gauge per IV. Attack, Defense, Speed and Special each have a `+` button that raises them by 1, up to 15. Presses are a draft until Save changes, and Reset discards them.
+
+**HP has no button** because the game doesn't store it. It's built from the lowest bit of the other four (`hpIVFrom()`), so it moves as they change, and can fall: Attack 13 → 14 lowers HP by 8. Falling segments are shown in red until saved.
+
+### API (`POST /api/save-states/[id]/pokemon/ivs`)
+
+Takes `{ slot, ivs, expectedFilePath }`. Returns a 409 if the save's file isn't `expectedFilePath`, then loads and validates the file, applies `setPokemonIVs()`, and uploads and commits as usual.
+
+`setPokemonIVs()` writes the IVs to `0x1B–0x1C` and moves the other stored values by how much the IVs changed them, rather than recalculating outright:
+
+- **Party stats** (`0x22–0x2B`). `BASE_STATS` is vanilla, so a full recalculation would be wrong for modded species. It would also overwrite values the game hasn't recalculated yet, such as a newly caught Pokémon's stats and stat exp not yet applied.
+- **Current HP** (`0x01–0x02`). A fainted Pokémon stays fainted, and a healthy one stays above 0.
+
+The game recalculates all of this itself on level up or withdrawal.
 
 ---
 
@@ -199,11 +221,14 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 | Layer | File | Responsibility |
 |---|---|---|
 | UI | `src/components/oaks-lab/OaksLab.tsx` | Extract tab, port-in tab |
+| UI | `src/components/oaks-lab/EditTab.tsx`, `IvEditor.tsx` | Edit tab and IV gauges |
+| UI | `src/components/oaks-lab/useLabSave.ts`, `LabSave.tsx` | Choosing a save and showing its Pokémon, shared by the Leave and Edit tabs |
 | UI | `src/components/ranch/OaksRanch.tsx` | Read-only Ranch gallery |
 | API | `src/app/api/save-states/[id]/connect/route.ts` | Connect flow |
 | API | `src/app/api/pokemon/stored/route.ts` | GET (list Ranch), POST (extract) |
 | API | `src/app/api/pokemon/stored/[id]/route.ts` | DELETE (release) |
 | API | `src/app/api/pokemon/stored/[id]/port/route.ts` | POST (port-in) |
+| API | `src/app/api/save-states/[id]/pokemon/ivs/route.ts` | POST (edit IVs in place) |
 | Save layout | `src/utils/pokemon/gen1Save.ts` | Offsets, `locateSlot()`, `validateGen1Save()`, `isBoxAvailable()`, `readSaveContents()`, checksum. Server and client. |
 | Save file | `src/lib/saveFile.ts` | `loadGen1Save()`, `uploadSave()`, `commitSave()`, `updateSaveRecord()`, `removeBlob()`. Server only. |
 | Emulator save | `src/hooks/useSaveState.ts`, `src/hooks/useSystemActions.ts`, `SaveConflictModal` | Upload, conditional `PUT`, and the player's choice on a conflict |

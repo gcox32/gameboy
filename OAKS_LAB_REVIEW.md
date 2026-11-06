@@ -4,7 +4,7 @@ Review of the extract / store / port pipeline (October 2026). Covers what was fo
 
 Related docs: [OAKS_LAB.md](OAKS_LAB.md) (original plan), [OAKS_LAB_IMPL.md](OAKS_LAB_IMPL.md) (how it works).
 
-**Files in scope:** `src/utils/pokemon/gen1Save.ts`, `src/lib/saveFile.ts`, `src/utils/sramWriter.ts`, `src/utils/pokemon/extract.ts`, `src/utils/pokemon/stats.ts`, `src/app/api/save-states/[id]/connect/route.ts`, `src/app/api/pokemon/stored/route.ts`, `src/app/api/pokemon/stored/[id]/route.ts`, `src/app/api/pokemon/stored/[id]/port/route.ts`, `src/components/oaks-lab/OaksLab.tsx`, `src/components/ranch/OaksRanch.tsx`.
+**Files in scope:** `src/utils/pokemon/gen1Save.ts`, `src/lib/saveFile.ts`, `src/lib/pokemonTransfer.ts`, `src/utils/sramWriter.ts`, `src/utils/pokemon/extract.ts`, `src/utils/pokemon/stats.ts`, `src/app/api/save-states/[id]/connect/route.ts`, `src/app/api/pokemon/stored/route.ts`, `src/app/api/pokemon/stored/[id]/route.ts`, `src/app/api/pokemon/stored/[id]/port/route.ts`, `src/components/oaks-lab/OaksLab.tsx`, `src/components/ranch/OaksRanch.tsx`.
 
 ---
 
@@ -125,7 +125,7 @@ Each box bank has a checksum over all its boxes plus one per box: bank 2 at `0x5
 - `portedSave` isn't cleared when switching saves, so old data appears under the new title.
 - Occupancy counts displayable Pokémon while the server uses the count byte.
 - The Take tab says to connect but has no Connect button.
-- A network error leaves the port button stuck on "Sending...", and box selection resets after every send.
+- A network error leaves the port button stuck on "Sending...".
 - Release removes the Pokémon from the Ranch even if the delete failed.
 - The party check ignores whether the remaining Pokémon are fainted, or the only one with Surf or Cut.
 - Save As creates an unconnected save even though it's already stamped.

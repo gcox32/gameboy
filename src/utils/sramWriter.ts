@@ -1,4 +1,4 @@
-import { calcGen1Stats } from '@/utils/pokemon/stats';
+import { StoredIVs, calcGen1Stats } from '@/utils/pokemon/stats';
 import {
     BOX_CAPACITY,
     BOX_COUNT,
@@ -25,6 +25,7 @@ import {
     boxBase,
     currentBoxIndex,
     isBoxAvailable,
+    locateSlot,
     writeMainChecksum,
 } from '@/utils/pokemon/gen1Save';
 
@@ -166,6 +167,53 @@ function clearBoxSlot(sram: Uint8Array, boxNumber: number, slotIndex: number): v
     syncCurrentBoxToBanked(sram, boxNumber);
 }
 
+/**
+ * Sets a Pokémon's IVs where it sits in the save.
+ *
+ * Party Pokémon also store their calculated stats, and current HP is stored in both forms.
+ * Those move by how much the IVs change them, rather than being recalculated outright:
+ * BASE_STATS is vanilla, so a full recalculation would write the wrong numbers for a modded
+ * species, and would also apply stat exp the game hasn't applied yet. The result matches
+ * what the game calculates next time it recalculates, on level up or withdrawal.
+ */
+export function setPokemonIVs(sramData: Uint8Array, slot: SaveSlot, ivs: StoredIVs): Uint8Array {
+    const sram = new Uint8Array(sramData);
+    const { dataOffset } = locateSlot(sram, slot);
+    const isParty = slot.location === 'party';
+
+    // A working copy with the right level, since a party Pokémon's box level can be stale
+    const mon = sram.slice(dataOffset, dataOffset + BOX_MON_SIZE);
+    if (isParty) mon[0x03] = sram[dataOffset + 0x21];
+
+    const before = calcGen1Stats(mon);
+    mon[0x1B] = (ivs.attack << 4) | ivs.defense;
+    mon[0x1C] = (ivs.speed << 4) | ivs.special;
+    const after = calcGen1Stats(mon);
+
+    sram[dataOffset + 0x1B] = mon[0x1B];
+    sram[dataOffset + 0x1C] = mon[0x1C];
+
+    let maxHP = Infinity;
+    if (isParty) {
+        maxHP = adjustUint16BE(sram, dataOffset + 0x22, after.maxHP - before.maxHP);
+        adjustUint16BE(sram, dataOffset + 0x24, after.attack - before.attack);
+        adjustUint16BE(sram, dataOffset + 0x26, after.defense - before.defense);
+        adjustUint16BE(sram, dataOffset + 0x28, after.speed - before.speed);
+        adjustUint16BE(sram, dataOffset + 0x2A, after.special - before.special);
+    }
+
+    // A fainted Pokémon stays fainted, and a healthy one can't be knocked out by this.
+    const currentHP = readUint16BE(sram, dataOffset + 0x01);
+    if (currentHP > 0) {
+        const next = currentHP + after.maxHP - before.maxHP;
+        writeUint16BE(sram, dataOffset + 0x01, Math.min(Math.max(next, 1), maxHP));
+    }
+
+    if (!isParty) syncCurrentBoxToBanked(sram, slot.boxNumber!);
+    writeMainChecksum(sram);
+    return sram;
+}
+
 export function injectPokemon(
     sramData: Uint8Array,
     rawBoxData: Buffer,
@@ -264,6 +312,17 @@ function writeNameAt(sram: Uint8Array, offset: number, name: ArrayLike<number>):
     for (let i = 0; i < NAME_LENGTH; i++) {
         sram[offset + i] = name[i] ?? 0x50;
     }
+}
+
+function readUint16BE(buf: Uint8Array, offset: number): number {
+    return (buf[offset] << 8) | buf[offset + 1];
+}
+
+// Stats are never 0 in the game, so they stop at 1. Returns the new value.
+function adjustUint16BE(buf: Uint8Array, offset: number, delta: number): number {
+    const value = Math.max(readUint16BE(buf, offset) + delta, 1);
+    writeUint16BE(buf, offset, value);
+    return value;
 }
 
 function writeUint16BE(buf: Uint8Array, offset: number, value: number): void {

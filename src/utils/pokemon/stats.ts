@@ -8,6 +8,42 @@ export interface Gen1Stats {
     special: number;
 }
 
+// The four IVs the game stores. HP has no bits of its own.
+export interface StoredIVs {
+    attack: number;
+    defense: number;
+    speed: number;
+    special: number;
+}
+
+export interface Gen1IVs extends StoredIVs {
+    hp: number;
+}
+
+export const MAX_IV = 15;
+
+// The game builds the HP IV from the lowest bit of each stored IV.
+export function hpIVFrom({ attack, defense, speed, special }: StoredIVs): number {
+    return ((attack & 1) << 3) | ((defense & 1) << 2) | ((speed & 1) << 1) | (special & 1);
+}
+
+export function decodeIVs(rawBoxData: ArrayLike<number>): Gen1IVs {
+    const stored = {
+        attack: rawBoxData[0x1B] >> 4,
+        defense: rawBoxData[0x1B] & 0xF,
+        speed: rawBoxData[0x1C] >> 4,
+        special: rawBoxData[0x1C] & 0xF,
+    };
+    return { ...stored, hp: hpIVFrom(stored) };
+}
+
+export function isValidStoredIVs(value: unknown): value is StoredIVs {
+    if (!value || typeof value !== 'object') return false;
+    const ivs = value as Record<string, unknown>;
+    return [ivs.attack, ivs.defense, ivs.speed, ivs.special]
+        .every(iv => Number.isInteger(iv) && (iv as number) >= 0 && (iv as number) <= MAX_IV);
+}
+
 export function calcGen1Stats(rawBoxData: ArrayLike<number>): Gen1Stats {
     const speciesIndex = rawBoxData[0x00];
     const level = rawBoxData[0x03];
@@ -18,21 +54,16 @@ export function calcGen1Stats(rawBoxData: ArrayLike<number>): Gen1Stats {
     const spdEvRaw = (rawBoxData[0x17] << 8) | rawBoxData[0x18];
     const spcEvRaw = (rawBoxData[0x19] << 8) | rawBoxData[0x1A];
 
-    const ivRaw = (rawBoxData[0x1B] << 8) | rawBoxData[0x1C];
-    const atkIV = (ivRaw >> 12) & 0xF;
-    const defIV = (ivRaw >> 8) & 0xF;
-    const spdIV = (ivRaw >> 4) & 0xF;
-    const spcIV = ivRaw & 0xF;
-    const hpIV = ((atkIV & 1) << 3) | ((defIV & 1) << 2) | ((spdIV & 1) << 1) | (spcIV & 1);
+    const ivs = decodeIVs(rawBoxData);
 
     const base = BASE_STATS[speciesIndex] ?? { hp: 45, atk: 45, def: 45, spd: 45, spc: 45 };
 
     return {
-        maxHP: calcHP(base.hp, hpIV, hpEvRaw, level),
-        attack: calcStat(base.atk, atkIV, atkEvRaw, level),
-        defense: calcStat(base.def, defIV, defEvRaw, level),
-        speed: calcStat(base.spd, spdIV, spdEvRaw, level),
-        special: calcStat(base.spc, spcIV, spcEvRaw, level),
+        maxHP: calcHP(base.hp, ivs.hp, hpEvRaw, level),
+        attack: calcStat(base.atk, ivs.attack, atkEvRaw, level),
+        defense: calcStat(base.def, ivs.defense, defEvRaw, level),
+        speed: calcStat(base.spd, ivs.speed, spdEvRaw, level),
+        special: calcStat(base.spc, ivs.special, spcEvRaw, level),
     };
 }
 

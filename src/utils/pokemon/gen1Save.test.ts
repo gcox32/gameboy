@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import mongoose from 'mongoose';
 import StoredPokemon from '@/models/StoredPokemon';
 import { TextEncoder as Gen1Text, encodeNameString } from '@/utils/sramParser';
-import { clearSlot, hasTrainerId, injectPokemon, stampTrainerId } from '@/utils/sramWriter';
+import { clearSlot, hasTrainerId, injectPokemon, setPokemonIVs, stampTrainerId } from '@/utils/sramWriter';
+import { calcGen1Stats, hpIVFrom, isValidStoredIVs } from './stats';
 import { extractFromSRAM } from './extract';
 import {
     BOX_MIRROR_BASE,
@@ -17,6 +18,7 @@ import {
     PLAYER_ID,
     PLAYER_NAME,
     SRAM_SIZE,
+    SaveSlot,
     boxBankedBase,
     isBoxAvailable,
     readSaveContents,
@@ -279,5 +281,126 @@ describe('moving a Pokémon', () => {
         assert.ok(changed.every(i => [0x01, 0x02, 0x04].includes(i)), `changed: ${changed}`);
         assert.equal(back.level, 12);
         assert.equal(validateGen1Save(sram), null);
+    });
+});
+
+describe('setPokemonIVs', () => {
+    const PARTY_0: SaveSlot = { location: 'party', slotIndex: 0 };
+    const MAXED = { attack: 15, defense: 15, speed: 15, special: 15 };
+    const be = (s: Uint8Array, o: number) => (s[o] << 8) | s[o + 1];
+    const setBE = (s: Uint8Array, o: number, v: number) => { s[o] = v >> 8; s[o + 1] = v & 0xFF; };
+
+    // Party stats as the game would have them, so the deltas start from the truth
+    function partySave(hp?: number) {
+        const sram = makeSave();
+        const stats = calcGen1Stats(sram.subarray(PARTY_DATA, PARTY_DATA + 33));
+        setBE(sram, PARTY_DATA + 0x22, stats.maxHP);
+        setBE(sram, PARTY_DATA + 0x24, stats.attack);
+        setBE(sram, PARTY_DATA + 0x26, stats.defense);
+        setBE(sram, PARTY_DATA + 0x28, stats.speed);
+        setBE(sram, PARTY_DATA + 0x2A, stats.special);
+        setBE(sram, PARTY_DATA + 0x01, hp ?? stats.maxHP);
+        writeMainChecksum(sram);
+        return sram;
+    }
+
+    it('derives the HP IV from the lowest bit of the others', () => {
+        assert.equal(hpIVFrom(MAXED), 15);
+        assert.equal(hpIVFrom({ attack: 14, defense: 15, speed: 15, special: 15 }), 7);
+        assert.equal(hpIVFrom({ attack: 13, defense: 0, speed: 0, special: 0 }), 8);
+        assert.equal(hpIVFrom({ attack: 14, defense: 0, speed: 0, special: 0 }), 0);
+    });
+
+    it('writes the IVs in the order the game reads them', () => {
+        const out = setPokemonIVs(partySave(), PARTY_0, { attack: 1, defense: 2, speed: 3, special: 4 });
+        assert.equal(out[PARTY_DATA + 0x1B], 0x12);
+        assert.equal(out[PARTY_DATA + 0x1C], 0x34);
+        // Attack and Speed are odd, so the HP IV is 0b1010
+        assert.deepEqual(readSaveContents(out).party[0].ivs, { attack: 1, defense: 2, speed: 3, special: 4, hp: 10 });
+    });
+
+    it('brings party stats to what the game would calculate', () => {
+        const out = setPokemonIVs(partySave(), PARTY_0, MAXED);
+        const mon = out.slice(PARTY_DATA, PARTY_DATA + 33);
+        mon[0x03] = out[PARTY_DATA + 0x21];
+        const expected = calcGen1Stats(mon);
+        assert.equal(be(out, PARTY_DATA + 0x22), expected.maxHP);
+        assert.equal(be(out, PARTY_DATA + 0x24), expected.attack);
+        assert.equal(be(out, PARTY_DATA + 0x26), expected.defense);
+        assert.equal(be(out, PARTY_DATA + 0x28), expected.speed);
+        assert.equal(be(out, PARTY_DATA + 0x2A), expected.special);
+        assert.equal(be(out, PARTY_DATA + 0x01), expected.maxHP);
+    });
+
+    it('keeps stats from a modded game correct by the same amount', () => {
+        const sram = partySave();
+        const vanilla = be(sram, PARTY_DATA + 0x24);
+        setBE(sram, PARTY_DATA + 0x24, vanilla + 40);
+        const out = setPokemonIVs(sram, PARTY_0, MAXED);
+        const unmodded = be(setPokemonIVs(partySave(), PARTY_0, MAXED), PARTY_DATA + 0x24);
+        assert.equal(be(out, PARTY_DATA + 0x24), unmodded + 40);
+    });
+
+    it("doesn't revive a fainted Pokémon", () => {
+        const out = setPokemonIVs(partySave(0), PARTY_0, MAXED);
+        assert.equal(be(out, PARTY_DATA + 0x01), 0);
+    });
+
+    it('never knocks out a healthy one, or leaves HP above its max', () => {
+        const start = setPokemonIVs(partySave(), PARTY_0, MAXED);
+        setBE(start, PARTY_DATA + 0x01, 1);
+        const low = setPokemonIVs(start, PARTY_0, { attack: 0, defense: 0, speed: 0, special: 0 });
+        assert.equal(be(low, PARTY_DATA + 0x01), 1);
+
+        const full = setPokemonIVs(partySave(), PARTY_0, MAXED);
+        const lowered = setPokemonIVs(full, PARTY_0, { attack: 0, defense: 0, speed: 0, special: 0 });
+        assert.ok(be(lowered, PARTY_DATA + 0x01) <= be(lowered, PARTY_DATA + 0x22));
+    });
+
+    it('edits a box Pokémon in the current box and keeps the banked copy matching', () => {
+        const sram = makeSave({ boxesSetUp: true });
+        sram[BOX_MIRROR_BASE] = 1;
+        sram[BOX_MIRROR_BASE + 1] = 0x99;
+        sram[BOX_MIRROR_BASE + 2] = 0xFF;
+        sram.set(mon(0x99, 12).slice(0, 33), BOX_MIRROR_BASE + 22);
+        writeMainChecksum(sram);
+
+        const out = setPokemonIVs(sram, { location: 'box', boxNumber: 1, slotIndex: 0 }, MAXED);
+        assert.equal(out[BOX_MIRROR_BASE + 22 + 0x1B], 0xFF);
+        assert.equal(out[boxBankedBase(1) + 22 + 0x1B], 0xFF);
+        assert.equal(validateGen1Save(out), null);
+    });
+
+    it('edits a box Pokémon outside the current box', () => {
+        const sram = makeSave({ boxesSetUp: true });
+        const base = boxBankedBase(4);
+        sram[base] = 1;
+        sram[base + 1] = 0x99;
+        sram[base + 2] = 0xFF;
+        sram.set(mon(0x99, 12).slice(0, 33), base + 22);
+
+        const out = setPokemonIVs(sram, { location: 'box', boxNumber: 4, slotIndex: 0 }, MAXED);
+        assert.equal(out[base + 22 + 0x1C], 0xFF);
+        assert.equal(out[BOX_MIRROR_BASE + 22 + 0x1C], 0);
+    });
+
+    it('changes nothing else in the save, and leaves it valid', () => {
+        const before = partySave();
+        const out = setPokemonIVs(before, PARTY_0, MAXED);
+        const allowed = new Set<number>([0x3523]);
+        for (const off of [0x01, 0x02, 0x1B, 0x1C, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B]) {
+            allowed.add(PARTY_DATA + off);
+        }
+        const changed = [...before.keys()].filter(i => before[i] !== out[i] && !allowed.has(i));
+        assert.deepEqual(changed, []);
+        assert.equal(validateGen1Save(out), null);
+    });
+
+    it('checks untrusted IVs', () => {
+        assert.ok(isValidStoredIVs(MAXED));
+        assert.ok(isValidStoredIVs({ attack: 0, defense: 0, speed: 0, special: 0 }));
+        for (const bad of [null, {}, { ...MAXED, attack: 16 }, { ...MAXED, speed: -1 }, { ...MAXED, special: 1.5 }, { ...MAXED, defense: '15' }]) {
+            assert.equal(isValidStoredIVs(bad), false);
+        }
     });
 });

@@ -31,6 +31,7 @@
 
 import { TextEncoder as Gen1Text } from '@/utils/sramParser';
 import { dexDict } from './dicts';
+import { Gen1IVs, decodeIVs } from './stats';
 
 export const SRAM_SIZE = 0x8000;
 export const NAME_LENGTH = 11;
@@ -202,12 +203,17 @@ export interface SlotPokemon extends SaveSlot {
     speciesIndex: number;
     nickname: string;
     level: number;
+    ivs: Gen1IVs;
 }
 
 export interface SaveContents {
     party: SlotPokemon[];
     boxes: SlotPokemon[][];     // always BOX_COUNT long
     boxAvailable: boolean[];    // always BOX_COUNT long
+}
+
+function readIVs(sram: Uint8Array, dataOffset: number): Gen1IVs {
+    return decodeIVs(sram.subarray(dataOffset, dataOffset + BOX_MON_SIZE));
 }
 
 function readName(sram: Uint8Array, offset: number): string {
@@ -229,7 +235,7 @@ function readBox(sram: Uint8Array, boxNumber: number): SlotPokemon[] {
         const { dataOffset, nicknameOffset } = locateSlot(sram, slot);
         const level = sram[dataOffset + 0x03];
         if (level < 2 || level > 100) continue;
-        result.push({ ...slot, speciesIndex, nickname: readName(sram, nicknameOffset), level });
+        result.push({ ...slot, speciesIndex, nickname: readName(sram, nicknameOffset), level, ivs: readIVs(sram, dataOffset) });
     }
     return result;
 }
@@ -241,7 +247,13 @@ export function readSaveContents(sram: Uint8Array): SaveContents {
         const { dataOffset, nicknameOffset } = locateSlot(sram, slot);
         const speciesIndex = sram[dataOffset];
         if (!speciesIndex || speciesIndex === LIST_TERMINATOR) continue;
-        party.push({ ...slot, speciesIndex, nickname: readName(sram, nicknameOffset), level: sram[dataOffset + 0x21] });
+        party.push({
+            ...slot,
+            speciesIndex,
+            nickname: readName(sram, nicknameOffset),
+            level: sram[dataOffset + 0x21],
+            ivs: readIVs(sram, dataOffset),
+        });
     }
 
     const boxes: SlotPokemon[][] = [];

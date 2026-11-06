@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { pokemonGifEndpoint } from '../../../config';
-import { dexDict } from '@/utils/pokemon/dicts';
 import { SaveContents, SlotPokemon, readSaveContents, validateGen1Save } from '@/utils/pokemon/gen1Save';
 import { RanchPokemon } from '@/components/ranch/types';
 import { GameModel, SaveStateModel } from '@/types';
 import { useGames } from '@/contexts/GamesContext';
 import styles from './styles.module.css';
 import buttons from '@/styles/buttons.module.css';
-import ConnectModal from './ConnectModal';
+import EditTab from './EditTab';
+import { BoxesNotReadyNote, LabSavePickers, LabSaveSidebar, SlotGrid, slotKey, spriteUrl } from './LabSave';
+import { useLabSave } from './useLabSave';
 import CartridgePickerModal from '@/components/modals/CartridgePicker';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
 
@@ -22,101 +22,17 @@ interface Occupancy {
     boxAvailable: boolean[];
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function spriteUrl(speciesIndex: number): string {
-    const entry = dexDict[speciesIndex];
-    if (!entry || entry.pokedexNo === 'NULL') return '';
-    return `${pokemonGifEndpoint}${entry.pokedexNo.padStart(3, '0')}.gif`;
-}
-
-// Only the game can set up the other boxes, so say how if some aren't ready yet.
-function BoxesNotReadyNote({ boxAvailable }: { boxAvailable: boolean[] }) {
-    if (boxAvailable.every(Boolean)) return null;
-    const ready = boxAvailable.indexOf(true) + 1;
-    return (
-        <p className={styles.infoNote}>
-            Only Box {ready} is ready. Change boxes once at a PC in the game and save to use the others.
-        </p>
-    );
-}
-
 // ─── Tab 1: Extract ──────────────────────────────────────────────────────────
 
 function ExtractTab({ games }: { games: GameModel[] }) {
-    const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
-    const [saveStates, setSaveStates] = useState<SaveStateModel[]>([]);
-    const [selectedSave, setSelectedSave] = useState<SaveStateModel | null>(null);
-    const [gamePickerOpen, setGamePickerOpen] = useState(false);
-    const [savePickerOpen, setSavePickerOpen] = useState(false);
-    const [connectModalOpen, setConnectModalOpen] = useState(false);
-    const [loadingSave, setLoadingSave] = useState(false);
-    const [party, setParty] = useState<SlotPokemon[]>([]);
-    const [boxes, setBoxes] = useState<SlotPokemon[][]>([]);
-    const [boxAvailable, setBoxAvailable] = useState<boolean[]>([]);
+    const lab = useLabSave();
     const [selected, setSelected] = useState<Set<string>>(new Set());
     const [sending, setSending] = useState(false);
-    const [toast, setToast] = useState('');
-    const [selectedBox, setSelectedBox] = useState(0);
-    const [loadedFilePath, setLoadedFilePath] = useState('');
+    const { contents, loadedFilePath, refresh, setToast } = lab;
+    const party = contents?.party ?? [];
 
-    // Re-derive to pick up refreshed `connected` status after fetchSaveStates
-    const currentSave = saveStates.find(s => s.id === selectedSave?.id) ?? selectedSave;
-
-    const fetchSaveStates = useCallback(async (gId: string) => {
-        if (!gId) { setSaveStates([]); return; }
-        const res = await fetch(`/api/save-states?gameId=${gId}`);
-        const data = await res.json();
-        setSaveStates(data);
-    }, []);
-
-    useEffect(() => { fetchSaveStates(selectedGame?.id ?? ''); setSelectedSave(null); }, [selectedGame?.id, fetchSaveStates]);
-
-    // Follows currentSave, so it reloads whenever the save's file changes.
-    const filePath = currentSave?.filePath;
-    const loadSaveFile = useCallback(async () => {
-        const url = filePath;
-        if (!url) return;
-        setLoadingSave(true);
-        setLoadedFilePath('');
-        setParty([]); setBoxes([]); setSelected(new Set()); setSelectedBox(0);
-        try {
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) {
-                setToast(`Could not load save file (${res.status}). Check the file URL.`);
-                return;
-            }
-            const json = await res.json() as { MBCRam: number[] };
-            if (!Array.isArray(json.MBCRam)) {
-                setToast('Save file is missing MBCRam data — reconnect the save state.');
-                return;
-            }
-            const sram = new Uint8Array(json.MBCRam);
-            const invalid = validateGen1Save(sram);
-            if (invalid) {
-                setToast(invalid);
-                return;
-            }
-            const parsed = readSaveContents(sram);
-            setParty(parsed.party);
-            setBoxes(parsed.boxes);
-            setBoxAvailable(parsed.boxAvailable);
-            setSelectedBox(Math.max(parsed.boxAvailable.indexOf(true), 0));
-            setLoadedFilePath(url);
-        } catch (err) {
-            console.error('[loadSaveFile]', err);
-            setToast('Failed to load save file — check the console.');
-        } finally {
-            setLoadingSave(false);
-        }
-    }, [filePath]);
-
-    useEffect(() => {
-        if (selectedSave?.id && currentSave?.connected) loadSaveFile();
-    }, [selectedSave?.id, currentSave?.connected, loadSaveFile]);
-
-    const slotKey = (s: SlotPokemon) =>
-        s.location === 'party' ? `party-${s.slotIndex}` : `box-${s.boxNumber}-${s.slotIndex}`;
+    // Slots only mean something in the file they were read from.
+    useEffect(() => { setSelected(new Set()); }, [loadedFilePath]);
 
     const toggleSlot = (s: SlotPokemon) => {
         const key = slotKey(s);
@@ -130,24 +46,21 @@ function ExtractTab({ games }: { games: GameModel[] }) {
     const emptiesParty = party.length > 0 && party.every(s => selected.has(slotKey(s)));
 
     const handleSend = async () => {
-        if (!selected.size || emptiesParty) return;
+        if (!selected.size || emptiesParty || !contents) return;
         setSending(true);
-        const allSlots = [
-            ...party,
-            ...boxes.flat(),
-        ].filter(s => selected.has(slotKey(s)));
-
-        const slots = allSlots.map(s => ({
-            location: s.location,
-            ...(s.location === 'box' ? { boxNumber: s.boxNumber } : {}),
-            slotIndex: s.slotIndex,
-        }));
+        const slots = [...contents.party, ...contents.boxes.flat()]
+            .filter(s => selected.has(slotKey(s)))
+            .map(s => ({
+                location: s.location,
+                ...(s.location === 'box' ? { boxNumber: s.boxNumber } : {}),
+                slotIndex: s.slotIndex,
+            }));
 
         try {
             const res = await fetch('/api/pokemon/stored', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ saveStateId: selectedSave?.id, slots, expectedFilePath: loadedFilePath }),
+                body: JSON.stringify({ saveStateId: lab.selectedSave?.id, slots, expectedFilePath: loadedFilePath }),
             });
 
             if (res.ok) {
@@ -158,7 +71,7 @@ function ExtractTab({ games }: { games: GameModel[] }) {
                 setToast(err.error ?? 'Something went wrong.');
             }
             // On success this shows the new file. On a conflict, whatever is there now.
-            await fetchSaveStates(selectedGame?.id ?? '');
+            await refresh();
         } catch {
             setToast('Something went wrong. Check your connection and try again.');
         } finally {
@@ -167,104 +80,9 @@ function ExtractTab({ games }: { games: GameModel[] }) {
         }
     };
 
-    const renderSlotGrid = (slots: SlotPokemon[], label: string) => (
-        <div className={styles.boxSection}>
-            <div className={styles.boxTitle}>{label}</div>
-            <div className={styles.slotGrid}>
-                {slots.length === 0 ? (
-                    <div style={{ color: 'rgba(232,224,244,0.3)', fontSize: '0.8rem' }}>Empty</div>
-                ) : slots.map(s => {
-                    const key = slotKey(s);
-                    const isSel = selected.has(key);
-                    return (
-                        <div
-                            key={key}
-                            className={`${styles.slotCard} ${isSel ? styles.selected : ''}`}
-                            onClick={() => toggleSlot(s)}
-                        >
-                            <div className={styles.slotCardCheckbox}>{isSel ? '✓' : ''}</div>
-                            {spriteUrl(s.speciesIndex) && (
-                                <Image
-                                    src={spriteUrl(s.speciesIndex)}
-                                    alt={s.nickname}
-                                    width={56}
-                                    height={56}
-                                    className={styles.slotSprite}
-                                    unoptimized
-                                />
-                            )}
-                            <div className={styles.slotName}>{s.nickname}</div>
-                            <div className={styles.slotLevel}>Lv. {s.level}</div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-
     return (
         <div className={styles.twoCol}>
-            <div className={styles.sidebar}>
-                <div className={styles.selectorRow}>
-                    <button
-                        className={`${buttons.retroButton} ${styles.selectorButton}`}
-                        onClick={() => setGamePickerOpen(true)}
-                    >
-                        {selectedGame?.title ?? 'choose game'}
-                    </button>
-                    <button
-                        className={`${buttons.retroButton} ${styles.selectorButton}`}
-                        onClick={() => setSavePickerOpen(true)}
-                        disabled={!selectedGame}
-                    >
-                        {selectedSave?.title ?? 'choose save file'}
-                    </button>
-                </div>
-
-                {selectedSave?.id && !currentSave?.connected && (
-                    <div className={styles.connectBanner}>
-                        <p>This save isn&apos;t connected to Oak&apos;s Lab yet.</p>
-                        <button
-                            className={buttons.retroButton}
-                            onClick={() => setConnectModalOpen(true)}
-                        >
-                            Connect to Lab
-                        </button>
-                    </div>
-                )}
-
-                <ConnectModal
-                    isOpen={connectModalOpen}
-                    onClose={() => setConnectModalOpen(false)}
-                    saveStateId={selectedSave?.id ?? ''}
-                    gameId={selectedGame?.id ?? ''}
-                    fetchSaveStates={fetchSaveStates}
-                />
-
-                {currentSave?.connected && !loadingSave && (party.length > 0 || boxes.some(b => b.length > 0)) && (
-                    <div className={styles.boxSection}>
-                        <div className={styles.boxTitle}>PC Boxes</div>
-                        <div className={styles.boxNav}>
-                            {boxes.map((boxSlots, i) => (
-                                <button
-                                    key={i}
-                                    className={[
-                                        buttons.retroButton,
-                                        styles.boxNavBtn,
-                                        selectedBox === i ? styles.boxNavActive : '',
-                                        boxSlots.length > 0 ? styles.boxHasPokemon : '',
-                                    ].filter(Boolean).join(' ')}
-                                    onClick={() => setSelectedBox(i)}
-                                    disabled={!boxAvailable[i]}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                        </div>
-                        <BoxesNotReadyNote boxAvailable={boxAvailable} />
-                    </div>
-                )}
-            </div>
+            <LabSaveSidebar lab={lab} />
 
             <div className={styles.content}>
                 {selected.size > 0 && (
@@ -284,30 +102,30 @@ function ExtractTab({ games }: { games: GameModel[] }) {
                     </div>
                 )}
 
-                {toast && <p style={{ color: '#c8a0f0', marginBottom: '1rem' }}>{toast}</p>}
-                {loadingSave && <p style={{ color: 'rgba(232,224,244,0.5)' }}>Loading save file...</p>}
+                {lab.toast && <p style={{ color: '#c8a0f0', marginBottom: '1rem' }}>{lab.toast}</p>}
+                {lab.loadingSave && <p style={{ color: 'rgba(232,224,244,0.5)' }}>Loading save file...</p>}
 
-                {currentSave?.connected && !loadingSave && (party.length > 0 || boxes.some(b => b.length > 0)) && (
+                {lab.showContents && !lab.loadingSave && (
                     <>
-                        {renderSlotGrid(party, 'Party')}
-                        {renderSlotGrid(boxes[selectedBox] ?? [], `Box ${selectedBox + 1}`)}
+                        <SlotGrid
+                            label="Party"
+                            slots={party}
+                            selectedKeys={selected}
+                            onSelect={toggleSlot}
+                            showCheckbox
+                        />
+                        <SlotGrid
+                            label={`Box ${lab.selectedBox + 1}`}
+                            slots={contents?.boxes[lab.selectedBox] ?? []}
+                            selectedKeys={selected}
+                            onSelect={toggleSlot}
+                            showCheckbox
+                        />
                     </>
                 )}
             </div>
 
-            <CartridgePickerModal
-                isOpen={gamePickerOpen}
-                onClose={() => setGamePickerOpen(false)}
-                games={games}
-                onSelect={(game) => { setSelectedGame(game); setGamePickerOpen(false); }}
-                selectedFilePath={selectedGame?.filePath}
-            />
-            <LoadStateModal
-                isOpen={savePickerOpen}
-                onClose={() => setSavePickerOpen(false)}
-                saveStates={saveStates}
-                onConfirm={(save) => { setSelectedSave(save); setToast(''); setSavePickerOpen(false); }}
-            />
+            <LabSavePickers lab={lab} games={games} />
         </div>
     );
 }
@@ -603,7 +421,7 @@ function PortInTab({ games }: { games: GameModel[] }) {
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function OaksLab() {
-    const [tab, setTab] = useState<'extract' | 'port'>('extract');
+    const [tab, setTab] = useState<'extract' | 'port' | 'edit'>('extract');
     const { games } = useGames();
 
     return (
@@ -638,9 +456,17 @@ export default function OaksLab() {
                     >
                         Take a Pokémon
                     </button>
+                    <button
+                        className={`${buttons.retroButton} ${styles.tab} ${tab === 'edit' ? styles.tabActive : ''}`}
+                        onClick={() => setTab('edit')}
+                    >
+                        Enhance a Pokémon
+                    </button>
                 </div>
 
-                {tab === 'extract' ? <ExtractTab games={games} /> : <PortInTab games={games} />}
+                {tab === 'extract' && <ExtractTab games={games} />}
+                {tab === 'port' && <PortInTab games={games} />}
+                {tab === 'edit' && <EditTab games={games} />}
             </div>
         </div>
     );
