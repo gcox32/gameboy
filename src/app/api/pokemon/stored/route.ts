@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { del, put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { User, SaveState, Game, StoredPokemon } from '@/models';
-import { extractFromSRAM, SourceSlot } from '@/utils/pokemon/extract';
-import { clearSlot, hasTrainerId, isValidSlot, stampTrainerId } from '@/utils/sramWriter';
-import { saveBlobPath } from '@/utils/blobPaths';
+import { loadGen1Save, storeSave } from '@/lib/saveFile';
+import { extractFromSRAM } from '@/utils/pokemon/extract';
+import { BOX_UNAVAILABLE_MESSAGE, PARTY_BASE, SaveSlot, isSlotAvailable, isValidSlot } from '@/utils/pokemon/gen1Save';
+import { clearSlot, hasTrainerId, stampTrainerId } from '@/utils/sramWriter';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { saveStateId, slots } = body as {
         saveStateId: string;
-        slots: SourceSlot[];
+        slots: SaveSlot[];
     };
 
     if (!saveStateId || !Array.isArray(slots) || !slots.length) {
@@ -66,17 +66,18 @@ export async function POST(req: NextRequest) {
     const game = await Game.findById(saveState.gameId);
     if (!game) return NextResponse.json({ error: 'Game not found' }, { status: 404 });
 
-    // Fetch the save blob (JSON format: { MBCRam: number[] })
-    const res = await fetch(saveState.filePath, { cache: 'no-store' });
-    if (!res.ok) return NextResponse.json({ error: 'Failed to fetch save file' }, { status: 502 });
-    const json = await res.json() as { MBCRam: number[] };
-    if (!Array.isArray(json.MBCRam)) {
-        return NextResponse.json({ error: 'Save file is missing MBCRam data' }, { status: 502 });
+    const loaded = await loadGen1Save(saveState, game);
+    if (loaded.error !== undefined) {
+        return NextResponse.json({ error: loaded.error }, { status: loaded.status });
     }
-    let sram: Uint8Array = new Uint8Array(json.MBCRam);
+    let sram: Uint8Array = loaded.sram;
 
-    // A Gen 1 save must always have at least one party Pokémon.
-    const partyCount = sram[0x2F2C];
+    if (!slots.every(s => isSlotAvailable(sram, s))) {
+        return NextResponse.json({ error: BOX_UNAVAILABLE_MESSAGE }, { status: 422 });
+    }
+
+    // Once the player has a Pokémon, the party must keep at least one.
+    const partyCount = sram[PARTY_BASE];
     const partySlots = slots.filter(s => s.location === 'party').length;
     if (partySlots > 0 && partySlots >= partyCount) {
         return NextResponse.json({ error: 'At least one Pokémon must stay in the party' }, { status: 422 });
@@ -113,6 +114,8 @@ export async function POST(req: NextRequest) {
             speciesName: extracted.speciesName,
             nickname: extracted.nickname,
             otName: extracted.otName,
+            nicknameBytes: extracted.nicknameBytes,
+            otNameBytes: extracted.otNameBytes,
             otId: extracted.otId,
             level: extracted.level,
             rawBoxData: extracted.rawBoxData,
@@ -122,18 +125,10 @@ export async function POST(req: NextRequest) {
         created.push(stored.toJSON());
     }
 
-    // Upload patched save blob (JSON format: { MBCRam: number[] })
-    const oldFilePath = saveState.filePath;
-    const blobPath = saveBlobPath(
-        session.user.email ?? session.user.id,
-        game.title,
-        saveState.title ?? 'save',
-        saveStateId,
-    );
-    const patched = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
-    const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: true });
-    await SaveState.updateOne({ _id: saveStateId }, { $set: { filePath: blob.url } });
-    try { await del(oldFilePath); } catch { /* non-fatal */ }
+    const updatedFilePath = await storeSave(saveState, sram, {
+        identity: session.user.email ?? session.user.id,
+        gameTitle: game.title,
+    });
 
-    return NextResponse.json({ created, updatedSaveStateId: saveState.id, updatedFilePath: blob.url }, { status: 201 });
+    return NextResponse.json({ created, updatedSaveStateId: saveState.id, updatedFilePath }, { status: 201 });
 }

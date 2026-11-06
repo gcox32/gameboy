@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { pokemonGifEndpoint } from '../../../config';
 import { dexDict } from '@/utils/pokemon/dicts';
-import { TextEncoder as Gen1TextEncoder } from '@/utils/sramParser';
+import { SaveContents, SlotPokemon, readSaveContents, validateGen1Save } from '@/utils/pokemon/gen1Save';
 import { RanchPokemon } from '@/components/ranch/types';
 import { GameModel, SaveStateModel } from '@/types';
 import { useGames } from '@/contexts/GamesContext';
@@ -16,13 +16,10 @@ import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateMod
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
-interface SlotPokemon {
-    location: 'party' | 'box';
-    boxNumber?: number;
-    slotIndex: number;
-    speciesIndex: number;
-    nickname: string;
-    level: number;
+interface Occupancy {
+    partyCount: number;
+    boxCounts: number[];
+    boxAvailable: boolean[];
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -33,98 +30,15 @@ function spriteUrl(speciesIndex: number): string {
     return `${pokemonGifEndpoint}${entry.pokedexNo.padStart(3, '0')}.gif`;
 }
 
-function readUint16LE(data: number[], offset: number): number {
-    return data[offset] | (data[offset + 1] << 8);
-}
-
-function parseBoxSlots(sram: number[], base: number): SlotPokemon[] {
-    const count = sram[base];
-    if (!count || count > 20) return [];
-    const BOX_NICK = base + 22 + 20 * 33 + 20 * 11;
-    const result: SlotPokemon[] = [];
-
-    for (let i = 0; i < count; i++) {
-        // Read species from the species list (base+1..base+20), not from the data block.
-        // The list is the canonical occupancy indicator and terminates with 0xFF.
-        const speciesIndex = sram[base + 1 + i];
-        if (speciesIndex === 0xFF) break;  // hit list terminator
-        if (!speciesIndex || !dexDict[speciesIndex]) continue;
-        const dataOffset = base + 22 + i * 33;
-        const level = sram[dataOffset + 0x03];
-        if (level < 2 || level > 100) continue;
-        const nickBytes = sram.slice(BOX_NICK + i * 11, BOX_NICK + i * 11 + 11);
-        const nickname = Gen1TextEncoder.decodeString(nickBytes);
-        result.push({ location: 'box', slotIndex: i, speciesIndex, nickname, level });
-    }
-    return result;
-}
-
-/*
- * Gen 1 SRAM PC box reading — layout notes
- *
- * MBCRam is a flat 32 KB array of four 8 KB SRAM banks:
- *   Bank 0  0x0000–0x1FFF  sprite tiles, Hall of Fame
- *   Bank 1  0x2000–0x3FFF  main save data, party, current-box buffer
- *   Bank 2  0x4000–0x5FFF  PC boxes 1–6
- *   Bank 3  0x6000–0x7FFF  PC boxes 7–12
- *
- * Party (bank 1, 0x2F2C):
- *   [0]        count (0–6)
- *   [1–7]      species list + 0xFF terminator
- *   [8 + i*44] 44-byte Pokémon data per slot; level at data+0x21
- *   [8 + 6*44 + i*11]         OT names (11 bytes each)
- *   [8 + 6*44 + 6*11 + i*11]  nicknames (11 bytes each)
- *
- * PC boxes (bank 2/3, BOX_SIZE = 0x462 bytes each):
- *   [0]         count (0–20)
- *   [1–21]      species list (20 slots + 0xFF terminator)
- *   [22 + i*33] 33-byte box Pokémon data per slot; level at data+0x03
- *   [22 + 20*33 + i*11]         OT names
- *   [22 + 20*33 + 20*11 + i*11] nicknames
- *
- * Current-box double-buffer:
- *   wCurrentBoxNum (0x284C) — lower nibble = 0-indexed box number (0–11);
- *     upper bits are flags (0x80 = currently in PC) and must be masked off.
- *   The active box's live data is always in the buffer at 0x30C0 (one full box,
- *   0x462 bytes). Its banked slot is stale until the player switches boxes or saves.
- *   All other boxes are read directly from their banked slots.
- */
-function parseSaveFile(data: Uint8Array): { party: SlotPokemon[]; boxes: SlotPokemon[][] } {
-    const sram = Array.from(data);
-    const PARTY_BASE = 0x2F2C;
-    const partyCount = sram[PARTY_BASE];
-    const PARTY_DATA = PARTY_BASE + 8;
-    const PARTY_NICK = PARTY_BASE + 8 + 6 * 44 + 6 * 11;
-
-    const party: SlotPokemon[] = [];
-    for (let i = 0; i < Math.min(partyCount, 6); i++) {
-        const dataOffset = PARTY_DATA + i * 44;
-        const speciesIndex = sram[dataOffset];
-        if (!speciesIndex || speciesIndex === 0xFF) continue;
-        const level = sram[dataOffset + 0x21];
-        const nickBytes = sram.slice(PARTY_NICK + i * 11, PARTY_NICK + i * 11 + 11);
-        const nickname = Gen1TextEncoder.decodeString(nickBytes);
-        party.push({ location: 'party', slotIndex: i, speciesIndex, nickname, level });
-    }
-
-    const CURRENT_BOX_BASE = 0x30C0;
-    const currentBoxIdx = sram[0x284C] & 0x0F;
-
-    const BOX_SIZE = 0x462;
-    const boxes: SlotPokemon[][] = [];
-    for (let b = 0; b < 12; b++) {
-        const bankBase = b < 6 ? 0x4000 : 0x6000;
-        const boxIdx = b < 6 ? b : b - 6;
-        const base = b === currentBoxIdx ? CURRENT_BOX_BASE : bankBase + boxIdx * BOX_SIZE;
-        const boxPokemon = parseBoxSlots(sram, base).map(p => ({
-            ...p,
-            location: 'box' as const,
-            boxNumber: b + 1,
-        }));
-        boxes.push(boxPokemon);
-    }
-
-    return { party, boxes };
+// Only the game can set up the other boxes, so say how if some aren't ready yet.
+function BoxesNotReadyNote({ boxAvailable }: { boxAvailable: boolean[] }) {
+    if (boxAvailable.every(Boolean)) return null;
+    const ready = boxAvailable.indexOf(true) + 1;
+    return (
+        <p className={styles.infoNote}>
+            Only Box {ready} is ready. Change boxes once at a PC in the game and save to use the others.
+        </p>
+    );
 }
 
 // ─── Tab 1: Extract ──────────────────────────────────────────────────────────
@@ -139,6 +53,7 @@ function ExtractTab({ games }: { games: GameModel[] }) {
     const [loadingSave, setLoadingSave] = useState(false);
     const [party, setParty] = useState<SlotPokemon[]>([]);
     const [boxes, setBoxes] = useState<SlotPokemon[][]>([]);
+    const [boxAvailable, setBoxAvailable] = useState<boolean[]>([]);
     const [selected, setSelected] = useState<Set<string>>(new Set());
     const [sending, setSending] = useState(false);
     const [toast, setToast] = useState('');
@@ -172,9 +87,17 @@ function ExtractTab({ games }: { games: GameModel[] }) {
                 setToast('Save file is missing MBCRam data — reconnect the save state.');
                 return;
             }
-            const parsed = parseSaveFile(new Uint8Array(json.MBCRam));
+            const sram = new Uint8Array(json.MBCRam);
+            const invalid = validateGen1Save(sram);
+            if (invalid) {
+                setToast(invalid);
+                return;
+            }
+            const parsed = readSaveContents(sram);
             setParty(parsed.party);
             setBoxes(parsed.boxes);
+            setBoxAvailable(parsed.boxAvailable);
+            setSelectedBox(Math.max(parsed.boxAvailable.indexOf(true), 0));
         } catch (err) {
             console.error('[loadSaveFile]', err);
             setToast('Failed to load save file — check the console.');
@@ -230,7 +153,8 @@ function ExtractTab({ games }: { games: GameModel[] }) {
                 loadSaveFile(updatedFilePath),
             ]);
         } else {
-            setToast('Something went wrong.');
+            const err = await res.json().catch(() => ({}));
+            setToast(err.error ?? 'Something went wrong.');
         }
         setSending(false);
         setTimeout(() => setToast(''), 4000);
@@ -324,11 +248,13 @@ function ExtractTab({ games }: { games: GameModel[] }) {
                                         boxSlots.length > 0 ? styles.boxHasPokemon : '',
                                     ].filter(Boolean).join(' ')}
                                     onClick={() => setSelectedBox(i)}
+                                    disabled={!boxAvailable[i]}
                                 >
                                     {i + 1}
                                 </button>
                             ))}
                         </div>
+                        <BoxesNotReadyNote boxAvailable={boxAvailable} />
                     </div>
                 )}
             </div>
@@ -373,7 +299,7 @@ function ExtractTab({ games }: { games: GameModel[] }) {
                 isOpen={savePickerOpen}
                 onClose={() => setSavePickerOpen(false)}
                 saveStates={saveStates}
-                onConfirm={(save) => { setSelectedSave(save); setSavePickerOpen(false); }}
+                onConfirm={(save) => { setSelectedSave(save); setToast(''); setSavePickerOpen(false); }}
             />
         </div>
     );
@@ -391,10 +317,10 @@ function PortInTab({ games }: { games: GameModel[] }) {
     const [selectedPokemon, setSelectedPokemon] = useState<RanchPokemon | null>(null);
     const [targetSlotType, setTargetSlotType] = useState<'party' | 'box'>('party');
     const [targetBoxNumber, setTargetBoxNumber] = useState(1);
-    const [occupancy, setOccupancy] = useState<{ partyCount: number; boxCounts: number[] } | null>(null);
+    const [occupancy, setOccupancy] = useState<Occupancy | null>(null);
     const [porting, setPorting] = useState(false);
     const [toast, setToast] = useState('');
-    const [portedSave, setPortedSave] = useState<{ party: SlotPokemon[]; boxes: SlotPokemon[][] } | null>(null);
+    const [portedSave, setPortedSave] = useState<SaveContents | null>(null);
 
     // Re-derive to pick up refreshed `connected` status after fetchSaveStates
     const currentSave = saveStates.find(s => s.id === selectedSave?.id) ?? selectedSave;
@@ -403,6 +329,16 @@ function PortInTab({ games }: { games: GameModel[] }) {
         if (!gId) { setSaveStates([]); return; }
         const res = await fetch(`/api/save-states?gameId=${gId}`);
         setSaveStates(await res.json());
+    }, []);
+
+    const applyContents = useCallback((contents: SaveContents) => {
+        setOccupancy({
+            partyCount: contents.party.length,
+            boxCounts: contents.boxes.map(b => b.length),
+            boxAvailable: contents.boxAvailable,
+        });
+        // Don't leave a box selected that this save can't use.
+        setTargetBoxNumber(prev => contents.boxAvailable[prev - 1] ? prev : contents.boxAvailable.indexOf(true) + 1);
     }, []);
 
     const fetchRanch = useCallback(async () => {
@@ -424,11 +360,17 @@ function PortInTab({ games }: { games: GameModel[] }) {
             .then(r => r.json())
             .then((json: { MBCRam: number[] }) => {
                 if (!Array.isArray(json.MBCRam)) return;
-                const parsed = parseSaveFile(new Uint8Array(json.MBCRam));
-                setOccupancy({ partyCount: parsed.party.length, boxCounts: parsed.boxes.map(b => b.length) });
+                const sram = new Uint8Array(json.MBCRam);
+                const invalid = validateGen1Save(sram);
+                if (invalid) {
+                    setOccupancy(null);
+                    setToast(invalid);
+                    return;
+                }
+                applyContents(readSaveContents(sram));
             })
             .catch(() => {});
-    }, [selectedSave?.id, currentSave?.connected, currentSave?.filePath]);
+    }, [selectedSave?.id, currentSave?.connected, currentSave?.filePath, applyContents]);
 
     const handlePort = async () => {
         if (!selectedPokemon || !selectedSave?.id) return;
@@ -453,9 +395,9 @@ function PortInTab({ games }: { games: GameModel[] }) {
                 const saveRes = await fetch(updatedFilePath, { cache: 'no-store' });
                 const saveJson = await saveRes.json() as { MBCRam: number[] };
                 if (Array.isArray(saveJson.MBCRam)) {
-                    const fresh = parseSaveFile(new Uint8Array(saveJson.MBCRam));
+                    const fresh = readSaveContents(new Uint8Array(saveJson.MBCRam));
                     setPortedSave(fresh);
-                    setOccupancy({ partyCount: fresh.party.length, boxCounts: fresh.boxes.map(b => b.length) });
+                    applyContents(fresh);
                 }
             } catch {}
         } else {
@@ -523,6 +465,7 @@ function PortInTab({ games }: { games: GameModel[] }) {
                                 {Array.from({ length: 12 }, (_, i) => {
                                     const count = occupancy?.boxCounts[i] ?? 0;
                                     const full = count >= 20;
+                                    const available = occupancy?.boxAvailable[i] ?? true;
                                     return (
                                         <button
                                             key={i}
@@ -532,12 +475,13 @@ function PortInTab({ games }: { games: GameModel[] }) {
                                                 targetBoxNumber === i + 1 ? styles.pickerActive : '',
                                             ].filter(Boolean).join(' ')}
                                             onClick={() => setTargetBoxNumber(i + 1)}
-                                            disabled={full}
+                                            disabled={full || !available}
                                         >
                                             {`Box ${i + 1}${occupancy ? ` (${count}/20)` : ''}`}
                                         </button>
                                     );
                                 })}
+                                {occupancy && <BoxesNotReadyNote boxAvailable={occupancy.boxAvailable} />}
                             </div>
                         )}
                     </div>
@@ -640,7 +584,7 @@ function PortInTab({ games }: { games: GameModel[] }) {
                 isOpen={savePickerOpen}
                 onClose={() => setSavePickerOpen(false)}
                 saveStates={saveStates}
-                onConfirm={(save) => { setSelectedSave(save); setSavePickerOpen(false); }}
+                onConfirm={(save) => { setSelectedSave(save); setToast(''); setSavePickerOpen(false); }}
             />
         </div>
     );

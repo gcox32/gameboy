@@ -13,6 +13,8 @@ export interface IStoredPokemon extends Document {
     speciesName: string;
     nickname: string;
     otName: string;
+    nicknameBytes?: Buffer;
+    otNameBytes?: Buffer;
     otId: number;
     level: number;
     rawBoxData: Buffer;
@@ -33,8 +35,12 @@ const StoredPokemonSchema = new Schema<IStoredPokemon>(
         },
         speciesIndex: { type: Number, required: true },
         speciesName: { type: String, required: true },
-        nickname: { type: String, required: true },
-        otName: { type: String, required: true },
+        // Decoded for display and can be empty. A required string would reject ''.
+        nickname: { type: String, default: '' },
+        otName: { type: String, default: '' },
+        // The game's own bytes (11 each), written back unchanged on port. Absent on older records.
+        nicknameBytes: { type: Buffer },
+        otNameBytes: { type: Buffer },
         otId: { type: Number, required: true },
         level: { type: Number, required: true },
         rawBoxData: { type: Buffer, required: true },

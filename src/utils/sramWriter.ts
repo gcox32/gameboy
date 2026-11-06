@@ -1,78 +1,54 @@
-import { SRAMParser, TextEncoder } from '@/utils/sramParser';
 import { calcGen1Stats } from '@/utils/pokemon/stats';
+import {
+    BOX_CAPACITY,
+    BOX_COUNT,
+    BOX_DATA_OFFSET,
+    BOX_MIRROR_BASE,
+    BOX_MON_SIZE,
+    BOX_NICK_OFFSET,
+    BOX_OT_OFFSET,
+    BOX_SIZE,
+    BOX_SPECIES_OFFSET,
+    DAYCARE_IN_USE,
+    DAYCARE_MON,
+    NAME_LENGTH,
+    PARTY_BASE,
+    PARTY_CAPACITY,
+    PARTY_DATA,
+    PARTY_MON_SIZE,
+    PARTY_NICK,
+    PARTY_OT,
+    PARTY_SPECIES,
+    PLAYER_ID,
+    SaveSlot,
+    boxBankedBase,
+    boxBase,
+    currentBoxIndex,
+    isBoxAvailable,
+    writeMainChecksum,
+} from '@/utils/pokemon/gen1Save';
 
-export interface WriteSlot {
-    location: 'party' | 'box';
-    boxNumber?: number;
-    slotIndex: number;
+// Stored name bytes, written back exactly as they were read.
+export interface PokemonNames {
+    nickname: ArrayLike<number>;
+    otName: ArrayLike<number>;
 }
 
-// Offsets relative to party base (0x2F2C)
-const PARTY_BASE = 0x2F2C;
-const PARTY_COUNT = PARTY_BASE;
-const PARTY_SPECIES = PARTY_BASE + 1;      // 6 bytes + 1 terminator + 1 padding = 8 before data
-const PARTY_DATA = PARTY_BASE + 8;         // 44 bytes per slot
-const PARTY_OT = PARTY_BASE + 8 + 6 * 44;
-const PARTY_NICK = PARTY_BASE + 8 + 6 * 44 + 6 * 11;
-
-const PLAYER_ID = 0x2605;
-
-// Current box (mirror) at 0x30C0
-const BOX_MIRROR_BASE = 0x30C0;
-
-// PC box layout
-const BOX_SIZE = 0x462;
-
-function boxBase(sram: Uint8Array, boxNumber: number): number {
-    // Active box live data is in the mirror at 0x30C0; its banked slot is stale.
-    // wCurrentBoxNum at 0x284C: bits 0–6 = 0-indexed box number; bit 7 = "has switched" flag.
-    const currentBoxIdx = sram[0x284C] & 0x0F;
-    if ((boxNumber - 1) === currentBoxIdx) return BOX_MIRROR_BASE;
-    return boxBankedBase(boxNumber);
-}
-
-// Always returns the banked-slot base, regardless of which box is current.
-function boxBankedBase(boxNumber: number): number {
-    const bankBase = boxNumber <= 6 ? 0x4000 : 0x6000;
-    const idx = boxNumber <= 6 ? boxNumber - 1 : boxNumber - 7;
-    return bankBase + idx * BOX_SIZE;
-}
-
-// After any write to the current box's mirror buffer, copy it to the banked slot so
-// the game's OpenBox routine (which repopulates the mirror from the banked slot on PC
-// entry) sees our changes and doesn't silently discard them.
+// Keep the current box's banked slot matching its mirror after a write. The game
+// overwrites that slot when the player changes boxes, so this isn't needed for the game
+// itself, but it stops the file holding two different versions of the same box.
 function syncCurrentBoxToBanked(sram: Uint8Array, boxNumber: number): void {
-    const currentBoxIdx = sram[0x284C] & 0x0F;
-    if ((boxNumber - 1) !== currentBoxIdx) return;
-    const banked = boxBankedBase(boxNumber);
-    sram.copyWithin(banked, BOX_MIRROR_BASE, BOX_MIRROR_BASE + BOX_SIZE);
+    if (boxNumber - 1 !== currentBoxIndex(sram)) return;
+    sram.copyWithin(boxBankedBase(boxNumber), BOX_MIRROR_BASE, BOX_MIRROR_BASE + BOX_SIZE);
 }
-
-const BOX_DATA_OFFSET = 22;
-const BOX_OT_OFFSET = 22 + 20 * 33;
-const BOX_NICK_OFFSET = 22 + 20 * 33 + 20 * 11;
 
 // True if the save's Player ID already equals appTrainerId (big-endian).
 export function hasTrainerId(sram: Uint8Array, appTrainerId: number): boolean {
     return sram[PLAYER_ID] === ((appTrainerId >> 8) & 0xFF) && sram[PLAYER_ID + 1] === (appTrainerId & 0xFF);
 }
 
-// Validates an untrusted slot from a request body.
-export function isValidSlot(slot: unknown): slot is WriteSlot {
-    if (!slot || typeof slot !== 'object') return false;
-    const { location, boxNumber, slotIndex } = slot as Record<string, unknown>;
-    if (location === 'party') {
-        return Number.isInteger(slotIndex) && (slotIndex as number) >= 0 && (slotIndex as number) < 6;
-    }
-    if (location === 'box') {
-        return Number.isInteger(boxNumber) && (boxNumber as number) >= 1 && (boxNumber as number) <= 12
-            && Number.isInteger(slotIndex) && (slotIndex as number) >= 0 && (slotIndex as number) < 20;
-    }
-    return false;
-}
-
 // Stamps appTrainerId into the Player ID field and all existing Pokémon OT IDs.
-// Called on Connect so every slot in party/boxes is owned by the app trainer,
+// Called on Connect so every Pokémon in the save is owned by the app trainer,
 // matching the Player ID that will be stamped on all future catches.
 export function stampTrainerId(sramData: Uint8Array, appTrainerId: number): Uint8Array {
     const sram = new Uint8Array(sramData);
@@ -86,34 +62,39 @@ export function stampTrainerId(sramData: Uint8Array, appTrainerId: number): Uint
     sram[PLAYER_ID + 1] = loId;
 
     // Party: OT ID at data+0x0C–0x0D (big-endian), 44-byte slots
-    const partyCount = Math.min(sram[PARTY_COUNT], 6);
+    const partyCount = Math.min(sram[PARTY_BASE], PARTY_CAPACITY);
     for (let i = 0; i < partyCount; i++) {
-        const base = PARTY_DATA + i * 44;
+        const base = PARTY_DATA + i * PARTY_MON_SIZE;
         if (!sram[base]) continue;
         sram[base + 0x0C] = hiId;
         sram[base + 0x0D] = loId;
     }
 
-    // All 12 boxes: OT ID at data+0x0C–0x0D (big-endian), 33-byte slots
-    const currentBoxIdx = sram[0x284C] & 0x0F;
-    let didWriteCurrentBox = false;
-    for (let b = 0; b < 12; b++) {
-        const base = b === currentBoxIdx ? BOX_MIRROR_BASE : boxBankedBase(b + 1);
-        const count = Math.min(sram[base], 20);
+    // Day Care: one box-form mon, withdrawn later with the same OT ID check
+    if (sram[DAYCARE_IN_USE]) {
+        sram[DAYCARE_MON + 0x0C] = hiId;
+        sram[DAYCARE_MON + 0x0D] = loId;
+    }
+
+    // Boxes the game has set up: OT ID at data+0x0C–0x0D (big-endian), 33-byte slots
+    for (let boxNumber = 1; boxNumber <= BOX_COUNT; boxNumber++) {
+        if (!isBoxAvailable(sram, boxNumber)) continue;
+        const base = boxBase(sram, boxNumber);
+        const count = Math.min(sram[base], BOX_CAPACITY);
         for (let i = 0; i < count; i++) {
-            const dataBase = base + BOX_DATA_OFFSET + i * 33;
+            const dataBase = base + BOX_DATA_OFFSET + i * BOX_MON_SIZE;
             if (!sram[dataBase]) continue;
             sram[dataBase + 0x0C] = hiId;
             sram[dataBase + 0x0D] = loId;
         }
-        if (b === currentBoxIdx) didWriteCurrentBox = true;
+        syncCurrentBoxToBanked(sram, boxNumber);
     }
-    if (didWriteCurrentBox) syncCurrentBoxToBanked(sram, currentBoxIdx + 1);
 
+    writeMainChecksum(sram);
     return sram;
 }
 
-export function clearSlot(sramData: Uint8Array, slot: WriteSlot): Uint8Array {
+export function clearSlot(sramData: Uint8Array, slot: SaveSlot): Uint8Array {
     const sram = new Uint8Array(sramData);
 
     if (slot.location === 'party') {
@@ -122,18 +103,17 @@ export function clearSlot(sramData: Uint8Array, slot: WriteSlot): Uint8Array {
         clearBoxSlot(sram, slot.boxNumber!, slot.slotIndex);
     }
 
-    const parser = new SRAMParser(Array.from(sram));
-    sram[0x3523] = parser.calculateMainDataChecksum();
+    writeMainChecksum(sram);
     return sram;
 }
 
 function clearPartySlot(sram: Uint8Array, slotIndex: number): void {
-    const count = sram[PARTY_COUNT];
+    const count = sram[PARTY_BASE];
     if (slotIndex >= count) return;
 
     // Zero the 44-byte pokemon data
-    const dataStart = PARTY_DATA + slotIndex * 44;
-    sram.fill(0, dataStart, dataStart + 44);
+    const dataStart = PARTY_DATA + slotIndex * PARTY_MON_SIZE;
+    sram.fill(0, dataStart, dataStart + PARTY_MON_SIZE);
 
     // Shift remaining slots left in species list (bytes 1–6, positions 0–5)
     for (let i = slotIndex; i < count - 1; i++) {
@@ -142,18 +122,18 @@ function clearPartySlot(sram: Uint8Array, slotIndex: number): void {
     sram[PARTY_SPECIES + count - 1] = 0xFF;
 
     // Shift OT and nickname arrays
-    shiftNames(sram, PARTY_OT, slotIndex, count, 6);
-    shiftNames(sram, PARTY_NICK, slotIndex, count, 6);
+    shiftNames(sram, PARTY_OT, slotIndex, count);
+    shiftNames(sram, PARTY_NICK, slotIndex, count);
 
     // Shift pokemon data blocks
     for (let i = slotIndex; i < count - 1; i++) {
-        const src = PARTY_DATA + (i + 1) * 44;
-        const dst = PARTY_DATA + i * 44;
-        sram.copyWithin(dst, src, src + 44);
+        const src = PARTY_DATA + (i + 1) * PARTY_MON_SIZE;
+        const dst = PARTY_DATA + i * PARTY_MON_SIZE;
+        sram.copyWithin(dst, src, src + PARTY_MON_SIZE);
     }
-    sram.fill(0, PARTY_DATA + (count - 1) * 44, PARTY_DATA + count * 44);
+    sram.fill(0, PARTY_DATA + (count - 1) * PARTY_MON_SIZE, PARTY_DATA + count * PARTY_MON_SIZE);
 
-    sram[PARTY_COUNT] = count - 1;
+    sram[PARTY_BASE] = count - 1;
 }
 
 function clearBoxSlot(sram: Uint8Array, boxNumber: number, slotIndex: number): void {
@@ -161,25 +141,26 @@ function clearBoxSlot(sram: Uint8Array, boxNumber: number, slotIndex: number): v
     const count = sram[base];
     if (slotIndex >= count) return;
 
-    const dataStart = base + BOX_DATA_OFFSET + slotIndex * 33;
-    sram.fill(0, dataStart, dataStart + 33);
+    const dataStart = base + BOX_DATA_OFFSET + slotIndex * BOX_MON_SIZE;
+    sram.fill(0, dataStart, dataStart + BOX_MON_SIZE);
 
-    // Shift species list (starts at base + 1, up to 20 entries + 0xFF terminator)
+    // Shift species list (up to 20 entries + 0xFF terminator)
+    const species = base + BOX_SPECIES_OFFSET;
     for (let i = slotIndex; i < count - 1; i++) {
-        sram[base + 1 + i] = sram[base + 1 + i + 1];
+        sram[species + i] = sram[species + i + 1];
     }
-    sram[base + 1 + count - 1] = 0xFF;
+    sram[species + count - 1] = 0xFF;
 
     // Shift pokemon data blocks
     for (let i = slotIndex; i < count - 1; i++) {
-        const src = base + BOX_DATA_OFFSET + (i + 1) * 33;
-        const dst = base + BOX_DATA_OFFSET + i * 33;
-        sram.copyWithin(dst, src, src + 33);
+        const src = base + BOX_DATA_OFFSET + (i + 1) * BOX_MON_SIZE;
+        const dst = base + BOX_DATA_OFFSET + i * BOX_MON_SIZE;
+        sram.copyWithin(dst, src, src + BOX_MON_SIZE);
     }
-    sram.fill(0, base + BOX_DATA_OFFSET + (count - 1) * 33, base + BOX_DATA_OFFSET + count * 33);
+    sram.fill(0, base + BOX_DATA_OFFSET + (count - 1) * BOX_MON_SIZE, base + BOX_DATA_OFFSET + count * BOX_MON_SIZE);
 
-    shiftNames(sram, base + BOX_OT_OFFSET, slotIndex, count, 20);
-    shiftNames(sram, base + BOX_NICK_OFFSET, slotIndex, count, 20);
+    shiftNames(sram, base + BOX_OT_OFFSET, slotIndex, count);
+    shiftNames(sram, base + BOX_NICK_OFFSET, slotIndex, count);
 
     sram[base] = count - 1;
     syncCurrentBoxToBanked(sram, boxNumber);
@@ -188,10 +169,9 @@ function clearBoxSlot(sram: Uint8Array, boxNumber: number, slotIndex: number): v
 export function injectPokemon(
     sramData: Uint8Array,
     rawBoxData: Buffer,
-    nickname: string,
-    otName: string,
+    names: PokemonNames,
     appTrainerId: number,
-    targetSlot: WriteSlot
+    targetSlot: SaveSlot
 ): Uint8Array {
     const sram = new Uint8Array(sramData);
 
@@ -206,26 +186,23 @@ export function injectPokemon(
     rawBoxData[0x02] = stats.maxHP & 0xFF;
 
     if (targetSlot.location === 'party') {
-        injectParty(sram, rawBoxData, nickname, otName, stats, targetSlot.slotIndex);
+        injectParty(sram, rawBoxData, names, stats);
     } else {
-        injectBox(sram, rawBoxData, nickname, otName, targetSlot.boxNumber!, targetSlot.slotIndex);
+        injectBox(sram, rawBoxData, names, targetSlot.boxNumber!);
     }
 
-    const parser = new SRAMParser(Array.from(sram));
-    sram[0x3523] = parser.calculateMainDataChecksum();
+    writeMainChecksum(sram);
     return sram;
 }
 
 function injectParty(
     sram: Uint8Array,
     rawBoxData: Buffer,
-    nickname: string,
-    otName: string,
-    stats: ReturnType<typeof calcGen1Stats>,
-    slotIndex: number
+    names: PokemonNames,
+    stats: ReturnType<typeof calcGen1Stats>
 ): void {
-    const count = sram[PARTY_COUNT];
-    if (count >= 6) throw new Error('Party is full');
+    const count = sram[PARTY_BASE];
+    if (count >= PARTY_CAPACITY) throw new Error('Party is full');
 
     const speciesIndex = rawBoxData[0x00];
     const level = rawBoxData[0x03];
@@ -235,8 +212,8 @@ function injectParty(
     sram[PARTY_SPECIES + count + 1] = 0xFF;
 
     // Build 44-byte party form
-    const partyBytes = new Uint8Array(44);
-    partyBytes.set(rawBoxData.slice(0, 33), 0);
+    const partyBytes = new Uint8Array(PARTY_MON_SIZE);
+    partyBytes.set(rawBoxData.subarray(0, BOX_MON_SIZE), 0);
     partyBytes[0x21] = level;
     writeUint16BE(partyBytes, 0x22, stats.maxHP);
     writeUint16BE(partyBytes, 0x24, stats.attack);
@@ -244,54 +221,48 @@ function injectParty(
     writeUint16BE(partyBytes, 0x28, stats.speed);
     writeUint16BE(partyBytes, 0x2A, stats.special);
 
-    const dataStart = PARTY_DATA + count * 44;
-    sram.set(partyBytes, dataStart);
+    sram.set(partyBytes, PARTY_DATA + count * PARTY_MON_SIZE);
 
-    writeNameAt(sram, PARTY_OT + count * 11, otName);
-    writeNameAt(sram, PARTY_NICK + count * 11, nickname);
+    writeNameAt(sram, PARTY_OT + count * NAME_LENGTH, names.otName);
+    writeNameAt(sram, PARTY_NICK + count * NAME_LENGTH, names.nickname);
 
-    sram[PARTY_COUNT] = count + 1;
+    sram[PARTY_BASE] = count + 1;
 }
 
 function injectBox(
     sram: Uint8Array,
     rawBoxData: Buffer,
-    nickname: string,
-    otName: string,
-    boxNumber: number,
-    slotIndex: number
+    names: PokemonNames,
+    boxNumber: number
 ): void {
     const base = boxBase(sram, boxNumber);
     const count = sram[base];
-    if (count >= 20) throw new Error('Box is full');
-
-    const speciesIndex = rawBoxData[0x00];
+    if (count >= BOX_CAPACITY) throw new Error('Box is full');
 
     // Gen 1 slots are contiguous — always append at count; terminator goes one beyond.
-    sram[base + 1 + count] = speciesIndex;
-    sram[base + 1 + count + 1] = 0xFF;
+    const species = base + BOX_SPECIES_OFFSET;
+    sram[species + count] = rawBoxData[0x00];
+    sram[species + count + 1] = 0xFF;
 
-    const dataStart = base + BOX_DATA_OFFSET + count * 33;
-    sram.set(rawBoxData.slice(0, 33), dataStart);
+    sram.set(rawBoxData.subarray(0, BOX_MON_SIZE), base + BOX_DATA_OFFSET + count * BOX_MON_SIZE);
 
-    writeNameAt(sram, base + BOX_OT_OFFSET + count * 11, otName);
-    writeNameAt(sram, base + BOX_NICK_OFFSET + count * 11, nickname);
+    writeNameAt(sram, base + BOX_OT_OFFSET + count * NAME_LENGTH, names.otName);
+    writeNameAt(sram, base + BOX_NICK_OFFSET + count * NAME_LENGTH, names.nickname);
 
     sram[base] = count + 1;
     syncCurrentBoxToBanked(sram, boxNumber);
 }
 
-function shiftNames(sram: Uint8Array, base: number, from: number, count: number, _max: number): void {
+function shiftNames(sram: Uint8Array, base: number, from: number, count: number): void {
     for (let i = from; i < count - 1; i++) {
-        sram.copyWithin(base + i * 11, base + (i + 1) * 11, base + (i + 1) * 11 + 11);
+        sram.copyWithin(base + i * NAME_LENGTH, base + (i + 1) * NAME_LENGTH, base + (i + 1) * NAME_LENGTH + NAME_LENGTH);
     }
-    sram.fill(0x50, base + (count - 1) * 11, base + count * 11);
+    sram.fill(0x50, base + (count - 1) * NAME_LENGTH, base + count * NAME_LENGTH);
 }
 
-function writeNameAt(sram: Uint8Array, offset: number, name: string): void {
-    const encoded = TextEncoder.encodeString(name);
-    for (let i = 0; i < 11; i++) {
-        sram[offset + i] = encoded[i] ?? 0x50;
+function writeNameAt(sram: Uint8Array, offset: number, name: ArrayLike<number>): void {
+    for (let i = 0; i < NAME_LENGTH; i++) {
+        sram[offset + i] = name[i] ?? 0x50;
     }
 }
 

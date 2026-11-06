@@ -8,28 +8,29 @@ How the cross-game Pokémon transfer system actually works, end to end.
 
 ## Concept
 
-A Pokémon is extracted from one save file, held in a server-side **Ranch**, and injected into another save file. It exists exactly once — it is never copied. The source save has the Pokémon removed; the destination save has it added. The Ranch is the transit state between games.
+A Pokémon is extracted from one save file, held in a server-side **Ranch**, and injected into another save file. The intent is that it exists exactly once and is never copied (see review #4 for the cases where that can still fail). The source save has the Pokémon removed; the destination save has it added. The Ranch is the transit state between games.
 
 Two UI surfaces:
 - **Oak's Lab** (`/lab`) — extract tab (Leave) and port-in tab (Take)
-- **Oak's Ranch** (`/ranch`) — read-only gallery of all currently stashed Pokémon
+- **Oak's Ranch** (`/ranch`) — gallery of all currently stashed Pokémon, where they can also be released
 
 ---
 
 ## Prerequisites: Connect
 
-Before any transfer can happen, a save state must be **connected** to Oak's Lab. Connection does two things:
+Before any transfer can happen, a save state must be **connected** to Oak's Lab. The file must first pass `validateGen1Save()`, or Connect returns a 422 and changes nothing. Connection then does two things:
 
 1. **Generates an `appTrainerId`** (16-bit, `0–65535`) on the user's `User` record if they don't already have one. This ID is permanent and unique across all users — it is the user's identity inside every game they connect.
 
 2. **Stamps the save file.** `stampTrainerId()` in `sramWriter.ts` does three things atomically:
    - Writes `appTrainerId` to `0x2605–0x2606` (big-endian, high byte first) — the Player ID field, so all future catches get the app Trainer ID as their OT ID. The game compares Player ID and OT ID byte-for-byte, so both must use the same byte order. Saves stamped before this was fixed are re-stamped automatically by the extract and port routes (`hasTrainerId()` check).
    - Iterates every occupied party slot (44-byte form) and overwrites the OT ID bytes at data+`0x0C–0x0D` (big-endian).
-   - Iterates every occupied slot in all 12 PC boxes (33-byte form) and overwrites the same bytes. The current box mirror is synced to its banked slot afterward.
+   - Overwrites the same bytes on the Day Care Pokémon, if there is one.
+   - Iterates every occupied slot in the PC boxes the game has set up (33-byte form) and overwrites the same bytes. The current box mirror is synced to its banked slot afterward.
 
    This ensures existing Pokémon already in the save are owned by the same trainer identity as newly caught ones, making them fully native rather than appearing as trades.
 
-The Bank 1 checksum (`0x3523`) is recalculated after the write. The patched save is uploaded to a new blob; the old blob is deleted. `SaveState.connected` is set to `true` via `updateOne/$set` *before* the blob operation so the record survives a mid-flight failure.
+The Bank 1 checksum (`0x3523`) is recalculated after the write. The patched save is uploaded to a new blob, `filePath` and `connected: true` are set in one `updateOne`, and the old blob is deleted. If anything fails first, the save stays unconnected and can be retried.
 
 Connect is **idempotent** — calling it on an already-connected save returns immediately with no changes.
 
@@ -51,7 +52,7 @@ Connect is **idempotent** — calling it on an already-connected save returns im
 1. Fetches the `.sav` blob for the save state.
 2. Sorts the requested slots **high-to-low** (by slot index within each box, boxes high-to-low before party) so that clearing one slot doesn't shift the indices of later slots in the same pass.
 3. For each slot:
-   - `extractFromSRAM()` — reads the 33-byte box-form data plus OT name, nickname, OT ID, species, and level directly from SRAM offsets.
+   - `extractFromSRAM()` — reads the 33-byte box-form data plus the raw OT name and nickname bytes, OT ID, species, and level.
    - `clearSlot()` — removes the Pokémon: zeroes its data block, shifts remaining entries in the species list and data arrays left, decrements the count byte, zeroes the OT/nick entries. Recalculates the Bank 1 checksum.
    - Creates a `StoredPokemon` document (`status: 'stashed'`).
 4. Uploads the fully-patched SRAM as a new blob (`addRandomSuffix: true`), updates `SaveState.filePath` via `updateOne/$set`, deletes the old blob.
@@ -82,7 +83,7 @@ Connect is **idempotent** — calling it on an already-connected save returns im
 4. Calls `injectPokemon()`:
    - Overwrites OT ID bytes (`0x0C–0x0D`) with `appTrainerId` — the Pokémon is now fully owned by the receiving game.
    - Clears status byte (`0x04`) to `0x00` and sets current HP (`0x01–0x02`) to the recalculated max HP — the Pokémon arrives healed.
-   - Appends to the target slot (party or box), increments the count byte, inserts the species ID into the species list, writes OT name and nickname.
+   - Appends to the target slot (party or box), increments the count byte, inserts the species ID into the species list, writes the stored OT name and nickname bytes unchanged.
    - Recalculates the Bank 1 checksum.
 5. Uploads patched blob (`addRandomSuffix: true`), updates `SaveState.filePath` via `updateOne/$set`, deletes old blob.
 6. Sets `StoredPokemon.status = 'in_game'`, `currentGameId = targetGameId`.
@@ -103,11 +104,13 @@ Gen 1 keeps two copies of the "current" PC box in SRAM:
 
 `wCurrentBoxNum` at `0x284C` (low nibble) tells which box is active.
 
-**The trap:** Gen 1's `OpenBox` routine repopulates the mirror from the banked slot whenever the player enters the PC. If you write only to the mirror, the change survives until the player opens the PC — at which point the banked slot wins and the change is silently discarded.
+The game loads the mirror when a save loads and writes it back on save. It only touches a box's banked slot when the player changes boxes: the old box is written out, then the new one read in. So the banked slot of the current box is stale, and nothing reads it while that box is current.
 
-**The fix (`sramWriter.ts`):** After any write to the current box (both `clearBoxSlot` and `injectBox`), `syncCurrentBoxToBanked()` copies the full mirror (`0x462` bytes) to the banked slot. Both locations are always kept in sync after every Oak's Lab write.
+**Reading and writing** always use the mirror for the current box and the banked slot for the others (`boxBase()` in `gen1Save.ts`). After a write to the current box, `syncCurrentBoxToBanked()` also copies the mirror to its banked slot so the file doesn't hold two versions of that box. The game doesn't need this.
 
-**Reading** uses the mirror for the current box (live data) and the banked slot for all other boxes — this is still correct for reads since the mirror is always fresher than the banked slot while the game is running.
+### Boxes the game hasn't set up
+
+Bit 7 of `wCurrentBoxNum` records that the player has changed boxes at least once. Until then banks 2 and 3 are unused, and the first change wipes them. `isBoxAvailable()` limits the Lab to the current box until then.
 
 ---
 
@@ -152,7 +155,8 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 | `sourceSlot` | `{ location, boxNumber?, slotIndex }` — where it lived |
 | `speciesIndex` | Raw game byte (not Pokédex number) |
 | `speciesName` | Decoded at extract time |
-| `nickname` / `otName` | Decoded Gen 1 charset strings |
+| `nickname` / `otName` | Decoded Gen 1 charset strings, for display. Can be empty. |
+| `nicknameBytes` / `otNameBytes` | The game's 11 bytes each, written back unchanged on port. Absent on older records. |
 | `otId` | 2-byte original trainer ID |
 | `level` | Extracted for display/filtering |
 | `rawBoxData` | **33 bytes** — canonical permanent form. Extended stats are recalculated on port-in. |
@@ -170,12 +174,14 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 
 | Layer | File | Responsibility |
 |---|---|---|
-| UI | `src/components/oaks-lab/OaksLab.tsx` | Extract tab, port-in tab, SRAM parsing for display |
+| UI | `src/components/oaks-lab/OaksLab.tsx` | Extract tab, port-in tab |
 | UI | `src/components/ranch/OaksRanch.tsx` | Read-only Ranch gallery |
 | API | `src/app/api/save-states/[id]/connect/route.ts` | Connect flow |
 | API | `src/app/api/pokemon/stored/route.ts` | GET (list Ranch), POST (extract) |
 | API | `src/app/api/pokemon/stored/[id]/route.ts` | DELETE (release) |
 | API | `src/app/api/pokemon/stored/[id]/port/route.ts` | POST (port-in) |
+| Save layout | `src/utils/pokemon/gen1Save.ts` | Offsets, `locateSlot()`, `validateGen1Save()`, `isBoxAvailable()`, `readSaveContents()`, checksum. Server and client. |
+| Save file | `src/lib/saveFile.ts` | `loadGen1Save()` and `storeSave()`, used by every Lab route. Server only. |
 | SRAM read | `src/utils/pokemon/extract.ts` | `extractFromSRAM()` — reads party/box slots into `RawExtractedPokemon` |
 | SRAM write | `src/utils/sramWriter.ts` | `clearSlot()`, `injectPokemon()`, current-box mirror↔banked sync |
 | SRAM parse | `src/utils/sramParser.ts` | `SRAMParser`, `TextEncoder` (Gen 1 charset), checksum |

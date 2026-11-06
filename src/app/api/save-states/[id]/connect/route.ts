@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { del, put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { User, SaveState, Game } from '@/models';
-import { SRAMParser } from '@/utils/sramParser';
+import { loadGen1Save, storeSave } from '@/lib/saveFile';
 import { stampTrainerId } from '@/utils/sramWriter';
-import { saveBlobPath } from '@/utils/blobPaths';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -48,41 +46,21 @@ export async function POST(_req: NextRequest, { params }: Params) {
         return NextResponse.json({ saveState: saveState.toJSON(), appTrainerId });
     }
 
-    // Persist connected: true FIRST so it survives even if the blob upload below fails.
-    // Use updateOne/$set to bypass Mongoose model-cache issues during development HMR.
-    await SaveState.updateOne({ _id: id }, { $set: { connected: true } });
-
-    // Patch the save file with the appTrainerId. Non-fatal: if this fails, the save state
-    // is still marked connected and the user can work with the original file.
-    try {
-        const fileRes = await fetch(saveState.filePath, { cache: 'no-store' });
-        if (!fileRes.ok) throw new Error(`Fetch failed: ${fileRes.status}`);
-
-        const json = await fileRes.json() as { MBCRam: number[] };
-        if (!Array.isArray(json.MBCRam)) throw new Error('Save file is missing MBCRam');
-
-        // Stamp appTrainerId into Player ID field and all existing Pokémon OT IDs
-        const sram = stampTrainerId(new Uint8Array(json.MBCRam), appTrainerId);
-
-        const parser = new SRAMParser(Array.from(sram));
-        sram[0x3523] = parser.calculateMainDataChecksum();
-
-        const oldFilePath = saveState.filePath;
-        const game = await Game.findById(saveState.gameId);
-        const blobPath = saveBlobPath(
-            session.user.email ?? session.user.id,
-            game?.title ?? 'game',
-            saveState.title ?? 'save',
-            id,
-        );
-        const patched = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
-        const blob = await put(blobPath, patched, { access: 'public', addRandomSuffix: true });
-
-        await SaveState.updateOne({ _id: id }, { $set: { filePath: blob.url } });
-        try { await del(oldFilePath); } catch { /* non-fatal */ }
-    } catch (err) {
-        console.error('[connect] File patching failed — save state is still marked connected:', err);
+    // Load before changing anything, so a file that isn't a Gen 1 save is left alone
+    // and the save state stays unconnected.
+    const game = await Game.findById(saveState.gameId);
+    const loaded = await loadGen1Save(saveState, game);
+    if (loaded.error !== undefined) {
+        return NextResponse.json({ error: loaded.error }, { status: loaded.status });
     }
+
+    // Stamp appTrainerId into Player ID field and all existing Pokémon OT IDs
+    const sram = stampTrainerId(loaded.sram, appTrainerId);
+    await storeSave(saveState, sram, {
+        identity: session.user.email ?? session.user.id,
+        gameTitle: game?.title ?? 'game',
+        alsoSet: { connected: true },
+    });
 
     const updated = await SaveState.findById(id);
     return NextResponse.json({ saveState: updated!.toJSON(), appTrainerId });
