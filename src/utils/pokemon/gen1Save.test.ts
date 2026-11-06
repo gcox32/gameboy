@@ -131,6 +131,46 @@ describe('validateGen1Save', () => {
     });
 });
 
+describe('saves from MBC5 games (128 KB in this emulator)', () => {
+    const MBC5_SIZE = 0x20000;
+    const asMbc5 = (sram: Uint8Array) => {
+        const big = new Uint8Array(MBC5_SIZE);
+        big.set(sram);
+        return big;
+    };
+
+    it('accepts a valid save, and no other sizes', () => {
+        assert.equal(validateGen1Save(asMbc5(makeSave())), null);
+        for (const size of [0x2000, SRAM_SIZE - 1, SRAM_SIZE + 1, 0x10000, MBC5_SIZE + 1]) {
+            const sram = new Uint8Array(size);
+            sram.set(makeSave().subarray(0, Math.min(size, SRAM_SIZE)));
+            assert.match(validateGen1Save(sram)!, /Gen 1/, `size ${size}`);
+        }
+    });
+
+    it('still rejects a blank one', () => {
+        assert.match(validateGen1Save(new Uint8Array(MBC5_SIZE))!, /no valid in-game save/);
+        assert.match(validateGen1Save(new Uint8Array(MBC5_SIZE).fill(0xFF))!, /no valid in-game save/);
+    });
+
+    it('keeps the file size and the unused bytes through every kind of write', () => {
+        const start = asMbc5(makeSave());
+        start[SRAM_SIZE] = 0xAB;
+        start[MBC5_SIZE - 1] = 0xCD;
+
+        let sram = stampTrainerId(start, NEW_ID);
+        const taken = extractFromSRAM(sram, { location: 'party', slotIndex: 0 });
+        sram = clearSlot(sram, { location: 'party', slotIndex: 0 });
+        sram = injectPokemon(sram, taken.rawBoxData, NAMES, NEW_ID, { location: 'box', boxNumber: 1, slotIndex: 0 });
+        sram = setPokemonIVs(sram, { location: 'box', boxNumber: 1, slotIndex: 0 }, { attack: 15, defense: 15, speed: 15, special: 15 });
+
+        assert.equal(sram.length, MBC5_SIZE);
+        assert.equal(sram[SRAM_SIZE], 0xAB);
+        assert.equal(sram[MBC5_SIZE - 1], 0xCD);
+        assert.equal(validateGen1Save(sram), null);
+    });
+});
+
 describe('names', () => {
     // Every byte a player can enter on the naming screen, plus in-game trades.
     const NAMING_SCREEN = [

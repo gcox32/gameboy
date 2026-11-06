@@ -8,6 +8,10 @@
  *   Bank 2  0x4000–0x5FFF  PC boxes 1–6
  *   Bank 3  0x6000–0x7FFF  PC boxes 7–12
  *
+ * The emulator allocates save RAM by cartridge type, not from the ROM header, so MBC5
+ * games (Yellow and its hacks) have 128 KB files. The game only uses the first 32 KB;
+ * the rest is zeroes that writers carry along untouched.
+ *
  * Party (0x2F2C):
  *   [0]        count (0–6). 0 is legal: the game can save before the starter.
  *   [1–7]      species list + 0xFF terminator
@@ -34,6 +38,7 @@ import { dexDict } from './dicts';
 import { Gen1IVs, decodeIVs } from './stats';
 
 export const SRAM_SIZE = 0x8000;
+const SRAM_SIZE_MBC5 = 0x20000;
 export const NAME_LENGTH = 11;
 export const BOX_MON_SIZE = 33;
 export const PARTY_MON_SIZE = 44;
@@ -176,7 +181,7 @@ export function writeMainChecksum(sram: Uint8Array): void {
 export function validateGen1Save(sram: Uint8Array): string | null {
     const NOT_GEN1 = "This doesn't look like a Gen 1 Pokémon save file.";
 
-    if (sram.length !== SRAM_SIZE) return NOT_GEN1;
+    if (sram.length !== SRAM_SIZE && sram.length !== SRAM_SIZE_MBC5) return NOT_GEN1;
 
     if (sram[MAIN_DATA_CHECKSUM] !== calcMainChecksum(sram)) {
         return "This file has no valid in-game save. Save from the game's menu, then try again.";

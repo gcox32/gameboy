@@ -64,7 +64,7 @@ Related docs: [OAKS_LAB.md](OAKS_LAB.md) (original plan), [OAKS_LAB_IMPL.md](OAK
 
 **Was:** writers recompute the checksum, so a blank save became "valid" and another game's save was rewritten in place, with the old file deleted.
 
-**Fix:** `validateGen1Save()` checks the size, main checksum and structure, and `loadGen1Save()` runs it on every Lab route before anything is changed. It also rejects games whose `metadata.generation` is set to something other than 1. A party of 0 is allowed, because the game can save before the starter.
+**Fix:** `validateGen1Save()` checks the size (32 KB, or 128 KB for MBC5 games like Yellow, because the emulator allocates by cartridge type), main checksum and structure, and `loadGen1Save()` runs it on every Lab route before anything is changed. It also rejects games whose `metadata.generation` is set to something other than 1. A party of 0 is allowed, because the game can save before the starter.
 
 ### 14. Names were lost or blocked extraction (high)
 
