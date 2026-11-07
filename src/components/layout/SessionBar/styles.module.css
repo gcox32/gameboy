@@ -82,11 +82,11 @@
     background: rgba(43, 138, 128, 0.18);
 }
 
-/* Wide enough for whole-number speeds. 0.5x and 1.5x need 64px, so they still widen the bar */
+/* Small enough that 0.5x and 1.5x fit the bar's 52px inner width, so changing speed never widens it */
 .speedButton {
     min-width: 52px;
-    padding: 0 6px;
-    font-size: 13px;
+    padding: 0 4px;
+    font-size: 10px;
     font-weight: 600;
     white-space: nowrap;
 }
