@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { charMap } from './pokemon/dicts';
 
 export const useMBCRamWatcher = (mbcRamRef, offsetHex, sizeHex, onChange, interval = 1000) => {
     useEffect(() => {
@@ -24,22 +23,8 @@ export const useMBCRamWatcher = (mbcRamRef, offsetHex, sizeHex, onChange, interv
         return () => clearInterval(intervalId); // cleanup interval on unmount
     }, [mbcRamRef, offsetHex, sizeHex, onChange, interval]);
 };
-export function translateInteger(integerValue) {
-    const hexValue = integerValue.toString(16).toUpperCase();
-    const hexNumber = parseInt(hexValue, 16);
-    const character = charMap[hexNumber];
-    return character || "?";
-}
-export function translateIntegerArray(integerArray, breakInt = 80) {
-    let translatedArray = [];
-    for (let i = 0; i < integerArray.length; i++) {
-        if (integerArray[i] === breakInt) {
-            break;
-        }
-        translatedArray.push(translateInteger(integerArray[i]));
-    }
-    return translatedArray.join('');
-}
+// Pure, so it lives apart from the hooks here and server code can use it
+export { translateInteger, translateIntegerArray } from './pokemon/text';
 /**
  * Slice memory with GBC memory overlay support
  * For GBC games, addresses 0xD000-0xDFFF are stored in gbcMemory, not main memory

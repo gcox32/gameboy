@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { registerModel } from './register';
 
 export type NotificationType = 'FRIEND_REQUEST' | 'SYSTEM' | 'INFO';
 
@@ -28,8 +29,6 @@ const NotificationSchema = new Schema<INotification>(
 NotificationSchema.index({ userId: 1, readAt: 1 });
 NotificationSchema.index({ userId: 1, createdAt: -1 });
 
-const Notification: Model<INotification> =
-    mongoose.models.Notification ??
-    mongoose.model<INotification>('Notification', NotificationSchema);
+const Notification: Model<INotification> = registerModel<INotification>('Notification', NotificationSchema);
 
 export default Notification;

@@ -432,7 +432,7 @@
 
 /*
  * The GIFs are trimmed to each Pokémon's outline, so setting the height sets the Pokémon's height.
- * --mon-scale comes from its real height (see spriteScale in LabStage).
+ * --mon-scale comes from its real height (see spriteScale in Platform).
  */
 .platformSprite {
     display: block;

@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { registerModel } from './register';
 
 export interface IMemoryWatcherEntry {
     baseAddress?: string;
@@ -51,7 +52,6 @@ const GameSchema = new Schema<IGame>(
 
 GameSchema.index({ userId: 1 });
 
-const Game: Model<IGame> =
-    mongoose.models.Game ?? mongoose.model<IGame>('Game', GameSchema);
+const Game: Model<IGame> = registerModel<IGame>('Game', GameSchema);
 
 export default Game;

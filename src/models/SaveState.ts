@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { registerModel } from './register';
 
 export interface ISaveState extends Document {
     userId: mongoose.Types.ObjectId;
@@ -28,7 +29,6 @@ const SaveStateSchema = new Schema<ISaveState>(
 SaveStateSchema.index({ userId: 1 });
 SaveStateSchema.index({ gameId: 1 });
 
-const SaveState: Model<ISaveState> =
-    mongoose.models.SaveState ?? mongoose.model<ISaveState>('SaveState', SaveStateSchema);
+const SaveState: Model<ISaveState> = registerModel<ISaveState>('SaveState', SaveStateSchema);
 
 export default SaveState;

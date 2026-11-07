@@ -218,6 +218,26 @@ describe('cloneToRanch', () => {
         assert.deepEqual([...blobs], [OLD_URL]);
     });
 
+    it('keeps the moves\' details from the ROM, and leaves them out without one', async () => {
+        // A ROM whose move table is just enough for the parser: move N has animation N and PP 10
+        const rom = new Uint8Array(0x8000);
+        for (let id = 1; id <= 165; id++) {
+            rom[0x100 + (id - 1) * 6] = id;
+            rom[0x100 + (id - 1) * 6 + 5] = 10;
+        }
+        const sram = makeSram();
+        sram[PARTY_DATA + 0x08] = 33;
+        const save = await makeSave();
+
+        const [withRom] = await cloneToRanch({ userId: USER.toString(), saveState: save, source: sram, slots: [PARTY_0], rom });
+        assert.deepEqual(withRom.toObject().moves, [
+            { id: 33, name: 'MOVE 33', type: 'TYPE 0', PP: 10, basepower: 0, accuracy: 0 },
+        ]);
+
+        const [without] = await cloneToRanch({ userId: USER.toString(), saveState: save, source: sram, slots: [PARTY_0] });
+        assert.equal(without.toObject().moves, undefined);
+    });
+
     it('stashes nothing if a slot is empty', async () => {
         const save = await makeSave();
         await assert.rejects(

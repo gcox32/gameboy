@@ -6,6 +6,7 @@ import { EmptySlotError, cloneToRanch, recoverStaleTransfers, sendToRanch } from
 import { SAVE_CHANGED_MESSAGE, loadGen1Save } from '@/lib/saveFile';
 import { BOX_UNAVAILABLE_MESSAGE, PARTY_BASE, SaveSlot, isSlotAvailable, isValidSlot } from '@/utils/pokemon/gen1Save';
 import { hasTrainerId, stampTrainerId } from '@/utils/sramWriter';
+import { loadRom } from '@/lib/romMoves';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
@@ -74,7 +75,8 @@ export async function POST(req: NextRequest) {
     const game = await Game.findById(saveState.gameId);
     if (!game) return NextResponse.json({ error: 'Game not found' }, { status: 404 });
 
-    const loaded = await loadGen1Save(saveState, game);
+    // The ROM is only for the moves' details, so it loads alongside and may come back empty
+    const [loaded, rom] = await Promise.all([loadGen1Save(saveState, game), loadRom(game)]);
     if (loaded.error !== undefined) {
         return NextResponse.json({ error: loaded.error }, { status: loaded.status });
     }
@@ -86,7 +88,7 @@ export async function POST(req: NextRequest) {
 
     if (mode === 'clone') {
         try {
-            const created = await cloneToRanch({ userId: session.user.id, saveState, source: sram, slots });
+            const created = await cloneToRanch({ userId: session.user.id, saveState, source: sram, slots, rom });
             return NextResponse.json({
                 created: created.map(p => p.toJSON()),
                 updatedSaveStateId: saveState.id,
@@ -119,6 +121,7 @@ export async function POST(req: NextRequest) {
             saveState,
             source: sram,
             slots,
+            rom,
             owner: { identity: session.user.email ?? session.user.id, gameTitle: game.title },
         });
         if (!result.ok) {

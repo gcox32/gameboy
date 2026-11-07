@@ -1,4 +1,4 @@
-import { translateIntegerArray } from "../MemoryWatcher";
+import { translateIntegerArray } from './text';
 import { typeDict, dexDict } from "./dicts";
 import { PokemonDetails, PartyDataStructure } from "@/types/pokemon";
 
@@ -46,29 +46,8 @@ export function parseParty(dataArray: number[]) {
 
 function parsePokemonStructure(structureData: number[]) {
     return {
-        pokedexNo: dexDict[structureData[0x00]].pokedexNo,
-        currentHP: readWord(structureData, 0x01),
+        ...parseBoxStructure(structureData),
         level: structureData[0x21],
-        statusCondition: parseStatus(structureData[0x04]),
-        type1: typeDict[structureData[0x05]],
-        type2: typeDict[structureData[0x06]],
-        catchRateHeldItem: structureData[0x07],
-        moves: [
-            parseMove(structureData[0x08], structureData[0x1D]),
-            parseMove(structureData[0x09], structureData[0x1E]),
-            parseMove(structureData[0x0A], structureData[0x1F]),
-            parseMove(structureData[0x0B], structureData[0x20])
-        ],
-        originalTrainerID: readWord(structureData, 0x0C),
-        EVs: {
-            hp: (structureData[0x11] << 8) | structureData[0x12],
-            attack: (structureData[0x13] << 8) | structureData[0x14],
-            defense: (structureData[0x15] << 8) | structureData[0x16],
-            speed: (structureData[0x17] << 8) | structureData[0x18],
-            special: (structureData[0x19] << 8) | structureData[0x1A]
-        },
-        // First DV byte is attack/defense, second is speed/special (see CalcStat in pokered)
-        IVs: calculateIVs(readWord(structureData, 0x1B)),
         levelStats: {
             maxHP: readWord(structureData, 0x22),
             attack: readWord(structureData, 0x24),
@@ -76,6 +55,38 @@ function parsePokemonStructure(structureData: number[]) {
             speed: readWord(structureData, 0x28),
             special: readWord(structureData, 0x2A)
         }
+    };
+}
+
+/**
+ * The first 33 bytes, which a boxed Pokémon has too. Its level and stats live in the
+ * party-only bytes after these, so a box Pokémon's come from elsewhere.
+ */
+export function parseBoxStructure(structureData: ArrayLike<number>) {
+    const data = Array.from(structureData);
+    return {
+        pokedexNo: dexDict[data[0x00]]?.pokedexNo,
+        currentHP: readWord(data, 0x01),
+        statusCondition: parseStatus(data[0x04]),
+        type1: typeDict[data[0x05]],
+        type2: typeDict[data[0x06]],
+        catchRateHeldItem: data[0x07],
+        moves: [
+            parseMove(data[0x08], data[0x1D]),
+            parseMove(data[0x09], data[0x1E]),
+            parseMove(data[0x0A], data[0x1F]),
+            parseMove(data[0x0B], data[0x20])
+        ],
+        originalTrainerID: readWord(data, 0x0C),
+        EVs: {
+            hp: (data[0x11] << 8) | data[0x12],
+            attack: (data[0x13] << 8) | data[0x14],
+            defense: (data[0x15] << 8) | data[0x16],
+            speed: (data[0x17] << 8) | data[0x18],
+            special: (data[0x19] << 8) | data[0x1A]
+        },
+        // First DV byte is attack/defense, second is speed/special (see CalcStat in pokered)
+        IVs: calculateIVs(readWord(data, 0x1B)),
     };
 }
 

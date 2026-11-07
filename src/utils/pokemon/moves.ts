@@ -1,4 +1,4 @@
-import { translateIntegerArray } from '../MemoryWatcher';
+import { translateIntegerArray } from './text';
 import { MoveDetails } from '@/types/pokemon';
 
 export type Rom = Uint8Array | number[];

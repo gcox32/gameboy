@@ -1,219 +1,252 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import BaseModal from '@/components/modals/BaseModal';
+import clsx from 'clsx';
 import NowPlaying from '@/components/layout/NowPlaying';
+import { useToast } from '@/components/ui';
 import { usePokemonSprites } from '@/hooks/usePokemonSprites';
-import { calcGen1Stats, decodeIVs } from '@/utils/pokemon/stats';
-import { RanchPokemon, getRawBytes } from './types';
+import { Field } from './Field';
+import PokemonDetailsModal from '@/components/pokemon/ActiveParty/DetailsModal';
+import { RanchActions } from './RanchActions';
+import { toPokemonDetails } from './details';
+import { PenTabs } from './PenTabs';
+import { CORRAL } from './fields';
+import type { RanchData, RanchPen, RanchPokemon } from './types';
 import styles from './styles.module.css';
 
-interface DetailModalProps {
-    pokemon: RanchPokemon;
-    onClose: () => void;
-    onRelease: (id: string) => Promise<void>;
-}
-
-function DetailModal({ pokemon, onClose, onRelease }: DetailModalProps) {
-    const { bySpecies, spriteStyle } = usePokemonSprites();
-    const [confirming, setConfirming] = useState(false);
-    const [releasing, setReleasing] = useState(false);
-
-    const bytes = getRawBytes(pokemon.rawBoxData);
-    const stats = calcGen1Stats(bytes);
-
-    const ivs = decodeIVs(bytes);
-
-    const moves = [bytes[0x08], bytes[0x09], bytes[0x0A], bytes[0x0B]].filter(m => m !== 0);
-    const pp = [bytes[0x1D] & 0x3F, bytes[0x1E] & 0x3F, bytes[0x1F] & 0x3F, bytes[0x20] & 0x3F];
-
-    const handleRelease = async () => {
-        if (!confirming) { setConfirming(true); return; }
-        setReleasing(true);
-        await onRelease(pokemon.id);
-        setReleasing(false);
-        onClose();
-    };
-
-    return (
-        <BaseModal isOpen title={pokemon.nickname} onClose={onClose} size="lg">
-            <div className={styles.detailGrid}>
-                <div className={styles.detailLeft}>
-                    <Image
-                        src={bySpecies(pokemon.speciesIndex)}
-                        alt={pokemon.nickname}
-                        width={120}
-                        height={120}
-                        className={styles.detailSprite}
-                        style={spriteStyle}
-                        unoptimized
-                    />
-                    <div className={styles.detailNickname}>{pokemon.nickname}</div>
-                    <div className={styles.detailSpecies}>{pokemon.speciesName}</div>
-                    <div className={styles.detailMeta}>Lv. {pokemon.level}</div>
-                    <div className={styles.detailMeta}>OT: {pokemon.otName} #{pokemon.otId}</div>
-                    <div className={styles.detailMeta}>
-                        Extracted {new Date(pokemon.extractedAt).toLocaleDateString()}
-                    </div>
-                </div>
-
-                <div className={styles.detailRight}>
-                    <div className={styles.statBlock}>
-                        <div className={styles.statBlockTitle}>Stats</div>
-                        {[
-                            ['Max HP', stats.maxHP],
-                            ['Attack', stats.attack],
-                            ['Defense', stats.defense],
-                            ['Speed', stats.speed],
-                            ['Special', stats.special],
-                        ].map(([label, value]) => (
-                            <div key={label} className={styles.statRow}>
-                                <span className={styles.statLabel}>{label}</span>
-                                <span className={styles.statValue}>{value}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className={styles.statBlock}>
-                        <div className={styles.statBlockTitle}>IVs</div>
-                        {[
-                            ['HP', ivs.hp], ['Atk', ivs.attack], ['Def', ivs.defense],
-                            ['Spd', ivs.speed], ['Spc', ivs.special],
-                        ].map(([label, value]) => (
-                            <div key={label} className={styles.statRow}>
-                                <span className={styles.statLabel}>{label}</span>
-                                <span className={styles.statValue}>{value} / 15</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className={styles.statBlock}>
-                        <div className={styles.statBlockTitle}>Moves</div>
-                        {moves.length === 0 ? (
-                            <div className={styles.statRow}><span className={styles.statLabel}>—</span></div>
-                        ) : moves.map((id, i) => (
-                            <div key={i} className={styles.statRow}>
-                                <span className={styles.statLabel}>Move {i + 1}</span>
-                                <span className={styles.statValue}>#{id} ({pp[i]} PP)</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className={styles.detailActions}>
-                    <button
-                        className={styles.releaseBtn}
-                        onClick={handleRelease}
-                        disabled={releasing}
-                    >
-                        {releasing ? 'Releasing...' : confirming ? 'Confirm release?' : 'Release'}
-                    </button>
-                </div>
-            </div>
-        </BaseModal>
-    );
+async function errorOf(res: Response, fallback: string): Promise<string> {
+    const body = await res.json().catch(() => null);
+    return typeof body?.error === 'string' ? body.error : fallback;
 }
 
 export default function OaksRanch() {
+    const { showToast } = useToast();
     const { bySpecies, spriteStyle } = usePokemonSprites();
-    const [pokemon, setPokemon] = useState<RanchPokemon[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState<RanchData | null>(null);
+    const [failed, setFailed] = useState(false);
+    const [activePenId, setActivePenId] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [search, setSearch] = useState('');
-    const [selected, setSelected] = useState<RanchPokemon | null>(null);
 
     useEffect(() => {
-        fetch('/api/pokemon/stored')
-            .then(r => r.json())
-            .then(data => { setPokemon(data); setLoading(false); })
-            .catch(() => setLoading(false));
+        let live = true;
+        fetch('/api/ranch')
+            .then(r => (r.ok ? r.json() : Promise.reject()))
+            .then((d: RanchData) => { if (live) setData(d); })
+            .catch(() => { if (live) setFailed(true); });
+        return () => { live = false; };
     }, []);
 
-    const filtered = useMemo(() =>
-        pokemon.filter(p =>
-            !search ||
-            p.nickname.toLowerCase().includes(search.toLowerCase()) ||
-            p.speciesName.toLowerCase().includes(search.toLowerCase())
-        ),
-        [pokemon, search]
-    );
+    const pens = useMemo(() => data?.pens ?? [], [data]);
+    const pokemon = useMemo(() => data?.pokemon ?? [], [data]);
+    const capacity = data?.capacity ?? 0;
+    const activePen: RanchPen | undefined = pens.find(p => p.id === activePenId) ?? pens[0];
 
-    const handleRelease = async (id: string) => {
-        await fetch(`/api/pokemon/stored/${id}`, { method: 'DELETE' });
-        setPokemon(prev => prev.filter(p => p.id !== id));
+    const counts = useMemo(() => {
+        const m = new Map<string, number>();
+        for (const p of pokemon) if (p.penId) m.set(p.penId, (m.get(p.penId) ?? 0) + 1);
+        return m;
+    }, [pokemon]);
+    const countOf = useCallback((penId: string) => counts.get(penId) ?? 0, [counts]);
+
+    const inPen = useMemo(
+        () => pokemon.filter(p => p.penId === activePen?.id),
+        [pokemon, activePen],
+    );
+    const selected = pokemon.find(p => p.id === selectedId) ?? null;
+
+    const query = search.trim().toLowerCase();
+    // A search looks through every pen; otherwise the roster is the pen on show
+    const roster = useMemo(() => query
+        ? pokemon.filter(p =>
+            p.nickname.toLowerCase().includes(query) || p.speciesName.toLowerCase().includes(query))
+        : inPen,
+    [pokemon, inPen, query]);
+
+    // The card steps through the list it was opened from
+    const at = roster.findIndex(p => p.id === selectedId);
+    const previous = at >= 0 && roster.length > 1 ? roster[(at - 1 + roster.length) % roster.length] : undefined;
+    const next = at >= 0 && roster.length > 1 ? roster[(at + 1) % roster.length] : undefined;
+
+    const penName = (penId: string | null) => pens.find(p => p.id === penId)?.name ?? '';
+
+    const pick = (p: RanchPokemon) => {
+        if (p.penId && p.penId !== activePen?.id) setActivePenId(p.penId);
+        setSelectedId(p.id);
     };
+
+    const switchPen = (penId: string) => {
+        setActivePenId(penId);
+        setSelectedId(null);
+    };
+
+    // ─── Changes ────────────────────────────────────────────────────────────
+
+    const addPen = async () => {
+        const res = await fetch('/api/ranch/pens', { method: 'POST', body: '{}' });
+        if (!res.ok) { showToast(await errorOf(res, 'Couldn\'t add a pen'), 'error'); return; }
+        const pen: RanchPen = await res.json();
+        setData(d => d && { ...d, pens: [...d.pens, pen] });
+        switchPen(pen.id);
+    };
+
+    const renamePen = async (penId: string, name: string) => {
+        const res = await fetch(`/api/ranch/pens/${penId}`, { method: 'PATCH', body: JSON.stringify({ name }) });
+        if (!res.ok) { showToast(await errorOf(res, 'Couldn\'t rename the pen'), 'error'); return false; }
+        const pen: RanchPen = await res.json();
+        setData(d => d && { ...d, pens: d.pens.map(p => (p.id === pen.id ? pen : p)) });
+        return true;
+    };
+
+    const removePen = async (penId: string) => {
+        const res = await fetch(`/api/ranch/pens/${penId}`, { method: 'DELETE' });
+        if (!res.ok) { showToast(await errorOf(res, 'Couldn\'t remove the pen'), 'error'); return; }
+        setData(d => d && { ...d, pens: d.pens.filter(p => p.id !== penId) });
+        setActivePenId(null);
+        setSelectedId(null);
+    };
+
+    const movePokemon = async (id: string, penId: string) => {
+        const res = await fetch(`/api/pokemon/stored/${id}`, { method: 'PATCH', body: JSON.stringify({ penId }) });
+        if (!res.ok) { showToast(await errorOf(res, 'Couldn\'t move that Pokémon'), 'error'); return; }
+        const moved: RanchPokemon = await res.json();
+        setData(d => d && { ...d, pokemon: d.pokemon.map(p => (p.id === id ? moved : p)) });
+        showToast(`${moved.nickname} moved to ${penName(penId)}`, 'success');
+        setSelectedId(null);
+    };
+
+    const release = async (id: string) => {
+        const res = await fetch(`/api/pokemon/stored/${id}`, { method: 'DELETE' }).catch(() => null);
+        if (!res?.ok) {
+            showToast(res ? await errorOf(res, 'Couldn\'t release that Pokémon') : 'Couldn\'t reach the Ranch', 'error');
+            return false;
+        }
+        setData(d => d && { ...d, pokemon: d.pokemon.filter(p => p.id !== id) });
+        setSelectedId(null);
+        return true;
+    };
+
+    // ─── Page ───────────────────────────────────────────────────────────────
 
     return (
         <div className={styles.page}>
             <NowPlaying />
-            <div className={styles.hero}>
-                <Image
-                    src="/images/oaks_ranch.png"
-                    alt="Oak's Ranch"
-                    fill
-                    className={styles.heroImg}
-                    priority
-                    unoptimized
-                />
-                <div className={styles.heroOverlay} />
-            </div>
 
-            <div className={styles.main}>
-                <div className={styles.pageHeader}>
-                    <div>
-                        <h1>Oak&apos;s Ranch</h1>
-                        <p>Your Pokémon in storage</p>
+            <Field
+                field={CORRAL}
+                pokemon={inPen}
+                seed={activePen?.id ?? 'ranch'}
+                selectedId={selectedId}
+                highlightedId={hoveredId}
+                onSelect={id => setSelectedId(cur => (cur === id ? null : id))}
+            />
+
+            <div className={styles.yard}>
+                <div className={styles.board}>
+                    <div className={styles.boardHeader}>
+                        <div>
+                            <h1>Oak&apos;s Ranch</h1>
+                            <p>Your Pokémon in storage</p>
+                        </div>
+                        <div className={styles.boardHeaderRight}>
+                            <input
+                                className={styles.searchInput}
+                                placeholder="Search..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                aria-label="Search the Ranch"
+                            />
+                            <span className={styles.filterCount}>{pokemon.length} Pokémon</span>
+                        </div>
                     </div>
-                    <div className={styles.pageHeaderRight}>
-                        <input
-                            className={styles.searchInput}
-                            placeholder="Search..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
+
+                    {activePen && (
+                        <PenTabs
+                            pens={pens}
+                            activeId={activePen.id}
+                            capacity={capacity}
+                            countOf={countOf}
+                            onPick={switchPen}
+                            onAdd={addPen}
+                            onRename={renamePen}
+                            onRemove={removePen}
                         />
-                        <span className={styles.filterCount}>{filtered.length} Pokémon</span>
+                    )}
+
+                    <div className={styles.boardBody}>
+                        {!data ? (
+                            <div className={styles.emptyState}>
+                                {failed ? 'Couldn\'t reach the Ranch.' : 'Loading...'}
+                            </div>
+                        ) : roster.length === 0 ? (
+                            <div className={styles.emptyState}>
+                                {query ? 'No Pokémon match your search.'
+                                    : pokemon.length === 0 ? 'No Pokémon at the Ranch yet.'
+                                        : 'This pen is empty.'}
+                            </div>
+                        ) : (
+                            <ul className={styles.roster}>
+                                {roster.map(p => (
+                                    <li key={p.id}>
+                                        <button
+                                            type="button"
+                                            className={clsx(styles.card, p.id === selectedId && styles.cardSelected)}
+                                            onClick={() => pick(p)}
+                                            onMouseEnter={() => setHoveredId(p.id)}
+                                            onMouseLeave={() => setHoveredId(null)}
+                                        >
+                                            <span className={styles.cardSprite}>
+                                                {bySpecies(p.speciesIndex) && (
+                                                    <Image
+                                                        src={bySpecies(p.speciesIndex)}
+                                                        alt=""
+                                                        width={48}
+                                                        height={48}
+                                                        style={spriteStyle}
+                                                        unoptimized
+                                                    />
+                                                )}
+                                            </span>
+                                            <span className={styles.cardText}>
+                                                <span className={styles.cardNickname}>{p.nickname}</span>
+                                                <span className={styles.cardSpecies}>
+                                                    {p.speciesName}
+                                                    {query && p.penId !== activePen?.id && ` · ${penName(p.penId)}`}
+                                                </span>
+                                            </span>
+                                            <span className={styles.cardLevel}>Lv. {p.level}</span>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
                     </div>
                 </div>
-
-                {loading ? (
-                    <div className={styles.emptyState}>Loading...</div>
-                ) : filtered.length === 0 ? (
-                    <div className={styles.emptyState}>
-                        {search ? 'No Pokémon match your search.' : 'No Pokémon at the Ranch yet.'}
-                    </div>
-                ) : (
-                    <div className={styles.grid}>
-                        {filtered.map(p => (
-                            <div
-                                key={p.id}
-                                className={styles.card}
-                                onClick={() => setSelected(p)}
-                            >
-                                {bySpecies(p.speciesIndex) && (
-                                    <Image
-                                        src={bySpecies(p.speciesIndex)}
-                                        alt={p.nickname}
-                                        width={80}
-                                        height={80}
-                                        className={styles.cardSprite}
-                                        style={spriteStyle}
-                                        unoptimized
-                                    />
-                                )}
-                                <div className={styles.cardNickname}>{p.nickname}</div>
-                                <div className={styles.cardSpecies}>{p.speciesName}</div>
-                                <div className={styles.cardLevel}>Lv. {p.level}</div>
-                            </div>
-                        ))}
-                    </div>
-                )}
             </div>
 
             {selected && (
-                <DetailModal
-                    pokemon={selected}
-                    onClose={() => setSelected(null)}
-                    onRelease={handleRelease}
+                <PokemonDetailsModal
+                    isOpen
+                    onClose={() => setSelectedId(null)}
+                    pokemon={toPokemonDetails(selected)}
+                    previousPokemon={previous && toPokemonDetails(previous)}
+                    nextPokemon={next && toPokemonDetails(next)}
+                    onPrevious={previous && (() => setSelectedId(previous.id))}
+                    onNext={next && (() => setSelectedId(next.id))}
+                    actions={
+                        <RanchActions
+                            key={selected.id}
+                            pokemon={selected}
+                            pens={pens}
+                            capacity={capacity}
+                            countOf={countOf}
+                            onMove={penId => movePokemon(selected.id, penId)}
+                            onRelease={() => release(selected.id)}
+                        />
+                    }
                 />
             )}
         </div>

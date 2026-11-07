@@ -1,0 +1,165 @@
+/*
+ * The field is as wide as the screen, but never narrower than --min-w (the image's own size) so the Pokémon stay big
+ * enough to see; narrower screens scroll across it. Only sky is cropped off the top when it's
+ * taller than the space it's given.
+ */
+.field {
+    --min-w: 1000px;
+    --scene-w: max(100vw, var(--min-w));
+
+    position: relative;
+    /* Keeps the Pokémon's depth z-indexes in here, under the page's modals */
+    isolation: isolate;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 100%;
+    height: min(calc(var(--scene-w) / var(--aspect)), 72dvh);
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+
+.field::-webkit-scrollbar {
+    display: none;
+}
+
+.scene {
+    position: relative;
+    flex-shrink: 0;
+    width: max(100%, var(--min-w));
+    aspect-ratio: var(--aspect);
+    container-type: inline-size;
+    user-select: none;
+}
+
+.sceneImg {
+    object-fit: cover;
+    pointer-events: none;
+}
+
+/* ─── A Pokémon ──────────────────────────────────────────────────────────── */
+
+/* Its spot is where its feet are */
+.mon {
+    --scene-h: calc(100cqi / var(--aspect));
+
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform: translate(-50%, -100%);
+    transition:
+        left var(--ms) linear,
+        top var(--ms) linear;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mon:focus-visible {
+    outline: none;
+}
+
+.sprite {
+    display: block;
+    width: auto;
+    height: calc(var(--h) * var(--scene-h));
+    max-width: none;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 1px rgba(20, 60, 10, 0.35));
+    transition:
+        height var(--ms) linear,
+        filter 150ms ease-out;
+    pointer-events: none;
+}
+
+.flipped {
+    transform: scaleX(-1);
+}
+
+/* A small hop in its step while it walks. On `translate`, so it doesn't undo the flip. */
+.walking .sprite {
+    animation: hop 360ms ease-in-out infinite;
+}
+
+@keyframes hop {
+    50% { translate: 0 -6%; }
+}
+
+/* Its name tag comes in front of whoever it's standing behind */
+.mon:hover,
+.mon:focus-visible,
+.highlighted,
+.selected {
+    z-index: 2000 !important;
+}
+
+/* An oval of shade on the grass under its feet */
+.shadow {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: calc(var(--h) * var(--scene-h) * 0.7);
+    height: calc(var(--h) * var(--scene-h) * 0.14);
+    border-radius: 50%;
+    background: radial-gradient(rgba(10, 50, 5, 0.45), rgba(10, 50, 5, 0) 70%);
+    transform: translate(-50%, 45%);
+    transition: width var(--ms) linear, height var(--ms) linear;
+}
+
+.mon:hover .sprite,
+.mon:focus-visible .sprite,
+.highlighted .sprite {
+    filter:
+        drop-shadow(0 0 2px #fff)
+        drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))
+        drop-shadow(0 2px 1px rgba(20, 60, 10, 0.35));
+}
+
+.selected .sprite {
+    filter:
+        drop-shadow(0 0 2px #fff6c8)
+        drop-shadow(0 0 6px rgba(255, 230, 120, 0.95))
+        drop-shadow(0 2px 1px rgba(20, 60, 10, 0.35));
+}
+
+/* Its name, on a scrap of the board's paper, while it's pointed at or picked */
+.tag {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    padding: 2px 7px;
+    font-size: 11px;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: #2b2110;
+    background: #f7f1df;
+    border: 1px solid rgba(70, 50, 20, 0.35);
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(40, 28, 10, 0.3);
+    transform: translate(-50%, 3px);
+    opacity: 0;
+    transition: opacity 120ms ease-out, transform 120ms ease-out;
+    pointer-events: none;
+}
+
+.mon:hover .tag,
+.mon:focus-visible .tag,
+.highlighted .tag,
+.selected .tag {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mon,
+    .sprite,
+    .shadow {
+        transition: none;
+    }
+}

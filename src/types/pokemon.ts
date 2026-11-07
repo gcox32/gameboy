@@ -83,6 +83,8 @@ export interface Move {
     pp?: number;
     ppUps?: number;
     name?: string;
+    /** Already known, e.g. kept from the game a Ranch Pokémon came from. Otherwise read from the running ROM. */
+    details?: MoveDetails;
 }
 
 export interface MoveDetails {

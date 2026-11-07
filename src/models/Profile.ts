@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { registerModel } from './register';
 
 export interface IProfile extends Document {
     userId: mongoose.Types.ObjectId;
@@ -21,7 +22,6 @@ const ProfileSchema = new Schema<IProfile>(
     { timestamps: true, toJSON: { virtuals: true } }
 );
 
-const Profile: Model<IProfile> =
-    mongoose.models.Profile ?? mongoose.model<IProfile>('Profile', ProfileSchema);
+const Profile: Model<IProfile> = registerModel<IProfile>('Profile', ProfileSchema);
 
 export default Profile;

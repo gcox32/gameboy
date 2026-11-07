@@ -6,6 +6,7 @@ import { extractFromSRAM, RawExtractedPokemon } from '@/utils/pokemon/extract';
 import { SaveSlot, isSlotOccupied } from '@/utils/pokemon/gen1Save';
 import { clearSlot } from '@/utils/sramWriter';
 import { SaveOwner, commitSave, removeBlob, uploadSave } from './saveFile';
+import { movesFromRom } from './romMoves';
 
 /*
  * Moving a Pokémon changes two systems, the save file and the database, which can't be
@@ -67,6 +68,8 @@ interface SendToRanchInput {
     source: Uint8Array;
     slots: SaveSlot[];
     owner: SaveOwner;
+    /** The source game's ROM, to keep the moves' details with the Pokémon */
+    rom?: Uint8Array | null;
 }
 
 export type SendToRanchResult =
@@ -74,7 +77,7 @@ export type SendToRanchResult =
     | { ok: false; reason: 'save_changed' };
 
 export async function sendToRanch(input: SendToRanchInput): Promise<SendToRanchResult> {
-    const { userId, saveState, source, slots, owner } = input;
+    const { userId, saveState, source, slots, owner, rom = null } = input;
     const { sram, taken } = takeFromSave(source, slots);
     const startedAt = new Date();
 
@@ -86,6 +89,7 @@ export async function sendToRanch(input: SendToRanchInput): Promise<SendToRanchR
         generation: 1,
         sourceSlot: slot,
         ...pokemon,
+        moves: movesFromRom(rom, pokemon.rawBoxData),
         extractedAt: startedAt,
         status: 'transferring',
         transfer: {
@@ -133,6 +137,8 @@ interface CloneToRanchInput {
     saveState: ISaveState;
     source: Uint8Array;
     slots: SaveSlot[];
+    /** The source game's ROM, to keep the moves' details with the Pokémon */
+    rom?: Uint8Array | null;
 }
 
 /**
@@ -141,21 +147,25 @@ interface CloneToRanchInput {
  * Only the database changes, so there's no gap to mark or recover.
  */
 export async function cloneToRanch(input: CloneToRanchInput): Promise<IStoredPokemon[]> {
-    const { userId, saveState, source, slots } = input;
+    const { userId, saveState, source, slots, rom = null } = input;
     if (!slots.every(s => isSlotOccupied(source, s))) {
         throw new EmptySlotError();
     }
 
     const extractedAt = new Date();
-    const docs = slots.map(slot => new StoredPokemon({
-        userId,
-        sourceGameId: saveState.gameId,
-        generation: 1,
-        sourceSlot: slot,
-        ...extractFromSRAM(source, slot),
-        extractedAt,
-        status: 'stashed',
-    }));
+    const docs = slots.map(slot => {
+        const pokemon = extractFromSRAM(source, slot);
+        return new StoredPokemon({
+            userId,
+            sourceGameId: saveState.gameId,
+            generation: 1,
+            sourceSlot: slot,
+            ...pokemon,
+            moves: movesFromRom(rom, pokemon.rawBoxData),
+            extractedAt,
+            status: 'stashed',
+        });
+    });
     await StoredPokemon.insertMany(docs);
     return docs;
 }

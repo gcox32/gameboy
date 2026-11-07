@@ -368,6 +368,17 @@
   color: #b7a6d6;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 2px solid #3d2f5c;
+}
+
 .modes {
   display: flex;
   gap: 6px;

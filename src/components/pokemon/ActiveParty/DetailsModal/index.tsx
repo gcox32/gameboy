@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import BaseModal from "@/components/modals/BaseModal";
 import Image from "next/image";
 import clsx from "clsx";
@@ -17,6 +17,8 @@ interface PokemonDetailsModalProps {
     nextPokemon?: PokemonDetails;
     onPrevious?: () => void;
     onNext?: () => void;
+    /** Buttons for what can be done with this Pokémon where it's shown, under the tabs */
+    actions?: ReactNode;
 }
 
 const ART_SETS = [
@@ -81,7 +83,7 @@ function NavButton({ pokemon, direction, onClick }: { pokemon: PokemonDetails; d
     );
 }
 
-function PokemonDetailsModal({ isOpen, onClose, pokemon, previousPokemon, nextPokemon, onPrevious, onNext }: PokemonDetailsModalProps) {
+function PokemonDetailsModal({ isOpen, onClose, pokemon, previousPokemon, nextPokemon, onPrevious, onNext, actions }: PokemonDetailsModalProps) {
     const [artIndex, setArtIndex] = useState(0);
     const [tab, setTab] = useState<Tab>('Moves');
 
@@ -181,6 +183,8 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon, previousPokemon, nextPo
                     <div className={styles.tabPanel} role="tabpanel">
                         {tab === 'Moves' ? <Moveset moves={structure.moves} /> : <StatsPanel structure={structure} />}
                     </div>
+
+                    {actions && <div className={styles.actions}>{actions}</div>}
                 </div>
             </div>
         </BaseModal>

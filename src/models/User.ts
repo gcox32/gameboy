@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
+import { registerModel } from './register';
 
 export interface IUser extends Document {
     email: string;
@@ -29,7 +30,6 @@ const UserSchema = new Schema<IUser>(
     { timestamps: true }
 );
 
-const User: Model<IUser> =
-    mongoose.models.User ?? mongoose.model<IUser>('User', UserSchema);
+const User: Model<IUser> = registerModel<IUser>('User', UserSchema);
 
 export default User;
