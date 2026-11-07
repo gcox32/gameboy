@@ -185,11 +185,7 @@ export function setPokemonIVs(sramData: Uint8Array, slot: SaveSlot, ivs: StoredI
     const mon = sram.slice(dataOffset, dataOffset + BOX_MON_SIZE);
     if (isParty) mon[0x03] = sram[dataOffset + 0x21];
 
-    const before = calcGen1Stats(mon);
-    mon[0x1B] = (ivs.attack << 4) | ivs.defense;
-    mon[0x1C] = (ivs.speed << 4) | ivs.special;
-    const after = calcGen1Stats(mon);
-
+    const { before, after } = writeBoxIVs(mon, ivs);
     sram[dataOffset + 0x1B] = mon[0x1B];
     sram[dataOffset + 0x1C] = mon[0x1C];
 
@@ -201,17 +197,37 @@ export function setPokemonIVs(sramData: Uint8Array, slot: SaveSlot, ivs: StoredI
         adjustUint16BE(sram, dataOffset + 0x28, after.speed - before.speed);
         adjustUint16BE(sram, dataOffset + 0x2A, after.special - before.special);
     }
-
-    // A fainted Pokémon stays fainted, and a healthy one can't be knocked out by this.
-    const currentHP = readUint16BE(sram, dataOffset + 0x01);
-    if (currentHP > 0) {
-        const next = currentHP + after.maxHP - before.maxHP;
-        writeUint16BE(sram, dataOffset + 0x01, Math.min(Math.max(next, 1), maxHP));
-    }
+    moveCurrentHP(sram, dataOffset, after.maxHP - before.maxHP, maxHP);
 
     if (!isParty) syncCurrentBoxToBanked(sram, slot.boxNumber!);
     writeMainChecksum(sram);
     return sram;
+}
+
+/**
+ * Sets the IVs of a Pokémon held as its 33 box bytes alone, as the Ranch keeps them. There
+ * are no party stats to move, so only current HP follows the change, as in a box.
+ */
+export function setBoxMonIVs(rawBoxData: ArrayLike<number>, ivs: StoredIVs): Uint8Array {
+    const mon = Uint8Array.from(rawBoxData);
+    const { before, after } = writeBoxIVs(mon, ivs);
+    moveCurrentHP(mon, 0, after.maxHP - before.maxHP);
+    return mon;
+}
+
+/** Writes the IVs into box bytes, and says how the stats they give change */
+function writeBoxIVs(mon: Uint8Array, ivs: StoredIVs) {
+    const before = calcGen1Stats(mon);
+    mon[0x1B] = (ivs.attack << 4) | ivs.defense;
+    mon[0x1C] = (ivs.speed << 4) | ivs.special;
+    return { before, after: calcGen1Stats(mon) };
+}
+
+/** A fainted Pokémon stays fainted, and a healthy one can't be knocked out by this */
+function moveCurrentHP(buf: Uint8Array, dataOffset: number, by: number, maxHP = Infinity): void {
+    const currentHP = readUint16BE(buf, dataOffset + 0x01);
+    if (currentHP === 0) return;
+    writeUint16BE(buf, dataOffset + 0x01, Math.min(Math.max(currentHP + by, 1), maxHP));
 }
 
 export function injectPokemon(

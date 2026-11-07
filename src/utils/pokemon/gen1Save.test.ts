@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import mongoose from 'mongoose';
 import StoredPokemon from '@/models/StoredPokemon';
 import { TextEncoder as Gen1Text, encodeNameString } from '@/utils/sramParser';
-import { clearSlot, hasTrainerId, injectPokemon, setPokemonIVs, stampTrainerId } from '@/utils/sramWriter';
-import { calcGen1Stats, hpIVFrom, isValidStoredIVs } from './stats';
+import { clearSlot, hasTrainerId, injectPokemon, setBoxMonIVs, setPokemonIVs, stampTrainerId } from '@/utils/sramWriter';
+import { calcGen1Stats, decodeIVs, hpIVFrom, isValidStoredIVs } from './stats';
 import { extractFromSRAM } from './extract';
 import {
     BOX_MIRROR_BASE,
@@ -444,3 +444,41 @@ describe('setPokemonIVs', () => {
         }
     });
 });
+
+describe('setBoxMonIVs', () => {
+    const MAXED = { attack: 15, defense: 15, speed: 15, special: 15 };
+    const ZERO = { attack: 0, defense: 0, speed: 0, special: 0 };
+    const hp = (b: Uint8Array) => (b[0x01] << 8) | b[0x02];
+
+    // A Ranch record's bytes: a level 30 Pikachu at full HP for its IVs
+    function ranchMon(currentHP?: number) {
+        const b = new Uint8Array(33);
+        b[0x00] = 0x54;
+        b[0x03] = 30;
+        const full = calcGen1Stats(b).maxHP;
+        const value = currentHP ?? full;
+        b[0x01] = value >> 8;
+        b[0x02] = value & 0xFF;
+        return b;
+    }
+
+    it('writes the IVs and leaves the bytes it was given alone', () => {
+        const before = ranchMon();
+        const after = setBoxMonIVs(before, { attack: 1, defense: 2, speed: 3, special: 4 });
+        assert.deepEqual(decodeIVs(after), { attack: 1, defense: 2, speed: 3, special: 4, hp: 10 });
+        assert.equal(before[0x1B], 0);
+    });
+
+    it('moves current HP with max HP, so a full Pokémon stays full', () => {
+        const after = setBoxMonIVs(ranchMon(), MAXED);
+        assert.equal(hp(after), calcGen1Stats(after).maxHP);
+    });
+
+    it("doesn't revive a fainted Pokémon or knock out a healthy one", () => {
+        assert.equal(hp(setBoxMonIVs(ranchMon(0), MAXED)), 0);
+        const weak = setBoxMonIVs(ranchMon(), MAXED);
+        weak[0x01] = 0; weak[0x02] = 1;
+        assert.equal(hp(setBoxMonIVs(weak, ZERO)), 1);
+    });
+});
+

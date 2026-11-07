@@ -12,13 +12,15 @@ interface SlideSwitchProps<T extends string> {
     onChange: (value: T) => void;
     /** Narrower positions, for the decks */
     small?: boolean;
+    /** Prints each position's name beside its light, for a switch nothing nearby explains */
+    printed?: boolean;
 }
 
 /**
  * A slide switch with a light over each position, so it's plain only one is on. Press a position,
  * or grab the thumb and drag it: it follows the pointer, then settles into the nearest position.
  */
-export function SlideSwitch<T extends string>({ label, options, value, onChange, small }: SlideSwitchProps<T>) {
+export function SlideSwitch<T extends string>({ label, options, value, onChange, small, printed }: SlideSwitchProps<T>) {
     const index = Math.max(options.findIndex(o => o.id === value), 0);
     const refs = useRef<(HTMLButtonElement | null)[]>([]);
     const thumbRef = useRef<HTMLSpanElement>(null);
@@ -83,7 +85,7 @@ export function SlideSwitch<T extends string>({ label, options, value, onChange,
 
     return (
         <div
-            className={clsx(styles.switch, small && styles.switchSmall)}
+            className={clsx(styles.switch, small && styles.switchSmall, printed && styles.switchPrinted)}
             role="radiogroup"
             aria-label={label}
             onKeyDown={handleKey}
@@ -117,7 +119,10 @@ export function SlideSwitch<T extends string>({ label, options, value, onChange,
                         onPointerCancel: release,
                     })}
                 >
-                    <i className={clsx(styles.lamp, value === o.id ? styles.lamp_on : styles.lamp_off)} aria-hidden />
+                    <span className={styles.stopHead} aria-hidden>
+                        <i className={clsx(styles.lamp, value === o.id ? styles.lamp_on : styles.lamp_off)} />
+                        {printed && <span className={styles.stopName}>{o.label}</span>}
+                    </span>
                 </button>
             ))}
         </div>

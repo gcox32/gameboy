@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowDownToLine, Copy, X } from 'lucide-react';
-import { DeckKey, DeckPill, LabDeck, LabResult, LabStage, Platform } from '../stage';
-import { SaveMonitor, slotEntry, slotKey } from '../save/LabSave';
+import { DeckKey, DeckPill, LabDeck, LabResult, useFeedStage } from '../stage';
+import { slotEntry, slotKey, useSaveScreen } from '../save/LabSave';
 import type { LabSave } from '../save/useLabSave';
 import styles from '../lab.module.css';
 
@@ -73,6 +73,21 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
 
     const none = !chosen;
 
+    // The save on the monitor, and the chosen Pokémon on the pad
+    const saveScreen = useSaveScreen(lab, {
+        cursorKey: selectedKey,
+        // A second click puts it back
+        onPick: s => {
+            setSelectedKey(prev => prev === slotKey(s) ? '' : slotKey(s));
+            setResult(null);
+        },
+        onCursor: s => {
+            setSelectedKey(slotKey(s));
+            setResult(null);
+        },
+    });
+    useFeedStage({ screens: { save: saveScreen.screen }, platform: chosen ? slotEntry(chosen) : null });
+
     // The same three keys throughout. Send asks first, then a second press sends; Back only works while it's asking.
     const controls = (
         <>
@@ -100,57 +115,40 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
     );
 
     return (
-        <LabStage
-            panel={
-                <LabDeck
-                    title="Leave a Pokémon"
-                    controls={controls}
-                    busy={busy === 'clone' ? 'Cloning...' : busy === 'move' ? 'Sending...' : undefined}
-                    result={result}
-                    onDismissResult={() => setResult(null)}
-                >
-                    {!chosen ? (
-                        <p>Choose a Pokémon on the monitor to send it from this save to the Ranch, or to clone it there.</p>
-                    ) : confirming ? (
-                        <>
-                            <p className={styles.deckWarn}>Remove {chosen.nickname} from this save?</p>
-                            <p>It&apos;ll leave the game for the Ranch. To keep it in the game as well, clone it instead.</p>
-                        </>
-                    ) : (
-                        <>
-                            <ul className={styles.deckList}>
-                                <li>
-                                    <span>{chosen.nickname}</span>
-                                    <span className={styles.deckListMeta}>
-                                        {chosen.location === 'party' ? 'Party' : `Box ${chosen.boxNumber}`} · Lv. {chosen.level}
-                                    </span>
-                                </li>
-                            </ul>
-                            <p className={styles.deckHint}>Ready to send or clone.</p>
-                        </>
-                    )}
+        <>
+            <LabDeck
+                title="Leave a Pokémon"
+                controls={controls}
+                busy={busy === 'clone' ? 'Cloning...' : busy === 'move' ? 'Sending...' : undefined}
+                result={result}
+                onDismissResult={() => setResult(null)}
+            >
+                {!chosen ? (
+                    <p>Choose a Pokémon on the monitor to send it from this save to the Ranch, or to clone it there.</p>
+                ) : confirming ? (
+                    <>
+                        <p className={styles.deckWarn}>Remove {chosen.nickname} from this save?</p>
+                        <p>It&apos;ll leave the game for the Ranch. To keep it in the game as well, clone it instead.</p>
+                    </>
+                ) : (
+                    <>
+                        <ul className={styles.deckList}>
+                            <li>
+                                <span>{chosen.nickname}</span>
+                                <span className={styles.deckListMeta}>
+                                    {chosen.location === 'party' ? 'Party' : `Box ${chosen.boxNumber}`} · Lv. {chosen.level}
+                                </span>
+                            </li>
+                        </ul>
+                        <p className={styles.deckHint}>Ready to send or clone.</p>
+                    </>
+                )}
 
-                    {emptiesParty && !confirming && (
-                        <p className={styles.deckWarn}>At least one Pokémon must stay in your party. You can still clone it.</p>
-                    )}
-                </LabDeck>
-            }
-            platform={<Platform entry={chosen ? slotEntry(chosen) : null} />}
-            monitor={
-                <SaveMonitor
-                    lab={lab}
-                    cursorKey={selectedKey}
-                    // A second click puts it back
-                    onPick={s => {
-                        setSelectedKey(prev => prev === slotKey(s) ? '' : slotKey(s));
-                        setResult(null);
-                    }}
-                    onCursor={s => {
-                        setSelectedKey(slotKey(s));
-                        setResult(null);
-                    }}
-                />
-            }
-        />
+                {emptiesParty && !confirming && (
+                    <p className={styles.deckWarn}>At least one Pokémon must stay in your party. You can still clone it.</p>
+                )}
+            </LabDeck>
+            {saveScreen.connectModal}
+        </>
     );
 }

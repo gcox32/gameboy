@@ -1,6 +1,7 @@
 'use client';
 
 import { CSSProperties, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { FolderOpen } from 'lucide-react';
@@ -11,17 +12,21 @@ import ExtractTab from './modes/ExtractTab';
 import PortInTab from './modes/PortInTab';
 import EditTab from './modes/EditTab';
 import { LabSavePickers } from './save/LabSave';
-import { SlideSwitch, press } from './stage';
+import { FedMonitor, FedPlatform, MonitorSource, SlideSwitch, StageFeedProvider, UI_MS, press, useFeedStore } from './stage';
 import { useLabSave, type LabSave } from './save/useLabSave';
 import styles from './lab.module.css';
 
 type Mode = 'extract' | 'port' | 'edit';
 
-/** How long every press, slide and fade in the Lab takes. Becomes --ui-ms for the styles. */
-const UI_MS = 300;
-
 /** How long the static holds once the next mode is on the stage, before it clears */
 const STATIC_HOLD_MS = 100;
+
+/**
+ * Where each mode sets the monitor's switch when the Lab changes to it: the only source Leave
+ * and Take can use, and the Ranch for Enhance. It can still be moved; a source a mode has
+ * nothing for shows static.
+ */
+const MODE_SOURCE: Record<Mode, MonitorSource> = { extract: 'save', port: 'ranch', edit: 'ranch' };
 
 const MODES: { id: Mode; label: string }[] = [
     { id: 'extract', label: 'Leave a Pokémon' },
@@ -73,17 +78,39 @@ function LabConsole({ lab, mode, setMode }: { lab: LabSave; mode: Mode; setMode:
 }
 
 export default function OaksLab() {
+    // Read once, on arrival (see enhanceAtRanchHref). The address is then cleared so a reload
+    // starts fresh, and the Pokémon is forgotten once the Lab leaves Enhance.
+    const params = useSearchParams();
+    const router = useRouter();
+    const [ranchId, setRanchId] = useState(() => (params.get('mode') === 'edit' && params.get('ranch')) || undefined);
+    const startMode: Mode = ranchId ? 'edit' : 'extract';
+    useEffect(() => {
+        if (params.size) router.replace('/lab', { scroll: false });
+    }, [params, router]);
+
     // The switch's position, which follows a press straight away
-    const [mode, setMode] = useState<Mode>('extract');
+    const [mode, setMode] = useState<Mode>(startMode);
     // The mode on the stage, which waits for the old deck to leave
-    const [shownMode, setShownMode] = useState<Mode>('extract');
+    const [shownMode, setShownMode] = useState<Mode>(startMode);
     const leaving = mode !== shownMode;
     // The monitor shows static from the press until the next mode has settled in
     const [tuning, setTuning] = useState(false);
 
+    // The monitor's switch, which follows a press straight away
+    const [source, setSource] = useState<MonitorSource>(MODE_SOURCE[startMode]);
+    // What the monitor shows, which waits for the thumb to get there
+    const [shownSource, setShownSource] = useState<MonitorSource>(MODE_SOURCE[startMode]);
+    useEffect(() => {
+        if (source === shownSource) return;
+        const t = setTimeout(() => setShownSource(source), UI_MS);
+        return () => clearTimeout(t);
+    }, [source, shownSource]);
+
     const switchMode = (m: Mode) => {
         if (m === mode) return;
+        setRanchId(undefined);
         setMode(m);
+        setSource(MODE_SOURCE[m]);
         setTuning(true);
     };
 
@@ -101,6 +128,7 @@ export default function OaksLab() {
     const { games } = useGames();
     // Shared by every mode, and with Play and the Ranch
     const lab = useLabSave();
+    const feed = useFeedStore();
 
     return (
         <div className={styles.page} style={{ '--ui-ms': `${UI_MS}ms` } as CSSProperties}>
@@ -119,9 +147,29 @@ export default function OaksLab() {
             <NowPlaying />
 
             <div className={clsx(styles.main, leaving && styles.leaving, tuning && styles.tuning)}>
-                {shownMode === 'extract' && <ExtractTab lab={lab} />}
-                {shownMode === 'port' && <PortInTab lab={lab} />}
-                {shownMode === 'edit' && <EditTab lab={lab} />}
+                <StageFeedProvider store={feed}>
+                    <div className={styles.stage}>
+                        {/* Keyed so each mode's deck slides in. The fixtures beside it stay put. */}
+                        <div key={shownMode} className={styles.stagePanel}>
+                            {shownMode === 'extract' && <ExtractTab lab={lab} />}
+                            {shownMode === 'port' && <PortInTab lab={lab} />}
+                            {shownMode === 'edit' && (
+                                <EditTab lab={lab} ranchId={ranchId} source={source} shownSource={shownSource} />
+                            )}
+                        </div>
+                        <div className={styles.stagePlatform}>
+                            <FedPlatform store={feed} />
+                        </div>
+                        <div className={styles.stageMonitor}>
+                            <FedMonitor
+                                store={feed}
+                                source={source}
+                                shownSource={shownSource}
+                                onSourceChange={setSource}
+                            />
+                        </div>
+                    </div>
+                </StageFeedProvider>
             </div>
 
             <LabConsole lab={lab} mode={mode} setMode={switchMode} />

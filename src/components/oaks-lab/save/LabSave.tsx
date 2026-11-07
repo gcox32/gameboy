@@ -7,7 +7,7 @@ import { GameModel } from '@/types';
 import CartridgePickerModal from '@/components/modals/CartridgePicker';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
 import ConnectModal from './ConnectModal';
-import { LabEntry, Monitor } from '../stage';
+import { LabEntry, MonitorScreen } from '../stage';
 import { PARTY_PAGE, type LabSave } from './useLabSave';
 import styles from '../lab.module.css';
 
@@ -49,15 +49,17 @@ function PageMap({ page, boxAvailable }: { page: number; boxAvailable: boolean[]
     );
 }
 
-interface SaveMonitorProps {
-    lab: LabSave;
+interface SaveScreenHandlers {
     cursorKey: string;
     onPick: (slot: SlotPokemon) => void;
     onCursor: (slot: SlotPokemon) => void;
 }
 
-/** The monitor showing the chosen save's party and boxes, one page at a time */
-export function SaveMonitor({ lab, cursorKey, onPick, onCursor }: SaveMonitorProps) {
+/**
+ * The chosen save's party and boxes, one page at a time, as the monitor's screen shows them.
+ * Comes with the Connect modal its setup screen opens, which the caller renders.
+ */
+export function useSaveScreen(lab: LabSave, { cursorKey, onPick, onCursor }: SaveScreenHandlers) {
     const { selectedGame, selectedSave, currentSave, contents, page } = lab;
     const [connectModalOpen, setConnectModalOpen] = useState(false);
 
@@ -68,13 +70,13 @@ export function SaveMonitor({ lab, cursorKey, onPick, onCursor }: SaveMonitorPro
         if (slot) handler(slot);
     };
 
-    let screen: ReactNode = null;
+    let message: ReactNode = null;
     if (!selectedGame) {
-        screen = <p>Choose a game below to look inside its save.</p>;
+        message = <p>Choose a game below to look inside its save.</p>;
     } else if (!selectedSave?.id) {
-        screen = <p>Choose a save file below.</p>;
+        message = <p>Choose a save file below.</p>;
     } else if (!currentSave?.connected) {
-        screen = (
+        message = (
             <>
                 <p>This save isn&apos;t connected to Oak&apos;s Lab yet.</p>
                 <button type="button" className={styles.screenButton} onClick={() => setConnectModalOpen(true)}>
@@ -83,42 +85,43 @@ export function SaveMonitor({ lab, cursorKey, onPick, onCursor }: SaveMonitorPro
             </>
         );
     } else if (!contents && !lab.loadingSave) {
-        screen = <p>{lab.loadError || 'Could not read this save.'}</p>;
+        message = <p>{lab.loadError || 'Could not read this save.'}</p>;
     }
     // The static covers the wait for the save to be read
-    const loading = !screen && !contents;
+    const loading = !message && !contents;
 
     const label = pageLabel(page);
     const capacity = page === PARTY_PAGE ? 6 : 20;
 
-    return (
-        <>
-            <Monitor
-                title={screen || loading ? 'Oak’s Lab' : label}
-                meta={screen || loading ? undefined : `${slots.length}/${capacity}`}
-                entries={slots.map(slotEntry)}
-                cursorKey={cursorKey}
-                onPick={fromEntry(onPick)}
-                onCursor={fromEntry(onCursor)}
-                pages={{ label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), inactive: !contents }}
-                screen={screen}
-                loading={loading}
-                footnote={contents && page !== PARTY_PAGE
-                    ? <BoxesNotReadyNote boxAvailable={contents.boxAvailable} />
-                    : null}
-                pageMap={contents && !screen
-                    ? <PageMap page={page} boxAvailable={contents.boxAvailable} />
-                    : null}
-            />
-            <ConnectModal
-                isOpen={connectModalOpen}
-                onClose={() => setConnectModalOpen(false)}
-                saveStateId={selectedSave?.id ?? ''}
-                gameId={selectedGame?.id ?? ''}
-                fetchSaveStates={lab.fetchSaveStates}
-            />
-        </>
+    const screen: MonitorScreen = {
+        title: message || loading ? 'Oak’s Lab' : label,
+        meta: message || loading ? undefined : `${slots.length}/${capacity}`,
+        entries: slots.map(slotEntry),
+        cursorKey,
+        onPick: fromEntry(onPick),
+        onCursor: fromEntry(onCursor),
+        pages: { label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), inactive: !contents },
+        screen: message,
+        loading,
+        footnote: contents && page !== PARTY_PAGE
+            ? <BoxesNotReadyNote boxAvailable={contents.boxAvailable} />
+            : null,
+        pageMap: contents && !message
+            ? <PageMap page={page} boxAvailable={contents.boxAvailable} />
+            : null,
+    };
+
+    const connectModal = (
+        <ConnectModal
+            isOpen={connectModalOpen}
+            onClose={() => setConnectModalOpen(false)}
+            saveStateId={selectedSave?.id ?? ''}
+            gameId={selectedGame?.id ?? ''}
+            fetchSaveStates={lab.fetchSaveStates}
+        />
     );
+
+    return { screen, connectModal };
 }
 
 export function LabSavePickers({ lab, games }: { lab: LabSave; games: GameModel[] }) {

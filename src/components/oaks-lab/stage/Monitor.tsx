@@ -5,11 +5,21 @@ import Image from 'next/image';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { press } from './press';
+import { SlideSwitch } from './SlideSwitch';
 import { usePokemonSprites } from '@/hooks/usePokemonSprites';
 import type { LabEntry } from './types';
 import styles from '../lab.module.css';
 
-interface MonitorProps {
+/** What the monitor can show. Its switch is printed with these, so they're part of the hardware. */
+export type MonitorSource = 'save' | 'ranch';
+
+const SOURCES: { id: MonitorSource; label: string }[] = [
+    { id: 'save', label: 'Save' },
+    { id: 'ranch', label: 'Ranch' },
+];
+
+/** What's on the screen. Everything else about the monitor is hardware and never changes. */
+export interface MonitorScreen {
     /** Screen heading, such as "Party" or "Box 3" */
     title: string;
     /** Shown at the right of the heading, such as "4/6" */
@@ -21,7 +31,7 @@ interface MonitorProps {
     onPick: (entry: LabEntry) => void;
     /** The arrows moved to a Pokémon */
     onCursor: (entry: LabEntry) => void;
-    /** Moves between pages, such as the party and each box. Hidden when left out. */
+    /** Moves between pages, such as the party and each box. Left out, the rocker does nothing. */
     pages?: { label: string; onPrev: () => void; onNext: () => void; inactive?: boolean };
     /** Replaces the grid, for setup screens and errors */
     screen?: ReactNode;
@@ -33,9 +43,16 @@ interface MonitorProps {
     pageMap?: ReactNode;
 }
 
+interface MonitorProps extends MonitorScreen {
+    /** Where the input switch is */
+    source: MonitorSource;
+    /** The switch always moves. A source the mode has nothing for shows static (see FedMonitor). */
+    onSourceChange: (source: MonitorSource) => void;
+}
+
 export function Monitor({
     title, meta, entries, cursorKey, onPick, onCursor,
-    pages, screen, loading = false, emptyText = 'Empty', footnote, pageMap,
+    pages, screen, loading = false, emptyText = 'Empty', footnote, pageMap, source, onSourceChange,
 }: MonitorProps) {
     const { bySpecies, spriteStyle } = usePokemonSprites();
     const index = entries.findIndex(e => e.key === cursorKey);
@@ -117,28 +134,26 @@ export function Monitor({
             </div>
 
             <div className={styles.monitorControls}>
-                {pages ? (
-                    <div className={styles.rocker}>
-                        <button
-                            type="button"
-                            className={styles.rockerBtn}
-                            {...press(pages.inactive, pages.onPrev)}
-                            aria-label={`Previous page (now ${pages.label})`}
-                            title="Previous page"
-                        >
-                            <ChevronLeft size={16} />
-                        </button>
-                        <button
-                            type="button"
-                            className={styles.rockerBtn}
-                            {...press(pages.inactive, pages.onNext)}
-                            aria-label={`Next page (now ${pages.label})`}
-                            title="Next page"
-                        >
-                            <ChevronRight size={16} />
-                        </button>
-                    </div>
-                ) : <span />}
+                <div className={styles.rocker}>
+                    <button
+                        type="button"
+                        className={styles.rockerBtn}
+                        {...press(!pages || pages.inactive, () => pages?.onPrev())}
+                        aria-label={pages ? `Previous page (now ${pages.label})` : 'Previous page'}
+                        title="Previous page"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.rockerBtn}
+                        {...press(!pages || pages.inactive, () => pages?.onNext())}
+                        aria-label={pages ? `Next page (now ${pages.label})` : 'Next page'}
+                        title="Next page"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
+                </div>
 
                 <div className={styles.dpad}>
                     <button
@@ -157,6 +172,17 @@ export function Monitor({
                     >
                         <ChevronRight size={20} />
                     </button>
+                </div>
+
+                <div className={styles.monitorInput}>
+                    <SlideSwitch
+                        small
+                        printed
+                        label="Monitor input"
+                        options={SOURCES}
+                        value={source}
+                        onChange={onSourceChange}
+                    />
                 </div>
             </div>
         </section>

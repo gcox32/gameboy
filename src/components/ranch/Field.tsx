@@ -19,7 +19,7 @@ const MIN_HEIGHT_M = 0.5;
 /** Walking speed, in fieldDistance units a second */
 const WALK_SPEED = 4;
 /** How long a Pokémon stands about between walks */
-const IDLE_MS = [1500, 7500] as const;
+const IDLE_MS = [2500, 10000] as const;
 
 interface Walker extends Spot {
     /** The sprites face left, so this flips them */
@@ -44,8 +44,8 @@ function useReducedMotion(): boolean {
 /** Somewhere a short stroll away, on the ground */
 function nextSpot(field: RanchField, from: Spot): Spot {
     for (let i = 0; i < 10; i++) {
-        const dx = (5 + Math.random() * 11) * (Math.random() < 0.5 ? -1 : 1);
-        const dy = (Math.random() - 0.5) * 12;
+        const dx = (4 + Math.random() * 8) * (Math.random() < 0.5 ? -1 : 1);
+        const dy = (Math.random() - 0.5) * 9;
         const to = { x: from.x + dx, y: from.y + dy };
         if (onGround(field, to)) return to;
     }

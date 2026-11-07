@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, RefObject } from 'react';
+import { RefObject } from 'react';
 import { EmulatorProvider, useEmulator } from '@/contexts/EmulatorContext';
 import { useMobileImmersive } from '@/hooks/useMobileImmersive';
 import Console from '@/components/console/GameConsole';
@@ -14,7 +14,6 @@ import SaveStateModal from '@/components/modals/SaveStateManagement/SaveStateMod
 import SaveConflictModal from '@/components/modals/SaveStateManagement/SaveConflictModal';
 import styles from './play.module.css';
 import SkyBackground from '@/components/layout/SkyBackground';
-import { TRANSITION_DURATION } from '@/lib/transition';
 
 function PlayScreen() {
 	const {
@@ -25,24 +24,11 @@ function PlayScreen() {
 		saveStateModalProps,
 		saveConflictModalProps,
 	} = useEmulator();
-	const skyContainerRef = useRef<HTMLDivElement>(null);
-
 	// Mobile immersive mode - handles fullscreen, orientation lock, PWA detection
 	const { isMobile } = useMobileImmersive();
 
-	// Starts at the bottom of the sky, then drifts up as the page arrives
-	useEffect(() => {
-		const el = skyContainerRef.current;
-		if (!el) return;
-		el.scrollTop = el.scrollHeight;
-		const timer = setTimeout(() => {
-			el.scrollTo({ top: 0, behavior: 'smooth' });
-		}, TRANSITION_DURATION - 500);
-		return () => clearTimeout(timer);
-	}, []);
-
 	return (
-		<SkyBackground ref={skyContainerRef}>
+		<SkyBackground>
 			<div className={styles.playContainer}>
 				{!isMobile && (
 					<Console

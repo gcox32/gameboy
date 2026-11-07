@@ -350,6 +350,21 @@
     color-scheme: dark;
 }
 
+.enhanceBtn {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    color: #e8e0f4;
+    text-decoration: none;
+    border: 2px solid #4d3f6e;
+    border-radius: 4px;
+    transition: background 150ms, border-color 150ms;
+}
+
+.enhanceBtn:hover {
+    background: #3d2f5c;
+    border-color: #7b68a6;
+}
+
 .releaseBtn {
     padding: 0.5rem 1.1rem;
     font: inherit;

@@ -4,8 +4,7 @@ import { CSSProperties, MouseEvent, PointerEvent, useEffect, useRef, useState } 
 import clsx from 'clsx';
 import { RotateCcw, Save } from 'lucide-react';
 import { dexDict } from '@/utils/pokemon/dicts';
-import { SlotPokemon } from '@/utils/pokemon/gen1Save';
-import { MAX_IV, StoredIVs, hpIVFrom } from '@/utils/pokemon/stats';
+import { Gen1IVs, MAX_IV, StoredIVs, hpIVFrom } from '@/utils/pokemon/stats';
 import { DeckAck, DeckBusy, DeckKey, DeckPill, DeckResult, LabResult } from '../stage';
 import lab from '../lab.module.css';
 import styles from './ivEditor.module.css';
@@ -121,9 +120,19 @@ function Dial({ label, value, saved, inactive, onRaise }: DialProps) {
     );
 }
 
+/** A Pokémon the deck can edit, from a save slot or the Ranch */
+export interface EditablePokemon {
+    speciesIndex: number;
+    nickname: string;
+    level: number;
+    ivs: Gen1IVs;
+}
+
 interface IvEditorProps {
     /** Nothing chosen yet shows the deck with its controls off */
-    pokemon: SlotPokemon | null;
+    pokemon: EditablePokemon | null;
+    /** What to say while nothing is chosen */
+    emptyText?: string;
     saving: boolean;
     onSave: (ivs: StoredIVs) => void;
     /** What the deck is doing, such as "Saving...". Shows a spinner in place of the gauges. */
@@ -134,7 +143,10 @@ interface IvEditorProps {
 }
 
 /** The Enhance deck. Remount with a new key when the saved IVs change, to start from them. */
-export default function IvEditor({ pokemon, saving, onSave, busy, result, onDismissResult }: IvEditorProps) {
+export default function IvEditor({
+    pokemon, emptyText = 'Choose a Pokémon on the monitor to edit it inside this save.',
+    saving, onSave, busy, result, onDismissResult,
+}: IvEditorProps) {
     const saved = pokemon?.ivs ?? { ...NO_IVS, hp: 0 };
     const start: StoredIVs = {
         attack: saved.attack,
@@ -191,7 +203,7 @@ export default function IvEditor({ pokemon, saving, onSave, busy, result, onDism
                         </p>
                     </div>
                 ) : (
-                    <p className={styles.empty}>Choose a Pokémon on the monitor to edit it inside this save.</p>
+                    <p className={styles.empty}>{emptyText}</p>
                 )}
             </div>
 

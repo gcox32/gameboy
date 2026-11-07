@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpFromLine, Plug } from 'lucide-react';
 import { RanchPokemon } from '@/components/ranch/types';
 import ConnectModal from '../save/ConnectModal';
-import { DeckKey, DeckPill, LabDeck, LabEntry, LabResult, LabStage, Monitor, Platform, SlideSwitch, press } from '../stage';
+import { DeckKey, DeckPill, LabDeck, LabEntry, LabResult, SlideSwitch, press, useFeedStage } from '../stage';
 import { BoxesNotReadyNote } from '../save/LabSave';
 import type { LabSave } from '../save/useLabSave';
 import styles from '../lab.module.css';
@@ -179,42 +179,40 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
         setResult(null);
     };
 
+    // The Ranch on the monitor, and the chosen Pokémon on the pad. Take has nothing to show from a save.
+    useFeedStage({
+        screens: {
+            ranch: {
+                title: 'Ranch',
+                meta: ranch ? `${ranch.length}` : undefined,
+                entries,
+                cursorKey: selectedId,
+                onPick: e => {
+                    setSelectedId(prev => prev === e.key ? '' : e.key);
+                    setResult(null);
+                },
+                onCursor: select,
+                loading: ranch === null,
+                emptyText: 'No Pokémon at the Ranch.',
+            },
+        },
+        platform: selectedPokemon ? ranchEntry(selectedPokemon) : null,
+    });
+
     return (
         <>
-            <LabStage
-                panel={
-                    <LabDeck
-                        title="Take a Pokémon"
-                        controls={controls}
-                        busy={porting ? 'Sending...' : undefined}
-                        result={result}
-                        onDismissResult={() => setResult(null)}
-                    >
-                        {!selectedPokemon && (
-                            <p>Select a Pokémon from your Ranch to port into the target save.</p>
-                        )}
-                        {destination}
-                    </LabDeck>
-                }
-                platform={
-                    <Platform entry={selectedPokemon ? ranchEntry(selectedPokemon) : null} />
-                }
-                monitor={
-                    <Monitor
-                        title="Ranch"
-                        meta={ranch ? `${ranch.length}` : undefined}
-                        entries={entries}
-                        cursorKey={selectedId}
-                        onPick={e => {
-                            setSelectedId(prev => prev === e.key ? '' : e.key);
-                            setResult(null);
-                        }}
-                        onCursor={select}
-                        loading={ranch === null}
-                        emptyText="No Pokémon at the Ranch."
-                    />
-                }
-            />
+            <LabDeck
+                title="Take a Pokémon"
+                controls={controls}
+                busy={porting ? 'Sending...' : undefined}
+                result={result}
+                onDismissResult={() => setResult(null)}
+            >
+                {!selectedPokemon && (
+                    <p>Select a Pokémon from your Ranch to port into the target save.</p>
+                )}
+                {destination}
+            </LabDeck>
             <ConnectModal
                 isOpen={connectModalOpen}
                 onClose={() => setConnectModalOpen(false)}

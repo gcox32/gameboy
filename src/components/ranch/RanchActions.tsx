@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { enhanceAtRanchHref } from '@/components/oaks-lab/links';
 import type { RanchPen, RanchPokemon } from './types';
 import styles from './styles.module.css';
 
@@ -55,6 +57,10 @@ export function RanchActions({ pokemon, pens, capacity, countOf, onMove, onRelea
                     </select>
                 </label>
             )}
+            {/* Edited at the Lab, where it stays at the Ranch */}
+            <Link href={enhanceAtRanchHref(pokemon.id)} className={styles.enhanceBtn}>
+                Enhance
+            </Link>
             <button
                 type="button"
                 className={styles.releaseBtn}
