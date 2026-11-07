@@ -58,7 +58,7 @@ export default function EditTab({ lab }: { lab: LabSave }) {
                     onSave={ivs => editing && handleSave(editing, ivs)}
                 />
             }
-            platform={<Platform entries={editing ? [slotEntry(editing)] : []} emptyText="No Pokémon on the platform" />}
+            platform={<Platform entries={editing ? [slotEntry(editing)] : []} />}
             monitor={
                 <SaveMonitor
                     lab={lab}

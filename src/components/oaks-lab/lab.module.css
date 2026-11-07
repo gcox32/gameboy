@@ -19,7 +19,7 @@
     --phosphor-faint: rgba(168, 240, 218, 0.15);
     --glow: #4ecdc4;
     /* Every press, slide and fade in the Lab. OaksLab sets it from UI_MS, which also times the deck hand-off. */
-    --ui-ms: 450ms;
+    --ui-ms: 300ms;
     /* Controls */
     --metal-hi: #5b6670;
     --metal: #3a434b;
@@ -87,12 +87,12 @@
     flex-direction: column;
     min-width: 0;
     /* Each mode remounts the stage, so its deck slides in. Picking a Pokémon doesn't. */
-    animation: deckIn var(--ui-ms, 450ms) ease-out;
+    animation: deckIn var(--ui-ms, 300ms) ease-out;
 }
 
 /* The outgoing mode's deck goes first. OaksLab waits for it before showing the next. */
 .leaving .stagePanel {
-    animation: deckOut var(--ui-ms, 450ms) ease-in forwards;
+    animation: deckOut var(--ui-ms, 300ms) ease-in forwards;
 }
 
 @keyframes deckIn {
@@ -219,7 +219,7 @@
         0 0 0 4px rgba(70, 50, 20, 0.25),
         0 5px 0 3px #5c1234,
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 /* A second action beside the main one. Only the first key in a row pushes right. */
@@ -288,7 +288,7 @@
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 3px 0 var(--casing-edge), 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 .padKey:active,
@@ -304,20 +304,23 @@
 
 /* ─── Platform ───────────────────────────────────────────────────────────── */
 
+/*
+ * A fixture of the room: a set distance from the top of its column, never centred, so neither
+ * the column's height nor what's on the pad can shift it. The scene's fixed aspect ratio keeps
+ * the pad pinned to its bottom whatever stands on it.
+ */
 .platform {
-    height: 100%;
-    min-height: 26rem;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 1.5rem;
+    padding-top: 15rem;
 }
 
 .platformScene {
     position: relative;
     width: min(100%, 24rem);
     aspect-ratio: 1 / 1.05;
+    /* Holds the ratio even if what's on the pad is taller, so the pad can't be pushed down */
+    min-height: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -329,14 +332,17 @@
     inset: 0 12% 12%;
     clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
     background: linear-gradient(to top, rgba(78, 205, 196, 0.5), rgba(78, 205, 196, 0.08) 70%, transparent);
+    /* No fade: the light cuts off the moment the pad is empty */
     opacity: 0;
-    transition: opacity var(--ui-ms, 450ms) ease;
     pointer-events: none;
 }
 
+/* Cuts on with a stutter, like a lamp striking, then settles into its pulse */
 .platformActive .beam {
     opacity: 1;
-    animation: beamPulse 3.2s ease-in-out infinite;
+    animation:
+        lightStrike 280ms linear,
+        beamPulse 3.2s ease-in-out 280ms infinite;
 }
 
 .platformMons {
@@ -366,7 +372,7 @@
     object-fit: contain;
     image-rendering: pixelated;
     filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.45));
-    animation: materialize var(--ui-ms, 450ms) ease-out;
+    animation: materialize var(--ui-ms, 300ms) ease-out;
 }
 
 .platformGroup .platformSprite {
@@ -415,44 +421,12 @@
     border-radius: 50%;
     background: radial-gradient(ellipse, rgba(78, 205, 196, 0.85), rgba(78, 205, 196, 0.25) 55%, transparent 72%);
     opacity: 0.2;
-    transition: opacity var(--ui-ms, 450ms) ease;
+    transition: opacity var(--ui-ms, 300ms) ease;
 }
 
 .platformActive .padGlow {
     opacity: 1;
     animation: glow 2.6s ease-in-out infinite;
-}
-
-.nameplate {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-    min-width: 12rem;
-    padding: 0.6rem 1.5rem;
-    border: 1px solid rgba(78, 205, 196, 0.35);
-    border-radius: 10px;
-    background: rgba(10, 31, 31, 0.78);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-    text-align: center;
-}
-
-.nameplateName {
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #fff;
-}
-
-.nameplateMeta {
-    font-size: 0.75rem;
-    color: var(--phosphor-dim);
-    text-transform: capitalize;
-}
-
-.nameplateEmpty {
-    font-size: 0.8rem;
-    color: rgba(232, 224, 244, 0.5);
 }
 
 @keyframes bob {
@@ -466,6 +440,16 @@
         transform: translateY(-24px) scaleY(1.4);
         filter: brightness(3) drop-shadow(0 0 12px #4ecdc4);
     }
+}
+
+/* Hard steps between dark and lit, with no easing between them */
+@keyframes lightStrike {
+    0%, 14% { opacity: 0; }
+    15%, 29% { opacity: 1; }
+    30%, 44% { opacity: 0.15; }
+    45%, 59% { opacity: 0.9; }
+    60%, 69% { opacity: 0.35; }
+    70%, 100% { opacity: 1; }
 }
 
 @keyframes beamPulse {
@@ -546,6 +530,35 @@
         repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
 }
 
+/*
+ * Static on the monitor while the mode changes. The old monitor tunes out as its deck leaves;
+ * the new one mounts already snowy and clears. Scanlines (::after) still sit on top.
+ */
+.static {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background:
+        linear-gradient(180deg, transparent 0%, rgba(168, 240, 218, 0.18) 48%, rgba(168, 240, 218, 0.28) 50%, transparent 56%) 0 0 / 100% 300% no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px 180px,
+        var(--screen-deep);
+    transition: opacity calc(var(--ui-ms, 300ms) / 2) ease-out;
+}
+
+.tuning .static,
+.staticOn {
+    opacity: 1;
+    animation: snow 240ms steps(1) infinite;
+}
+
+@keyframes snow {
+    0% { background-position: 0 100%, 0 0, 0 0; }
+    25% { background-position: 0 70%, -47px 31px, 0 0; }
+    50% { background-position: 0 40%, 23px -58px, 0 0; }
+    75% { background-position: 0 10%, -71px -19px, 0 0; }
+}
+
 .screenHeader {
     display: flex;
     justify-content: space-between;
@@ -592,7 +605,7 @@
     background: rgba(168, 240, 218, 0.03);
     cursor: pointer;
     user-select: none;
-    transition: border-color var(--ui-ms, 450ms) ease, background-color var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
+    transition: border-color var(--ui-ms, 300ms) ease, background-color var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 .tile:hover {
@@ -608,22 +621,6 @@
 
 .tileMarked {
     background: rgba(78, 205, 196, 0.28);
-}
-
-.tileMarked::after {
-    content: '✓';
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    display: grid;
-    place-items: center;
-    width: 14px;
-    height: 14px;
-    border-radius: 3px;
-    background: var(--phosphor);
-    color: var(--screen-deep);
-    font-size: 0.65rem;
-    font-weight: 900;
 }
 
 .tileSprite {
@@ -742,7 +739,7 @@
     background: linear-gradient(180deg, var(--metal-hi), var(--metal));
     color: #eef2f2;
     cursor: pointer;
-    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 .rockerBtn {
@@ -792,7 +789,7 @@
     font-weight: 900;
     cursor: pointer;
     box-shadow: 0 3px 0 #5c1234, 0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 .actionBtn:active {
@@ -867,7 +864,7 @@
         0 0 0 4px rgba(70, 50, 20, 0.25),
         0 3px 0 3px #4d5257,
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 .pill:hover {
@@ -946,7 +943,7 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.5),
         0 2px 3px rgba(0, 0, 0, 0.5);
     /* Slides and stops, with no bounce */
-    transition: transform var(--ui-ms, 450ms) ease-in-out;
+    transition: transform var(--ui-ms, 300ms) ease-in-out;
 }
 
 /* The decks' smaller switches */
@@ -991,7 +988,7 @@
     }
 
     .platform {
-        min-height: 20rem;
+        padding-top: 2rem;
     }
 }
 
@@ -1009,7 +1006,7 @@
     }
 
     .platform {
-        min-height: 0;
+        padding-top: 0;
     }
 
     .platformScene {
@@ -1067,6 +1064,8 @@
     .platformActive .padGlow,
     .stagePanel,
     .leaving .stagePanel,
+    .tuning .static,
+    .staticOn,
     .blink {
         animation: none;
     }

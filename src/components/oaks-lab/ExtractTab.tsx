@@ -154,7 +154,7 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
                     )}
                 </LabDeck>
             }
-            platform={<Platform entries={chosen.map(slotEntry)} emptyText="No Pokémon on the platform" />}
+            platform={<Platform entries={chosen.map(slotEntry)} />}
             monitor={
                 <SaveMonitor
                     lab={lab}

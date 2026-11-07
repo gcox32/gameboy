@@ -4,7 +4,6 @@ import { CSSProperties, KeyboardEvent, ReactNode, useRef } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { dexDict } from '@/utils/pokemon/dicts';
 import { spriteUrl } from './sprite';
 import styles from './lab.module.css';
 
@@ -53,12 +52,11 @@ const PLATFORM_MAX = 6;
 
 interface PlatformProps {
     entries: LabEntry[];
-    emptyText: string;
 }
 
-export function Platform({ entries, emptyText }: PlatformProps) {
+/** The pad in the middle of the Lab. It's part of the room, so it never moves; Pokémon appear on it. */
+export function Platform({ entries }: PlatformProps) {
     const shown = entries.slice(0, PLATFORM_MAX);
-    const extra = entries.length - shown.length;
     const single = shown.length === 1 ? shown[0] : null;
 
     return (
@@ -97,23 +95,6 @@ export function Platform({ entries, emptyText }: PlatformProps) {
                     <div className={styles.padGlow} />
                 </div>
             </div>
-
-            <div className={styles.nameplate} aria-live="polite">
-                {single ? (
-                    <>
-                        <span className={styles.nameplateName}>{single.nickname}</span>
-                        <span className={styles.nameplateMeta}>
-                            {dexDict[single.speciesIndex]?.name} · Lv. {single.level}
-                        </span>
-                    </>
-                ) : shown.length > 1 ? (
-                    <span className={styles.nameplateName}>
-                        {entries.length} Pokémon{extra > 0 ? ` (+${extra} more)` : ''}
-                    </span>
-                ) : (
-                    <span className={styles.nameplateEmpty}>{emptyText}</span>
-                )}
-            </div>
         </div>
     );
 }
@@ -136,18 +117,20 @@ interface MonitorProps {
     pages?: { label: string; onPrev: () => void; onNext: () => void; inactive?: boolean };
     /** The round button under the screen, acting on the Pokémon at the cursor */
     action?: { label: string; onClick: () => void; inactive?: boolean };
-    /** Replaces the grid, for loading and setup screens */
+    /** Replaces the grid, for setup screens and errors */
     screen?: ReactNode;
+    /** Blanks the screen and holds the static on until whatever it shows has arrived */
+    loading?: boolean;
     emptyText?: string;
     footnote?: ReactNode;
 }
 
 export function Monitor({
     title, meta, entries, cursorKey, markedKeys, onPick, onCursor,
-    pages, action, screen, emptyText = 'Empty', footnote,
+    pages, action, screen, loading = false, emptyText = 'Empty', footnote,
 }: MonitorProps) {
     const index = entries.findIndex(e => e.key === cursorKey);
-    const canStep = !screen && entries.length > 0;
+    const canStep = !loading && !screen && entries.length > 0;
 
     const step = (by: number) => {
         if (!canStep) return;
@@ -174,8 +157,8 @@ export function Monitor({
                     {meta && <span>{meta}</span>}
                 </div>
 
-                <div className={styles.screenBody}>
-                    {screen ? (
+                <div className={styles.screenBody} aria-busy={loading}>
+                    {loading ? null : screen ? (
                         <div className={styles.screenMessage}>{screen}</div>
                     ) : entries.length === 0 ? (
                         <div className={styles.screenMessage}><p>{emptyText}</p></div>
@@ -223,7 +206,9 @@ export function Monitor({
                     )}
                 </div>
 
-                {footnote && <div className={styles.screenFootnote}>{footnote}</div>}
+                {!loading && footnote && <div className={styles.screenFootnote}>{footnote}</div>}
+                {/* Snow while the Lab changes mode, and while there's nothing to show yet */}
+                <div className={clsx(styles.static, loading && styles.staticOn)} aria-hidden />
             </div>
 
             <div className={styles.monitorControls}>

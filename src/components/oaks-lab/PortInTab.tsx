@@ -179,10 +179,7 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                     </LabDeck>
                 }
                 platform={
-                    <Platform
-                        entries={selectedPokemon ? [ranchEntry(selectedPokemon)] : []}
-                        emptyText="No Pokémon on the platform"
-                    />
+                    <Platform entries={selectedPokemon ? [ranchEntry(selectedPokemon)] : []} />
                 }
                 monitor={
                     <Monitor
@@ -192,7 +189,7 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                         cursorKey={selectedId}
                         onPick={e => setSelectedId(prev => prev === e.key ? '' : e.key)}
                         onCursor={select}
-                        screen={ranch === null ? <p className={styles.blink}>Loading Ranch...</p> : undefined}
+                        loading={ranch === null}
                         emptyText="No Pokémon at the Ranch."
                     />
                 }

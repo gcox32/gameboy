@@ -18,7 +18,10 @@ import styles from './lab.module.css';
 type Mode = 'extract' | 'port' | 'edit';
 
 /** How long every press, slide and fade in the Lab takes. Becomes --ui-ms for the styles. */
-const UI_MS = 450;
+const UI_MS = 300;
+
+/** How long the static holds once the next mode is on the stage, before it clears */
+const STATIC_HOLD_MS = 100;
 
 const MODES: { id: Mode; label: string }[] = [
     { id: 'extract', label: 'Leave a Pokémon' },
@@ -75,12 +78,26 @@ export default function OaksLab() {
     // The mode on the stage, which waits for the old deck to leave
     const [shownMode, setShownMode] = useState<Mode>('extract');
     const leaving = mode !== shownMode;
+    // The monitor shows static from the press until the next mode has settled in
+    const [tuning, setTuning] = useState(false);
+
+    const switchMode = (m: Mode) => {
+        if (m === mode) return;
+        setMode(m);
+        setTuning(true);
+    };
 
     useEffect(() => {
         if (mode === shownMode) return;
         const t = setTimeout(() => setShownMode(mode), UI_MS);
         return () => clearTimeout(t);
     }, [mode, shownMode]);
+
+    useEffect(() => {
+        if (!tuning || leaving) return;
+        const t = setTimeout(() => setTuning(false), STATIC_HOLD_MS);
+        return () => clearTimeout(t);
+    }, [tuning, leaving]);
     const { games } = useGames();
     // Shared by every mode, and with Play and the Ranch
     const lab = useLabSave();
@@ -101,13 +118,13 @@ export default function OaksLab() {
 
             <NowPlaying />
 
-            <div className={clsx(styles.main, leaving && styles.leaving)}>
+            <div className={clsx(styles.main, leaving && styles.leaving, tuning && styles.tuning)}>
                 {shownMode === 'extract' && <ExtractTab lab={lab} />}
                 {shownMode === 'port' && <PortInTab lab={lab} />}
                 {shownMode === 'edit' && <EditTab lab={lab} />}
             </div>
 
-            <LabConsole lab={lab} mode={mode} setMode={setMode} />
+            <LabConsole lab={lab} mode={mode} setMode={switchMode} />
             <LabSavePickers lab={lab} games={games} />
         </div>
     );

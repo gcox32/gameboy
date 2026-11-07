@@ -70,11 +70,11 @@ export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, acti
                 </button>
             </>
         );
-    } else if (!contents) {
-        screen = <p className={lab.loadingSave ? styles.blink : undefined}>
-            {lab.loadingSave ? 'Loading save file...' : 'Could not read this save.'}
-        </p>;
+    } else if (!contents && !lab.loadingSave) {
+        screen = <p>Could not read this save.</p>;
     }
+    // The static covers the wait for the save to be read
+    const loading = !screen && !contents;
 
     const label = pageLabel(page);
     const capacity = page === PARTY_PAGE ? 6 : 20;
@@ -82,8 +82,8 @@ export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, acti
     return (
         <>
             <Monitor
-                title={screen ? 'Oak’s Lab' : label}
-                meta={screen ? undefined : `${slots.length}/${capacity}`}
+                title={screen || loading ? 'Oak’s Lab' : label}
+                meta={screen || loading ? undefined : `${slots.length}/${capacity}`}
                 entries={slots.map(slotEntry)}
                 cursorKey={cursorKey}
                 markedKeys={markedKeys}
@@ -92,6 +92,7 @@ export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, acti
                 pages={{ label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), inactive: !contents }}
                 action={action}
                 screen={screen}
+                loading={loading}
                 footnote={contents && page !== PARTY_PAGE
                     ? <BoxesNotReadyNote boxAvailable={contents.boxAvailable} />
                     : null}
