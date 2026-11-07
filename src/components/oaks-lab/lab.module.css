@@ -325,6 +325,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
+    /* Sprites size against the scene's width (cqi), so they shrink with it on small screens */
+    container-type: inline-size;
 }
 
 .beam {
@@ -365,19 +367,35 @@
     animation: bob 2.6s ease-in-out infinite;
 }
 
+/*
+ * The GIFs are trimmed to each Pokémon's outline, so setting the height sets the Pokémon's height.
+ * --mon-scale comes from its real height (see spriteScale in LabStage).
+ */
 .platformSprite {
     display: block;
-    width: 128px;
-    height: 128px;
+    width: auto;
+    height: calc(var(--mon-scale, 0.65) * 100cqi);
+    /* Never narrowed: a Pokémon wider than the pad spills past it evenly on both sides, over the deck and monitor */
+    max-width: none;
     object-fit: contain;
     image-rendering: pixelated;
     filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.45));
     animation: materialize var(--ui-ms, 300ms) ease-out;
 }
 
-.platformGroup .platformSprite {
-    width: 72px;
-    height: 72px;
+/* Testing readout under the pad. Absolute, so the pad stays put. */
+.platformSize {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    background: rgba(10, 31, 31, 0.78);
+    color: var(--phosphor-dim);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 .pad {

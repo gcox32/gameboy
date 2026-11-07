@@ -5,6 +5,7 @@ import Image from 'next/image';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { spriteUrl } from './sprite';
+import { usePokemonSizes, type PokemonSize } from './usePokemonSize';
 import styles from './lab.module.css';
 
 /**
@@ -50,6 +51,40 @@ export function LabStage({ panel, platform, monitor }: LabStageProps) {
 
 const PLATFORM_MAX = 6;
 
+/*
+ * A Pokémon's height on the pad, as a share of the pad scene's width. Real heights in Gen 1 run
+ * from 0.2 m (Diglett) to 8.8 m (Onix): true to scale would make Onix 44 Diglett tall. So sizes
+ * are exactly proportional up to GIANT_FROM_M, which covers nearly everyone, and only the giants
+ * above it are compressed. The sprites fill their canvas, so the image height is the Pokémon's.
+ */
+const SCALE_PER_M = 0.65;
+const GIANT_FROM_M = 1.5;
+/** How hard the giants are compressed: 1 would be true to scale, 0 would make them all equal */
+const GIANT_CURVE = 0.35;
+/** Keeps the very smallest from vanishing */
+const SCALE_MIN = 0.1;
+/** Size for a Pokémon whose height PokéAPI couldn't give */
+const SCALE_UNKNOWN = SCALE_PER_M;
+/** Several on the pad at once stand smaller, so they fit side by side */
+const GROUP_SCALE = 0.6;
+
+function spriteScale(heightDm: number | null, group: boolean): number {
+    let base = SCALE_UNKNOWN;
+    if (heightDm) {
+        const m = heightDm / 10;
+        base = m <= GIANT_FROM_M
+            ? SCALE_PER_M * m
+            : SCALE_PER_M * GIANT_FROM_M * (m / GIANT_FROM_M) ** GIANT_CURVE;
+        base = Math.max(SCALE_MIN, base);
+    }
+    return group ? base * GROUP_SCALE : base;
+}
+
+/** "1.7 m · 90.5 kg", from PokéAPI's decimetres and hectograms */
+function formatSize({ height, weight }: PokemonSize): string {
+    return `${height / 10} m · ${weight / 10} kg`;
+}
+
 interface PlatformProps {
     entries: LabEntry[];
 }
@@ -57,18 +92,22 @@ interface PlatformProps {
 /** The pad in the middle of the Lab. It's part of the room, so it never moves; Pokémon appear on it. */
 export function Platform({ entries }: PlatformProps) {
     const shown = entries.slice(0, PLATFORM_MAX);
-    const single = shown.length === 1 ? shown[0] : null;
+    const group = shown.length > 1;
+    // Hold the sprites back until their sizes are known, so they appear at their size and don't jump
+    const { ready, sizeOf } = usePokemonSizes(shown.map(e => e.speciesIndex));
+    const singleSize = ready && shown.length === 1 ? sizeOf(shown[0].speciesIndex) : null;
 
     return (
         <div className={clsx(styles.platform, shown.length > 0 && styles.platformActive)}>
             <div className={styles.platformScene}>
                 <div className={styles.beam} aria-hidden />
                 <div
-                    className={clsx(styles.platformMons, shown.length > 1 && styles.platformGroup)}
+                    className={clsx(styles.platformMons, group && styles.platformGroup)}
                     data-count={shown.length}
                 >
-                    {shown.map((e, i) => {
+                    {ready && shown.map((e, i) => {
                         const sprite = spriteUrl(e.speciesIndex);
+                        const size = sizeOf(e.speciesIndex);
                         return (
                             <div
                                 key={e.key}
@@ -79,9 +118,11 @@ export function Platform({ entries }: PlatformProps) {
                                     <Image
                                         src={sprite}
                                         alt={e.nickname}
-                                        width={single ? 128 : 72}
-                                        height={single ? 128 : 72}
+                                        width={128}
+                                        height={128}
+                                        title={size ? `${e.nickname}: ${formatSize(size)}` : e.nickname}
                                         className={styles.platformSprite}
+                                        style={{ '--mon-scale': spriteScale(size?.height ?? null, group) } as CSSProperties}
                                         unoptimized
                                     />
                                 )}
@@ -94,6 +135,8 @@ export function Platform({ entries }: PlatformProps) {
                     <div className={styles.padTop} />
                     <div className={styles.padGlow} />
                 </div>
+                {/* Size readout, for testing. Out of the flow, so it can't move the pad. Groups show theirs on hover. */}
+                {singleSize && <div className={styles.platformSize}>{formatSize(singleSize)}</div>}
             </div>
         </div>
     );

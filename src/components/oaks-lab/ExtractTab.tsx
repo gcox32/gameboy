@@ -1,40 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { ArrowDownToLine, Check, Copy, X } from 'lucide-react';
 import { DeckKey, DeckPill, LabDeck, LabStage, Platform } from './LabStage';
 import { SaveMonitor, slotEntry, slotKey } from './LabSave';
 import type { LabSave } from './useLabSave';
 import styles from './lab.module.css';
 
-/** Leave a Pokémon: send Pokémon from a save to the Ranch, or clone them there */
+/** Leave a Pokémon: send one Pokémon from a save to the Ranch, or clone it there */
 export default function ExtractTab({ lab }: { lab: LabSave }) {
-    const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [cursorKey, setCursorKey] = useState('');
+    const [selectedKey, setSelectedKey] = useState('');
     const { contents, loadedFilePath, refresh, notify } = lab;
     const party = contents?.party ?? [];
     const all = contents ? [...contents.party, ...contents.boxes.flat()] : [];
-    const chosen = all.filter(s => selected.has(slotKey(s)));
+    const chosen = all.find(s => slotKey(s) === selectedKey) ?? null;
 
     // Slots only mean something in the file they were read from.
-    useEffect(() => { setSelected(new Set()); }, [loadedFilePath]);
+    useEffect(() => { setSelectedKey(''); }, [loadedFilePath]);
 
-    const toggle = (key: string) => {
-        setSelected(prev => {
-            const next = new Set(prev);
-            if (next.has(key)) next.delete(key); else next.add(key);
-            return next;
-        });
-    };
-
-    const pick = (s: SlotPokemon) => {
-        setCursorKey(slotKey(s));
-        toggle(slotKey(s));
-    };
-
-    const cursorOnPage = lab.pageSlots.some(s => slotKey(s) === cursorKey);
-    const emptiesParty = party.length > 0 && party.every(s => selected.has(slotKey(s)));
+    // The last one in the party has to stay
+    const emptiesParty = party.length === 1 && !!chosen && slotKey(party[0]) === selectedKey;
 
     // Which way the Pokémon are going, while the request runs
     const [busy, setBusy] = useState<'' | 'move' | 'clone'>('');
@@ -42,16 +27,16 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
     const [confirming, setConfirming] = useState(false);
 
     // A different selection needs asking about again
-    useEffect(() => { setConfirming(false); }, [selected]);
+    useEffect(() => { setConfirming(false); }, [selectedKey]);
 
     const send = async (mode: 'move' | 'clone') => {
-        if (!chosen.length || !contents || (mode === 'move' && emptiesParty)) return;
+        if (!chosen || !contents || (mode === 'move' && emptiesParty)) return;
         setBusy(mode);
-        const slots = chosen.map(s => ({
-            location: s.location,
-            ...(s.location === 'box' ? { boxNumber: s.boxNumber } : {}),
-            slotIndex: s.slotIndex,
-        }));
+        const slots = [{
+            location: chosen.location,
+            ...(chosen.location === 'box' ? { boxNumber: chosen.boxNumber } : {}),
+            slotIndex: chosen.slotIndex,
+        }];
 
         try {
             const res = await fetch('/api/pokemon/stored', {
@@ -61,12 +46,11 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
             });
 
             if (res.ok) {
-                const { created } = await res.json();
                 notify(mode === 'clone'
-                    ? `${created.length} Pokémon cloned to the Ranch!`
-                    : `${created.length} Pokémon sent to the Ranch!`, 'success');
+                    ? `${chosen.nickname} cloned to the Ranch!`
+                    : `${chosen.nickname} sent to the Ranch!`, 'success');
                 // A clone leaves the file as it was, so the selection wouldn't clear by itself
-                setSelected(new Set());
+                setSelectedKey('');
             } else {
                 const err = await res.json().catch(() => ({}));
                 notify(err.error ?? 'Something went wrong.', 'error');
@@ -81,7 +65,7 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
         }
     };
 
-    const none = chosen.length === 0;
+    const none = !chosen;
     const cloneKey = (
         <DeckKey
             tone="alt"
@@ -124,49 +108,42 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
         <LabStage
             panel={
                 <LabDeck title="Leave a Pokémon" controls={controls}>
-                    {none ? (
-                        <p>Choose Pokémon on the monitor to send them from this save to the Ranch, or to clone them there.</p>
+                    {!chosen ? (
+                        <p>Choose a Pokémon on the monitor to send it from this save to the Ranch, or to clone it there.</p>
                     ) : confirming ? (
                         <>
-                            <p className={styles.deckWarn}>Remove {chosen.length} Pokémon from this save?</p>
-                            <p>They&apos;ll leave the game for the Ranch. To keep them in the game as well, clone them instead.</p>
+                            <p className={styles.deckWarn}>Remove {chosen.nickname} from this save?</p>
+                            <p>It&apos;ll leave the game for the Ranch. To keep it in the game as well, clone it instead.</p>
                         </>
                     ) : (
                         <>
                             <ul className={styles.deckList}>
-                                {chosen.map(s => (
-                                    <li key={slotKey(s)}>
-                                        <span>{s.nickname}</span>
-                                        <span className={styles.deckListMeta}>
-                                            {s.location === 'party' ? 'Party' : `Box ${s.boxNumber}`} · Lv. {s.level}
-                                        </span>
-                                    </li>
-                                ))}
+                                <li>
+                                    <span>{chosen.nickname}</span>
+                                    <span className={styles.deckListMeta}>
+                                        {chosen.location === 'party' ? 'Party' : `Box ${chosen.boxNumber}`} · Lv. {chosen.level}
+                                    </span>
+                                </li>
                             </ul>
                             <p className={styles.deckHint}>
-                                {busy === 'clone' ? 'Cloning...' : busy === 'move' ? 'Sending...' : `${chosen.length} ready to send or clone.`}
+                                {busy === 'clone' ? 'Cloning...' : busy === 'move' ? 'Sending...' : 'Ready to send or clone.'}
                             </p>
                         </>
                     )}
 
                     {emptiesParty && !confirming && (
-                        <p className={styles.deckWarn}>At least one Pokémon must stay in your party. You can still clone them.</p>
+                        <p className={styles.deckWarn}>At least one Pokémon must stay in your party. You can still clone it.</p>
                     )}
                 </LabDeck>
             }
-            platform={<Platform entries={chosen.map(slotEntry)} />}
+            platform={<Platform entries={chosen ? [slotEntry(chosen)] : []} />}
             monitor={
                 <SaveMonitor
                     lab={lab}
-                    cursorKey={cursorKey}
-                    markedKeys={selected}
-                    onPick={pick}
-                    onCursor={s => setCursorKey(slotKey(s))}
-                    action={{
-                        label: cursorOnPage && selected.has(cursorKey) ? 'Put back' : 'Select',
-                        onClick: () => toggle(cursorKey),
-                        inactive: !cursorOnPage,
-                    }}
+                    cursorKey={selectedKey}
+                    // A second click puts it back
+                    onPick={s => setSelectedKey(prev => prev === slotKey(s) ? '' : slotKey(s))}
+                    onCursor={s => setSelectedKey(slotKey(s))}
                 />
             }
         />
