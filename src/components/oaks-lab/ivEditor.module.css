@@ -1,46 +1,20 @@
-/*
- * The Enhance deck's screen: one screen sits behind the rows, and each row's
- * raise button sits on the casing beside it, in the same grid row.
- */
+/* The Enhance deck: IV gauges on the screen, and a dial for each raisable one below it */
 
-.frame {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 2.75rem;
-    /* The last row takes the spare height, so the rows stay together at the top */
-    grid-template-rows: auto auto repeat(5, 2.75rem) 1fr;
-    column-gap: 0.75rem;
-    flex: 1;
-    /* The text sits on the screen, though it isn't inside it */
-    color: var(--phosphor);
-}
-
-.screen {
-    grid-column: 1;
-    grid-row: 1 / -1;
-    min-height: 0;
-    padding: 0;
-}
-
-/* Everything on the screen sits above its background */
-.frame > :not(.screen):not(.raise) {
-    position: relative;
-    z-index: 1;
-    grid-column: 1;
-    margin-inline: calc(6px + 1rem);
-}
-
-.header {
-    grid-row: 1;
-    margin-top: calc(6px + 0.9rem);
+.body {
+    display: flex;
+    flex-direction: column;
 }
 
 .species {
-    grid-row: 2;
-    margin: -0.25rem 0 0.25rem;
+    margin: -0.25rem 0 0.75rem;
     font-size: 0.75rem;
     text-transform: capitalize;
     color: var(--phosphor-dim);
+}
+
+.rows {
+    display: grid;
+    gap: 0.9rem;
 }
 
 .row {
@@ -48,7 +22,6 @@
     grid-template-columns: 6.5rem 1fr 1.75rem;
     align-items: center;
     gap: 0.6rem;
-    color: var(--phosphor);
 }
 
 .label {
@@ -76,7 +49,7 @@
     height: 0.85rem;
     border-radius: 1px;
     background: rgba(168, 240, 218, 0.1);
-    transition: background-color var(--ui-ms, 300ms) ease;
+    transition: background-color var(--ui-ms, 450ms) ease;
 }
 
 .segmentFilled {
@@ -96,52 +69,98 @@
     box-shadow: inset 0 0 0 1px rgba(240, 110, 90, 0.8);
 }
 
-.note,
-.empty {
-    margin: 0.75rem 0 calc(6px + 1rem);
+.note {
+    margin: 1rem 0 0;
     font-size: 0.75rem;
     line-height: 1.5;
     color: var(--phosphor-dim);
 }
 
 .empty {
-    grid-row: 2 / -1;
-    align-self: center;
+    flex: 1;
+    display: grid;
+    place-items: center;
+    margin: 0;
     font-size: 0.9rem;
-    color: var(--phosphor);
+    line-height: 1.6;
     text-align: center;
 }
 
-.note {
-    grid-row: 8;
-    align-self: start;
+/* ─── Dials ── */
+
+.dials {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+    padding: 0.4rem 0.25rem 0.9rem;
 }
 
-/* Small round grey buttons on the casing */
-.raise {
-    grid-column: 2;
-    align-self: center;
-    justify-self: center;
-    display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
+/* The knurled outer ring. It stands up off the casing: a darker side below, a shadow, and light on its top edge. */
+.dial {
+    position: relative;
+    width: 3.6rem;
+    height: 3.6rem;
     padding: 0;
     border: none;
     border-radius: 50%;
-    background: linear-gradient(180deg, var(--metal-hi), var(--metal));
-    color: #eef2f2;
+    background: repeating-conic-gradient(#3a434b 0deg 5deg, #6a747d 5deg 10deg);
     cursor: pointer;
-    box-shadow: 0 2px 0 var(--metal-lo), 0 3px 6px rgba(0, 0, 0, 0.25);
-    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 4px 0 #1b2024,
+        0 7px 6px rgba(40, 28, 10, 0.35),
+        0 12px 16px rgba(40, 28, 10, 0.2);
+    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
 }
 
-.raise:active {
-    transform: translateY(2px);
-    box-shadow: 0 0 0 var(--metal-lo);
+.dial:active {
+    transform: translateY(3px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 1px 0 #1b2024,
+        0 3px 4px rgba(40, 28, 10, 0.35);
 }
 
-.raise:focus-visible {
+.dial:focus-visible {
     outline: 2px solid var(--glow);
-    outline-offset: 2px;
+    outline-offset: 4px;
+}
+
+/* The cap, which turns with the value */
+.dialCap {
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    /* Domed: lit from above, its rim catching the light and casting onto the knurling */
+    background: radial-gradient(circle at 40% 25%, #b3bcc3 0%, #6f7a83 45%, #424b52 100%);
+    box-shadow:
+        0 2px 3px rgba(0, 0, 0, 0.45),
+        inset 0 2px 1px rgba(255, 255, 255, 0.45),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.35);
+    transform: rotate(var(--angle));
+    transition: transform var(--ui-ms, 450ms) ease;
+}
+
+/* Its pointer */
+.dialCap::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: 3px;
+    height: 32%;
+    border-radius: 2px;
+    background: #eef2f2;
+    transform: translateX(-50%);
+    transition: background-color var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
+}
+
+/* Turned past where it was saved: the same pale yellow as the gauge */
+.dialRaised .dialCap::after {
+    background: #f6e7a8;
+    box-shadow: 0 0 6px rgba(246, 231, 168, 0.9);
 }

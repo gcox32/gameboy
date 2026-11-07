@@ -18,8 +18,8 @@
     --phosphor-dim: rgba(168, 240, 218, 0.5);
     --phosphor-faint: rgba(168, 240, 218, 0.15);
     --glow: #4ecdc4;
-    /* Every press, slide and fade in the Lab */
-    --ui-ms: 300ms;
+    /* Every press, slide and fade in the Lab. OaksLab sets it from UI_MS, which also times the deck hand-off. */
+    --ui-ms: 450ms;
     /* Controls */
     --metal-hi: #5b6670;
     --metal: #3a434b;
@@ -87,11 +87,23 @@
     flex-direction: column;
     min-width: 0;
     /* Each mode remounts the stage, so its deck slides in. Picking a Pokémon doesn't. */
-    animation: deckIn var(--ui-ms, 300ms) cubic-bezier(0.2, 0.9, 0.3, 1.08);
+    animation: deckIn var(--ui-ms, 450ms) ease-out;
+}
+
+/* The outgoing mode's deck goes first. OaksLab waits for it before showing the next. */
+.leaving .stagePanel {
+    animation: deckOut var(--ui-ms, 450ms) ease-in forwards;
 }
 
 @keyframes deckIn {
     from {
+        opacity: 0;
+        transform: translateX(-110%);
+    }
+}
+
+@keyframes deckOut {
+    to {
         opacity: 0;
         transform: translateX(-110%);
     }
@@ -207,7 +219,7 @@
         0 0 0 4px rgba(70, 50, 20, 0.25),
         0 5px 0 3px #5c1234,
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
 }
 
 /* A second action beside the main one. Only the first key in a row pushes right. */
@@ -276,7 +288,7 @@
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 3px 0 var(--casing-edge), 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
 }
 
 .padKey:active,
@@ -318,7 +330,7 @@
     clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
     background: linear-gradient(to top, rgba(78, 205, 196, 0.5), rgba(78, 205, 196, 0.08) 70%, transparent);
     opacity: 0;
-    transition: opacity var(--ui-ms, 300ms) ease;
+    transition: opacity var(--ui-ms, 450ms) ease;
     pointer-events: none;
 }
 
@@ -354,7 +366,7 @@
     object-fit: contain;
     image-rendering: pixelated;
     filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.45));
-    animation: materialize var(--ui-ms, 300ms) ease-out;
+    animation: materialize var(--ui-ms, 450ms) ease-out;
 }
 
 .platformGroup .platformSprite {
@@ -403,7 +415,7 @@
     border-radius: 50%;
     background: radial-gradient(ellipse, rgba(78, 205, 196, 0.85), rgba(78, 205, 196, 0.25) 55%, transparent 72%);
     opacity: 0.2;
-    transition: opacity var(--ui-ms, 300ms) ease;
+    transition: opacity var(--ui-ms, 450ms) ease;
 }
 
 .platformActive .padGlow {
@@ -580,7 +592,7 @@
     background: rgba(168, 240, 218, 0.03);
     cursor: pointer;
     user-select: none;
-    transition: border-color var(--ui-ms, 300ms) ease, background-color var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+    transition: border-color var(--ui-ms, 450ms) ease, background-color var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
 }
 
 .tile:hover {
@@ -730,7 +742,7 @@
     background: linear-gradient(180deg, var(--metal-hi), var(--metal));
     color: #eef2f2;
     cursor: pointer;
-    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
 }
 
 .rockerBtn {
@@ -780,7 +792,7 @@
     font-weight: 900;
     cursor: pointer;
     box-shadow: 0 3px 0 #5c1234, 0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
 }
 
 .actionBtn:active {
@@ -855,7 +867,7 @@
         0 0 0 4px rgba(70, 50, 20, 0.25),
         0 3px 0 3px #4d5257,
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+    transition: transform var(--ui-ms, 450ms) ease, box-shadow var(--ui-ms, 450ms) ease;
 }
 
 .pill:hover {
@@ -933,7 +945,8 @@
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.5),
         0 2px 3px rgba(0, 0, 0, 0.5);
-    transition: transform var(--ui-ms, 300ms) cubic-bezier(0.3, 1.4, 0.5, 1);
+    /* Slides and stops, with no bounce */
+    transition: transform var(--ui-ms, 450ms) ease-in-out;
 }
 
 /* The decks' smaller switches */
@@ -1053,6 +1066,7 @@
     .platformActive .beam,
     .platformActive .padGlow,
     .stagePanel,
+    .leaving .stagePanel,
     .blink {
         animation: none;
     }

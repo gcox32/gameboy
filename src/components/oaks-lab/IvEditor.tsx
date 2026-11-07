@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { CSSProperties, MouseEvent, PointerEvent, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { Plus, RotateCcw, Save } from 'lucide-react';
+import { RotateCcw, Save } from 'lucide-react';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { MAX_IV, StoredIVs, hpIVFrom } from '@/utils/pokemon/stats';
-import { DeckKey, DeckPill, press } from './LabStage';
+import { DeckKey, DeckPill } from './LabStage';
 import lab from './lab.module.css';
 import styles from './ivEditor.module.css';
 
@@ -18,6 +18,10 @@ const RAISABLE: { key: keyof StoredIVs; label: string }[] = [
 ];
 
 const NO_IVS: StoredIVs = { attack: 0, defense: 0, speed: 0, special: 0 };
+
+/** How long a press is held before the dial starts turning by itself, then how often it clicks */
+const HOLD_DELAY_MS = 400;
+const HOLD_STEP_MS = 120;
 
 function Gauge({ label, saved, value }: { label: string; saved: number; value: number }) {
     return (
@@ -45,6 +49,75 @@ function Gauge({ label, saved, value }: { label: string; saved: number; value: n
                 );
             })}
         </div>
+    );
+}
+
+interface DialProps {
+    label: string;
+    value: number;
+    saved: number;
+    /** Nothing to turn: it still presses, but does nothing */
+    inactive: boolean;
+    onRaise: () => void;
+}
+
+/** A knob that only turns up: a click is one notch, and holding it keeps turning to the top */
+function Dial({ label, value, saved, inactive, onRaise }: DialProps) {
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // The interval reads these, so it sees each new value without restarting
+    const live = useRef({ value, inactive, onRaise });
+    useEffect(() => { live.current = { value, inactive, onRaise }; });
+
+    const stop = () => {
+        if (timer.current) clearTimeout(timer.current);
+        timer.current = null;
+    };
+    useEffect(() => stop, []);
+
+    const turn = () => {
+        const { value: v, inactive: off, onRaise: raise } = live.current;
+        if (off || v >= MAX_IV) {
+            stop();
+            return false;
+        }
+        raise();
+        return true;
+    };
+
+    const repeat = () => {
+        timer.current = setTimeout(() => { if (turn()) repeat(); }, HOLD_STEP_MS);
+    };
+
+    const handlePointerDown = (e: PointerEvent) => {
+        if (e.button !== 0) return;
+        stop();
+        if (!turn()) return;
+        timer.current = setTimeout(() => { if (turn()) repeat(); }, HOLD_DELAY_MS);
+    };
+
+    // Pointer presses are handled above. A click with no pointer behind it is the keyboard.
+    const handleClick = (e: MouseEvent) => {
+        if (e.detail === 0) turn();
+    };
+
+    const angle = -135 + (value / MAX_IV) * 270;
+
+    return (
+        <button
+            type="button"
+            className={clsx(styles.dial, value > saved && styles.dialRaised)}
+            aria-label={`Raise ${label}`}
+            aria-disabled={inactive || value >= MAX_IV || undefined}
+            onPointerDown={handlePointerDown}
+            onPointerUp={stop}
+            onPointerLeave={stop}
+            onPointerCancel={stop}
+            onClick={handleClick}
+            onContextMenu={e => e.preventDefault()}
+            style={{ '--angle': `${angle}deg` } as CSSProperties}
+        >
+            <span className={styles.dialCap} aria-hidden />
+        </button>
     );
 }
 
@@ -76,11 +149,8 @@ export default function IvEditor({ pokemon, saving, onSave }: IvEditorProps) {
                 <span className={lab.monitorVents} />
             </div>
 
-            {/* One screen behind the rows, with each row's button on the casing beside it */}
-            <div className={styles.frame}>
-                <div className={clsx(lab.screen, styles.screen)} aria-hidden />
-
-                <div className={clsx(lab.screenHeader, styles.header)}>
+            <div className={clsx(lab.screen, lab.deckScreen)}>
+                <div className={lab.screenHeader}>
                     {pokemon ? (
                         <>
                             <span>{pokemon.nickname}</span>
@@ -90,42 +160,42 @@ export default function IvEditor({ pokemon, saving, onSave }: IvEditorProps) {
                 </div>
 
                 {pokemon ? (
-                    <>
+                    <div className={styles.body}>
                         <p className={styles.species}>{dexDict[pokemon.speciesIndex]?.name}</p>
-
-                        <div className={styles.row} style={{ gridRow: 3 }}>
-                            <span className={styles.label}>HP</span>
-                            <Gauge label="HP" saved={saved.hp} value={hpIVFrom(draft)} />
-                            <span className={styles.value}>{hpIVFrom(draft)}</span>
-                        </div>
-                        {RAISABLE.map(({ key, label }, i) => (
-                            <div key={key} className={styles.row} style={{ gridRow: i + 4 }}>
-                                <span className={styles.label}>{label}</span>
-                                <Gauge label={label} saved={saved[key]} value={draft[key]} />
-                                <span className={styles.value}>{draft[key]}</span>
+                        <div className={styles.rows}>
+                            <div className={styles.row}>
+                                <span className={styles.label}>HP</span>
+                                <Gauge label="HP" saved={saved.hp} value={hpIVFrom(draft)} />
+                                <span className={styles.value}>{hpIVFrom(draft)}</span>
                             </div>
-                        ))}
-
+                            {RAISABLE.map(({ key, label }) => (
+                                <div key={key} className={styles.row}>
+                                    <span className={styles.label}>{label}</span>
+                                    <Gauge label={label} saved={saved[key]} value={draft[key]} />
+                                    <span className={styles.value}>{draft[key]}</span>
+                                </div>
+                            ))}
+                        </div>
                         <p className={styles.note}>
                             HP comes from the other four. Odd numbers raise it and even numbers lower it, so it&apos;s only 15 when all four are odd.
                         </p>
-                    </>
+                    </div>
                 ) : (
                     <p className={styles.empty}>Choose a Pokémon on the monitor to edit it inside this save.</p>
                 )}
+            </div>
 
-                {RAISABLE.map(({ key, label }, i) => (
-                    <button
+            {/* In the same order as the rows on the screen */}
+            <div className={styles.dials}>
+                {RAISABLE.map(({ key, label }) => (
+                    <Dial
                         key={key}
-                        type="button"
-                        className={styles.raise}
-                        style={{ gridRow: i + 4 }}
-                        aria-label={`Raise ${label}`}
-                        title={`Raise ${label}`}
-                        {...press(off || draft[key] >= MAX_IV, () => setDraft(d => ({ ...d, [key]: Math.min(d[key] + 1, MAX_IV) })))}
-                    >
-                        <Plus size={14} strokeWidth={3} aria-hidden />
-                    </button>
+                        label={label}
+                        value={draft[key]}
+                        saved={saved[key]}
+                        inactive={off}
+                        onRaise={() => setDraft(d => ({ ...d, [key]: Math.min(d[key] + 1, MAX_IV) }))}
+                    />
                 ))}
             </div>
 

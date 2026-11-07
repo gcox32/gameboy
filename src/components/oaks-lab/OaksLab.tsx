@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { FolderOpen } from 'lucide-react';
@@ -16,6 +16,9 @@ import { useLabSave, type LabSave } from './useLabSave';
 import styles from './lab.module.css';
 
 type Mode = 'extract' | 'port' | 'edit';
+
+/** How long every press, slide and fade in the Lab takes. Becomes --ui-ms for the styles. */
+const UI_MS = 450;
 
 const MODES: { id: Mode; label: string }[] = [
     { id: 'extract', label: 'Leave a Pokémon' },
@@ -67,13 +70,23 @@ function LabConsole({ lab, mode, setMode }: { lab: LabSave; mode: Mode; setMode:
 }
 
 export default function OaksLab() {
+    // The switch's position, which follows a press straight away
     const [mode, setMode] = useState<Mode>('extract');
+    // The mode on the stage, which waits for the old deck to leave
+    const [shownMode, setShownMode] = useState<Mode>('extract');
+    const leaving = mode !== shownMode;
+
+    useEffect(() => {
+        if (mode === shownMode) return;
+        const t = setTimeout(() => setShownMode(mode), UI_MS);
+        return () => clearTimeout(t);
+    }, [mode, shownMode]);
     const { games } = useGames();
     // Shared by every mode, and with Play and the Ranch
     const lab = useLabSave();
 
     return (
-        <div className={styles.page}>
+        <div className={styles.page} style={{ '--ui-ms': `${UI_MS}ms` } as CSSProperties}>
             <div className={styles.hero}>
                 <Image
                     src="/images/oaks_lab.jpg"
@@ -88,10 +101,10 @@ export default function OaksLab() {
 
             <NowPlaying />
 
-            <div className={styles.main}>
-                {mode === 'extract' && <ExtractTab lab={lab} />}
-                {mode === 'port' && <PortInTab lab={lab} />}
-                {mode === 'edit' && <EditTab lab={lab} />}
+            <div className={clsx(styles.main, leaving && styles.leaving)}>
+                {shownMode === 'extract' && <ExtractTab lab={lab} />}
+                {shownMode === 'port' && <PortInTab lab={lab} />}
+                {shownMode === 'edit' && <EditTab lab={lab} />}
             </div>
 
             <LabConsole lab={lab} mode={mode} setMode={setMode} />
