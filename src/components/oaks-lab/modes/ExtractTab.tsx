@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowDownToLine, Check, Copy, X } from 'lucide-react';
-import { DeckKey, DeckPill, LabDeck, LabStage, Platform } from './LabStage';
-import { SaveMonitor, slotEntry, slotKey } from './LabSave';
-import type { LabSave } from './useLabSave';
-import styles from './lab.module.css';
+import { ArrowDownToLine, Copy, X } from 'lucide-react';
+import { DeckKey, DeckPill, LabDeck, LabResult, LabStage, Platform } from '../stage';
+import { SaveMonitor, slotEntry, slotKey } from '../save/LabSave';
+import type { LabSave } from '../save/useLabSave';
+import styles from '../lab.module.css';
 
 /** Leave a Pokémon: send one Pokémon from a save to the Ranch, or clone it there */
 export default function ExtractTab({ lab }: { lab: LabSave }) {
     const [selectedKey, setSelectedKey] = useState('');
-    const { contents, loadedFilePath, refresh, notify } = lab;
+    const { contents, loadedFilePath, refresh } = lab;
     const party = contents?.party ?? [];
     const all = contents ? [...contents.party, ...contents.boxes.flat()] : [];
     const chosen = all.find(s => slotKey(s) === selectedKey) ?? null;
@@ -25,6 +25,8 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
     const [busy, setBusy] = useState<'' | 'move' | 'clone'>('');
     // Removing asks first, in case a clone would do
     const [confirming, setConfirming] = useState(false);
+    // How the last send went, until it's acknowledged
+    const [result, setResult] = useState<LabResult | null>(null);
 
     // A different selection needs asking about again
     useEffect(() => { setConfirming(false); }, [selectedKey]);
@@ -32,6 +34,7 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
     const send = async (mode: 'move' | 'clone') => {
         if (!chosen || !contents || (mode === 'move' && emptiesParty)) return;
         setBusy(mode);
+        setResult(null);
         const slots = [{
             location: chosen.location,
             ...(chosen.location === 'box' ? { boxNumber: chosen.boxNumber } : {}),
@@ -46,19 +49,22 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
             });
 
             if (res.ok) {
-                notify(mode === 'clone'
-                    ? `${chosen.nickname} cloned to the Ranch!`
-                    : `${chosen.nickname} sent to the Ranch!`, 'success');
+                setResult({
+                    tone: 'success',
+                    text: mode === 'clone'
+                        ? `${chosen.nickname} cloned to the Ranch!`
+                        : `${chosen.nickname} sent to the Ranch!`,
+                });
                 // A clone leaves the file as it was, so the selection wouldn't clear by itself
                 setSelectedKey('');
             } else {
                 const err = await res.json().catch(() => ({}));
-                notify(err.error ?? 'Something went wrong.', 'error');
+                setResult({ tone: 'error', text: err.error ?? 'Something went wrong.' });
             }
             // On success this shows the new file. On a conflict, whatever is there now.
             await refresh();
         } catch {
-            notify('Something went wrong. Check your connection and try again.', 'error');
+            setResult({ tone: 'error', text: 'Something went wrong. Check your connection and try again.' });
         } finally {
             setBusy('');
             setConfirming(false);
@@ -66,37 +72,26 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
     };
 
     const none = !chosen;
-    const cloneKey = (
-        <DeckKey
-            tone="alt"
-            label={busy === 'clone' ? 'Cloning...' : 'Clone to Ranch'}
-            onClick={() => send('clone')}
-            inactive={!!busy || none}
-        >
-            <Copy size={22} strokeWidth={2.5} aria-hidden />
-        </DeckKey>
-    );
 
-    const controls = confirming ? (
+    // The same three keys throughout. Send asks first, then a second press sends; Back only works while it's asking.
+    const controls = (
         <>
-            <DeckPill label="Back" onClick={() => setConfirming(false)} inactive={!!busy}>
+            <DeckPill label="Back" onClick={() => setConfirming(false)} inactive={!!busy || !confirming}>
                 <X size={18} aria-hidden />
             </DeckPill>
-            {cloneKey}
             <DeckKey
-                label={busy === 'move' ? 'Sending...' : 'Remove from save and send to Ranch'}
-                onClick={() => send('move')}
-                inactive={!!busy}
+                tone="alt"
+                label={busy === 'clone' ? 'Cloning...' : 'Clone to Ranch'}
+                onClick={() => send('clone')}
+                inactive={!!busy || none}
             >
-                <Check size={22} strokeWidth={3} aria-hidden />
+                <Copy size={22} strokeWidth={2.5} aria-hidden />
             </DeckKey>
-        </>
-    ) : (
-        <>
-            {cloneKey}
             <DeckKey
-                label="Send to Ranch"
-                onClick={() => setConfirming(true)}
+                label={busy === 'move' ? 'Sending...'
+                    : confirming ? 'Remove from save and send to Ranch'
+                    : 'Send to Ranch'}
+                onClick={() => confirming ? send('move') : setConfirming(true)}
                 inactive={!!busy || emptiesParty || none}
             >
                 <ArrowDownToLine size={22} strokeWidth={2.5} aria-hidden />
@@ -107,7 +102,13 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
     return (
         <LabStage
             panel={
-                <LabDeck title="Leave a Pokémon" controls={controls}>
+                <LabDeck
+                    title="Leave a Pokémon"
+                    controls={controls}
+                    busy={busy === 'clone' ? 'Cloning...' : busy === 'move' ? 'Sending...' : undefined}
+                    result={result}
+                    onDismissResult={() => setResult(null)}
+                >
                     {!chosen ? (
                         <p>Choose a Pokémon on the monitor to send it from this save to the Ranch, or to clone it there.</p>
                     ) : confirming ? (
@@ -125,9 +126,7 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
                                     </span>
                                 </li>
                             </ul>
-                            <p className={styles.deckHint}>
-                                {busy === 'clone' ? 'Cloning...' : busy === 'move' ? 'Sending...' : 'Ready to send or clone.'}
-                            </p>
+                            <p className={styles.deckHint}>Ready to send or clone.</p>
                         </>
                     )}
 
@@ -136,14 +135,20 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
                     )}
                 </LabDeck>
             }
-            platform={<Platform entries={chosen ? [slotEntry(chosen)] : []} />}
+            platform={<Platform entry={chosen ? slotEntry(chosen) : null} />}
             monitor={
                 <SaveMonitor
                     lab={lab}
                     cursorKey={selectedKey}
                     // A second click puts it back
-                    onPick={s => setSelectedKey(prev => prev === slotKey(s) ? '' : slotKey(s))}
-                    onCursor={s => setSelectedKey(slotKey(s))}
+                    onPick={s => {
+                        setSelectedKey(prev => prev === slotKey(s) ? '' : slotKey(s));
+                        setResult(null);
+                    }}
+                    onCursor={s => {
+                        setSelectedKey(slotKey(s));
+                        setResult(null);
+                    }}
                 />
             }
         />

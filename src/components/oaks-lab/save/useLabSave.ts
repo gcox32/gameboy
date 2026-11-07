@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SaveContents, readSaveContents, validateGen1Save } from '@/utils/pokemon/gen1Save';
 import { useCurrentGame } from '@/contexts/CurrentGameContext';
-import { useToast } from '@/components/ui';
 
 /** The monitor page for the party. Boxes are pages 0–11. */
 export const PARTY_PAGE = -1;
@@ -23,7 +22,8 @@ export function useLabSave() {
     const [loadedFilePath, setLoadedFilePath] = useState('');
     const [loadingSave, setLoadingSave] = useState(false);
     const [page, setPage] = useState(PARTY_PAGE);
-    const { showToast } = useToast();
+    // Why the save couldn't be read, for the monitor to show
+    const [loadError, setLoadError] = useState('');
     const [gamePickerOpen, setGamePickerOpen] = useState(false);
     const [savePickerOpen, setSavePickerOpen] = useState(false);
 
@@ -37,6 +37,7 @@ export function useLabSave() {
     useEffect(() => {
         setContents(null);
         setLoadedFilePath('');
+        setLoadError('');
         setPage(PARTY_PAGE);
     }, [selectedSave?.id]);
 
@@ -50,7 +51,7 @@ export function useLabSave() {
         const fail = (message: string) => {
             setContents(null);
             setLoadedFilePath('');
-            showToast(message, 'error');
+            setLoadError(message);
         };
 
         (async () => {
@@ -77,6 +78,7 @@ export function useLabSave() {
                 const parsed = readSaveContents(sram);
                 setContents(parsed);
                 setLoadedFilePath(filePath);
+                setLoadError('');
                 setPage(p => p === PARTY_PAGE || parsed.boxAvailable[p] ? p : PARTY_PAGE);
             } catch (err) {
                 if (cancelled) return;
@@ -88,7 +90,7 @@ export function useLabSave() {
         })();
 
         return () => { cancelled = true; };
-    }, [selectedSave?.id, connected, filePath, showToast]);
+    }, [selectedSave?.id, connected, filePath]);
 
     // The party, then each box the game has set up
     const pages = contents
@@ -115,8 +117,8 @@ export function useLabSave() {
         stepPage,
         /** The Pokémon on the monitor's current page */
         pageSlots,
-        /** Shows a message in the app's toasts */
-        notify: showToast,
+        /** Why the save couldn't be read, or '' */
+        loadError,
         gamePickerOpen,
         setGamePickerOpen,
         savePickerOpen,

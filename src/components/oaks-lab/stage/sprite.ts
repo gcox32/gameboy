@@ -1,4 +1,4 @@
-import { pokemonGifEndpoint } from '../../../config';
+import { pokemonGifEndpoint } from '../../../../config';
 import { dexDict } from '@/utils/pokemon/dicts';
 
 export function spriteUrl(speciesIndex: number): string {

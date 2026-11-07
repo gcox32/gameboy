@@ -6,8 +6,8 @@ import { RotateCcw, Save } from 'lucide-react';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { MAX_IV, StoredIVs, hpIVFrom } from '@/utils/pokemon/stats';
-import { DeckKey, DeckPill } from './LabStage';
-import lab from './lab.module.css';
+import { DeckAck, DeckBusy, DeckKey, DeckPill, DeckResult, LabResult } from '../stage';
+import lab from '../lab.module.css';
 import styles from './ivEditor.module.css';
 
 const RAISABLE: { key: keyof StoredIVs; label: string }[] = [
@@ -126,10 +126,15 @@ interface IvEditorProps {
     pokemon: SlotPokemon | null;
     saving: boolean;
     onSave: (ivs: StoredIVs) => void;
+    /** What the deck is doing, such as "Saving...". Shows a spinner in place of the gauges. */
+    busy?: string;
+    /** How the last save went. Shown in place of the gauges until any key is pressed. */
+    result?: LabResult | null;
+    onDismissResult?: () => void;
 }
 
 /** The Enhance deck. Remount with a new key when the saved IVs change, to start from them. */
-export default function IvEditor({ pokemon, saving, onSave }: IvEditorProps) {
+export default function IvEditor({ pokemon, saving, onSave, busy, result, onDismissResult }: IvEditorProps) {
     const saved = pokemon?.ivs ?? { ...NO_IVS, hp: 0 };
     const start: StoredIVs = {
         attack: saved.attack,
@@ -139,7 +144,8 @@ export default function IvEditor({ pokemon, saving, onSave }: IvEditorProps) {
     };
     const [draft, setDraft] = useState<StoredIVs>(start);
 
-    const off = !pokemon || saving;
+    // The dials and keys wait while a result is on the screen
+    const off = !pokemon || saving || !!result;
     const changed = RAISABLE.some(({ key }) => draft[key] !== saved[key]);
 
     return (
@@ -159,7 +165,11 @@ export default function IvEditor({ pokemon, saving, onSave }: IvEditorProps) {
                     ) : <span>Enhance a Pokémon</span>}
                 </div>
 
-                {pokemon ? (
+                {busy || result ? (
+                    <div className={lab.deckBody}>
+                        {busy ? <DeckBusy text={busy} /> : result && <DeckResult result={result} />}
+                    </div>
+                ) : pokemon ? (
                     <div className={styles.body}>
                         <p className={styles.species}>{dexDict[pokemon.speciesIndex]?.name}</p>
                         <div className={styles.rows}>
@@ -199,14 +209,16 @@ export default function IvEditor({ pokemon, saving, onSave }: IvEditorProps) {
                 ))}
             </div>
 
-            <div className={lab.deckControls}>
-                <DeckPill label="Reset" onClick={() => setDraft(start)} inactive={off || !changed}>
-                    <RotateCcw size={18} aria-hidden />
-                </DeckPill>
-                <DeckKey label={saving ? 'Saving...' : 'Save changes'} onClick={() => onSave(draft)} inactive={off || !changed}>
-                    <Save size={22} strokeWidth={2.5} aria-hidden />
-                </DeckKey>
-            </div>
+            <DeckAck onAck={result ? () => onDismissResult?.() : null}>
+                <div className={lab.deckControls}>
+                    <DeckPill label="Reset" onClick={() => setDraft(start)} inactive={off || !changed}>
+                        <RotateCcw size={18} aria-hidden />
+                    </DeckPill>
+                    <DeckKey label={saving ? 'Saving...' : 'Save changes'} onClick={() => onSave(draft)} inactive={off || !changed}>
+                        <Save size={22} strokeWidth={2.5} aria-hidden />
+                    </DeckKey>
+                </div>
+            </DeckAck>
         </section>
     );
 }

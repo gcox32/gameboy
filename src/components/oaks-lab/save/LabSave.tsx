@@ -6,11 +6,9 @@ import { GameModel } from '@/types';
 import CartridgePickerModal from '@/components/modals/CartridgePicker';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
 import ConnectModal from './ConnectModal';
-import { LabEntry, Monitor } from './LabStage';
+import { LabEntry, Monitor } from '../stage';
 import { PARTY_PAGE, type LabSave } from './useLabSave';
-import styles from './lab.module.css';
-
-export { spriteUrl } from './sprite';
+import styles from '../lab.module.css';
 
 export const slotKey = (s: SaveSlot) =>
     s.location === 'party' ? `party-${s.slotIndex}` : `box-${s.boxNumber}-${s.slotIndex}`;
@@ -38,14 +36,12 @@ export const pageLabel = (page: number) => page === PARTY_PAGE ? 'Party' : `Box 
 interface SaveMonitorProps {
     lab: LabSave;
     cursorKey: string;
-    markedKeys?: Set<string>;
     onPick: (slot: SlotPokemon) => void;
     onCursor: (slot: SlotPokemon) => void;
-    action?: { label: string; onClick: () => void; inactive?: boolean };
 }
 
 /** The monitor showing the chosen save's party and boxes, one page at a time */
-export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, action }: SaveMonitorProps) {
+export function SaveMonitor({ lab, cursorKey, onPick, onCursor }: SaveMonitorProps) {
     const { selectedGame, selectedSave, currentSave, contents, page } = lab;
     const [connectModalOpen, setConnectModalOpen] = useState(false);
 
@@ -71,7 +67,7 @@ export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, acti
             </>
         );
     } else if (!contents && !lab.loadingSave) {
-        screen = <p>Could not read this save.</p>;
+        screen = <p>{lab.loadError || 'Could not read this save.'}</p>;
     }
     // The static covers the wait for the save to be read
     const loading = !screen && !contents;
@@ -86,11 +82,9 @@ export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, acti
                 meta={screen || loading ? undefined : `${slots.length}/${capacity}`}
                 entries={slots.map(slotEntry)}
                 cursorKey={cursorKey}
-                markedKeys={markedKeys}
                 onPick={fromEntry(onPick)}
                 onCursor={fromEntry(onCursor)}
                 pages={{ label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), inactive: !contents }}
-                action={action}
                 screen={screen}
                 loading={loading}
                 footnote={contents && page !== PARTY_PAGE

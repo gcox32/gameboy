@@ -169,6 +169,73 @@
     text-shadow: 0 0 6px rgba(246, 231, 168, 0.5);
 }
 
+/* The deck's screen while it's busy, or showing how the last action went */
+.deckReadout {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    padding: 1rem 0.5rem;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.deckBody .deckReadout p {
+    margin: 0;
+}
+
+.deckResultError {
+    color: #ffc2b4;
+    text-shadow: 0 0 6px rgba(255, 140, 120, 0.5);
+}
+
+/*
+ * A ring of eight square blocks, each lighting in turn with a fading tail. It jumps from block
+ * to block rather than gliding, like the throbbers of 90s software.
+ */
+.spinner {
+    --size: 5rem;
+    --block: 0.9rem;
+    --radius: calc(var(--size) / 2 - var(--block) / 2);
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+}
+
+.spinner i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--block);
+    height: var(--block);
+    margin: calc(var(--block) / -2);
+    background: var(--phosphor);
+    box-shadow: 0 0 6px var(--glow);
+    opacity: 0.12;
+    /* Placed round the ring but kept square-on, so the diagonals don't turn into diamonds */
+    transform: translate(
+        calc(sin(var(--i) * 45deg) * var(--radius)),
+        calc(cos(var(--i) * 45deg) * var(--radius) * -1)
+    );
+    animation: spinnerBlock 0.8s steps(1, end) infinite;
+    animation-delay: calc((var(--i) - 8) * 0.1s);
+}
+
+@keyframes spinnerBlock {
+    0% { opacity: 1; }
+    12.5% { opacity: 0.6; }
+    25% { opacity: 0.35; }
+    37.5% { opacity: 0.12; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinner i {
+        animation-duration: 2.4s;
+    }
+}
+
 .deckList {
     display: grid;
     gap: 0.1rem;
@@ -201,7 +268,14 @@
     padding: 0 0.25rem;
 }
 
-/* The deck's main action: chunky magenta plastic, like the monitor's button */
+/* Keys that sit together on one side of the deck */
+.deckKeys {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+}
+
+/* The deck's main action: chunky magenta plastic, like a Game Boy's A button */
 .deckKey {
     display: grid;
     place-items: center;
@@ -312,7 +386,8 @@
 .platform {
     display: flex;
     justify-content: center;
-    padding-top: 15rem;
+    padding-top: 18rem;
+    padding-left: 8rem;
 }
 
 .platformScene {
@@ -347,23 +422,11 @@
         beamPulse 3.2s ease-in-out 280ms infinite;
 }
 
-.platformMons {
+.platformMon {
     position: relative;
     z-index: 2;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-end;
     /* Stand on the pad's top face rather than above it */
     margin-bottom: -9%;
-}
-
-.platformGroup {
-    max-width: 80%;
-    gap: 0 0.25rem;
-}
-
-.platformMon {
     animation: bob 2.6s ease-in-out infinite;
 }
 
@@ -381,21 +444,6 @@
     image-rendering: pixelated;
     filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.45));
     animation: materialize var(--ui-ms, 300ms) ease-out;
-}
-
-/* Testing readout under the pad. Absolute, so the pad stays put. */
-.platformSize {
-    position: absolute;
-    top: calc(100% + 0.75rem);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
-    background: rgba(10, 31, 31, 0.78);
-    color: var(--phosphor-dim);
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
 }
 
 .pad {
@@ -637,10 +685,6 @@
     box-shadow: 0 0 0 1px var(--phosphor), 0 0 14px rgba(78, 205, 196, 0.55);
 }
 
-.tileMarked {
-    background: rgba(78, 205, 196, 0.28);
-}
-
 .tileSprite {
     width: 56px;
     height: 56px;
@@ -787,37 +831,8 @@
     box-shadow: 0 1px 0 var(--metal-lo);
 }
 
-.actionWrap {
-    justify-self: end;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-/* The magenta of a Game Boy's A button */
-.actionBtn {
-    width: 3.25rem;
-    height: 3.25rem;
-    border: none;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #c94a7e, #8e1f52);
-    color: #fff;
-    font: inherit;
-    font-size: 1.1rem;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 3px 0 #5c1234, 0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
-}
-
-.actionBtn:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 #5c1234;
-}
-
 .rockerBtn:focus-visible,
 .dpadBtn:focus-visible,
-.actionBtn:focus-visible,
 .pill:focus-visible {
     outline: 2px solid var(--glow);
     outline-offset: 2px;
@@ -986,8 +1001,20 @@
     cursor: pointer;
 }
 
+/* The thumb is here, so this one is grabbed rather than pressed. No touch scrolling, so it can be dragged. */
 .stop[aria-checked='true'] {
-    cursor: default;
+    cursor: grab;
+    touch-action: none;
+}
+
+/* Follows the pointer exactly while held; the transition comes back to settle it on release */
+.thumbDragging {
+    transition: none;
+}
+
+.stopDragging,
+.stopDragging[aria-checked='true'] {
+    cursor: grabbing;
 }
 
 .stop:focus-visible {

@@ -7,12 +7,12 @@ import { FolderOpen } from 'lucide-react';
 import CartridgeIcon from '@/components/icons/CartridgeIcon';
 import { useGames } from '@/contexts/GamesContext';
 import NowPlaying from '@/components/layout/NowPlaying';
-import ExtractTab from './ExtractTab';
-import PortInTab from './PortInTab';
-import EditTab from './EditTab';
-import { LabSavePickers } from './LabSave';
-import { SlideSwitch, press } from './LabStage';
-import { useLabSave, type LabSave } from './useLabSave';
+import ExtractTab from './modes/ExtractTab';
+import PortInTab from './modes/PortInTab';
+import EditTab from './modes/EditTab';
+import { LabSavePickers } from './save/LabSave';
+import { SlideSwitch, press } from './stage';
+import { useLabSave, type LabSave } from './save/useLabSave';
 import styles from './lab.module.css';
 
 type Mode = 'extract' | 'port' | 'edit';

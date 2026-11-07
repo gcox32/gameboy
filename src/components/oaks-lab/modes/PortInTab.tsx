@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpFromLine, Plug } from 'lucide-react';
 import { RanchPokemon } from '@/components/ranch/types';
-import ConnectModal from './ConnectModal';
-import { DeckKey, LabDeck, LabEntry, LabStage, Monitor, Platform, SlideSwitch, press } from './LabStage';
-import { BoxesNotReadyNote } from './LabSave';
-import type { LabSave } from './useLabSave';
-import styles from './lab.module.css';
+import ConnectModal from '../save/ConnectModal';
+import { DeckKey, DeckPill, LabDeck, LabEntry, LabResult, LabStage, Monitor, Platform, SlideSwitch, press } from '../stage';
+import { BoxesNotReadyNote } from '../save/LabSave';
+import type { LabSave } from '../save/useLabSave';
+import styles from '../lab.module.css';
 
 const ranchEntry = (p: RanchPokemon): LabEntry => ({
     key: p.id,
@@ -18,13 +18,15 @@ const ranchEntry = (p: RanchPokemon): LabEntry => ({
 
 /** Take a Pokémon: send a Pokémon from the Ranch into a save */
 export default function PortInTab({ lab }: { lab: LabSave }) {
-    const { selectedGame, selectedSave, currentSave, contents, notify } = lab;
+    const { selectedGame, selectedSave, currentSave, contents } = lab;
     const [ranch, setRanch] = useState<RanchPokemon[] | null>(null);
     const [selectedId, setSelectedId] = useState('');
     const [targetSlotType, setTargetSlotType] = useState<'party' | 'box'>('party');
     const [targetBoxNumber, setTargetBoxNumber] = useState(1);
     const [porting, setPorting] = useState(false);
     const [connectModalOpen, setConnectModalOpen] = useState(false);
+    // How the last send went, until it's acknowledged
+    const [result, setResult] = useState<LabResult | null>(null);
 
     const selectedPokemon = ranch?.find(p => p.id === selectedId) ?? null;
     const connected = !!currentSave?.connected;
@@ -52,6 +54,7 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
     const handlePort = async () => {
         if (!selectedPokemon || !selectedSave?.id) return;
         setPorting(true);
+        setResult(null);
         const targetSlot = targetSlotType === 'party'
             ? { location: 'party', slotIndex: 0 }
             : { location: 'box', boxNumber: targetBoxNumber, slotIndex: 0 };
@@ -64,16 +67,16 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
             });
 
             if (res.ok) {
-                notify(`${selectedPokemon.nickname} sent to ${currentSave?.title ?? 'your game'}!`, 'success');
+                setResult({ tone: 'success', text: `${selectedPokemon.nickname} sent to ${currentSave?.title ?? 'your game'}!` });
             } else {
                 const err = await res.json().catch(() => ({}));
-                notify(err.error ?? 'Something went wrong.', 'error');
+                setResult({ tone: 'error', text: err.error ?? 'Something went wrong.' });
             }
             // Either way, show what's there now. A new file reloads the save's contents.
             setSelectedId('');
             await Promise.all([fetchRanch(), lab.refresh()]);
         } catch {
-            notify('Something went wrong. Check your connection and try again.', 'error');
+            setResult({ tone: 'error', text: 'Something went wrong. Check your connection and try again.' });
         } finally {
             setPorting(false);
         }
@@ -92,10 +95,10 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
     if (!selectedGame || !selectedSave?.id) {
         destination = <p>Choose a game and save file below to send it to.</p>;
     } else if (!connected) {
-        destination = <p>This save is not connected to Oak&apos;s Lab. Connect it first to receive Pokémon.</p>;
+        destination = <p>This save is not connected to Oak&apos;s Lab. Press the plug key to connect it, then it can receive Pokémon.</p>;
     } else if (!contents) {
         destination = <p className={lab.loadingSave ? styles.blink : undefined}>
-            {lab.loadingSave ? 'Loading save file...' : 'Could not read this save.'}
+            {lab.loadingSave ? 'Loading save file...' : lab.loadError || 'Could not read this save.'}
         </p>;
     } else {
         destination = (
@@ -117,7 +120,8 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
         );
     }
 
-    const controls = connected || !selectedSave?.id ? (
+    // The same hardware whether or not the save is connected. Connect only works when it isn't.
+    const controls = (
         <>
             <SlideSwitch
                 small
@@ -129,13 +133,22 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                 value={targetSlotType}
                 onChange={setTargetSlotType}
             />
-            <DeckKey
-                label={porting ? 'Sending...' : `Send to ${currentSave?.title ?? 'Game'}`}
-                onClick={handlePort}
-                inactive={!ready || !selectedPokemon || porting || isFull}
-            >
-                <ArrowUpFromLine size={22} strokeWidth={2.5} aria-hidden />
-            </DeckKey>
+            <div className={styles.deckKeys}>
+                <DeckPill
+                    label="Connect to Lab"
+                    onClick={() => setConnectModalOpen(true)}
+                    inactive={!selectedSave?.id || connected}
+                >
+                    <Plug size={18} aria-hidden />
+                </DeckPill>
+                <DeckKey
+                    label={porting ? 'Sending...' : `Send to ${currentSave?.title ?? 'Game'}`}
+                    onClick={handlePort}
+                    inactive={!ready || !selectedPokemon || porting || isFull}
+                >
+                    <ArrowUpFromLine size={22} strokeWidth={2.5} aria-hidden />
+                </DeckKey>
+            </div>
             <div className={styles.keypad} role="radiogroup" aria-label="Box">
                 {Array.from({ length: 12 }, (_, i) => {
                     const count = boxCounts[i] ?? 0;
@@ -158,20 +171,25 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                 })}
             </div>
         </>
-    ) : (
-        <DeckKey label="Connect to Lab" onClick={() => setConnectModalOpen(true)}>
-            <Plug size={22} strokeWidth={2.5} aria-hidden />
-        </DeckKey>
     );
 
     const entries = (ranch ?? []).map(ranchEntry);
-    const select = (e: LabEntry) => setSelectedId(e.key);
+    const select = (e: LabEntry) => {
+        setSelectedId(e.key);
+        setResult(null);
+    };
 
     return (
         <>
             <LabStage
                 panel={
-                    <LabDeck title="Take a Pokémon" controls={controls}>
+                    <LabDeck
+                        title="Take a Pokémon"
+                        controls={controls}
+                        busy={porting ? 'Sending...' : undefined}
+                        result={result}
+                        onDismissResult={() => setResult(null)}
+                    >
                         {!selectedPokemon && (
                             <p>Select a Pokémon from your Ranch to port into the target save.</p>
                         )}
@@ -179,7 +197,7 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                     </LabDeck>
                 }
                 platform={
-                    <Platform entries={selectedPokemon ? [ranchEntry(selectedPokemon)] : []} />
+                    <Platform entry={selectedPokemon ? ranchEntry(selectedPokemon) : null} />
                 }
                 monitor={
                     <Monitor
@@ -187,7 +205,10 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                         meta={ranch ? `${ranch.length}` : undefined}
                         entries={entries}
                         cursorKey={selectedId}
-                        onPick={e => setSelectedId(prev => prev === e.key ? '' : e.key)}
+                        onPick={e => {
+                            setSelectedId(prev => prev === e.key ? '' : e.key);
+                            setResult(null);
+                        }}
                         onCursor={select}
                         loading={ranch === null}
                         emptyText="No Pokémon at the Ranch."

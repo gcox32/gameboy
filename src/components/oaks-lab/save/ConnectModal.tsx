@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import Connector from '@/components/ui/Connector';
-import { press } from './LabStage';
-import styles from './styles.module.css';
+import { press } from '../stage';
+import styles from './connectModal.module.css';
 
 const STEPS = [
     'Verifying your account',
