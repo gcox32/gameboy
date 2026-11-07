@@ -19,6 +19,7 @@ import CartridgeIcon from '@/components/icons/CartridgeIcon';
 import GameManagement from '@/components/modals/GameManagement';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
 import { Loader } from '@/components/ui';
+import { useCurrentGame } from '@/contexts/CurrentGameContext';
 import { useEmulator } from '@/contexts/EmulatorContext';
 import { useGames } from '@/contexts/GamesContext';
 import { getNextSpeed, useSettings } from '@/contexts/SettingsContext';
@@ -80,6 +81,9 @@ export default function SessionBar() {
     const { uiSettings, updateUISettings } = useSettings();
     const { speed, isSoundOn } = uiSettings;
     const { isLoading: isLoadingGames } = useGames();
+    // A save chosen here or in the Lab, waiting to be played
+    const { save: currentSave } = useCurrentGame();
+    const continueSave = !isEmulatorPlaying ? currentSave : null;
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const [isLoadStateOpen, setIsLoadStateOpen] = useState(false);
 
@@ -148,8 +152,18 @@ export default function SessionBar() {
                         <RotateCcw size={ICON_SIZE} />
                     </BarButton>
                 )}
+                {continueSave && (
+                    <BarButton
+                        label="Continue"
+                        onClick={() => requestLoadSaveState(continueSave, () => {})}
+                        disabled={!isRomLoaded}
+                        className={styles.continueButton}
+                    >
+                        <Play size={ICON_SIZE} />
+                    </BarButton>
+                )}
                 <BarButton label={isEmulatorPlaying ? 'Power Off' : 'New Game'} onClick={handlePowerToggleConfirm} disabled={!isRomLoaded}>
-                    {isEmulatorPlaying ? <Power size={ICON_SIZE} /> : <Play size={ICON_SIZE} />}
+                    {isEmulatorPlaying || continueSave ? <Power size={ICON_SIZE} /> : <Play size={ICON_SIZE} />}
                 </BarButton>
 
                 <span className={styles.divider} />

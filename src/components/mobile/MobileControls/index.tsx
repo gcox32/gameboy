@@ -7,6 +7,7 @@ import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateMod
 import CustomSwitch from '@/components/common/CustomSwitch';
 import ProfileModal from '@/components/modals/ProfileModal';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrentGame } from '@/contexts/CurrentGameContext';
 import { useEmulator } from '@/contexts/EmulatorContext';
 import { useGame } from '@/contexts/GameContext';
 import { useGames } from '@/contexts/GamesContext';
@@ -37,6 +38,8 @@ export default function MobileControls() {
     } = useEmulator();
     const [isOpen, setIsOpen] = useState(false);
     const { games, isLoading: loading } = useGames();
+    const { game: currentGame, save: currentSave } = useCurrentGame();
+    const continueSave = !isEmulatorPlaying ? currentSave : null;
     const { profile: userProfile } = useProfile();
     const avatarUrl = userProfile?.avatar || null;
 
@@ -141,7 +144,7 @@ export default function MobileControls() {
                         {loading ? (
                             <div className={styles.loading}>Loading games...</div>
                         ) : (
-                            <select onChange={handleROMChange} disabled={isEmulatorPlaying} className={styles.select} defaultValue="">
+                            <select onChange={handleROMChange} disabled={isEmulatorPlaying} className={styles.select} value={currentGame?.filePath ?? ''}>
                                 <option value="" disabled>Select a game</option>
                                 {games.map(game => (
                                     <option key={game.id} value={game.filePath}>{game.title}</option>
@@ -152,9 +155,20 @@ export default function MobileControls() {
                     </div>
 
                     <div className={styles.section}>
+                        {continueSave && (
+                            <div className={styles.buttonRow}>
+                                <button
+                                    onClick={() => requestLoadSaveState(continueSave, () => setIsOpen(false))}
+                                    disabled={!isRomLoaded}
+                                    className={`${styles.button} ${styles.primary}`}
+                                >
+                                    Continue {continueSave.title}
+                                </button>
+                            </div>
+                        )}
                         <div className={styles.buttonRow}>
-                            <button onClick={() => runAndCloseDrawer(handlePowerToggleConfirm)} disabled={!isRomLoaded} className={`${styles.button} ${styles.primary}`}>
-                                {isEmulatorPlaying ? 'Off' : 'Start'}
+                            <button onClick={() => runAndCloseDrawer(handlePowerToggleConfirm)} disabled={!isRomLoaded} className={`${styles.button} ${continueSave ? '' : styles.primary}`}>
+                                {isEmulatorPlaying ? 'Off' : continueSave ? 'New Game' : 'Start'}
                             </button>
                             <button onClick={onPauseResume} disabled={!isEmulatorPlaying} className={styles.button}>
                                 {intervalPaused ? 'Resume' : 'Pause'}

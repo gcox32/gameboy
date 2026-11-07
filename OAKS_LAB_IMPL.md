@@ -41,7 +41,7 @@ Connect is **idempotent** — calling it on an already-connected save returns im
 
 ## Flow 1: Extract (Leave a Pokémon)
 
-### UI (`ExtractTab` in `OaksLab.tsx`)
+### UI (`ExtractTab.tsx`)
 
 1. User selects a game, then a save state. Save states are filtered to connected-only for the actual operation (non-connected saves show a Connect prompt instead).
 2. The `.sav` blob is fetched (`cache: 'no-store'`) and parsed client-side by `parseSaveFile()`. This reads all party slots and all 12 PC boxes directly from the raw SRAM bytes — no emulator involvement.
@@ -66,7 +66,7 @@ Connect is **idempotent** — calling it on an already-connected save returns im
 
 ## Flow 2: Port-In (Take a Pokémon)
 
-### UI (`PortInTab` in `OaksLab.tsx`)
+### UI (`PortInTab.tsx`)
 
 1. User selects a target game and save state (must be connected).
 2. When a connected save state is selected, the `.sav` blob is fetched and parsed to populate **occupancy** — the count of Pokémon already in party and each box. This is shown on the destination buttons (`Party (3/6)`, `Box 1 (2/20)`) and used to determine the next available slot.
@@ -220,9 +220,11 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 
 | Layer | File | Responsibility |
 |---|---|---|
-| UI | `src/components/oaks-lab/OaksLab.tsx` | Extract tab, port-in tab |
+| UI | `src/components/oaks-lab/OaksLab.tsx` | Page shell and bottom console: game and save slots, mode keys, status readout. Owns the one `useLabSave()` every mode shares, which reads the current game and save from `CurrentGameContext` (shared with Play and the Ranch). |
+| UI | `src/components/oaks-lab/LabStage.tsx` | Layout: paper action panel, central platform, monitor with Pokémon and page controls |
+| UI | `src/components/oaks-lab/ExtractTab.tsx`, `PortInTab.tsx` | Leave and Take modes |
 | UI | `src/components/oaks-lab/EditTab.tsx`, `IvEditor.tsx` | Edit tab and IV gauges |
-| UI | `src/components/oaks-lab/useLabSave.ts`, `LabSave.tsx` | Choosing a save and showing its Pokémon, shared by the Leave and Edit tabs |
+| UI | `src/components/oaks-lab/useLabSave.ts`, `LabSave.tsx` | Choosing a save, paging its party and boxes, and the `SaveMonitor` used by Leave and Enhance |
 | UI | `src/components/ranch/OaksRanch.tsx` | Read-only Ranch gallery |
 | API | `src/app/api/save-states/[id]/connect/route.ts` | Connect flow |
 | API | `src/app/api/pokemon/stored/route.ts` | GET (list Ranch), POST (extract) |

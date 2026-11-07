@@ -2,39 +2,42 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { SaveContents, readSaveContents, validateGen1Save } from '@/utils/pokemon/gen1Save';
-import { GameModel, SaveStateModel } from '@/types';
+import { useCurrentGame } from '@/contexts/CurrentGameContext';
+import { useToast } from '@/components/ui';
 
-/** Choosing a game and save in the Lab, and reading what's in that save */
+/** The monitor page for the party. Boxes are pages 0–11. */
+export const PARTY_PAGE = -1;
+
+/** The current game and save, shared with Play and the Ranch, and what's in that save */
 export function useLabSave() {
-    const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
-    const [saveStates, setSaveStates] = useState<SaveStateModel[]>([]);
-    const [selectedSave, setSelectedSave] = useState<SaveStateModel | null>(null);
+    const {
+        game: selectedGame,
+        setGame: setSelectedGame,
+        save: selectedSave,
+        setSave: setSelectedSave,
+        saveStates,
+        refreshSaves,
+    } = useCurrentGame();
     const [contents, setContents] = useState<SaveContents | null>(null);
     // The file `contents` came from. Requests send it so the server can spot a stale page.
     const [loadedFilePath, setLoadedFilePath] = useState('');
     const [loadingSave, setLoadingSave] = useState(false);
-    const [selectedBox, setSelectedBox] = useState(0);
-    const [toast, setToast] = useState('');
+    const [page, setPage] = useState(PARTY_PAGE);
+    const { showToast } = useToast();
     const [gamePickerOpen, setGamePickerOpen] = useState(false);
     const [savePickerOpen, setSavePickerOpen] = useState(false);
 
-    // Re-derive to pick up the refreshed `connected` and `filePath` after fetching
-    const currentSave = saveStates.find(s => s.id === selectedSave?.id) ?? selectedSave;
-    const gameId = selectedGame?.id ?? '';
+    // Already the latest copy, so it picks up a refreshed `connected` and `filePath`
+    const currentSave = selectedSave;
 
-    const fetchSaveStates = useCallback(async (gId: string) => {
-        if (!gId) { setSaveStates([]); return; }
-        const res = await fetch(`/api/save-states?gameId=${gId}`);
-        setSaveStates(await res.json());
-    }, []);
-
-    useEffect(() => { fetchSaveStates(gameId); setSelectedSave(null); }, [gameId, fetchSaveStates]);
+    // The connect modal passes a game id. The list is always for the current game.
+    const fetchSaveStates = useCallback(async (_gameId?: string) => { await refreshSaves(); }, [refreshSaves]);
 
     // A different save starts empty. The same save keeps showing until its new file arrives.
     useEffect(() => {
         setContents(null);
         setLoadedFilePath('');
-        setSelectedBox(0);
+        setPage(PARTY_PAGE);
     }, [selectedSave?.id]);
 
     const filePath = currentSave?.filePath;
@@ -47,7 +50,7 @@ export function useLabSave() {
         const fail = (message: string) => {
             setContents(null);
             setLoadedFilePath('');
-            setToast(message);
+            showToast(message, 'error');
         };
 
         (async () => {
@@ -74,7 +77,7 @@ export function useLabSave() {
                 const parsed = readSaveContents(sram);
                 setContents(parsed);
                 setLoadedFilePath(filePath);
-                setSelectedBox(box => parsed.boxAvailable[box] ? box : Math.max(parsed.boxAvailable.indexOf(true), 0));
+                setPage(p => p === PARTY_PAGE || parsed.boxAvailable[p] ? p : PARTY_PAGE);
             } catch (err) {
                 if (cancelled) return;
                 console.error('[useLabSave]', err);
@@ -85,10 +88,17 @@ export function useLabSave() {
         })();
 
         return () => { cancelled = true; };
-    }, [selectedSave?.id, connected, filePath]);
+    }, [selectedSave?.id, connected, filePath, showToast]);
 
-    const showContents = connected && !!contents
-        && (contents.party.length > 0 || contents.boxes.some(b => b.length > 0));
+    // The party, then each box the game has set up
+    const pages = contents
+        ? [PARTY_PAGE, ...contents.boxAvailable.flatMap((ok, i) => ok ? [i] : [])]
+        : [PARTY_PAGE];
+    const pageSlots = !contents ? [] : page === PARTY_PAGE ? contents.party : contents.boxes[page] ?? [];
+    const stepPage = (by: number) => {
+        const at = Math.max(pages.indexOf(page), 0);
+        setPage(pages[(at + by + pages.length) % pages.length]);
+    };
 
     return {
         selectedGame,
@@ -100,18 +110,20 @@ export function useLabSave() {
         contents,
         loadedFilePath,
         loadingSave,
-        selectedBox,
-        setSelectedBox,
-        showContents,
-        toast,
-        setToast,
+        page,
+        setPage,
+        stepPage,
+        /** The Pokémon on the monitor's current page */
+        pageSlots,
+        /** Shows a message in the app's toasts */
+        notify: showToast,
         gamePickerOpen,
         setGamePickerOpen,
         savePickerOpen,
         setSavePickerOpen,
         fetchSaveStates,
         /** Re-reads the save list, which reloads the save if its file has changed */
-        refresh: useCallback(() => fetchSaveStates(gameId), [fetchSaveStates, gameId]),
+        refresh: fetchSaveStates,
     };
 }
 

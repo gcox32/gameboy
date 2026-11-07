@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import BaseModal from '@/components/modals/BaseModal';
+import NowPlaying from '@/components/layout/NowPlaying';
 import { pokemonGifEndpoint } from '../../../config';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { calcGen1Stats, decodeIVs } from '@/utils/pokemon/stats';
@@ -149,6 +150,7 @@ export default function OaksRanch() {
 
     return (
         <div className={styles.page}>
+            <NowPlaying />
             <div className={styles.hero}>
                 <Image
                     src="/images/oaks_ranch.png"

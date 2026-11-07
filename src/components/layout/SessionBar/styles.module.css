@@ -76,6 +76,12 @@
     background: rgba(70, 50, 20, 0.14);
 }
 
+/* Starts the current save, so it stands out from New Game */
+.continueButton {
+    color: var(--ink-strong);
+    background: rgba(43, 138, 128, 0.18);
+}
+
 /* Wide enough for whole-number speeds. 0.5x and 1.5x need 64px, so they still widen the bar */
 .speedButton {
     min-width: 52px;

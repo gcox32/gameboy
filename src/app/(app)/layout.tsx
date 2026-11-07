@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { GamesProvider } from '@/contexts/GamesContext';
+import { CurrentGameProvider } from '@/contexts/CurrentGameContext';
 import { APP_SHELL_ID } from '@/lib/appShell';
 import Nav from '@/components/layout/Nav';
 import { ToastProvider } from '@/components/ui';
@@ -26,8 +27,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div id={APP_SHELL_ID} className={styles.shell}>
             <ToastProvider>
                 <GamesProvider>
-                    <Nav />
-                    {children}
+                    <CurrentGameProvider>
+                        <Nav />
+                        {children}
+                    </CurrentGameProvider>
                 </GamesProvider>
             </ToastProvider>
         </div>

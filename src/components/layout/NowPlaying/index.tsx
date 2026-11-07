@@ -1,16 +1,16 @@
-import { useEmulator } from '@/contexts/EmulatorContext';
+import { useCurrentGame } from '@/contexts/CurrentGameContext';
 import styles from './styles.module.css';
 
-/** The loaded game, and the save it's running from once there is one */
+/** The current game and save, which Play, the Lab and the Ranch all share */
 export default function NowPlaying() {
-    const { activeROM, activeState } = useEmulator();
+    const { game, save } = useCurrentGame();
 
-    if (!activeROM) return null;
+    if (!game) return null;
 
     return (
         <div className={styles.nowPlaying}>
-            <div className={styles.game} title={activeROM.title}>{activeROM.title}</div>
-            {activeState && <div className={styles.save} title={activeState.title}>{activeState.title}</div>}
+            <div className={styles.game} title={game.title}>{game.title}</div>
+            {save && <div className={styles.save} title={save.title}>{save.title}</div>}
         </div>
     );
 }

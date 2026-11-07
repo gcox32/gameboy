@@ -1,70 +1,101 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { pokemonGifEndpoint } from '../../../config';
-import { dexDict } from '@/utils/pokemon/dicts';
+import { ReactNode, useState } from 'react';
 import { SaveSlot, SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { GameModel } from '@/types';
 import CartridgePickerModal from '@/components/modals/CartridgePicker';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
-import buttons from '@/styles/buttons.module.css';
 import ConnectModal from './ConnectModal';
-import type { LabSave } from './useLabSave';
-import styles from './styles.module.css';
+import { LabEntry, Monitor } from './LabStage';
+import { PARTY_PAGE, type LabSave } from './useLabSave';
+import styles from './lab.module.css';
 
-export function spriteUrl(speciesIndex: number): string {
-    const entry = dexDict[speciesIndex];
-    if (!entry || entry.pokedexNo === 'NULL') return '';
-    return `${pokemonGifEndpoint}${entry.pokedexNo.padStart(3, '0')}.gif`;
-}
+export { spriteUrl } from './sprite';
 
 export const slotKey = (s: SaveSlot) =>
     s.location === 'party' ? `party-${s.slotIndex}` : `box-${s.boxNumber}-${s.slotIndex}`;
 
+export const slotEntry = (s: SlotPokemon): LabEntry => ({
+    key: slotKey(s),
+    speciesIndex: s.speciesIndex,
+    nickname: s.nickname,
+    level: s.level,
+});
+
 // Only the game can set up the other boxes, so say how if some aren't ready yet.
-export function BoxesNotReadyNote({ boxAvailable }: { boxAvailable: boolean[] }) {
+export function BoxesNotReadyNote({ boxAvailable, className }: { boxAvailable: boolean[]; className?: string }) {
     if (boxAvailable.every(Boolean)) return null;
     const ready = boxAvailable.indexOf(true) + 1;
     return (
-        <p className={styles.infoNote}>
+        <p className={className}>
             Only Box {ready} is ready. Change boxes once at a PC in the game and save to use the others.
         </p>
     );
 }
 
-/** The game and save buttons, the connect prompt, and the PC box buttons */
-export function LabSaveSidebar({ lab }: { lab: LabSave }) {
-    const { selectedGame, selectedSave, currentSave, contents, selectedBox, setSelectedBox } = lab;
+export const pageLabel = (page: number) => page === PARTY_PAGE ? 'Party' : `Box ${page + 1}`;
+
+interface SaveMonitorProps {
+    lab: LabSave;
+    cursorKey: string;
+    markedKeys?: Set<string>;
+    onPick: (slot: SlotPokemon) => void;
+    onCursor: (slot: SlotPokemon) => void;
+    action?: { label: string; onClick: () => void; disabled?: boolean };
+}
+
+/** The monitor showing the chosen save's party and boxes, one page at a time */
+export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, action }: SaveMonitorProps) {
+    const { selectedGame, selectedSave, currentSave, contents, page } = lab;
     const [connectModalOpen, setConnectModalOpen] = useState(false);
 
+    const slots = lab.pageSlots;
+    const bySlotKey = new Map(slots.map(s => [slotKey(s), s]));
+    const fromEntry = (handler: (s: SlotPokemon) => void) => (e: LabEntry) => {
+        const slot = bySlotKey.get(e.key);
+        if (slot) handler(slot);
+    };
+
+    let screen: ReactNode = null;
+    if (!selectedGame) {
+        screen = <p>Choose a game below to look inside its save.</p>;
+    } else if (!selectedSave?.id) {
+        screen = <p>Choose a save file below.</p>;
+    } else if (!currentSave?.connected) {
+        screen = (
+            <>
+                <p>This save isn&apos;t connected to Oak&apos;s Lab yet.</p>
+                <button type="button" className={styles.screenButton} onClick={() => setConnectModalOpen(true)}>
+                    Connect to Lab
+                </button>
+            </>
+        );
+    } else if (!contents) {
+        screen = <p className={lab.loadingSave ? styles.blink : undefined}>
+            {lab.loadingSave ? 'Loading save file...' : 'Could not read this save.'}
+        </p>;
+    }
+
+    const label = pageLabel(page);
+    const capacity = page === PARTY_PAGE ? 6 : 20;
+
     return (
-        <div className={styles.sidebar}>
-            <div className={styles.selectorRow}>
-                <button
-                    className={`${buttons.retroButton} ${styles.selectorButton}`}
-                    onClick={() => lab.setGamePickerOpen(true)}
-                >
-                    {selectedGame?.title ?? 'choose game'}
-                </button>
-                <button
-                    className={`${buttons.retroButton} ${styles.selectorButton}`}
-                    onClick={() => lab.setSavePickerOpen(true)}
-                    disabled={!selectedGame}
-                >
-                    {selectedSave?.title ?? 'choose save file'}
-                </button>
-            </div>
-
-            {selectedSave?.id && !currentSave?.connected && (
-                <div className={styles.connectBanner}>
-                    <p>This save isn&apos;t connected to Oak&apos;s Lab yet.</p>
-                    <button className={buttons.retroButton} onClick={() => setConnectModalOpen(true)}>
-                        Connect to Lab
-                    </button>
-                </div>
-            )}
-
+        <>
+            <Monitor
+                title={screen ? 'Oak’s Lab' : label}
+                meta={screen ? undefined : `${slots.length}/${capacity}`}
+                entries={slots.map(slotEntry)}
+                cursorKey={cursorKey}
+                markedKeys={markedKeys}
+                onPick={fromEntry(onPick)}
+                onCursor={fromEntry(onCursor)}
+                pages={{ label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), disabled: !contents }}
+                action={action}
+                screen={screen}
+                footnote={contents && page !== PARTY_PAGE
+                    ? <BoxesNotReadyNote boxAvailable={contents.boxAvailable} />
+                    : null}
+            />
             <ConnectModal
                 isOpen={connectModalOpen}
                 onClose={() => setConnectModalOpen(false)}
@@ -72,31 +103,7 @@ export function LabSaveSidebar({ lab }: { lab: LabSave }) {
                 gameId={selectedGame?.id ?? ''}
                 fetchSaveStates={lab.fetchSaveStates}
             />
-
-            {lab.showContents && contents && (
-                <div className={styles.boxSection}>
-                    <div className={styles.boxTitle}>PC Boxes</div>
-                    <div className={styles.boxNav}>
-                        {contents.boxes.map((boxSlots, i) => (
-                            <button
-                                key={i}
-                                className={[
-                                    buttons.retroButton,
-                                    styles.boxNavBtn,
-                                    selectedBox === i ? styles.boxNavActive : '',
-                                    boxSlots.length > 0 ? styles.boxHasPokemon : '',
-                                ].filter(Boolean).join(' ')}
-                                onClick={() => setSelectedBox(i)}
-                                disabled={!contents.boxAvailable[i]}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
-                    </div>
-                    <BoxesNotReadyNote boxAvailable={contents.boxAvailable} />
-                </div>
-            )}
-        </div>
+        </>
     );
 }
 
@@ -116,53 +123,8 @@ export function LabSavePickers({ lab, games }: { lab: LabSave; games: GameModel[
                 isOpen={savePickerOpen}
                 onClose={() => setSavePickerOpen(false)}
                 saveStates={lab.saveStates}
-                onConfirm={(save) => { lab.setSelectedSave(save); lab.setToast(''); setSavePickerOpen(false); }}
+                onConfirm={(save) => { lab.setSelectedSave(save); setSavePickerOpen(false); }}
             />
         </>
-    );
-}
-
-interface SlotGridProps {
-    label: string;
-    slots: SlotPokemon[];
-    selectedKeys: Set<string>;
-    onSelect: (slot: SlotPokemon) => void;
-    showCheckbox?: boolean;
-}
-
-export function SlotGrid({ label, slots, selectedKeys, onSelect, showCheckbox }: SlotGridProps) {
-    return (
-        <div className={styles.boxSection}>
-            <div className={styles.boxTitle}>{label}</div>
-            <div className={styles.slotGrid}>
-                {slots.length === 0 ? (
-                    <div style={{ color: 'rgba(232,224,244,0.3)', fontSize: '0.8rem' }}>Empty</div>
-                ) : slots.map(s => {
-                    const key = slotKey(s);
-                    const isSel = selectedKeys.has(key);
-                    return (
-                        <div
-                            key={key}
-                            className={`${styles.slotCard} ${isSel ? styles.selected : ''}`}
-                            onClick={() => onSelect(s)}
-                        >
-                            {showCheckbox && <div className={styles.slotCardCheckbox}>{isSel ? '✓' : ''}</div>}
-                            {spriteUrl(s.speciesIndex) && (
-                                <Image
-                                    src={spriteUrl(s.speciesIndex)}
-                                    alt={s.nickname}
-                                    width={56}
-                                    height={56}
-                                    className={styles.slotSprite}
-                                    unoptimized
-                                />
-                            )}
-                            <div className={styles.slotName}>{s.nickname}</div>
-                            <div className={styles.slotLevel}>Lv. {s.level}</div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
     );
 }

@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { fetchUserSaveStates, loadInGameFile } from '@/utils/saveLoad';
+import { loadInGameFile } from '@/utils/saveLoad';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrentGame } from '@/contexts/CurrentGameContext';
 import { useSaveState, SaveConflictError } from '@/hooks/useSaveState';
 import { useBrowserFullscreen } from '@/hooks/useBrowserFullscreen';
 import { useSystemActions } from '@/hooks/useSystemActions';
@@ -45,7 +46,9 @@ export function useEmulatorController() {
     const currentUser = auth?.user ?? null;
     const [ROMImage, setROMImage] = useState<string | null>(null);
     const [activeROM, setActiveROM] = useState<GameModel | null>(null);
-    const [userSaveStates, setUserSaveStates] = useState<SaveStateModel[]>([]);
+    // The game and save Play, the Lab and the Ranch share. The save list lives there too.
+    const currentGame = useCurrentGame();
+    const { saveStates: userSaveStates, refreshSaves, setSave: setCurrentSave } = currentGame;
     const [activeState, setActiveState] = useState<SaveStateModel | null>(null);
     const [activeSaveArray, setActiveSaveArray] = useState<SRAMArray>([]);
     const [isRomLoaded, setIsRomLoaded] = useState(false);
@@ -135,7 +138,7 @@ export function useEmulatorController() {
     const handleROMSelected = async (selectedROM: GameModel) => {
         if (selectedROM) {
             setActiveROM(selectedROM);
-            setUserSaveStates(await fetchUserSaveStates(currentUser?.userId, selectedROM.id));
+            currentGame.setGame(selectedROM);
             try {
                 const response = await loadInGameFile(selectedROM.filePath, selectedROM.updatedAt);
                 const blob = await response.blob();
@@ -184,6 +187,8 @@ export function useEmulatorController() {
                         run(gameBoyInstance.current);
                     }
                     setIsEmulatorPlaying(true);
+                    // A new game isn't playing from any save
+                    setCurrentSave(null);
                 }
             } else {
                 console.log("Game not selected. Cannot start.");
@@ -316,8 +321,8 @@ export function useEmulatorController() {
 
             if (savedState) {
                 setActiveState(savedState);
-                const userSaves = await fetchUserSaveStates(currentUser?.userId, activeROM.id);
-                setUserSaveStates(userSaves);
+                setCurrentSave(savedState);
+                await refreshSaves();
                 setActiveSaveArray(gameBoyInstance.current.saveSRAMState());
             } else {
                 throw new Error('Save operation failed');
@@ -325,7 +330,7 @@ export function useEmulatorController() {
         } catch (error) {
             if (error instanceof SaveConflictError) {
                 // Load State should offer what's there now
-                setUserSaveStates(await fetchUserSaveStates(currentUser?.userId, activeROM.id));
+                await refreshSaves();
                 return { currentFilePath: error.currentFilePath };
             }
             console.error('Save failed:', error);
@@ -372,6 +377,7 @@ export function useEmulatorController() {
         }
         setIsEmulatorPlaying(true);
         setActiveState(selectedSaveState as SaveStateModel);
+        setCurrentSave(selectedSaveState);
         setActiveSaveArray(sramArray);
     };
 
@@ -411,8 +417,17 @@ export function useEmulatorController() {
 
     const onDeleteSaveState = async () => {
         console.log('Deleting save state...');
-        setUserSaveStates(await fetchUserSaveStates(currentUser?.userId, activeROM?.id));
+        await refreshSaves();
     };
+
+    // Arriving with a game chosen elsewhere loads its cartridge, ready to start
+    const sharedGame = currentGame.game;
+    useEffect(() => {
+        if (sharedGame && sharedGame.id !== activeROM?.id && !isEmulatorPlaying) {
+            handleROMSelected(sharedGame);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sharedGame?.id]);
 
     // Register GUI events on load
     useEffect(() => {
