@@ -231,7 +231,6 @@
 .navSpriteImage {
   object-fit: contain;
   padding: 2px;
-  image-rendering: pixelated;
 }
 
 .hp {

@@ -4,18 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import BaseModal from '@/components/modals/BaseModal';
 import NowPlaying from '@/components/layout/NowPlaying';
-import { pokemonGifEndpoint } from '../../../config';
-import { dexDict } from '@/utils/pokemon/dicts';
+import { usePokemonSprites } from '@/hooks/usePokemonSprites';
 import { calcGen1Stats, decodeIVs } from '@/utils/pokemon/stats';
 import { RanchPokemon, getRawBytes } from './types';
 import styles from './styles.module.css';
-
-function spriteUrl(speciesIndex: number): string {
-    const entry = dexDict[speciesIndex];
-    if (!entry || entry.pokedexNo === 'NULL') return '';
-    const no = entry.pokedexNo.padStart(3, '0');
-    return `${pokemonGifEndpoint}${no}.gif`;
-}
 
 interface DetailModalProps {
     pokemon: RanchPokemon;
@@ -24,6 +16,7 @@ interface DetailModalProps {
 }
 
 function DetailModal({ pokemon, onClose, onRelease }: DetailModalProps) {
+    const { bySpecies, spriteStyle } = usePokemonSprites();
     const [confirming, setConfirming] = useState(false);
     const [releasing, setReleasing] = useState(false);
 
@@ -48,11 +41,12 @@ function DetailModal({ pokemon, onClose, onRelease }: DetailModalProps) {
             <div className={styles.detailGrid}>
                 <div className={styles.detailLeft}>
                     <Image
-                        src={spriteUrl(pokemon.speciesIndex)}
+                        src={bySpecies(pokemon.speciesIndex)}
                         alt={pokemon.nickname}
                         width={120}
                         height={120}
                         className={styles.detailSprite}
+                        style={spriteStyle}
                         unoptimized
                     />
                     <div className={styles.detailNickname}>{pokemon.nickname}</div>
@@ -122,6 +116,7 @@ function DetailModal({ pokemon, onClose, onRelease }: DetailModalProps) {
 }
 
 export default function OaksRanch() {
+    const { bySpecies, spriteStyle } = usePokemonSprites();
     const [pokemon, setPokemon] = useState<RanchPokemon[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -194,13 +189,14 @@ export default function OaksRanch() {
                                 className={styles.card}
                                 onClick={() => setSelected(p)}
                             >
-                                {spriteUrl(p.speciesIndex) && (
+                                {bySpecies(p.speciesIndex) && (
                                     <Image
-                                        src={spriteUrl(p.speciesIndex)}
+                                        src={bySpecies(p.speciesIndex)}
                                         alt={p.nickname}
                                         width={80}
                                         height={80}
                                         className={styles.cardSprite}
+                                        style={spriteStyle}
                                         unoptimized
                                     />
                                 )}

@@ -1,10 +1,15 @@
 import clsx from 'clsx';
+import Image from 'next/image';
 import BaseModal from '../BaseModal';
+import { isPixelArt, pokemonGifUrl, spriteSourceOptions } from '@/utils/pokemon/sprites';
 import CustomSwitch from '@/components/common/CustomSwitch';
 import { defaultUISettings, useSettings } from '@/contexts/SettingsContext';
 import { backgroundOptions } from './config';
 import KeyMappingControl from './KeyMappingControl';
 import styles from './styles.module.css';
+
+// Pikachu shows what each sprite set looks like
+const PREVIEW_DEX_NO = '025';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -14,7 +19,7 @@ interface SettingsModalProps {
 // Changes apply and save as they're made
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const { uiSettings, updateUISettings } = useSettings();
-    const { background, isDynamicBackground, keyMappings, skipConfirmations } = uiSettings;
+    const { background, isDynamicBackground, keyMappings, skipConfirmations, spriteSource } = uiSettings;
 
     return (
         <BaseModal
@@ -83,6 +88,37 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                         mappings={keyMappings}
                         onChange={(newMappings) => updateUISettings({ keyMappings: newMappings })}
                     />
+                </section>
+
+                <section className={styles.section}>
+                    <h3 className={styles.sectionTitle}>Pokémon Sprites</h3>
+                    <div className={styles.spriteOptions} role="radiogroup" aria-label="Pokémon sprites">
+                        {spriteSourceOptions.map(({ value, label }) => {
+                            const isSelected = spriteSource === value;
+                            return (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={isSelected}
+                                    className={clsx(styles.spriteOption, isSelected && styles.selected)}
+                                    onClick={() => updateUISettings({ spriteSource: value })}
+                                >
+                                    <span className={styles.spritePreview}>
+                                        <Image
+                                            src={pokemonGifUrl(PREVIEW_DEX_NO, value)}
+                                            alt=""
+                                            fill
+                                            sizes="64px"
+                                            style={{ objectFit: 'contain', imageRendering: isPixelArt(value) ? 'pixelated' : 'auto' }}
+                                            unoptimized
+                                        />
+                                    </span>
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </section>
 
                 <section className={styles.section}>

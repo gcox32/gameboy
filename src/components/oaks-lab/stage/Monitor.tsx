@@ -5,7 +5,7 @@ import Image from 'next/image';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { press } from './press';
-import { spriteUrl } from './sprite';
+import { usePokemonSprites } from '@/hooks/usePokemonSprites';
 import type { LabEntry } from './types';
 import styles from '../lab.module.css';
 
@@ -29,12 +29,15 @@ interface MonitorProps {
     loading?: boolean;
     emptyText?: string;
     footnote?: ReactNode;
+    /** Along the bottom of the screen, such as a map of the save's pages */
+    pageMap?: ReactNode;
 }
 
 export function Monitor({
     title, meta, entries, cursorKey, onPick, onCursor,
-    pages, screen, loading = false, emptyText = 'Empty', footnote,
+    pages, screen, loading = false, emptyText = 'Empty', footnote, pageMap,
 }: MonitorProps) {
+    const { bySpecies, spriteStyle } = usePokemonSprites();
     const index = entries.findIndex(e => e.key === cursorKey);
     const canStep = !loading && !screen && entries.length > 0;
 
@@ -77,7 +80,7 @@ export function Monitor({
                             onKeyDown={handleKey}
                         >
                             {entries.map(e => {
-                                const sprite = spriteUrl(e.speciesIndex);
+                                const sprite = bySpecies(e.speciesIndex);
                                 const atCursor = e.key === cursorKey;
                                 return (
                                     <div
@@ -94,6 +97,7 @@ export function Monitor({
                                                 width={56}
                                                 height={56}
                                                 className={styles.tileSprite}
+                                                style={spriteStyle}
                                                 unoptimized
                                             />
                                         )}
@@ -107,6 +111,7 @@ export function Monitor({
                 </div>
 
                 {!loading && footnote && <div className={styles.screenFootnote}>{footnote}</div>}
+                {!loading && pageMap}
                 {/* Snow while the Lab changes mode, and while there's nothing to show yet */}
                 <div className={clsx(styles.static, loading && styles.staticOn)} aria-hidden />
             </div>

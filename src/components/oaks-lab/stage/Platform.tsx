@@ -3,7 +3,7 @@
 import { CSSProperties } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
-import { spriteUrl } from './sprite';
+import { usePokemonSprites } from '@/hooks/usePokemonSprites';
 import { usePokemonSizes } from './usePokemonSize';
 import type { LabEntry } from './types';
 import styles from '../lab.module.css';
@@ -42,7 +42,8 @@ export function Platform({ entry }: PlatformProps) {
     // Hold the sprite back until its size is known, so it appears at its size and doesn't jump
     const { ready, sizeOf } = usePokemonSizes(entry ? [entry.speciesIndex] : []);
     const size = entry && ready ? sizeOf(entry.speciesIndex) : null;
-    const sprite = entry && ready ? spriteUrl(entry.speciesIndex) : '';
+    const { bySpecies, spriteStyle } = usePokemonSprites();
+    const sprite = entry && ready ? bySpecies(entry.speciesIndex) : '';
 
     return (
         <div className={clsx(styles.platform, entry && styles.platformActive)}>
@@ -58,7 +59,7 @@ export function Platform({ entry }: PlatformProps) {
                             width={128}
                             height={128}
                             className={styles.platformSprite}
-                            style={{ '--mon-scale': spriteScale(size?.height ?? null) } as CSSProperties}
+                            style={{ ...spriteStyle, '--mon-scale': spriteScale(size?.height ?? null) } as CSSProperties}
                             unoptimized
                         />
                     )}

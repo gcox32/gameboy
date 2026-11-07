@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
+import clsx from 'clsx';
 import { SaveSlot, SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { GameModel } from '@/types';
 import CartridgePickerModal from '@/components/modals/CartridgePicker';
@@ -32,6 +33,21 @@ export function BoxesNotReadyNote({ boxAvailable, className }: { boxAvailable: b
 }
 
 export const pageLabel = (page: number) => page === PARTY_PAGE ? 'Party' : `Box ${page + 1}`;
+
+/** The party and every box along the bottom of the screen, with the one on screen filled in */
+function PageMap({ page, boxAvailable }: { page: number; boxAvailable: boolean[] }) {
+    return (
+        <div className={styles.pageMap} role="img" aria-label={`Showing ${pageLabel(page)} of the party and ${boxAvailable.length} boxes`}>
+            <span className={clsx(styles.pageMarker, styles.pageMarkerParty, page === PARTY_PAGE && styles.pageMarkerCurrent)} />
+            {boxAvailable.map((ready, box) => (
+                <span
+                    key={box}
+                    className={clsx(styles.pageMarker, box === page && styles.pageMarkerCurrent, !ready && styles.pageMarkerUnready)}
+                />
+            ))}
+        </div>
+    );
+}
 
 interface SaveMonitorProps {
     lab: LabSave;
@@ -89,6 +105,9 @@ export function SaveMonitor({ lab, cursorKey, onPick, onCursor }: SaveMonitorPro
                 loading={loading}
                 footnote={contents && page !== PARTY_PAGE
                     ? <BoxesNotReadyNote boxAvailable={contents.boxAvailable} />
+                    : null}
+                pageMap={contents && !screen
+                    ? <PageMap page={page} boxAvailable={contents.boxAvailable} />
                     : null}
             />
             <ConnectModal

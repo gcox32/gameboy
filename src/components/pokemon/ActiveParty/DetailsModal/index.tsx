@@ -3,7 +3,8 @@ import BaseModal from "@/components/modals/BaseModal";
 import Image from "next/image";
 import clsx from "clsx";
 import styles from "./styles.module.css";
-import { pokemonGifEndpoint, sugimoriRb, sugimoriRg, sugimoriFrlg } from "@/../config";
+import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "@/../config";
+import { usePokemonSprites } from "@/hooks/usePokemonSprites";
 import { PokemonDetails } from "@/types/pokemon";
 import Moveset from "./Moveset";
 import StatsPanel from "./StatsPanel";
@@ -53,6 +54,7 @@ function formatSpeciesName(name?: string) {
 }
 
 function NavButton({ pokemon, direction, onClick }: { pokemon: PokemonDetails; direction: 'previous' | 'next'; onClick: () => void }) {
+    const { byDexNo, spriteStyle } = usePokemonSprites();
     const name = pokemon.nickname || formatSpeciesName(pokemon.speciesName);
     return (
         <button
@@ -65,11 +67,12 @@ function NavButton({ pokemon, direction, onClick }: { pokemon: PokemonDetails; d
             {direction === 'previous' && <span aria-hidden>&lsaquo;</span>}
             <span className={styles.navSprite}>
                 <Image
-                    src={`${pokemonGifEndpoint}${pokemon.pokedexNo}.gif`}
+                    src={byDexNo(pokemon.pokedexNo)}
                     alt=""
                     fill
                     sizes="36px"
                     className={styles.navSpriteImage}
+                    style={spriteStyle}
                     unoptimized
                 />
             </span>

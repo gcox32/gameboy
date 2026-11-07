@@ -9,7 +9,6 @@ import PokemonDetailsModal from "@/components/pokemon/ActiveParty/DetailsModal";
 import styles from "./styles.module.css";
 import { ActivePartyProps, PokemonDetails } from "@/types/pokemon";
 import { MemoryWatcherConfig } from "@/types";
-import { FaExchangeAlt } from 'react-icons/fa';
 import { useModalPause } from "@/hooks/useModalPause";
 import clsx from "clsx";
 
@@ -32,7 +31,6 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
     const [selectedPokemonIndex, setSelectedPokemonIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { rom } = useGame();
-    const [useStadiumSprites, setUseStadiumSprites] = useState(false);
     const [areBallsOpen, setAreBallsOpen] = useState(false);
     const hasParty = partyData.length > 0;
 
@@ -122,15 +120,6 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
         <>
             {partyData.length > 0 && (
                 <div className={clsx(styles.activeParty, !isOpen && styles.closing)}>
-                    <button
-                        type="button"
-                        className={styles.buckle}
-                        onClick={() => setUseStadiumSprites(!useStadiumSprites)}
-                        title={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
-                        aria-label={`Switch to ${useStadiumSprites ? 'Game Boy' : 'Stadium'} sprites`}
-                    >
-                        <FaExchangeAlt />
-                    </button>
                     <div className={styles.partySlots}>
                         {Array.from({ length: PARTY_SIZE }, (_, index) => {
                             const pokemon = partyData[index];
@@ -141,7 +130,6 @@ function ActiveParty({ inGameMemory, gbcMemory, onPauseResume, intervalPaused, a
                                     index={index}
                                     isBallOpen={areBallsOpen}
                                     onClick={() => handlePokemonClick(index)}
-                                    useStadiumSprites={useStadiumSprites}
                                 />
                             ) : (
                                 <div key={index} className={styles.emptySocket} />

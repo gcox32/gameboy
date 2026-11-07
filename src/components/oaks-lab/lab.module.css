@@ -441,7 +441,6 @@
     /* Never narrowed: a Pokémon wider than the pad spills past it evenly on both sides, over the deck and monitor */
     max-width: none;
     object-fit: contain;
-    image-rendering: pixelated;
     filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.45));
     animation: materialize var(--ui-ms, 300ms) ease-out;
 }
@@ -689,7 +688,6 @@
     width: 56px;
     height: 56px;
     object-fit: contain;
-    image-rendering: pixelated;
 }
 
 .tileName {
@@ -761,6 +759,43 @@
 
 .screenFootnote:empty {
     display: none;
+}
+
+/* The party (wide) then each box, along the bottom of the screen */
+.pageMap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed rgba(168, 240, 218, 0.2);
+}
+
+.pageMarker {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--phosphor-dim);
+    border-radius: 2px;
+    transition: background-color calc(var(--ui-ms, 300ms) / 2) ease-out, box-shadow calc(var(--ui-ms, 300ms) / 2) ease-out;
+}
+
+.pageMarkerParty {
+    width: 22px;
+    margin-right: 4px;
+}
+
+.pageMarkerCurrent {
+    border-color: var(--phosphor);
+    background: var(--phosphor);
+    box-shadow: 0 0 6px rgba(78, 205, 196, 0.7);
+}
+
+/* A box the game hasn't set up yet, so it can't be paged to */
+.pageMarkerUnready {
+    border-style: dashed;
+    border-color: var(--phosphor-faint);
 }
 
 .blink {

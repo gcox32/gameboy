@@ -1,23 +1,19 @@
 import { CSSProperties } from "react";
-import { assetsEndpoint } from "@/../config";
 import Image from "next/image";
 import clsx from "clsx";
 import styles from "./styles.module.css";
 import { PokemonDetails } from "@/types/pokemon";
+import { usePokemonSprites } from "@/hooks/usePokemonSprites";
 
 export interface PartySlotProps {
     pokemon: PokemonDetails;
     index: number;
     isBallOpen: boolean;
     onClick: (pokemon: PokemonDetails) => void;
-    useStadiumSprites?: boolean;
 }
 
-const assetsEndpointPublic = `${assetsEndpoint}public/`;
-const pokemonGifEndpoint = `${assetsEndpointPublic}gameboy/images/pokemon/gifs/`;
-const pokemonStadiumGifEndpoint = `${assetsEndpointPublic}gameboy/images/pokemon/stadium/gifs/`;
-
-function PartySlot({ pokemon, index, isBallOpen, onClick, useStadiumSprites }: PartySlotProps) {
+function PartySlot({ pokemon, index, isBallOpen, onClick }: PartySlotProps) {
+    const { byDexNo, spriteStyle } = usePokemonSprites();
     const name = pokemon.nickname || pokemon.speciesName || `No. ${pokemon.pokedexNo}`;
     const isFainted = pokemon.structure.currentHP === 0;
 
@@ -33,11 +29,12 @@ function PartySlot({ pokemon, index, isBallOpen, onClick, useStadiumSprites }: P
         >
             <span className={styles.sprite}>
                 <Image
-                    src={`${useStadiumSprites ? pokemonStadiumGifEndpoint : pokemonGifEndpoint}${pokemon.pokedexNo}.gif`}
+                    src={byDexNo(pokemon.pokedexNo)}
                     alt=""
                     fill
                     sizes="110px"
-                    className={clsx(styles.spriteImage, !useStadiumSprites && styles.spritePixelated)}
+                    className={styles.spriteImage}
+                    style={spriteStyle}
                     unoptimized
                 />
             </span>

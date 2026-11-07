@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { defaultEmulatorSettings } from '@/utils/settings/emulatorSettings';
+import type { SpriteSource } from '@/utils/pokemon/sprites';
 
 export interface KeyMapping {
   button: string;
@@ -17,6 +18,8 @@ interface UISettings {
   keyMappings: KeyMapping[];
   /** Skips the prompt before turning off, resetting or loading over a running game */
   skipConfirmations: boolean;
+  /** Which set of Pokémon GIFs to show across the party, Lab and Ranch */
+  spriteSource: SpriteSource;
 }
 
 export const defaultKeyMappings: KeyMapping[] = [
@@ -36,7 +39,8 @@ export const defaultUISettings: UISettings = {
     background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg',
     isDynamicBackground: false,
     keyMappings: defaultKeyMappings,
-    skipConfirmations: false
+    skipConfirmations: false,
+    spriteSource: 'gameboy'
 };
 
 const SPEED_STEPS = [0.5, 1, 1.5, 2, 4];
