@@ -128,6 +128,38 @@ export async function sendToRanch(input: SendToRanchInput): Promise<SendToRanchR
     return { ok: true, created, updatedFilePath: newFilePath };
 }
 
+interface CloneToRanchInput {
+    userId: string;
+    saveState: ISaveState;
+    source: Uint8Array;
+    slots: SaveSlot[];
+}
+
+/**
+ * Stashes copies of the Pokémon and leaves the save alone, so the originals stay in the game.
+ * This is the one way a Pokémon comes to exist twice, and the player chooses it.
+ * Only the database changes, so there's no gap to mark or recover.
+ */
+export async function cloneToRanch(input: CloneToRanchInput): Promise<IStoredPokemon[]> {
+    const { userId, saveState, source, slots } = input;
+    if (!slots.every(s => isSlotOccupied(source, s))) {
+        throw new EmptySlotError();
+    }
+
+    const extractedAt = new Date();
+    const docs = slots.map(slot => new StoredPokemon({
+        userId,
+        sourceGameId: saveState.gameId,
+        generation: 1,
+        sourceSlot: slot,
+        ...extractFromSRAM(source, slot),
+        extractedAt,
+        status: 'stashed',
+    }));
+    await StoredPokemon.insertMany(docs);
+    return docs;
+}
+
 // ─── Ranch → Save ───────────────────────────────────────────────────────────
 
 interface PortToSaveInput {

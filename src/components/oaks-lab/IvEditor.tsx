@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import clsx from 'clsx';
+import { Plus, RotateCcw, Save } from 'lucide-react';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { MAX_IV, StoredIVs, hpIVFrom } from '@/utils/pokemon/stats';
-import paper from '@/components/modals/paper.module.css';
-import { spriteUrl } from './LabSave';
+import { DeckKey, DeckPill, press } from './LabStage';
+import lab from './lab.module.css';
 import styles from './ivEditor.module.css';
 
 const RAISABLE: { key: keyof StoredIVs; label: string }[] = [
@@ -16,6 +16,8 @@ const RAISABLE: { key: keyof StoredIVs; label: string }[] = [
     { key: 'speed', label: 'Speed' },
     { key: 'special', label: 'Special' },
 ];
+
+const NO_IVS: StoredIVs = { attack: 0, defense: 0, speed: 0, special: 0 };
 
 function Gauge({ label, saved, value }: { label: string; saved: number; value: number }) {
     return (
@@ -47,84 +49,93 @@ function Gauge({ label, saved, value }: { label: string; saved: number; value: n
 }
 
 interface IvEditorProps {
-    pokemon: SlotPokemon;
+    /** Nothing chosen yet shows the deck with its controls off */
+    pokemon: SlotPokemon | null;
     saving: boolean;
     onSave: (ivs: StoredIVs) => void;
 }
 
-/** Remount with a new key when the saved IVs change, to start from them */
+/** The Enhance deck. Remount with a new key when the saved IVs change, to start from them. */
 export default function IvEditor({ pokemon, saving, onSave }: IvEditorProps) {
-    const saved = pokemon.ivs;
-    const [draft, setDraft] = useState<StoredIVs>({
+    const saved = pokemon?.ivs ?? { ...NO_IVS, hp: 0 };
+    const start: StoredIVs = {
         attack: saved.attack,
         defense: saved.defense,
         speed: saved.speed,
         special: saved.special,
-    });
+    };
+    const [draft, setDraft] = useState<StoredIVs>(start);
 
+    const off = !pokemon || saving;
     const changed = RAISABLE.some(({ key }) => draft[key] !== saved[key]);
-    const sprite = spriteUrl(pokemon.speciesIndex);
 
     return (
-        <section className={`${paper.modalContent} ${paper.paperModal} ${styles.card}`}>
-            <header className={styles.header}>
-                {sprite && (
-                    <Image src={sprite} alt="" width={64} height={64} className={styles.sprite} unoptimized />
-                )}
-                <div>
-                    <h2 className={styles.name}>{pokemon.nickname}</h2>
-                    <p className={styles.meta}>
-                        {dexDict[pokemon.speciesIndex]?.name} · Lv. {pokemon.level}
-                    </p>
-                </div>
-            </header>
+        <section className={lab.deck} aria-label="Enhance a Pokémon">
+            <div className={lab.monitorTop} aria-hidden>
+                <span className={lab.monitorLed} />
+                <span className={lab.monitorVents} />
+            </div>
 
-            <h3 className={styles.sectionTitle}>IVs</h3>
-            <div className={styles.rows}>
-                <div className={styles.row}>
-                    <span className={styles.label}>HP</span>
-                    <Gauge label="HP" saved={saved.hp} value={hpIVFrom(draft)} />
-                    <span className={styles.value}>{hpIVFrom(draft)}</span>
-                    <span />
+            {/* One screen behind the rows, with each row's button on the casing beside it */}
+            <div className={styles.frame}>
+                <div className={clsx(lab.screen, styles.screen)} aria-hidden />
+
+                <div className={clsx(lab.screenHeader, styles.header)}>
+                    {pokemon ? (
+                        <>
+                            <span>{pokemon.nickname}</span>
+                            <span>Lv. {pokemon.level}</span>
+                        </>
+                    ) : <span>Enhance a Pokémon</span>}
                 </div>
-                {RAISABLE.map(({ key, label }) => (
-                    <div key={key} className={styles.row}>
-                        <span className={styles.label}>{label}</span>
-                        <Gauge label={label} saved={saved[key]} value={draft[key]} />
-                        <span className={styles.value}>{draft[key]}</span>
-                        <button
-                            type="button"
-                            className={styles.raise}
-                            aria-label={`Raise ${label}`}
-                            disabled={saving || draft[key] >= MAX_IV}
-                            onClick={() => setDraft(d => ({ ...d, [key]: Math.min(d[key] + 1, MAX_IV) }))}
-                        >
-                            +
-                        </button>
-                    </div>
+
+                {pokemon ? (
+                    <>
+                        <p className={styles.species}>{dexDict[pokemon.speciesIndex]?.name}</p>
+
+                        <div className={styles.row} style={{ gridRow: 3 }}>
+                            <span className={styles.label}>HP</span>
+                            <Gauge label="HP" saved={saved.hp} value={hpIVFrom(draft)} />
+                            <span className={styles.value}>{hpIVFrom(draft)}</span>
+                        </div>
+                        {RAISABLE.map(({ key, label }, i) => (
+                            <div key={key} className={styles.row} style={{ gridRow: i + 4 }}>
+                                <span className={styles.label}>{label}</span>
+                                <Gauge label={label} saved={saved[key]} value={draft[key]} />
+                                <span className={styles.value}>{draft[key]}</span>
+                            </div>
+                        ))}
+
+                        <p className={styles.note}>
+                            HP comes from the other four. Odd numbers raise it and even numbers lower it, so it&apos;s only 15 when all four are odd.
+                        </p>
+                    </>
+                ) : (
+                    <p className={styles.empty}>Choose a Pokémon on the monitor to edit it inside this save.</p>
+                )}
+
+                {RAISABLE.map(({ key, label }, i) => (
+                    <button
+                        key={key}
+                        type="button"
+                        className={styles.raise}
+                        style={{ gridRow: i + 4 }}
+                        aria-label={`Raise ${label}`}
+                        title={`Raise ${label}`}
+                        {...press(off || draft[key] >= MAX_IV, () => setDraft(d => ({ ...d, [key]: Math.min(d[key] + 1, MAX_IV) })))}
+                    >
+                        <Plus size={14} strokeWidth={3} aria-hidden />
+                    </button>
                 ))}
             </div>
-            <p className={styles.note}>
-                HP comes from the other four. Odd numbers raise it and even numbers lower it, so it&apos;s only 15 when all four are odd.
-            </p>
 
-            <div className={styles.actions}>
-                <button
-                    type="button"
-                    className={paper.secondaryButton}
-                    disabled={saving || !changed}
-                    onClick={() => setDraft({ attack: saved.attack, defense: saved.defense, speed: saved.speed, special: saved.special })}
-                >
-                    Reset
-                </button>
-                <button
-                    type="button"
-                    className={paper.primaryButton}
-                    disabled={saving || !changed}
-                    onClick={() => onSave(draft)}
-                >
-                    {saving ? 'Saving...' : 'Save changes'}
-                </button>
+            <div className={lab.deckControls}>
+                <DeckPill label="Reset" onClick={() => setDraft(start)} inactive={off || !changed}>
+                    <RotateCcw size={18} aria-hidden />
+                </DeckPill>
+                <DeckKey label={saving ? 'Saving...' : 'Save changes'} onClick={() => onSave(draft)} inactive={off || !changed}>
+                    <Save size={22} strokeWidth={2.5} aria-hidden />
+                </DeckKey>
             </div>
         </section>
     );

@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { StoredIVs } from '@/utils/pokemon/stats';
 import IvEditor from './IvEditor';
-import { LabPanel, LabStage, Platform } from './LabStage';
+import { LabStage, Platform } from './LabStage';
 import { SaveMonitor, slotEntry, slotKey } from './LabSave';
 import type { LabSave } from './useLabSave';
-import styles from './lab.module.css';
 
 export default function EditTab({ lab }: { lab: LabSave }) {
     const { contents, loadedFilePath, refresh, notify } = lab;
@@ -51,20 +50,14 @@ export default function EditTab({ lab }: { lab: LabSave }) {
 
     return (
         <LabStage
-            panel={editing ? (
+            panel={
                 <IvEditor
                     key={`${editingKey}-${loadedFilePath}`}
                     pokemon={editing}
                     saving={saving || lab.loadingSave}
-                    onSave={ivs => handleSave(editing, ivs)}
+                    onSave={ivs => editing && handleSave(editing, ivs)}
                 />
-            ) : (
-                <LabPanel title="Enhance a Pokémon">
-                    <p className={styles.panelText}>
-                        Choose a Pokémon on the monitor to edit it inside this save.
-                    </p>
-                </LabPanel>
-            )}
+            }
             platform={<Platform entries={editing ? [slotEntry(editing)] : []} emptyText="No Pokémon on the platform" />}
             monitor={
                 <SaveMonitor

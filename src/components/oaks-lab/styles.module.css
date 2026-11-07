@@ -44,7 +44,7 @@
     gap: 0.65rem;
     font-size: 0.82rem;
     color: rgba(232, 224, 244, 0.3);
-    transition: color 0.25s;
+    transition: color var(--ui-ms, 300ms);
 }
 
 .stepDot {
@@ -53,7 +53,7 @@
     border-radius: 50%;
     border: 1.5px solid rgba(232, 224, 244, 0.2);
     flex-shrink: 0;
-    transition: background 0.25s, border-color 0.25s;
+    transition: background var(--ui-ms, 300ms), border-color var(--ui-ms, 300ms);
 }
 
 .connectStep.stepActive {

@@ -1,11 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import clsx from 'clsx';
+import { ArrowUpFromLine, Plug } from 'lucide-react';
 import { RanchPokemon } from '@/components/ranch/types';
-import paper from '@/components/modals/paper.module.css';
 import ConnectModal from './ConnectModal';
-import { LabEntry, LabPanel, LabStage, Monitor, Platform } from './LabStage';
+import { DeckKey, LabDeck, LabEntry, LabStage, Monitor, Platform, SlideSwitch, press } from './LabStage';
 import { BoxesNotReadyNote } from './LabSave';
 import type { LabSave } from './useLabSave';
 import styles from './lab.module.css';
@@ -35,7 +34,8 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
     const fetchRanch = useCallback(async () => {
         try {
             const data = await fetch('/api/pokemon/stored').then(r => r.json());
-            setRanch(data);
+            // An error comes back as an object, which would break the list
+            setRanch(Array.isArray(data) ? data : []);
         } catch {
             setRanch([]);
         }
@@ -86,82 +86,83 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
         ? `Party — slot ${partyCount + 1}`
         : `Box ${targetBoxNumber} — slot ${(boxCounts[targetBoxNumber - 1] ?? 0) + 1}`;
 
+    const ready = !!selectedGame && !!selectedSave?.id && connected && !!contents;
+
     let destination;
     if (!selectedGame || !selectedSave?.id) {
-        destination = <p className={styles.panelText}>Choose a game and save file below to send it to.</p>;
+        destination = <p>Choose a game and save file below to send it to.</p>;
     } else if (!connected) {
-        destination = (
-            <>
-                <p className={styles.panelText}>
-                    This save is not connected to Oak&apos;s Lab. Connect it first to receive Pokémon.
-                </p>
-                <div className={styles.panelActions}>
-                    <button type="button" className={paper.secondaryButton} onClick={() => setConnectModalOpen(true)}>
-                        Connect to Lab
-                    </button>
-                </div>
-            </>
-        );
+        destination = <p>This save is not connected to Oak&apos;s Lab. Connect it first to receive Pokémon.</p>;
     } else if (!contents) {
-        destination = <p className={styles.panelText}>{lab.loadingSave ? 'Loading save file...' : 'Could not read this save.'}</p>;
+        destination = <p className={lab.loadingSave ? styles.blink : undefined}>
+            {lab.loadingSave ? 'Loading save file...' : 'Could not read this save.'}
+        </p>;
     } else {
         destination = (
             <>
-                <div className={styles.segmented} role="radiogroup" aria-label="Target slot">
-                    {(['party', 'box'] as const).map(loc => (
-                        <button
-                            key={loc}
-                            type="button"
-                            role="radio"
-                            aria-checked={targetSlotType === loc}
-                            className={clsx(styles.segment, targetSlotType === loc && styles.segmentActive)}
-                            onClick={() => setTargetSlotType(loc)}
-                            disabled={loc === 'party' && partyCount >= 6}
-                        >
-                            {loc === 'party' ? `Party (${partyCount}/6)` : 'PC Box'}
-                        </button>
-                    ))}
-                </div>
-
-                {targetSlotType === 'box' && (
-                    <>
-                        <div className={styles.boxPicker}>
-                            {boxCounts.map((count, i) => (
-                                <button
-                                    key={i}
-                                    type="button"
-                                    className={clsx(styles.boxPick, targetBoxNumber === i + 1 && styles.boxPickActive)}
-                                    onClick={() => setTargetBoxNumber(i + 1)}
-                                    disabled={count >= 20 || !contents.boxAvailable[i]}
-                                    title={`Box ${i + 1} (${count}/20)`}
-                                >
-                                    <span>{i + 1}</span>
-                                    <small>{count}/20</small>
-                                </button>
-                            ))}
-                        </div>
-                        <BoxesNotReadyNote boxAvailable={contents.boxAvailable} className={styles.panelNote} />
-                    </>
-                )}
-
+                <p className={styles.deckHint}>
+                    {targetSlotType === 'party'
+                        ? `Party (${partyCount}/6)`
+                        : `Box ${targetBoxNumber} (${boxCounts[targetBoxNumber - 1] ?? 0}/20)`}
+                </p>
                 {selectedPokemon && (
-                    <p className={styles.panelText}>
-                        Send <strong>{selectedPokemon.nickname}</strong> to {nextSlot}
-                    </p>
+                    isFull
+                        ? <p className={styles.deckWarn}>Full</p>
+                        : <p>Send <strong>{selectedPokemon.nickname}</strong> to {nextSlot}</p>
                 )}
-                <div className={styles.panelActions}>
-                    <button
-                        type="button"
-                        className={paper.primaryButton}
-                        onClick={handlePort}
-                        disabled={!selectedPokemon || porting || isFull}
-                    >
-                        {porting ? 'Sending...' : isFull ? 'Full' : `Send to ${currentSave?.title ?? 'Game'}`}
-                    </button>
-                </div>
+                {targetSlotType === 'box' && (
+                    <BoxesNotReadyNote boxAvailable={contents.boxAvailable} className={styles.deckHint} />
+                )}
             </>
         );
     }
+
+    const controls = connected || !selectedSave?.id ? (
+        <>
+            <SlideSwitch
+                small
+                label="Target slot"
+                options={[
+                    { id: 'party', label: `Party (${partyCount}/6)`, inactive: !ready || partyCount >= 6 },
+                    { id: 'box', label: 'PC Box', inactive: !ready },
+                ]}
+                value={targetSlotType}
+                onChange={setTargetSlotType}
+            />
+            <DeckKey
+                label={porting ? 'Sending...' : `Send to ${currentSave?.title ?? 'Game'}`}
+                onClick={handlePort}
+                inactive={!ready || !selectedPokemon || porting || isFull}
+            >
+                <ArrowUpFromLine size={22} strokeWidth={2.5} aria-hidden />
+            </DeckKey>
+            <div className={styles.keypad} role="radiogroup" aria-label="Box">
+                {Array.from({ length: 12 }, (_, i) => {
+                    const count = boxCounts[i] ?? 0;
+                    return (
+                        <button
+                            key={i}
+                            type="button"
+                            role="radio"
+                            aria-checked={targetSlotType === 'box' && targetBoxNumber === i + 1}
+                            title={`Box ${i + 1} (${count}/20)`}
+                            className={styles.padKey}
+                            {...press(
+                                !ready || targetSlotType !== 'box' || count >= 20 || !contents?.boxAvailable[i],
+                                () => setTargetBoxNumber(i + 1),
+                            )}
+                        >
+                            {i + 1}
+                        </button>
+                    );
+                })}
+            </div>
+        </>
+    ) : (
+        <DeckKey label="Connect to Lab" onClick={() => setConnectModalOpen(true)}>
+            <Plug size={22} strokeWidth={2.5} aria-hidden />
+        </DeckKey>
+    );
 
     const entries = (ranch ?? []).map(ranchEntry);
     const select = (e: LabEntry) => setSelectedId(e.key);
@@ -170,13 +171,12 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
         <>
             <LabStage
                 panel={
-                    <LabPanel title="Take a Pokémon">
+                    <LabDeck title="Take a Pokémon" controls={controls}>
                         {!selectedPokemon && (
-                            <p className={styles.panelText}>Select a Pokémon from your Ranch to port into the target save.</p>
+                            <p>Select a Pokémon from your Ranch to port into the target save.</p>
                         )}
-                        <h3 className={styles.panelHeading}>Target Slot</h3>
                         {destination}
-                    </LabPanel>
+                    </LabDeck>
                 }
                 platform={
                     <Platform

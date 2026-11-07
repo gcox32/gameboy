@@ -8,7 +8,7 @@ How the cross-game Pokémon transfer system actually works, end to end.
 
 ## Concept
 
-A Pokémon is extracted from one save file, held in a server-side **Ranch**, and injected into another save file. The intent is that it exists exactly once and is never copied (see review #4 for the cases where that can still fail). The source save has the Pokémon removed; the destination save has it added. The Ranch is the transit state between games.
+A Pokémon is extracted from one save file, held in a server-side **Ranch**, and injected into another save file. The intent is that a moved Pokémon exists exactly once (see review #4 for the cases where that can still fail). The one deliberate exception is **Clone**, where the player chooses to stash a copy and keep the original in the game. The source save has the Pokémon removed; the destination save has it added. The Ranch is the transit state between games.
 
 Two UI surfaces:
 - **Oak's Lab** (`/lab`) — extract tab (Leave) and port-in tab (Take)
@@ -45,7 +45,7 @@ Connect is **idempotent** — calling it on an already-connected save returns im
 
 1. User selects a game, then a save state. Save states are filtered to connected-only for the actual operation (non-connected saves show a Connect prompt instead).
 2. The `.sav` blob is fetched (`cache: 'no-store'`) and parsed client-side by `parseSaveFile()`. This reads all party slots and all 12 PC boxes directly from the raw SRAM bytes — no emulator involvement.
-3. Pokémon are displayed as a checkbox grid. The user selects one or more across any combination of party/boxes, then clicks "Send to Ranch".
+3. The user selects one or more Pokémon on the monitor, across any combination of party/boxes. The deck then offers two keys: **Clone** (copy to the Ranch, keep in the save) and **Send** (move). Send always asks first on the deck's screen, offering Clone again, before it removes anything. Clone is allowed even when it would select the whole party, since nothing leaves.
 4. The request includes `expectedFilePath`, the file its slots were read from. Afterwards `fetchSaveStates` runs, and the tab reloads whenever `currentSave.filePath` changes, so the extracted slots disappear and a conflict shows what's there now.
 
 ### API (`POST /api/pokemon/stored`)
@@ -56,6 +56,7 @@ Connect is **idempotent** — calling it on an already-connected save returns im
    - `clearSlot()` — removes the Pokémon: zeroes its data block, shifts remaining entries in the species list and data arrays left, decrements the count byte, zeroes the OT/nick entries. Recalculates the Bank 1 checksum.
 3. `sendToRanch()` uploads the new file, inserts the records as `transferring`, commits the file, marks the records `stashed`, then deletes the old blob.
 4. Returns `{ created, updatedSaveStateId, updatedFilePath }`.
+5. With `mode: 'clone'` it skips the party minimum and calls `cloneToRanch()` after the checks in step 1, which inserts `stashed` records and writes nothing to the save, so `updatedFilePath` is the unchanged file. Only the database changes, so there's no `transferring` marker to recover.
 
 ### Party vs box extraction
 
@@ -221,7 +222,7 @@ Security: both `/api/blob/upload` and `DELETE /api/blob` accept paths containing
 | Layer | File | Responsibility |
 |---|---|---|
 | UI | `src/components/oaks-lab/OaksLab.tsx` | Page shell and bottom console: game and save slots, mode keys, status readout. Owns the one `useLabSave()` every mode shares, which reads the current game and save from `CurrentGameContext` (shared with Play and the Ranch). |
-| UI | `src/components/oaks-lab/LabStage.tsx` | Layout: paper action panel, central platform, monitor with Pokémon and page controls |
+| UI | `src/components/oaks-lab/LabStage.tsx` | Layout: the mode's deck (slides in on the left), central platform, monitor with Pokémon and page controls. Also `SlideSwitch`, `DeckKey`, `DeckPill`. |
 | UI | `src/components/oaks-lab/ExtractTab.tsx`, `PortInTab.tsx` | Leave and Take modes |
 | UI | `src/components/oaks-lab/EditTab.tsx`, `IvEditor.tsx` | Edit tab and IV gauges |
 | UI | `src/components/oaks-lab/useLabSave.ts`, `LabSave.tsx` | Choosing a save, paging its party and boxes, and the `SaveMonitor` used by Leave and Enhance |

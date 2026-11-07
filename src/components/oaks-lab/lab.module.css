@@ -18,6 +18,8 @@
     --phosphor-dim: rgba(168, 240, 218, 0.5);
     --phosphor-faint: rgba(168, 240, 218, 0.15);
     --glow: #4ecdc4;
+    /* Every press, slide and fade in the Lab */
+    --ui-ms: 300ms;
     /* Controls */
     --metal-hi: #5b6670;
     --metal: #3a434b;
@@ -31,6 +33,8 @@
     width: 100%;
     height: 100dvh;
     overflow-y: auto;
+    /* The decks slide in from off the left edge */
+    overflow-x: hidden;
     color: #e8e0f4;
 }
 
@@ -79,14 +83,18 @@
 
 .stagePanel {
     grid-area: panel;
-    align-self: start;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
+    /* Each mode remounts the stage, so its deck slides in. Picking a Pokémon doesn't. */
+    animation: deckIn var(--ui-ms, 300ms) cubic-bezier(0.2, 0.9, 0.3, 1.08);
 }
 
-/* The IV editor brings its own paper card, so let it fill the column */
-.stagePanel > section {
-    max-width: none;
-    margin: 0;
+@keyframes deckIn {
+    from {
+        opacity: 0;
+        transform: translateX(-110%);
+    }
 }
 
 .stagePlatform {
@@ -99,181 +107,187 @@
     min-width: 0;
 }
 
-/* ─── Panel ──────────────────────────────────────────────────────────────── */
+/* ─── Deck ─────────────────────────────────────────────────────────────── */
 
-.panel {
-    padding: 1.25rem 1.5rem;
-    border-radius: 12px;
-}
-
-.panelTitle {
-    margin: 0 0 0.75rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-
-.panelHeading {
-    margin: 1rem 0 0.5rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-}
-
-.panelText {
-    margin: 0 0 0.75rem;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: var(--ink-soft);
-}
-
-.panelNote {
-    margin: 0.25rem 0 0.75rem;
-    font-size: 0.75rem;
-    line-height: 1.4;
-    color: var(--ink-muted);
-}
-
-.panelWarning {
-    margin: 0.5rem 0 0;
-    font-size: 0.8rem;
-    color: #b04830;
-}
-
-.panelList {
-    display: grid;
-    gap: 0.35rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    max-height: 18rem;
-    overflow-y: auto;
-}
-
-.panelList li {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.4rem 0.35rem 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.panelListMeta {
-    font-size: 0.75rem;
-    font-weight: 400;
-    color: var(--ink-muted);
-}
-
-.panelListRemove {
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: none;
-    color: var(--ink-muted);
-    font-size: 1.1rem;
-    line-height: 1;
-    cursor: pointer;
-}
-
-.panelListRemove:hover {
-    background: var(--hover);
-    color: var(--ink);
-}
-
-.panelActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 1rem;
-}
-
-.segmented {
-    display: flex;
-    padding: 2px;
-    margin-bottom: 0.75rem;
-    border: 1px solid var(--line-strong);
-    border-radius: 9999px;
-}
-
-.segment {
+/* The upright deck on the left: the same plastic as the monitor */
+.deck {
     flex: 1;
-    padding: 0.45rem 0.75rem;
-    border: none;
-    border-radius: 9999px;
-    background: none;
-    color: var(--ink-soft);
-    font: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.segment:hover:not(:disabled):not(.segmentActive) {
-    background: var(--hover);
-}
-
-.segmentActive {
-    background: var(--ink-soft);
-    color: #f7f1df;
-}
-
-.segment:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.boxPicker {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.35rem;
-    margin-bottom: 0.5rem;
-}
-
-.boxPick {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1.1rem 1.25rem;
+    border-radius: 22px;
+    background: linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 55%, var(--casing-lo) 100%);
+    color: var(--casing-ink);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.7),
+        inset 0 -5px 0 rgba(70, 50, 20, 0.12),
+        0 0 0 1px rgba(70, 50, 20, 0.35),
+        0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+.deckScreen {
+    min-height: 16rem;
+}
+
+.deckBody {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    text-shadow: 0 0 6px rgba(78, 205, 196, 0.45);
+}
+
+.deckBody p {
+    margin: 0 0 0.75rem;
+}
+
+.deckBody strong {
+    color: #fff;
+}
+
+.deckHint {
+    color: var(--phosphor-dim);
+    font-size: 0.75rem;
+}
+
+.deckWarn {
+    color: #f6e7a8;
+    text-shadow: 0 0 6px rgba(246, 231, 168, 0.5);
+}
+
+.deckList {
+    display: grid;
+    gap: 0.1rem;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    list-style: none;
+}
+
+.deckList li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
     padding: 0.35rem 0;
-    border: 1px solid var(--line-strong);
+    border-bottom: 1px dashed rgba(168, 240, 218, 0.2);
+    font-weight: 700;
+}
+
+.deckListMeta {
+    font-weight: 400;
+    color: var(--phosphor-dim);
+    white-space: nowrap;
+}
+
+.deckControls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem 1rem;
+    padding: 0 0.25rem;
+}
+
+/* The deck's main action: chunky magenta plastic, like the monitor's button */
+.deckKey {
+    display: grid;
+    place-items: center;
+    width: 4.75rem;
+    height: 3.25rem;
+    margin-left: auto;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #d2689a 0%, #b03a6e 45%, #8e1f52 100%);
+    color: #fff;
+    cursor: pointer;
+    box-shadow:
+        0 0 0 3px var(--casing-lo),
+        0 0 0 4px rgba(70, 50, 20, 0.25),
+        0 5px 0 3px #5c1234,
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+}
+
+/* A second action beside the main one. Only the first key in a row pushes right. */
+.deckKey + .deckKey {
+    margin-left: 0;
+}
+
+.deckKeyAlt {
+    background: linear-gradient(180deg, #8fb0d4 0%, #4f7fae 45%, #2d5682 100%);
+    box-shadow:
+        0 0 0 3px var(--casing-lo),
+        0 0 0 4px rgba(70, 50, 20, 0.25),
+        0 5px 0 3px #1c3655,
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Every key presses, whether or not it has anything to do */
+.deckKey:active {
+    transform: translateY(4px);
+    box-shadow:
+        0 0 0 3px var(--casing-lo),
+        0 0 0 4px rgba(70, 50, 20, 0.25),
+        0 1px 0 3px #5c1234,
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.deckKeyAlt:active {
+    box-shadow:
+        0 0 0 3px var(--casing-lo),
+        0 0 0 4px rgba(70, 50, 20, 0.25),
+        0 1px 0 3px #1c3655,
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.deckKey svg {
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35));
+}
+
+.deckKey:focus-visible,
+.padKey:focus-visible {
+    outline: 2px solid var(--glow);
+    outline-offset: 3px;
+}
+
+/* Numbered keys for the twelve boxes */
+.keypad {
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border-radius: 10px;
+    background: var(--casing-lo);
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.padKey {
+    height: 2.4rem;
+    padding: 0;
+    border: none;
     border-radius: 6px;
-    background: none;
-    color: var(--ink-soft);
+    background: linear-gradient(180deg, #faf7ee 0%, #e2d9be 100%);
+    color: var(--casing-ink);
     font: inherit;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 3px 0 var(--casing-edge), 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
-.boxPick small {
-    font-size: 0.6rem;
-    font-weight: 400;
-    color: var(--ink-muted);
+.padKey:active,
+.padKey[aria-checked='true'] {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--casing-edge), inset 0 2px 3px rgba(0, 0, 0, 0.2);
 }
 
-.boxPick:hover:not(:disabled):not(.boxPickActive) {
-    background: var(--hover);
-}
-
-.boxPickActive {
-    background: var(--ink-soft);
-    border-color: var(--ink-soft);
-    color: #f7f1df;
-}
-
-.boxPickActive small {
-    color: rgba(247, 241, 223, 0.75);
-}
-
-.boxPick:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+.padKey[aria-checked='true'] {
+    background: linear-gradient(180deg, #d5f5ec 0%, #a8e6d6 100%);
+    color: #0e2928;
 }
 
 /* ─── Platform ───────────────────────────────────────────────────────────── */
@@ -304,7 +318,7 @@
     clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
     background: linear-gradient(to top, rgba(78, 205, 196, 0.5), rgba(78, 205, 196, 0.08) 70%, transparent);
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity var(--ui-ms, 300ms) ease;
     pointer-events: none;
 }
 
@@ -340,7 +354,7 @@
     object-fit: contain;
     image-rendering: pixelated;
     filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.45));
-    animation: materialize 0.6s ease-out;
+    animation: materialize var(--ui-ms, 300ms) ease-out;
 }
 
 .platformGroup .platformSprite {
@@ -389,7 +403,7 @@
     border-radius: 50%;
     background: radial-gradient(ellipse, rgba(78, 205, 196, 0.85), rgba(78, 205, 196, 0.25) 55%, transparent 72%);
     opacity: 0.2;
-    transition: opacity 0.5s ease;
+    transition: opacity var(--ui-ms, 300ms) ease;
 }
 
 .platformActive .padGlow {
@@ -566,7 +580,7 @@
     background: rgba(168, 240, 218, 0.03);
     cursor: pointer;
     user-select: none;
-    transition: border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+    transition: border-color var(--ui-ms, 300ms) ease, background-color var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 .tile:hover {
@@ -716,7 +730,7 @@
     background: linear-gradient(180deg, var(--metal-hi), var(--metal));
     color: #eef2f2;
     cursor: pointer;
-    transition: transform 0.06s ease, box-shadow 0.06s ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
 .rockerBtn {
@@ -740,16 +754,10 @@
 .dpadBtn:first-child { border-radius: 10px 0 0 10px; }
 .dpadBtn:last-child { border-radius: 0 10px 10px 0; }
 
-.rockerBtn:active:not(:disabled),
-.dpadBtn:active:not(:disabled) {
+.rockerBtn:active,
+.dpadBtn:active {
     transform: translateY(2px);
     box-shadow: 0 1px 0 var(--metal-lo);
-}
-
-.rockerBtn:disabled,
-.dpadBtn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
 }
 
 .actionWrap {
@@ -772,17 +780,12 @@
     font-weight: 900;
     cursor: pointer;
     box-shadow: 0 3px 0 #5c1234, 0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: transform 0.06s ease, box-shadow 0.06s ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
-.actionBtn:active:not(:disabled) {
+.actionBtn:active {
     transform: translateY(2px);
     box-shadow: 0 1px 0 #5c1234;
-}
-
-.actionBtn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
 }
 
 .rockerBtn:focus-visible,
@@ -852,25 +855,20 @@
         0 0 0 4px rgba(70, 50, 20, 0.25),
         0 3px 0 3px #4d5257,
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transition: transform 0.06s ease, box-shadow 0.06s ease;
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
-.pill:hover:not(:disabled) {
+.pill:hover {
     background: linear-gradient(180deg, #9aa0a6 0%, #757a80 100%);
 }
 
-.pill:active:not(:disabled) {
+.pill:active {
     transform: translateY(2px);
     box-shadow:
         0 0 0 3px var(--casing-lo),
         0 0 0 4px rgba(70, 50, 20, 0.25),
         0 1px 0 3px #4d5257,
         inset 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
-.pill:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .lamp {
@@ -902,7 +900,7 @@
 .switch {
     grid-area: switch;
     display: grid;
-    grid-template-columns: repeat(3, 8rem);
+    grid-template-columns: repeat(var(--stops, 3), var(--stop-width, 8rem));
     /* The stops span both rows, so the lamp row needs its own height */
     grid-template-rows: 7px 3.6rem;
     row-gap: 1rem;
@@ -921,24 +919,12 @@
         0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
-/* Detent marks between the positions */
-.track::before {
-    content: '';
-    position: absolute;
-    inset: 50% 4px auto;
-    height: 2px;
-    transform: translateY(-50%);
-    background:
-        linear-gradient(90deg, transparent calc(33.33% - 1px), rgba(255, 255, 255, 0.18) calc(33.33% - 1px) calc(33.33% + 1px), transparent calc(33.33% + 1px)),
-        linear-gradient(90deg, transparent calc(66.66% - 1px), rgba(255, 255, 255, 0.18) calc(66.66% - 1px) calc(66.66% + 1px), transparent calc(66.66% + 1px));
-}
-
 /* Ridged grey thumb */
 .thumb {
     position: relative;
     z-index: 1;
     display: block;
-    width: calc(100% / 3);
+    width: calc(100% / var(--stops, 3));
     height: 100%;
     border-radius: 7px;
     background:
@@ -947,7 +933,14 @@
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.5),
         0 2px 3px rgba(0, 0, 0, 0.5);
-    transition: transform 0.18s cubic-bezier(0.3, 1.4, 0.5, 1);
+    transition: transform var(--ui-ms, 300ms) cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+/* The decks' smaller switches */
+.switchSmall {
+    --stop-width: 4.25rem;
+    grid-template-rows: 7px 2.75rem;
+    row-gap: 0.75rem;
 }
 
 /* Each position: its lamp and its stretch of track, all one click target */
@@ -1028,7 +1021,7 @@
         padding: 0.9rem 1rem 1rem;
     }
 
-    .switch {
+    .console .switch {
         grid-template-rows: 7px 3rem;
         row-gap: 0.6rem;
     }
@@ -1046,9 +1039,9 @@
         gap: 0.75rem;
     }
 
-    .switch {
+    .console .switch {
         width: 100%;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(var(--stops, 3), minmax(0, 1fr));
     }
 
 
@@ -1059,6 +1052,7 @@
     .platformSprite,
     .platformActive .beam,
     .platformActive .padGlow,
+    .stagePanel,
     .blink {
         animation: none;
     }

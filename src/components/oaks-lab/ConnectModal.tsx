@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import BaseModal from '@/components/modals/BaseModal';
 import Connector from '@/components/ui/Connector';
+import { press } from './LabStage';
 import styles from './styles.module.css';
 
 const STEPS = [
@@ -120,8 +121,7 @@ export default function ConnectModal({ isOpen, onClose, saveStateId, gameId, fet
                 <div className={styles.connectModalActions}>
                     <button
                         className={styles.btnPrimary}
-                        onClick={handleConnect}
-                        disabled={isConnecting || isDone}
+                        {...press(isConnecting || isDone, handleConnect)}
                     >
                         {isDone ? 'Connected!' : isConnecting ? 'Connecting...' : isError ? 'Try Again' : 'Connect'}
                     </button>

@@ -41,7 +41,7 @@ interface SaveMonitorProps {
     markedKeys?: Set<string>;
     onPick: (slot: SlotPokemon) => void;
     onCursor: (slot: SlotPokemon) => void;
-    action?: { label: string; onClick: () => void; disabled?: boolean };
+    action?: { label: string; onClick: () => void; inactive?: boolean };
 }
 
 /** The monitor showing the chosen save's party and boxes, one page at a time */
@@ -89,7 +89,7 @@ export function SaveMonitor({ lab, cursorKey, markedKeys, onPick, onCursor, acti
                 markedKeys={markedKeys}
                 onPick={fromEntry(onPick)}
                 onCursor={fromEntry(onCursor)}
-                pages={{ label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), disabled: !contents }}
+                pages={{ label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), inactive: !contents }}
                 action={action}
                 screen={screen}
                 footnote={contents && page !== PARTY_PAGE

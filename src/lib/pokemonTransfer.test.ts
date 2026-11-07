@@ -10,7 +10,7 @@ import {
 } from '@/utils/pokemon/gen1Save';
 import { injectPokemon } from '@/utils/sramWriter';
 import {
-    EmptySlotError, STALE_TRANSFER_MS, portToSave, recoverStaleTransfers, resolveStaleTransfer, sendToRanch, takeFromSave,
+    EmptySlotError, STALE_TRANSFER_MS, cloneToRanch, portToSave, recoverStaleTransfers, resolveStaleTransfer, sendToRanch, takeFromSave,
 } from './pokemonTransfer';
 import { blobStore, updateSaveRecord } from './saveFile';
 
@@ -198,6 +198,32 @@ describe('sendToRanch', () => {
 
         // The Pokémon is still in the save, so the record must go or it would be a duplicate.
         await recoverLater();
+        assert.equal(await StoredPokemon.countDocuments(), 0);
+    });
+});
+
+describe('cloneToRanch', () => {
+    it('stashes copies and leaves the save file alone', async () => {
+        const save = await makeSave();
+        const created = await cloneToRanch({
+            userId: USER.toString(), saveState: save, source: makeSram(),
+            slots: [PARTY_0, { location: 'party', slotIndex: 2 }],
+        });
+
+        assert.equal(created.length, 2);
+        assert.deepEqual(created.map(p => p.speciesIndex).sort(), [0x99, 0xB0].sort());
+        assert.equal(await countByStatus('stashed'), 2);
+        assert.equal(uploads, 0);
+        assert.equal(await fileOf(save), OLD_URL);
+        assert.deepEqual([...blobs], [OLD_URL]);
+    });
+
+    it('stashes nothing if a slot is empty', async () => {
+        const save = await makeSave();
+        await assert.rejects(
+            cloneToRanch({ userId: USER.toString(), saveState: save, source: makeSram(), slots: [PARTY_0, { location: 'party', slotIndex: 5 }] }),
+            EmptySlotError,
+        );
         assert.equal(await StoredPokemon.countDocuments(), 0);
     });
 });

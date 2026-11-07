@@ -1,13 +1,24 @@
 'use client';
 
-import { KeyboardEvent, ReactNode } from 'react';
+import { CSSProperties, KeyboardEvent, ReactNode, useRef } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { dexDict } from '@/utils/pokemon/dicts';
-import paper from '@/components/modals/paper.module.css';
 import { spriteUrl } from './sprite';
 import styles from './lab.module.css';
+
+/**
+ * Buttons in the Lab never look disabled. One with nothing to do still presses like the
+ * others and simply does nothing, the way a real console button would. Screen readers are
+ * told it's unavailable.
+ */
+export function press(inactive: boolean | undefined, onClick: () => void) {
+    return {
+        'aria-disabled': inactive || undefined,
+        onClick: inactive ? undefined : onClick,
+    };
+}
 
 /** What the monitor and platform need to show a Pokémon, from a save slot or the Ranch */
 export interface LabEntry {
@@ -122,9 +133,9 @@ interface MonitorProps {
     /** The arrows moved to a Pokémon */
     onCursor: (entry: LabEntry) => void;
     /** Moves between pages, such as the party and each box. Hidden when left out. */
-    pages?: { label: string; onPrev: () => void; onNext: () => void; disabled?: boolean };
+    pages?: { label: string; onPrev: () => void; onNext: () => void; inactive?: boolean };
     /** The round button under the screen, acting on the Pokémon at the cursor */
-    action?: { label: string; onClick: () => void; disabled?: boolean };
+    action?: { label: string; onClick: () => void; inactive?: boolean };
     /** Replaces the grid, for loading and setup screens */
     screen?: ReactNode;
     emptyText?: string;
@@ -221,8 +232,7 @@ export function Monitor({
                         <button
                             type="button"
                             className={styles.rockerBtn}
-                            onClick={pages.onPrev}
-                            disabled={pages.disabled}
+                            {...press(pages.inactive, pages.onPrev)}
                             aria-label={`Previous page (now ${pages.label})`}
                             title="Previous page"
                         >
@@ -231,8 +241,7 @@ export function Monitor({
                         <button
                             type="button"
                             className={styles.rockerBtn}
-                            onClick={pages.onNext}
-                            disabled={pages.disabled}
+                            {...press(pages.inactive, pages.onNext)}
                             aria-label={`Next page (now ${pages.label})`}
                             title="Next page"
                         >
@@ -245,8 +254,7 @@ export function Monitor({
                     <button
                         type="button"
                         className={styles.dpadBtn}
-                        onClick={() => step(-1)}
-                        disabled={!canStep}
+                        {...press(!canStep, () => step(-1))}
                         aria-label="Previous Pokémon"
                     >
                         <ChevronLeft size={20} />
@@ -254,8 +262,7 @@ export function Monitor({
                     <button
                         type="button"
                         className={styles.dpadBtn}
-                        onClick={() => step(1)}
-                        disabled={!canStep}
+                        {...press(!canStep, () => step(1))}
                         aria-label="Next Pokémon"
                     >
                         <ChevronRight size={20} />
@@ -267,8 +274,7 @@ export function Monitor({
                         <button
                             type="button"
                             className={styles.actionBtn}
-                            onClick={action.onClick}
-                            disabled={action.disabled}
+                            {...press(action.inactive, action.onClick)}
                             aria-label={action.label}
                             title={action.label}
                         />
@@ -279,14 +285,130 @@ export function Monitor({
     );
 }
 
-// ─── Panel ───────────────────────────────────────────────────────────────────
+// ─── Slide switch ────────────────────────────────────────────────────────────
 
-/** The paper card on the left, for whatever the current mode does */
-export function LabPanel({ title, children }: { title: string; children: ReactNode }) {
+interface SlideSwitchProps<T extends string> {
+    label: string;
+    options: { id: T; label: string; inactive?: boolean }[];
+    value: T;
+    onChange: (value: T) => void;
+    /** Narrower positions, for the decks */
+    small?: boolean;
+}
+
+/** A slide switch with a light over each position, so it's plain only one is on */
+export function SlideSwitch<T extends string>({ label, options, value, onChange, small }: SlideSwitchProps<T>) {
+    const index = Math.max(options.findIndex(o => o.id === value), 0);
+    const refs = useRef<(HTMLButtonElement | null)[]>([]);
+
+    const handleKey = (e: KeyboardEvent) => {
+        const by = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1
+            : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!by) return;
+        e.preventDefault();
+        for (let i = index + by; i >= 0 && i < options.length; i += by) {
+            if (options[i].inactive) continue;
+            onChange(options[i].id);
+            refs.current[i]?.focus();
+            return;
+        }
+    };
+
     return (
-        <section className={clsx(paper.modalContent, paper.paperModal, styles.panel)}>
-            <h2 className={styles.panelTitle}>{title}</h2>
-            {children}
+        <div
+            className={clsx(styles.switch, small && styles.switchSmall)}
+            role="radiogroup"
+            aria-label={label}
+            onKeyDown={handleKey}
+            style={{ '--stops': options.length } as CSSProperties}
+        >
+            <div className={styles.track} aria-hidden>
+                <span className={styles.thumb} style={{ transform: `translateX(${index * 100}%)` }} />
+            </div>
+            {options.map((o, i) => (
+                <button
+                    key={o.id}
+                    ref={el => { refs.current[i] = el; }}
+                    type="button"
+                    role="radio"
+                    aria-checked={value === o.id}
+                    aria-label={o.label}
+                    title={o.label}
+                    tabIndex={value === o.id ? 0 : -1}
+                    className={styles.stop}
+                    style={{ gridColumn: i + 1 }}
+                    {...press(o.inactive, () => onChange(o.id))}
+                >
+                    <i className={clsx(styles.lamp, value === o.id ? styles.lamp_on : styles.lamp_off)} aria-hidden />
+                </button>
+            ))}
+        </div>
+    );
+}
+
+// ─── Deck ────────────────────────────────────────────────────────────────────
+
+interface LabDeckProps {
+    title: string;
+    /** What the deck's screen shows */
+    children: ReactNode;
+    /** The hardware under the screen */
+    controls?: ReactNode;
+}
+
+/** The upright deck on the left, which slides in for whichever mode is on */
+export function LabDeck({ title, children, controls }: LabDeckProps) {
+    return (
+        <section className={styles.deck} aria-label={title}>
+            <div className={styles.monitorTop} aria-hidden>
+                <span className={styles.monitorLed} />
+                <span className={styles.monitorVents} />
+            </div>
+            <div className={clsx(styles.screen, styles.deckScreen)}>
+                <div className={styles.screenHeader}><span>{title}</span></div>
+                <div className={styles.deckBody}>{children}</div>
+            </div>
+            {controls && <div className={styles.deckControls}>{controls}</div>}
         </section>
+    );
+}
+
+interface DeckKeyProps {
+    label: string;
+    onClick: () => void;
+    /** Nothing to do right now: it still presses, but does nothing */
+    inactive?: boolean;
+    /** 'alt' is steel blue, for a second action beside the main one */
+    tone?: 'main' | 'alt';
+    children: ReactNode;
+}
+
+/** The deck's main action: a chunky key with only an icon on it */
+export function DeckKey({ label, onClick, inactive, tone = 'main', children }: DeckKeyProps) {
+    return (
+        <button
+            type="button"
+            className={clsx(styles.deckKey, tone === 'alt' && styles.deckKeyAlt)}
+            {...press(inactive, onClick)}
+            aria-label={label}
+            title={label}
+        >
+            {children}
+        </button>
+    );
+}
+
+/** A small grey pill, for lesser actions like Reset */
+export function DeckPill({ label, onClick, inactive, children }: DeckKeyProps) {
+    return (
+        <button
+            type="button"
+            className={styles.pill}
+            {...press(inactive, onClick)}
+            aria-label={label}
+            title={label}
+        >
+            {children}
+        </button>
     );
 }

@@ -1,69 +1,69 @@
-.card {
-    max-width: 30rem;
-    padding: 1.25rem 1.5rem;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
+/*
+ * The Enhance deck's screen: one screen sits behind the rows, and each row's
+ * raise button sits on the casing beside it, in the same grid row.
+ */
+
+.frame {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.75rem;
+    /* The last row takes the spare height, so the rows stay together at the top */
+    grid-template-rows: auto auto repeat(5, 2.75rem) 1fr;
+    column-gap: 0.75rem;
+    flex: 1;
+    /* The text sits on the screen, though it isn't inside it */
+    color: var(--phosphor);
+}
+
+.screen {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    min-height: 0;
+    padding: 0;
+}
+
+/* Everything on the screen sits above its background */
+.frame > :not(.screen):not(.raise) {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    margin-inline: calc(6px + 1rem);
 }
 
 .header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    grid-row: 1;
+    margin-top: calc(6px + 0.9rem);
 }
 
-.sprite {
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
-    image-rendering: pixelated;
-}
-
-.name {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-
-.meta {
-    margin: 0.1rem 0 0;
-    font-size: 0.8rem;
-    color: var(--ink-muted);
+.species {
+    grid-row: 2;
+    margin: -0.25rem 0 0.25rem;
+    font-size: 0.75rem;
     text-transform: capitalize;
-}
-
-.sectionTitle {
-    margin: 0 0 0.5rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-}
-
-.rows {
-    display: grid;
-    gap: 0.5rem;
+    color: var(--phosphor-dim);
 }
 
 .row {
     display: grid;
-    grid-template-columns: 5.5rem 1fr 1.5rem 1.75rem;
+    grid-template-columns: 6.5rem 1fr 1.75rem;
     align-items: center;
     gap: 0.6rem;
-    min-height: 1.75rem;
+    color: var(--phosphor);
 }
 
 .label {
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .value {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 700;
     text-align: right;
     font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 6px rgba(78, 205, 196, 0.6);
 }
 
 .gauge {
@@ -73,67 +73,75 @@
 }
 
 .segment {
-    height: 0.8rem;
-    border-radius: 2px;
-    background: var(--line);
-    transition: background-color 0.1s ease;
+    height: 0.85rem;
+    border-radius: 1px;
+    background: rgba(168, 240, 218, 0.1);
+    transition: background-color var(--ui-ms, 300ms) ease;
 }
 
 .segmentFilled {
-    background: #2b8a80;
+    background: var(--phosphor);
+    box-shadow: 0 0 4px rgba(78, 205, 196, 0.6);
 }
 
 /* Raised in the draft, not saved yet */
 .segmentRaised {
-    background: #4ecdc4;
-    box-shadow: inset 0 0 0 1px #2b8a80;
+    background: #f6e7a8;
+    box-shadow: 0 0 6px rgba(246, 231, 168, 0.8);
 }
 
 /* Lowered in the draft, which only happens to HP */
 .segmentLowered {
-    background: rgba(176, 72, 48, 0.35);
-    box-shadow: inset 0 0 0 1px rgba(176, 72, 48, 0.7);
+    background: rgba(240, 110, 90, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(240, 110, 90, 0.8);
 }
 
-.raise {
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0;
-    border: 1px solid var(--line-strong);
-    border-radius: 50%;
-    background: none;
-    color: var(--ink-soft);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
+.note,
+.empty {
+    margin: 0.75rem 0 calc(6px + 1rem);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--phosphor-dim);
 }
 
-.raise:hover:not(:disabled) {
-    background: var(--hover);
-    border-color: var(--ink-soft);
-}
-
-.raise:focus-visible {
-    outline: 2px solid var(--ink-soft);
-    outline-offset: 2px;
-}
-
-.raise:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+.empty {
+    grid-row: 2 / -1;
+    align-self: center;
+    font-size: 0.9rem;
+    color: var(--phosphor);
+    text-align: center;
 }
 
 .note {
-    margin: 0.75rem 0 0;
-    font-size: 0.75rem;
-    line-height: 1.4;
-    color: var(--ink-muted);
+    grid-row: 8;
+    align-self: start;
 }
 
-.actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 1rem;
+/* Small round grey buttons on the casing */
+.raise {
+    grid-column: 2;
+    align-self: center;
+    justify-self: center;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(180deg, var(--metal-hi), var(--metal));
+    color: #eef2f2;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--metal-lo), 0 3px 6px rgba(0, 0, 0, 0.25);
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+}
+
+.raise:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 var(--metal-lo);
+}
+
+.raise:focus-visible {
+    outline: 2px solid var(--glow);
+    outline-offset: 2px;
 }
