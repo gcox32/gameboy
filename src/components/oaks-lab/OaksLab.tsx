@@ -21,13 +21,6 @@ type Mode = 'extract' | 'port' | 'edit';
 /** How long the static holds once the next mode is on the stage, before it clears */
 const STATIC_HOLD_MS = 100;
 
-/**
- * Where each mode sets the monitor's switch when the Lab changes to it: the only source Leave
- * and Take can use, and the Ranch for Enhance. It can still be moved; a source a mode has
- * nothing for shows static.
- */
-const MODE_SOURCE: Record<Mode, MonitorSource> = { extract: 'save', port: 'ranch', edit: 'ranch' };
-
 const MODES: { id: Mode; label: string }[] = [
     { id: 'extract', label: 'Leave a Pokémon' },
     { id: 'port', label: 'Take a Pokémon' },
@@ -96,10 +89,14 @@ export default function OaksLab() {
     // The monitor shows static from the press until the next mode has settled in
     const [tuning, setTuning] = useState(false);
 
-    // The monitor's switch, which follows a press straight away
-    const [source, setSource] = useState<MonitorSource>(MODE_SOURCE[startMode]);
+    /*
+     * The monitor's switch, which follows a press straight away. Only a press moves it: changing
+     * mode leaves it where it is, and a source the mode has nothing for shows static. It starts on
+     * the Ranch only when the Lab opens on a Ranch Pokémon.
+     */
+    const [source, setSource] = useState<MonitorSource>(ranchId ? 'ranch' : 'save');
     // What the monitor shows, which waits for the thumb to get there
-    const [shownSource, setShownSource] = useState<MonitorSource>(MODE_SOURCE[startMode]);
+    const [shownSource, setShownSource] = useState<MonitorSource>(source);
     useEffect(() => {
         if (source === shownSource) return;
         const t = setTimeout(() => setShownSource(source), UI_MS);
@@ -110,7 +107,6 @@ export default function OaksLab() {
         if (m === mode) return;
         setRanchId(undefined);
         setMode(m);
-        setSource(MODE_SOURCE[m]);
         setTuning(true);
     };
 

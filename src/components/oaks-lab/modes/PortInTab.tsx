@@ -108,10 +108,15 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                         ? `Party (${partyCount}/6)`
                         : `Box ${targetBoxNumber} (${boxCounts[targetBoxNumber - 1] ?? 0}/20)`}
                 </p>
-                {selectedPokemon && (
-                    isFull
-                        ? <p className={styles.deckWarn}>Full</p>
-                        : <p>Send <strong>{selectedPokemon.nickname}</strong> to {nextSlot}</p>
+                {/* The switch goes wherever it's put, so a full destination is explained here */}
+                {isFull ? (
+                    <p className={styles.deckWarn}>
+                        {targetSlotType === 'party'
+                            ? 'The party is full. Switch to PC Box to send a Pokémon to a box instead.'
+                            : `Box ${targetBoxNumber} is full. Choose another box.`}
+                    </p>
+                ) : selectedPokemon && (
+                    <p>Send <strong>{selectedPokemon.nickname}</strong> to {nextSlot}</p>
                 )}
                 {targetSlotType === 'box' && (
                     <BoxesNotReadyNote boxAvailable={contents.boxAvailable} className={styles.deckHint} />
@@ -127,8 +132,8 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                 small
                 label="Target slot"
                 options={[
-                    { id: 'party', label: `Party (${partyCount}/6)`, inactive: !ready || partyCount >= 6 },
-                    { id: 'box', label: 'PC Box', inactive: !ready },
+                    { id: 'party', label: `Party (${partyCount}/6)` },
+                    { id: 'box', label: 'PC Box' },
                 ]}
                 value={targetSlotType}
                 onChange={setTargetSlotType}

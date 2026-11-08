@@ -82,13 +82,6 @@
     to { opacity: 0; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .shell,
-    .leaving .shell {
-        animation: none;
-    }
-}
-
 /* ─── Casing ─────────────────────────────────────────────── */
 
 .top {
@@ -159,7 +152,6 @@
     justify-content: space-between;
     gap: 1rem;
     color: rgba(168, 240, 218, 0.35);
-    transition: color var(--ui-ms, 300ms), text-shadow var(--ui-ms, 300ms);
 }
 
 .log_active,
@@ -270,4 +262,20 @@
 .key:focus-visible {
     outline: 2px solid var(--glow);
     outline-offset: 5px;
+}
+
+/* Last, so it overrides the animations above */
+@media (prefers-reduced-motion: reduce) {
+    .shell,
+    .leaving .shell,
+    .lampBlink,
+    .log_active .logStatus {
+        animation: none;
+    }
+
+    /* Held on rather than frozen dark, so the active stage still reads as live */
+    .lamps .lampBlink {
+        background: var(--glow);
+        box-shadow: 0 0 6px var(--glow);
+    }
 }

@@ -2,12 +2,15 @@
 
 import { CSSProperties, KeyboardEvent, PointerEvent, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { press } from './press';
 import styles from '../lab.module.css';
 
 interface SlideSwitchProps<T extends string> {
     label: string;
-    options: { id: T; label: string; inactive?: boolean }[];
+    /**
+     * Every position can always be reached: a switch never refuses one or moves by itself. Whatever
+     * a position can't do is shown on a screen, not by locking it.
+     */
+    options: { id: T; label: string }[];
     value: T;
     onChange: (value: T) => void;
     /** Narrower positions, for the decks */
@@ -29,15 +32,6 @@ export function SlideSwitch<T extends string>({ label, options, value, onChange,
     // A drag ends with a click on the stop it started from, which would undo it
     const swallowClick = useRef(false);
 
-    /** The usable position nearest to a dragged one, so the thumb never settles on an inactive stop */
-    const nearestActive = (pos: number) => {
-        let best = index;
-        for (let i = 0; i < options.length; i++) {
-            if (!options[i].inactive && Math.abs(i - pos) < Math.abs(best - pos)) best = i;
-        }
-        return best;
-    };
-
     const grab = (e: PointerEvent<HTMLButtonElement>) => {
         if (e.button !== 0) return;
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -53,7 +47,7 @@ export function SlideSwitch<T extends string>({ label, options, value, onChange,
 
     const release = (e: PointerEvent<HTMLButtonElement>) => {
         if (!drag) return;
-        const to = nearestActive(drag.pos);
+        const to = Math.round(drag.pos);
         setDrag(null);
         if (e.type !== 'pointerup' || drag.pos === index) return;
         swallowClick.current = true;
@@ -75,12 +69,10 @@ export function SlideSwitch<T extends string>({ label, options, value, onChange,
             : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
         if (!by) return;
         e.preventDefault();
-        for (let i = index + by; i >= 0 && i < options.length; i += by) {
-            if (options[i].inactive) continue;
-            onChange(options[i].id);
-            refs.current[i]?.focus();
-            return;
-        }
+        const to = index + by;
+        if (to < 0 || to >= options.length) return;
+        onChange(options[to].id);
+        refs.current[to]?.focus();
     };
 
     return (
@@ -110,7 +102,7 @@ export function SlideSwitch<T extends string>({ label, options, value, onChange,
                     tabIndex={value === o.id ? 0 : -1}
                     className={clsx(styles.stop, drag && styles.stopDragging)}
                     style={{ gridColumn: i + 1 }}
-                    {...press(o.inactive, () => choose(o.id))}
+                    onClick={() => choose(o.id)}
                     // The thumb sits over the position that's on, so that's where it's grabbed
                     {...(i === index && {
                         onPointerDown: grab,

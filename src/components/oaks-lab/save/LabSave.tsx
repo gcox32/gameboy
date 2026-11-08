@@ -79,9 +79,7 @@ export function useSaveScreen(lab: LabSave, { cursorKey, onPick, onCursor }: Sav
         message = (
             <>
                 <p>This save isn&apos;t connected to Oak&apos;s Lab yet.</p>
-                <button type="button" className={styles.screenButton} onClick={() => setConnectModalOpen(true)}>
-                    Connect to Lab
-                </button>
+                <p className={styles.screenPrompt}>Press any button to connect</p>
             </>
         );
     } else if (!contents && !lab.loadingSave) {
@@ -102,6 +100,8 @@ export function useSaveScreen(lab: LabSave, { cursorKey, onPick, onCursor }: Sav
         onCursor: fromEntry(onCursor),
         pages: { label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), inactive: !contents },
         screen: message,
+        // Any of the monitor's buttons opens the connect monitor
+        onAnyButton: selectedSave?.id && !currentSave?.connected ? () => setConnectModalOpen(true) : undefined,
         loading,
         footnote: contents && page !== PARTY_PAGE
             ? <BoxesNotReadyNote boxAvailable={contents.boxAvailable} />

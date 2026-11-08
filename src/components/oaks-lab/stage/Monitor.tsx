@@ -35,6 +35,11 @@ export interface MonitorScreen {
     pages?: { label: string; onPrev: () => void; onNext: () => void; inactive?: boolean };
     /** Replaces the grid, for setup screens and errors */
     screen?: ReactNode;
+    /**
+     * For a "press any button" screen: every one of the monitor's buttons does this instead of
+     * its usual job. Screens never carry buttons of their own. The input switch still switches.
+     */
+    onAnyButton?: () => void;
     /** Blanks the screen and holds the static on until whatever it shows has arrived */
     loading?: boolean;
     emptyText?: string;
@@ -52,11 +57,16 @@ interface MonitorProps extends MonitorScreen {
 
 export function Monitor({
     title, meta, entries, cursorKey, onPick, onCursor,
-    pages, screen, loading = false, emptyText = 'Empty', footnote, pageMap, source, onSourceChange,
+    pages, screen, onAnyButton, loading = false, emptyText = 'Empty', footnote, pageMap, source, onSourceChange,
 }: MonitorProps) {
     const { bySpecies, spriteStyle } = usePokemonSprites();
     const index = entries.findIndex(e => e.key === cursorKey);
     const canStep = !loading && !screen && entries.length > 0;
+
+    // Only while the prompt is actually on screen, not under the snow
+    const anyButton = loading ? undefined : onAnyButton;
+    const control = (inactive: boolean | undefined, action: () => void) =>
+        anyButton ? press(false, anyButton) : press(inactive, action);
 
     const step = (by: number) => {
         if (!canStep) return;
@@ -138,7 +148,7 @@ export function Monitor({
                     <button
                         type="button"
                         className={styles.rockerBtn}
-                        {...press(!pages || pages.inactive, () => pages?.onPrev())}
+                        {...control(!pages || pages.inactive, () => pages?.onPrev())}
                         aria-label={pages ? `Previous page (now ${pages.label})` : 'Previous page'}
                         title="Previous page"
                     >
@@ -147,7 +157,7 @@ export function Monitor({
                     <button
                         type="button"
                         className={styles.rockerBtn}
-                        {...press(!pages || pages.inactive, () => pages?.onNext())}
+                        {...control(!pages || pages.inactive, () => pages?.onNext())}
                         aria-label={pages ? `Next page (now ${pages.label})` : 'Next page'}
                         title="Next page"
                     >
@@ -159,7 +169,7 @@ export function Monitor({
                     <button
                         type="button"
                         className={styles.dpadBtn}
-                        {...press(!canStep, () => step(-1))}
+                        {...control(!canStep, () => step(-1))}
                         aria-label="Previous Pokémon"
                     >
                         <ChevronLeft size={20} />
@@ -167,7 +177,7 @@ export function Monitor({
                     <button
                         type="button"
                         className={styles.dpadBtn}
-                        {...press(!canStep, () => step(1))}
+                        {...control(!canStep, () => step(1))}
                         aria-label="Next Pokémon"
                     >
                         <ChevronRight size={20} />
