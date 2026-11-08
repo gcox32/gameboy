@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { MouseEvent, ReactNode, useEffect, useState } from 'react';
 import {
     FolderDown,
     FolderOpen,
@@ -29,10 +29,22 @@ import styles from './styles.module.css';
 const ICON_SIZE = 18;
 /** Fits the longest labels, like "Exit Fullscreen" */
 const TOOLTIP_WIDTH = 210;
+/** Number keys for the bar's controls, counting along it */
+const SPEED_HOTKEY = '3';
+
+/** Typing into a field keeps its keys */
+const isTypingTarget = (target: EventTarget | null) =>
+    target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+
+/** For a toggle that changes the whole view, where no next click would move focus off it */
+const blurAfter = (action: () => void) => (e: MouseEvent<HTMLButtonElement>) => {
+    action();
+    e.currentTarget.blur();
+};
 
 interface BarButtonProps {
     label: string;
-    onClick: () => void;
+    onClick: (e: MouseEvent<HTMLButtonElement>) => void;
     isActive?: boolean;
     disabled?: boolean;
     className?: string;
@@ -87,6 +99,22 @@ export default function SessionBar() {
     const [isLibraryOpen, setIsLibraryOpen] = useState(false);
     const [isLoadStateOpen, setIsLoadStateOpen] = useState(false);
 
+    const cycleSpeed = () => updateUISettings({ speed: getNextSpeed(speed) });
+
+    useEffect(() => {
+        if (!isEmulatorPlaying) return;
+        // A key the player mapped to the Game Boy stays with the game
+        const isMapped = uiSettings.keyMappings.some(mapping => mapping.key === SPEED_HOTKEY);
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== SPEED_HOTKEY || isMapped || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+            if (isTypingTarget(e.target)) return;
+            e.preventDefault();
+            cycleSpeed();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    });
+
     const handleGameSelect = (game: GameModel) => {
         handleROMSelected(game);
         setIsLibraryOpen(false);
@@ -120,7 +148,7 @@ export default function SessionBar() {
                         <BarButton label={intervalPaused ? 'Resume' : 'Pause'} onClick={handlePauseResume}>
                             {intervalPaused ? <Play size={ICON_SIZE} /> : <Pause size={ICON_SIZE} />}
                         </BarButton>
-                        <BarButton label={`Game speed ${speed}x`} onClick={() => updateUISettings({ speed: getNextSpeed(speed) })} className={styles.speedButton}>
+                        <BarButton label={`Game speed ${speed}x`} onClick={cycleSpeed} className={styles.speedButton}>
                             {speed}x
                         </BarButton>
                         <BarButton label={isSoundOn ? 'Mute' : 'Unmute'} onClick={() => updateUISettings({ isSoundOn: !isSoundOn })}>
@@ -168,10 +196,10 @@ export default function SessionBar() {
 
                 <span className={styles.divider} />
 
-                <BarButton label="Immersive" onClick={toggleFullscreenMode} isActive={isImmersive} disabled={!isRomLoaded}>
+                <BarButton label="Immersive" onClick={blurAfter(toggleFullscreenMode)} isActive={isImmersive} disabled={!isRomLoaded}>
                     <Monitor size={ICON_SIZE} />
                 </BarButton>
-                <BarButton label={isBrowserFullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={toggleBrowserFullscreen}>
+                <BarButton label={isBrowserFullscreen ? 'Exit Fullscreen' : 'Fullscreen'} onClick={blurAfter(toggleBrowserFullscreen)}>
                     {isBrowserFullscreen ? <Minimize size={ICON_SIZE} /> : <Maximize size={ICON_SIZE} />}
                 </BarButton>
             </div>
