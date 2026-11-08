@@ -3,7 +3,12 @@
  * with a control console along the bottom.
  */
 
-.page {
+/*
+ * The Lab's materials. On the page, and on Lab hardware portaled outside it (the connect monitor),
+ * which can't inherit them from the page.
+ */
+.page,
+.hardware {
     /* Lab machine plastic */
     --casing-hi: #f3eedc;
     --casing: #e4dbc0;
@@ -24,7 +29,9 @@
     --metal-hi: #5b6670;
     --metal: #3a434b;
     --metal-lo: #1f252a;
+}
 
+.page {
     position: relative;
     /* Keeps the z-index -1 hero above the body's yellow background */
     isolation: isolate;

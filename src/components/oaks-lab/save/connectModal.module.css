@@ -1,102 +1,273 @@
-/* ─── Connect modal body ─────────────────────────────────── */
-.connectModalBody {
-    padding: 1.5rem;
+/*
+ * The connect monitor: a small Lab monitor lowered on its cables over the page. Its casing,
+ * screen, lamps and power LED come from lab.module.css; this adds the room it hangs in, the drop,
+ * and its own controls.
+ */
+
+/* ─── Room and drop ──────────────────────────────────────── */
+
+.room {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: clamp(1rem, 9vh, 6rem) 1rem 1rem;
+    overflow-y: auto;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    animation: dim var(--drop-ms, 600ms) ease-out both;
+}
+
+.shell {
+    position: relative;
+    width: min(38rem, 100%);
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.9rem;
+    padding: 0.9rem 1.25rem 1.25rem;
+    border-radius: 22px;
+    background: linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 55%, var(--casing-lo) 100%);
+    color: var(--casing-ink);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.7),
+        inset 0 -5px 0 rgba(70, 50, 20, 0.12),
+        0 0 0 1px rgba(70, 50, 20, 0.35),
+        0 24px 48px rgba(0, 0, 0, 0.5);
+    /* Overshoots a little and settles, like something heavy at the end of its cables */
+    animation: drop var(--drop-ms, 600ms) cubic-bezier(0.3, 1.3, 0.55, 1) both;
+}
+
+/* The cables it hangs from, running up off the top of the screen */
+.shell::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 18%;
+    right: 18%;
+    height: 100vh;
+    background: linear-gradient(90deg,
+        var(--metal-lo) 0 3px, transparent 3px calc(100% - 3px), var(--metal-lo) calc(100% - 3px));
+    pointer-events: none;
+}
+
+.leaving .shell {
+    animation: lift var(--drop-ms, 600ms) cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+
+.leaving .overlay {
+    animation: undim var(--drop-ms, 600ms) ease-in both;
+}
+
+@keyframes drop {
+    from { transform: translateY(calc(-100% - 12vh - 2rem)); }
+    to { transform: translateY(0); }
+}
+
+@keyframes lift {
+    from { transform: translateY(0); }
+    to { transform: translateY(calc(-100% - 12vh - 2rem)); }
+}
+
+@keyframes dim {
+    from { opacity: 0; }
+}
+
+@keyframes undim {
+    to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .shell,
+    .leaving .shell {
+        animation: none;
+    }
+}
+
+/* ─── Casing ─────────────────────────────────────────────── */
+
+.top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 0.25rem;
+}
+
+/* The vents take the middle, so the LED sits left and the close button right */
+.top > :nth-child(2) {
+    margin-left: auto;
+}
+
+.closeBtn {
+    width: 1.9rem;
+    height: 1.9rem;
+}
+
+.closeBtn:focus-visible {
+    outline: 2px solid var(--glow);
+    outline-offset: 2px;
+}
+
+/* ─── Screen ─────────────────────────────────────────────── */
+
+.shell .screen {
+    flex: none;
+    min-height: 0;
+    gap: 0.9rem;
 }
 
 .connectorWrap {
     display: flex;
     justify-content: center;
-    margin: -0.25rem 0;
+    filter: drop-shadow(0 0 6px rgba(78, 205, 196, 0.45));
 }
 
-.connectModalDesc {
+.desc {
     margin: 0;
     font-size: 0.875rem;
-    color: rgba(232, 224, 244, 0.72);
     line-height: 1.55;
+    color: rgba(168, 240, 218, 0.78);
 }
 
-.connectModalLink {
-    color: #c8a0f0;
+.link {
+    color: var(--phosphor);
     text-underline-offset: 2px;
+    text-shadow: 0 0 6px rgba(78, 205, 196, 0.7);
 }
 
-.connectModalLink:hover {
-    color: #e0c0ff;
-}
-
-.connectSteps {
+/* The stages as a readout on the screen */
+.log {
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    padding: 0.75rem 0.875rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 8px;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0.6rem 0 0;
+    border-top: 1px dashed rgba(168, 240, 218, 0.3);
+    list-style: none;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-.connectStep {
+.logLine {
     display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    font-size: 0.82rem;
-    color: rgba(232, 224, 244, 0.3);
-    transition: color var(--ui-ms, 300ms);
+    justify-content: space-between;
+    gap: 1rem;
+    color: rgba(168, 240, 218, 0.35);
+    transition: color var(--ui-ms, 300ms), text-shadow var(--ui-ms, 300ms);
 }
 
-.stepDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(232, 224, 244, 0.2);
-    flex-shrink: 0;
-    transition: background var(--ui-ms, 300ms), border-color var(--ui-ms, 300ms);
+.log_active,
+.log_done {
+    color: var(--phosphor);
+    text-shadow: 0 0 6px rgba(78, 205, 196, 0.7);
 }
 
-.connectStep.stepActive {
-    color: rgba(232, 224, 244, 0.9);
+.log_active .logStatus {
+    animation: cursor 0.8s steps(1) infinite;
 }
 
-.connectStep.stepActive .stepDot {
-    border-color: #7b68a6;
-    background: #7b68a6;
-    animation: stepPulse 1s ease-in-out infinite;
+.log_failed {
+    color: #f0b43c;
+    text-shadow: 0 0 6px rgba(240, 180, 60, 0.5);
 }
 
-.connectStep.stepComplete {
-    color: rgba(232, 224, 244, 0.55);
+@keyframes cursor {
+    50% { opacity: 0; }
 }
 
-.connectStep.stepComplete .stepDot {
-    background: #5a4a7a;
-    border-color: #7b68a6;
-}
-
-.connectStep.stepError {
-    color: #e05555;
-}
-
-.connectStep.stepError .stepDot {
-    background: #7b3030;
-    border-color: #e05555;
-}
-
-@keyframes stepPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.45; transform: scale(0.85); }
-}
-
-.connectModalError {
+/* Holds its line even when empty, so an error doesn't resize the monitor */
+.error {
+    min-height: 1.4em;
     margin: 0;
     font-size: 0.82rem;
-    color: #e05555;
     line-height: 1.4;
+    color: #f0b43c;
+    text-shadow: 0 0 6px rgba(240, 180, 60, 0.5);
 }
 
-.connectModalActions {
+/* ─── Controls ───────────────────────────────────────────── */
+
+.controls {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 0 0.25rem;
+}
+
+/* A row of lamps, one per stage, set in a recessed strip like the keypad. Fills the casing up to the key. */
+.lamps {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 1.1rem;
+    padding: 0.7rem 1rem;
+    border-radius: 9999px;
+    background: var(--casing-lo);
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.lampBlink {
+    animation: blink 0.8s steps(1) infinite;
+}
+
+/* Beats lab.lamp_off, which it's paired with */
+.lamps .lampFault {
+    background: #e05555;
+    box-shadow: 0 0 6px #e05555;
+}
+
+@keyframes blink {
+    0% { background: var(--glow); box-shadow: 0 0 6px var(--glow); }
+    50% { background: #8a8270; box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35); }
+}
+
+/*
+ * Connect: the deck's key with its name printed on it. Hardware, so its label and size never
+ * change; the screen and lamps show how a connection is going.
+ */
+.key {
+    flex: none;
+    width: 9rem;
+    height: 3.25rem;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #d2689a 0%, #b03a6e 45%, #8e1f52 100%);
+    color: #fff;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    box-shadow:
+        0 0 0 3px var(--casing-lo),
+        0 0 0 4px rgba(70, 50, 20, 0.25),
+        0 5px 0 3px #5c1234,
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
+}
+
+/* Presses whether or not it has anything to do, like every Lab key */
+.key:active {
+    transform: translateY(4px);
+    box-shadow:
+        0 0 0 3px var(--casing-lo),
+        0 0 0 4px rgba(70, 50, 20, 0.25),
+        0 1px 0 3px #5c1234,
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.key:focus-visible {
+    outline: 2px solid var(--glow);
+    outline-offset: 5px;
 }

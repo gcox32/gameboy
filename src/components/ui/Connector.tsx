@@ -7,6 +7,8 @@ function easeInOutCubic(t: number): number {
 interface ConnectorProps {
   plugColor?: string;
   socketColor?: string;
+  /** The blob the plugs sit on */
+  backdropColor?: string;
   width?: number;
   height?: number;
   connected: boolean;
@@ -17,6 +19,7 @@ interface ConnectorProps {
 export default function Connector({
   plugColor = "#00ED64",
   socketColor = "#FFE212",
+  backdropColor = "#E3FCF7",
   width = 298,
   height = 198,
   connected,
@@ -109,7 +112,7 @@ export default function Connector({
       {/* ── Background blob ── */}
       <path
         d="M313.02 232.35C313.02 209.35 331.69 190.67 354.7 190.67C377.71 190.67 396.38 172 396.38 148.99V65.6502C396.38 42.6502 377.71 23.9702 354.7 23.9702C331.69 23.9702 313.02 42.6402 313.02 65.6502C313.02 88.6602 294.35 107.33 271.34 107.33H187.99C164.99 107.33 146.31 126 146.31 149.01C146.31 172.02 127.64 190.69 104.63 190.69C81.6202 190.69 62.9502 209.36 62.9502 232.37C62.9502 255.38 81.6202 274.05 104.63 274.05H271.33C294.33 274.05 313.01 255.38 313.01 232.37L313.02 232.35Z"
-        fill="#E3FCF7"
+        fill={backdropColor}
       />
 
       {/* ── Right yellow arm ── */}
