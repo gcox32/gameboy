@@ -162,7 +162,7 @@ Gen 1 hardware stays exactly as it is. Where Gen 2 needs more room, it gets its 
 - [ ] Same device for both generations; it mostly looks the same and just holds 251 entries for Gen 2.
 - [ ] 251 entries; owned and seen flags are 32 bytes each (`flag_array 251`), so the watcher reads `0x40`, and the split is at 32, not 19.
 - [ ] Replace the hard-coded `151` (bit loop, totals, completion, list) with `dexSize`.
-- [ ] Remove the `152 → 232` (Donphan) special case or explain it; it looks like a leftover.
+- [ ] Remove the `152 → 232` special case in `loadPokemonData`. It's left over from a Gen 1 hack that once gave Donphan Dex number 152. Today the hack's Donphan resolves to `232` through `dexDict` (internal index 175), and the Gen 1 list stops at 151, so the line never runs. In Gen 2 it would turn Chikorita into Donphan.
 - [ ] Unown: optionally read `wUnownDex` to show caught forms.
 - [ ] Check `ListView` and `DualScreens` scale to 251 rows.
 
@@ -174,12 +174,26 @@ Gen 1 hardware stays exactly as it is. Where Gen 2 needs more room, it gets its 
 
 ### Phase 4 — Assets (assets.letmedemo.com)
 
-- [ ] Pokémon GIFs `152.gif`–`251.gif` for both sprite sources (`gifs/` and `stadium/gifs/`); shiny variants if shown.
-- [ ] Egg sprite.
-- [ ] 8 Johto badge images; Gen 2 versions of the Kanto badges if they look different.
-- [ ] Johto gym leader images (`characters/gyms/`), and Kanto leaders as they appear in Gen 2 (Blue in Viridian, Janine in Fuchsia).
-- [ ] Town map art for the Gen 2 map: Johto and Gen 2 Kanto, laid out side by side on one double-width sheet.
-- [ ] Johto location artwork for the dynamic background.
+Run `node scripts/check-gen2-assets.mjs` (add `--shiny` once that's decided) to see what's still missing. It exits 1 until everything below is uploaded. Paths marked *proposed* aren't used by the app yet; if you rename one, change it in the script too. All paths are under `public/gameboy/`.
+
+State on 2026-11-09: only the cries (`audio/anime/152.wav`–`251.wav`) are complete. In both GIF sets, `152.gif` and `232.gif` are the same Donphan file (see below), and no other Gen 2 species have GIFs or art yet.
+
+**Per species**
+- [ ] Pokémon GIFs `152.gif`–`251.gif` (zero-padded) for both sprite sources: `images/pokemon/gifs/` and `images/pokemon/stadium/gifs/`.
+- [ ] **Replace `152.gif` in both sets with Chikorita.** The current file is Donphan, left over from a Gen 1 hack that gave Donphan Dex number 152; it's byte-identical to `232.gif`. Nothing references it, so just overwrite it. The script flags it until it's replaced.
+- [ ] Art sets for the details modal. The current sets (`sugimori/rb/`, `rg/`, `frlg/`) are named for Gen 1 games and have no Johto art, so Gen 2 doesn't extend them. Instead, `ART_SETS` moves out of `DetailsModal/index.tsx` and the generation adapter supplies it, like the stat labels. Gen 2 gets three sets of its own covering **all 251** species (so Gen 1 species in a Gen 2 party have art in every set). Proposed: `sugimori/gs/`, `sugimori/crystal/`, `sugimori/hgss/`. The file `sugimori/rb/232.png` is another leftover from the hack and can stay.
+- [x] Cries `audio/anime/152.wav`–`251.wav` (not zero-padded). All present.
+- [ ] Decide on shiny sprites: either shiny GIFs for both sets (251 × 2, proposed `gifs/shiny/` and `stadium/gifs/shiny/`) or a sparkle overlay with no new assets. Decide before collecting GIFs, so both versions can come from the same source.
+- [ ] Egg sprite in both sprite styles (proposed `gifs/egg.gif`, `stadium/gifs/egg.gif`).
+
+**Badges and gyms**
+- [ ] 8 Johto badge images in `images/pokemon/badges/` (`zephyr`, `hive`, `plain`, `fog`, `storm`, `mineral`, `glacier`, `rising`), next to the Kanto ones. Gen 2 versions of the Kanto badges only if they look different.
+- [ ] Johto gym leader portraits in a subfolder so they don't collide with `characters/gyms/1_Brock.png`…`8_Giovanni.png` (proposed `characters/gyms/johto/1_Falkner.png`…`8_Clair.png`).
+- [ ] Kanto leaders who change in Gen 2: Janine (Fuchsia) and Blue (Viridian) (proposed `characters/gyms/kanto-gen2/5_Janine.png`, `8_Blue.png`). The other six reuse the Gen 1 portraits.
+
+**Town Map and backgrounds**
+- [ ] Town map art for the Gen 2 map: Johto and Gen 2 Kanto side by side on one double-width sheet (proposed `images/pokemon/maps/gsc-johto-kanto-town-map.png`). Choose the source art before writing `geometry.ts`, since its pixel size sets `ART_WIDTH`/`ART_HEIGHT`.
+- [ ] Johto location artwork for the dynamic background in `images/pokemon/locations/`: 10 towns, Routes 26–46 under `routes/`, and the dungeons and landmarks (Sprout Tower, Ruins of Alph, Union Cave, Ilex Forest, Burned/Tin Tower, Whirl Islands, Ice Path, Dragon's Den, Mt. Silver, …). Keys are Gen 2 landmark names; Gen 2 Kanto landmarks map to the existing Gen 1 art.
 - [ ] Check `/api/pokeapi/pokemon/[id]` and `/size` already work for 152–251 (they should; PokéAPI covers them).
 
 ### Phase 5 — Tests and verification
