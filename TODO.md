@@ -93,3 +93,7 @@
 
 - [ ] Community features (view others' progress, team comparison)
 - [ ] Advanced game analysis tools
+
+## Miscellaneous
+
+- [ ] Detailed TownMap on zoom in
