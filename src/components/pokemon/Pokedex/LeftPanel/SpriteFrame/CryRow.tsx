@@ -1,11 +1,10 @@
 import styles from './styles.module.css';
+import { cryUrl } from '@/lib/assets';
 
 export default function CryRow({ pokemonId, owned }: { pokemonId: number | null, owned: boolean }) {
     const playCry = () => {
         if (!owned || !pokemonId) return;
-        const id = parseInt(pokemonId.toString(), 10); // remove any leading zeros
-        const cry = `https://assets.letmedemo.com/public/gameboy/audio/anime/${id}.wav`;
-        const audio = new Audio(cry);
+        const audio = new Audio(cryUrl(pokemonId));
         audio.play();
     };
     return (

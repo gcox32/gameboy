@@ -1,5 +1,5 @@
 import { Badge, Gym, TM } from '@/types/pokemon';
-import { gymLeaderImgPath as imgUrl } from "@/../config";
+import { figureUrl } from "@/lib/assets";
 
 const HMs: TM[] = [
     { id: 'HM01', name: 'Cut', hiddenMachine: true },
@@ -26,7 +26,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Pewter City',
         badge: badges[0],
         leader: 'Brock',
-        leaderImage: imgUrl + '1_Brock.png',
+        leaderImage: figureUrl('kanto', 'brock'),
         leaderDescription: 'The Rock Solid Pokémon Trainer!',
     },
     {
@@ -34,7 +34,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Cerulean City',
         badge: badges[1],
         leader: 'Misty',
-        leaderImage: imgUrl + '2_Misty.png',
+        leaderImage: figureUrl('kanto', 'misty'),
         leaderDescription: 'The Tomboyish Mermaid!',
     },
     {
@@ -42,7 +42,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Vermilion City',
         badge: badges[2],
         leader: 'Lt. Surge',
-        leaderImage: imgUrl + '3_Surge.png',
+        leaderImage: figureUrl('kanto', 'surge'),
         leaderDescription: 'The Lightning American!',
     },
     {
@@ -50,7 +50,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Celadon City',
         badge: badges[3],
         leader: 'Erika',
-        leaderImage: imgUrl + '4_Erika.png',
+        leaderImage: figureUrl('kanto', 'erika'),
         leaderDescription: 'The Nature-Loving Princess!',
     },
     {
@@ -58,7 +58,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Fuchsia City',
         badge: badges[4],
         leader: 'Koga',
-        leaderImage: imgUrl + '5_Koga.png',
+        leaderImage: figureUrl('kanto', 'koga'),
         leaderDescription: 'The Poisonous Ninja Master!',
     },
     {
@@ -66,7 +66,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Saffron City',
         badge: badges[5],
         leader: 'Sabrina',
-        leaderImage: imgUrl + '6_Sabrina.png',
+        leaderImage: figureUrl('kanto', 'sabrina'),
         leaderDescription: 'The Master of Psychic Pokémon!',
     },
     {
@@ -74,7 +74,7 @@ export const gyms: Gym[] = [
         gymLocation: 'Cinnabar Island',
         badge: badges[6],
         leader: 'Blaine',
-        leaderImage: imgUrl + '7_Blaine.png',
+        leaderImage: figureUrl('kanto', 'blaine'),
         leaderDescription: 'The Hot-Headed Quiz Master!',
     },
     {
@@ -82,6 +82,6 @@ export const gyms: Gym[] = [
         gymLocation: 'Indigo Plateau',
         badge: badges[7],
         leader: 'Giovanni',
-        leaderImage: imgUrl + '8_Giovanni.png',
+        leaderImage: figureUrl('kanto', 'giovanni'),
     }
 ]

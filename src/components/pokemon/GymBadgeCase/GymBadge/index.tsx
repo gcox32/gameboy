@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { badgeImgPath } from '@/../config';
+import { badgeUrl } from '@/lib/assets';
 import styles from '../styles.module.css';
 import Image from 'next/image';
 import { Badge } from '@/types/pokemon';
@@ -55,7 +55,7 @@ function GymBadge({ badge, earned, justEarned, onBadgeClick }: GymBadgeProps) {
                 style={{ cursor: earned ? 'pointer' : 'default' }}
             >
                 <Image
-                    src={`${badgeImgPath}${badge.image}`}
+                    src={badgeUrl('kanto', badge.image)}
                     alt={badge.name}
                     title={badge.name}
                     className={earned ? '' : styles.silhouette}

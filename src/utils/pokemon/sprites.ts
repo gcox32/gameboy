@@ -1,6 +1,7 @@
-import { pokemonGifEndpoint, pokemonStadiumGifEndpoint } from '@/../config';
+import { spriteUrl, type SpriteSet } from '@/lib/assets';
 import { dexDict } from '@/utils/pokemon/dicts';
 
+/** Stored in settings, so the ids stay as they were when the sets were first named */
 export type SpriteSource = 'gameboy' | 'stadium';
 
 export const spriteSourceOptions: { value: SpriteSource; label: string }[] = [
@@ -8,9 +9,9 @@ export const spriteSourceOptions: { value: SpriteSource; label: string }[] = [
     { value: 'stadium', label: 'Stadium' },
 ];
 
-const endpoints: Record<SpriteSource, string> = {
-    gameboy: pokemonGifEndpoint,
-    stadium: pokemonStadiumGifEndpoint,
+const spriteSets: Record<SpriteSource, SpriteSet> = {
+    gameboy: '3ds',
+    stadium: 'stadium',
 };
 
 /** Only the Game Boy sprites are pixel art; the Stadium renders should be smoothed when scaled */
@@ -18,7 +19,7 @@ export const isPixelArt = (source: SpriteSource) => source === 'gameboy';
 
 /** GIF for a National Dex number, e.g. '025' */
 export function pokemonGifUrl(pokedexNo: string, source: SpriteSource): string {
-    return `${endpoints[source]}${pokedexNo.padStart(3, '0')}.gif`;
+    return spriteUrl(pokedexNo, spriteSets[source]);
 }
 
 /** GIF for an internal Gen 1 species index, or '' when it has no Pokédex entry */

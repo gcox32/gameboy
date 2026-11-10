@@ -3,7 +3,7 @@ import BaseModal from "@/components/modals/BaseModal";
 import Image from "next/image";
 import clsx from "clsx";
 import styles from "./styles.module.css";
-import { sugimoriRb, sugimoriRg, sugimoriFrlg } from "@/../config";
+import { artUrl, type ArtSet } from "@/lib/assets";
 import { usePokemonSprites } from "@/hooks/usePokemonSprites";
 import { PokemonDetails } from "@/types/pokemon";
 import Moveset from "./Moveset";
@@ -21,10 +21,10 @@ interface PokemonDetailsModalProps {
     actions?: ReactNode;
 }
 
-const ART_SETS = [
-    { label: 'RB', url: sugimoriRb },
-    { label: 'RG', url: sugimoriRg },
-    { label: 'FRLG', url: sugimoriFrlg },
+const ART_SETS: { label: string; set: ArtSet }[] = [
+    { label: 'RB', set: 'sugimori-rb' },
+    { label: 'RG', set: 'sugimori-rg' },
+    { label: 'FRLG', set: 'sugimori-frlg' },
 ];
 
 const TABS = ['Moves', 'Stats'] as const;
@@ -110,7 +110,7 @@ function PokemonDetailsModal({ isOpen, onClose, pokemon, previousPokemon, nextPo
                         aria-label="Show the next artwork"
                     >
                         <Image
-                            src={`${ART_SETS[artIndex].url}${pokemon.pokedexNo}.png`}
+                            src={artUrl(pokemon.pokedexNo, ART_SETS[artIndex].set)}
                             alt={speciesName}
                             fill
                             sizes="280px"

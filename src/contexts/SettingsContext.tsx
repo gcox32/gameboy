@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { defaultEmulatorSettings } from '@/utils/settings/emulatorSettings';
 import type { SpriteSource } from '@/utils/pokemon/sprites';
+import { backgroundUrl, migrateLegacyAssetUrl } from '@/lib/assets';
 
 export interface KeyMapping {
   button: string;
@@ -36,7 +37,7 @@ export const defaultKeyMappings: KeyMapping[] = [
 export const defaultUISettings: UISettings = {
     speed: 1,
     isSoundOn: true,
-    background: 'https://assets.letmedemo.com/public/gameboy/images/fullscreen/default.jpeg',
+    background: backgroundUrl('default.jpeg'),
     isDynamicBackground: false,
     keyMappings: defaultKeyMappings,
     skipConfirmations: false,
@@ -85,7 +86,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
             const savedSettings = localStorage.getItem('gameSettings');
             if (savedSettings) {
                 // Fills in anything added since these settings were saved
-                return { ...defaultUISettings, ...JSON.parse(savedSettings) };
+                const settings: UISettings = { ...defaultUISettings, ...JSON.parse(savedSettings) };
+                // A background chosen before assets moved to Blob is still an S3 URL
+                return { ...settings, background: migrateLegacyAssetUrl(settings.background) };
             }
         } catch (error) {
             console.error('Error loading settings from localStorage:', error);

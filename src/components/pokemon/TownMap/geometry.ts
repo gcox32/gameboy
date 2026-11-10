@@ -1,6 +1,7 @@
 import { Location } from '@/types/pokemon';
+import { townMapUrl } from '@/lib/assets';
 
-export const townMapSrc = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/maps/rby-kanto-town-map.png';
+export const townMapSrc = townMapUrl(1);
 
 const ART_WIDTH = 160;
 const ART_HEIGHT = 136;

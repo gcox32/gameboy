@@ -1,7 +1,7 @@
 import { useState } from "react";
 import BaseModal from "@/components/modals/BaseModal";
 import Image from "next/image";
-import { badgeImgPath } from "@/../config";
+import { badgeUrl } from "@/lib/assets";
 import caseStyles from "../styles.module.css";
 import styles from "./styles.module.css";
 import { Badge, Gym } from '@/types/pokemon';
@@ -29,7 +29,7 @@ export default function GymModal({ isOpen, onClose, gym }: GymModalProps) {
 
     if (!isOpen) return null;
 
-    const badgeImage = `${badgeImgPath}${gym.badge.image}`;
+    const badgeImage = badgeUrl('kanto', gym.badge.image);
 
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} className={`${styles.modalContent} ${styles.gymModal}`}>

@@ -11,8 +11,8 @@ import { useEmulator } from '@/contexts/EmulatorContext';
 import { useGame } from '@/contexts/GameContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { getCurrentMapAddress, getMapImage } from '@/utils/pokemon/maps';
+import { locationUrl } from '@/lib/assets';
 
-const locationsImgUrl = 'https://assets.letmedemo.com/public/gameboy/images/pokemon/locations/'
 
 export default function FullScreenContainer() {
   const {
@@ -68,7 +68,7 @@ export default function FullScreenContainer() {
     (array: number[]) => {
       if (isDynamicBackground && activeROM && activeState) {
         const image = getMapImage(rom, array[0]);
-        if (image) setDynamicBackground(locationsImgUrl + image);
+        if (image) setDynamicBackground(locationUrl('kanto', image));
       } else {
         setDynamicBackground(null);
       }

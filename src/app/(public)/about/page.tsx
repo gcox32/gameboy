@@ -2,6 +2,7 @@ import styles from '../styles.module.css';
 import Image from 'next/image';
 import Link from 'next/link';
 import buttons from '@/styles/buttons.module.css';
+import { artUrl } from '@/lib/assets';
 
 const AboutPage = () => {
   return (
@@ -61,7 +62,7 @@ const AboutPage = () => {
 
       <div className={styles.imageContainer}>
         <Image
-          src="https://assets.letmedemo.com/public/gameboy/images/pokemon/sugimori/rb/091.png"
+          src={artUrl('091', 'sugimori-rb')}
           alt="Cloyster Pokemon"
           width={200}
           height={200}

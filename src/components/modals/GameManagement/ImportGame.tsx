@@ -11,6 +11,7 @@ import { ImageUpload } from '@/components/common/ImageUpload';
 import FileUploadZone from '@/components/common/FileUploadZone';
 import { uploadBlob } from '@/utils/blobUpload';
 import { gameBlobDir } from '@/utils/blobPaths';
+import { coverArtUrl } from '@/lib/assets';
 import { GameModel } from '@/types';
 import paper from '@/components/modals/paper.module.css';
 import styles from './styles.module.css';
@@ -38,10 +39,10 @@ export default function ImportGame({ userId, userEmail, onSuccess, onCancel }: I
     });
 
     const presetImages = [
-        { id: 'green', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-green.jpg', label: 'Green' },
-        { id: 'red', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-red.jpg', label: 'Red' },
-        { id: 'blue', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-blue.jpg', label: 'Blue' },
-        { id: 'yellow', url: 'https://assets.letmedemo.com/public/gameboy/images/cover-art/cover-art-yellow.jpg', label: 'Yellow' },
+        { id: 'green', url: coverArtUrl('green'), label: 'Green' },
+        { id: 'red', url: coverArtUrl('red'), label: 'Red' },
+        { id: 'blue', url: coverArtUrl('blue'), label: 'Blue' },
+        { id: 'yellow', url: coverArtUrl('yellow'), label: 'Yellow' },
     ];
 
     const handleGameFileChange = (file: File) => {

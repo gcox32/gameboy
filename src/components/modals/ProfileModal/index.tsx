@@ -8,6 +8,7 @@ import {
     Alert
 } from '@/components/ui';
 import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
+import { defaultAvatarUrl } from '@/lib/assets';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import caseStyles from '@/components/pokemon/GymBadgeCase/styles.module.css';
@@ -39,7 +40,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
         updatedAt: userProfile?.updatedAt || ''
     });
 
-    const defaultAvatar = 'https://assets.letmedemo.com/public/gameboy/images/users/default-avatar.png';
+    const defaultAvatar = defaultAvatarUrl;
 
     const resetDraft = useCallback(() => {
         setFormData({
