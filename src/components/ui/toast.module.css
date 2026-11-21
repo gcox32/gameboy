@@ -1,0 +1,249 @@
+/* Toasts on the same printed paper as the Popover and Tooltip */
+.stack {
+    position: fixed;
+    right: 16px;
+    bottom: 44px; /* clears the 32px site Footer */
+    z-index: 500; /* above modals, which raise some of these */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: min(360px, calc(100vw - 32px));
+    pointer-events: none;
+}
+
+/*
+ * Holds one toast and its share of the gap, so both can shrink away once the toast has faded.
+ * The faded toast overflows the shrinking row, which is fine while it's invisible.
+ */
+.slot {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr); /* a 0 minimum lets the row shrink past the toast's padding */
+    width: 100%;
+    transition:
+        grid-template-rows 160ms ease-out,
+        margin-top 160ms ease-out;
+}
+
+.slot + .slot {
+    margin-top: 8px;
+}
+
+.slot > * {
+    min-height: 0;
+}
+
+.slot.collapsed {
+    grid-template-rows: minmax(0, 0fr);
+    margin-top: 0;
+}
+
+.toast {
+    --ink: #2b2110;
+    --ink-soft: #4a3a20;
+    --ink-muted: #6f5f40;
+    --line: rgba(70, 50, 20, 0.2);
+    --tone: #4a6488;
+    --tone-wash: rgba(74, 100, 136, 0.14);
+
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 10px 14px 12px;
+    overflow: hidden;
+    color: var(--ink);
+    background:
+        radial-gradient(rgba(70, 50, 20, 0.1) 1px, transparent 1.2px) 0 0 / 4px 4px,
+        #f7f1df;
+    border: 1px solid rgba(70, 50, 20, 0.3);
+    border-radius: 8px;
+    box-shadow:
+        0 2px 4px rgba(40, 28, 10, 0.2),
+        0 12px 28px rgba(40, 28, 10, 0.28);
+    pointer-events: auto;
+    animation: toastIn 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.leaving {
+    animation: toastOut 180ms ease-in forwards;
+    pointer-events: none;
+}
+
+/* Swiped away. Its inline transition carries it off instead of the exit animation */
+.toast.flung {
+    animation: none;
+}
+
+/* Lets the page scroll vertically while a sideways drag goes to the swipe */
+@media (pointer: coarse) {
+    .toast {
+        touch-action: pan-y;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+
+.success {
+    --tone: #3f7a3a;
+    --tone-wash: rgba(63, 122, 58, 0.14);
+}
+
+.error {
+    --tone: #b0392b;
+    --tone-wash: rgba(176, 57, 43, 0.13);
+}
+
+.warning {
+    --tone: #a8720f;
+    --tone-wash: rgba(168, 114, 15, 0.15);
+}
+
+.icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--tone);
+    background: var(--tone-wash);
+    border-radius: 50%;
+}
+
+.body {
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.message {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.count {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    font-size: 0.75rem;
+    vertical-align: 1px;
+    color: var(--ink-soft);
+    background: rgba(70, 50, 20, 0.1);
+    border-radius: 4px;
+}
+
+.dismiss {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    color: var(--ink-muted);
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.dismiss:hover {
+    color: var(--ink);
+    background: rgba(70, 50, 20, 0.08);
+}
+
+.dismiss:focus-visible {
+    outline: 2px solid var(--ink-soft);
+    outline-offset: 1px;
+}
+
+/* Runs out over the toast's duration and pauses with the stack */
+.timer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--tone);
+    opacity: 0.55;
+    transform-origin: left;
+    animation-name: toastTimer;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+.paused .timer,
+.toast[data-dragging] .timer {
+    animation-play-state: paused;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+}
+
+@keyframes toastOut {
+    to {
+        opacity: 0;
+        transform: translateX(24px);
+    }
+}
+
+@keyframes toastTimer {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Bottom sheet on phones, above the home indicator */
+@media (max-width: 640px) {
+    .stack {
+        right: 8px;
+        bottom: calc(8px + env(safe-area-inset-bottom));
+        left: 8px;
+        width: auto;
+        align-items: stretch;
+    }
+
+    .leaving {
+        animation-name: toastOutDown;
+    }
+}
+
+@keyframes toastOutDown {
+    to {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+}
+
+/* Fades only. The timer bar still runs, since it shows how long is left */
+@media (prefers-reduced-motion: reduce) {
+    .slot {
+        transition: none;
+    }
+
+    .toast {
+        animation: toastFade 160ms ease-out;
+    }
+
+    .leaving,
+    .stack .leaving {
+        animation: toastFade 160ms ease-in reverse forwards;
+    }
+}
+
+@keyframes toastFade {
+    from {
+        opacity: 0;
+    }
+}
