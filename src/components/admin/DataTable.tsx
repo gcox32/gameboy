@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useMemo, useState } from 'react';
+import { CSSProperties, ReactNode, useMemo, useState } from 'react';
 import { Text } from '@/components/ui';
 import styles from '@/styles/admin.module.css';
 
@@ -8,7 +8,7 @@ type SortValue = string | number | boolean | null | undefined;
 
 export interface Column<T> {
     key: string;
-    header: string;
+    header: ReactNode;
     render?: (item: T) => ReactNode;
     /** Makes the column sortable, by this value */
     sortValue?: (item: T) => SortValue;
@@ -27,6 +27,14 @@ interface DataTableProps<T> {
 }
 
 const isEmpty = (v: SortValue) => v == null || v === '';
+
+/**
+ * The narrowest the table can get on a phone before it scrolls sideways instead: each fixed-width
+ * column at its width, and room for a few words in each of the rest.
+ */
+function minWidthRem<T>(columns: Column<T>[]): number {
+    return columns.reduce((sum, c) => sum + (c.width?.endsWith('rem') ? parseFloat(c.width) : 12), 0);
+}
 
 function compare(a: SortValue, b: SortValue): number {
     if (isEmpty(a)) return isEmpty(b) ? 0 : 1;
@@ -58,7 +66,7 @@ export default function DataTable<T>({ data, columns, rowKey, loading = false, e
 
     return (
         <div className={compact ? styles.tableContainerCompact : styles.tableContainer}>
-            <table className={styles.dataTable}>
+            <table className={styles.dataTable} style={{ '--table-min-width': `${minWidthRem(columns)}rem` } as CSSProperties}>
                 <thead>
                     <tr>
                         {columns.map((column) => {

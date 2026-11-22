@@ -107,6 +107,51 @@ export async function deleteBlob(url: string): Promise<void> {
     await del(url, auth);
 }
 
+export interface StoredFile {
+    url: string;
+    pathname: string;
+    size: number;
+    uploadedAt: Date;
+}
+
+export interface StoreListing {
+    store: 'private' | 'public';
+    /** Why this store couldn't be listed, if it couldn't */
+    error?: string;
+    files: StoredFile[];
+}
+
+/**
+ * Every file in the user folders of each store, a thousand per request. It lists everything,
+ * so it's for the admin view, not anything a user waits on.
+ */
+export async function listUserFolderFiles(): Promise<StoreListing[]> {
+    const stores: { store: StoreListing['store']; auth: { token: string } | { storeId: string } | null }[] = [
+        { store: 'private', auth: privateAuth() },
+        { store: 'public', auth: process.env.BLOB_READ_WRITE_TOKEN ? { token: process.env.BLOB_READ_WRITE_TOKEN } : null },
+    ];
+
+    return Promise.all(stores.map(async ({ store, auth }) => {
+        if (!auth) return { store, error: 'Not configured here', files: [] };
+        try {
+            const folders = await Promise.all(USER_FOLDER_NAMES.map(async (folder) => {
+                const files: StoredFile[] = [];
+                let cursor: string | undefined;
+                do {
+                    const page = await list({ ...auth, prefix: `${folder}/`, cursor, limit: 1000 });
+                    for (const b of page.blobs) files.push({ url: b.url, pathname: b.pathname, size: b.size, uploadedAt: new Date(b.uploadedAt) });
+                    cursor = page.hasMore ? page.cursor : undefined;
+                } while (cursor);
+                return files;
+            }));
+            return { store, files: folders.flat() };
+        } catch (err) {
+            console.error(`[blob] Couldn't list the ${store} store:`, err);
+            return { store, error: 'Could not be listed', files: [] };
+        }
+    }));
+}
+
 export interface FolderUsage {
     folder: string;
     files: number;
@@ -115,38 +160,19 @@ export interface FolderUsage {
 
 export interface StoreUsage {
     store: 'private' | 'public';
-    /** Why this store couldn't be listed, if it couldn't */
     error?: string;
     folders: FolderUsage[];
 }
 
-/**
- * How many files the user folders hold, and their total size, in each store. Lists every blob,
- * a thousand per request, so it's for the admin view, not anything a user waits on.
- */
+/** How many files the user folders hold, and their total size, in each store. */
 export async function userFolderUsage(): Promise<StoreUsage[]> {
-    const stores: { store: StoreUsage['store']; auth: { token: string } | { storeId: string } | null }[] = [
-        { store: 'private', auth: privateAuth() },
-        { store: 'public', auth: process.env.BLOB_READ_WRITE_TOKEN ? { token: process.env.BLOB_READ_WRITE_TOKEN } : null },
-    ];
-
-    return Promise.all(stores.map(async ({ store, auth }) => {
-        if (!auth) return { store, error: 'Not configured here', folders: [] };
-        try {
-            const folders = await Promise.all(USER_FOLDER_NAMES.map(async (folder) => {
-                let files = 0, bytes = 0, cursor: string | undefined;
-                do {
-                    const page = await list({ ...auth, prefix: `${folder}/`, cursor, limit: 1000 });
-                    files += page.blobs.length;
-                    bytes += page.blobs.reduce((sum, b) => sum + b.size, 0);
-                    cursor = page.hasMore ? page.cursor : undefined;
-                } while (cursor);
-                return { folder, files, bytes };
-            }));
-            return { store, folders };
-        } catch (err) {
-            console.error(`[blob] Couldn't list the ${store} store:`, err);
-            return { store, error: 'Could not be listed', folders: [] };
-        }
+    const listings = await listUserFolderFiles();
+    return listings.map(({ store, error, files }) => ({
+        store,
+        error,
+        folders: error ? [] : USER_FOLDER_NAMES.map((folder) => {
+            const inFolder = files.filter((f) => f.pathname.startsWith(`${folder}/`));
+            return { folder, files: inFolder.length, bytes: inFolder.reduce((sum, f) => sum + f.size, 0) };
+        }),
     }));
 }

@@ -252,6 +252,77 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* Links in a table cell, and secondary text */
+.rowLink {
+    color: var(--foreground-rgb);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.25);
+    text-underline-offset: 3px;
+}
+
+.rowLink:hover {
+    text-decoration-color: currentColor;
+}
+
+.muted {
+    color: var(--neutral-500);
+    font-weight: normal;
+}
+
+/* User page */
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--neutral-500);
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+}
+
+.backLink:hover {
+    color: var(--foreground-rgb);
+}
+
+.userHeading {
+    flex-wrap: wrap;
+}
+
+.userHeading h2 {
+    margin: 0;
+}
+
+.spriteBox {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spriteBox img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Storage tab */
+.scanBar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.cardLink {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+}
+
 /* Account panel */
 .factList {
     display: grid;
@@ -556,10 +627,15 @@
 }
 
 .cardTitle {
-    margin: 0;
+    margin: 0 0 1.25rem;
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--foreground-rgb);
+}
+
+/* A subtitle sits close under its title, and takes over the gap before the content */
+.cardTitle:has(+ .cardSubtitle) {
+    margin-bottom: 0;
 }
 
 .cardSubtitle {
@@ -678,9 +754,10 @@
         flex: 1 1 12rem;
     }
 
-    /* Columns keep a readable width; the panel scrolls sideways instead */
+    /* Columns keep a readable width (DataTable sets --table-min-width from its columns);
+       a wider table scrolls sideways in its panel instead of squeezing */
     .dataTable {
-        min-width: 720px;
+        min-width: var(--table-min-width, 720px);
     }
 
     .quickForm {
@@ -700,10 +777,6 @@
         font-size: 1.75rem;
     }
 
-    /* A short table fits as it is; only the full tables need room to scroll */
-    .tableContainerCompact .dataTable {
-        min-width: 0;
-    }
 
     .meterTrack {
         grid-column: 1 / -1;

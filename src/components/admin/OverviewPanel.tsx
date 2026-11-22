@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
+import Link from 'next/link';
 import { Alert, Text } from '@/components/ui';
 import DataTable, { Column } from './DataTable';
 import { ensureOk } from './useAdminTable';
@@ -164,6 +165,7 @@ function StoragePanel({ stores }: { stores: StoreUsage[] | null }) {
             <ul className={styles.storeNotes}>
                 {stores.map((s) => <li key={s.store}>{storeLine(s)}</li>)}
             </ul>
+            <Link href="/admin?tab=storage" className={`${styles.rowLink} ${styles.cardLink}`}>Check for orphaned files</Link>
         </section>
     );
 }

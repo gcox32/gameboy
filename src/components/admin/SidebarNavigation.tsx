@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { FaChartBar, FaUsers, FaGamepad, FaBell, FaArrowLeft } from 'react-icons/fa';
+import { FaChartBar, FaUsers, FaGamepad, FaBell, FaHdd, FaArrowLeft } from 'react-icons/fa';
 import {
     AdminSidebar,
     SidebarBrand,
@@ -13,7 +13,10 @@ import {
     NavItemLink,
 } from './AdminLayout';
 
-export type TabType = 'overview' | 'users' | 'games' | 'notifications';
+export const TABS = ['overview', 'users', 'games', 'notifications', 'storage'] as const;
+export type TabType = (typeof TABS)[number];
+
+export const isTab = (value: unknown): value is TabType => TABS.includes(value as TabType);
 
 interface NavItemConfig {
     id: TabType;
@@ -31,6 +34,7 @@ const navItems: NavItemConfig[] = [
     { id: 'users', label: 'Users', icon: <FaUsers /> },
     { id: 'games', label: 'Games', icon: <FaGamepad /> },
     { id: 'notifications', label: 'Notifications', icon: <FaBell /> },
+    { id: 'storage', label: 'Storage', icon: <FaHdd /> },
 ];
 
 export default function SidebarNavigation({ activeTab, onTabChange }: SidebarNavigationProps) {

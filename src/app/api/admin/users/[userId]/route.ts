@@ -3,9 +3,24 @@ import { isValidObjectId } from 'mongoose';
 import { requireAdmin } from '@/lib/requireAdmin';
 import { dbConnect } from '@/lib/db';
 import { deleteUser } from '@/lib/userFiles';
+import { loadAccountDetail } from '@/lib/adminUsers';
 import { Profile, User } from '@/models';
 
 type Params = { params: Promise<{ userId: string }> };
+
+// GET /api/admin/users/:userId — the account and everything it owns
+export async function GET(_req: NextRequest, { params }: Params) {
+    const { denied } = await requireAdmin();
+    if (denied) return denied;
+
+    const { userId } = await params;
+    if (!isValidObjectId(userId)) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    await dbConnect();
+    const detail = await loadAccountDetail(userId);
+    if (!detail) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json(detail);
+}
 
 // PUT /api/admin/users/:userId — edit the profile and admin role
 export async function PUT(req: NextRequest, { params }: Params) {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaEdit, FaTrash, FaUserCog } from 'react-icons/fa';
 import { blobReadUrl } from '@/utils/blobUpload';
 import { Flex, Text, Alert } from '@/components/ui';
@@ -11,34 +12,9 @@ import AdminModal from './AdminModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
 import { useAdminTable, ensureOk } from './useAdminTable';
-import { dateLabel, daysAgo, minutesUntil, plural, shortAgo, whole } from './format';
+import { dateLabel, plural, shortAgo, whole } from './format';
+import { isLimited, type UserRow } from './AccountPanel';
 import styles from '@/styles/admin.module.css';
-
-interface EmailLimit {
-    action: string;
-    count: number;
-    max: number;
-    blocked: boolean;
-    resetsAt: string;
-}
-
-interface UserRow {
-    userId: string;
-    email: string;
-    emailVerified: boolean;
-    admin: boolean;
-    createdAt: string;
-    hasProfile: boolean;
-    username: string;
-    bio: string;
-    avatar?: string;
-    games: number;
-    saves: number;
-    pokemon: number;
-    limits: EmailLimit[];
-}
-
-type AccountAction = 'resendVerification' | 'verifyEmail' | 'sendPasswordReset' | 'clearRateLimits';
 
 async function loadUsers(): Promise<UserRow[]> {
     const res = await ensureOk(await fetch('/api/admin/users'), 'Failed to load users');
@@ -46,23 +22,12 @@ async function loadUsers(): Promise<UserRow[]> {
 }
 
 const searchText = (u: UserRow) => [u.username, u.email];
-const isLimited = (u: UserRow) => u.limits.some((l) => l.blocked);
-
-/** The auth actions as people would say them */
-const ACTION_NAMES: Record<string, string> = {
-    login: 'Log in',
-    verify: 'Enter verification code',
-    resendVerification: 'Resend verification code',
-    forgotPassword: 'Forgot password',
-};
+const userPage = (u: UserRow) => `/admin/users/${u.userId}`;
 
 export default function UserManagement() {
     const table = useAdminTable({ load: loadUsers, searchText });
     const [editingUser, setEditingUser] = useState<UserRow | null>(null);
     const [deletingUser, setDeletingUser] = useState<UserRow | null>(null);
-    // By id, so the panel shows the reloaded row after an action
-    const [accountId, setAccountId] = useState<string | null>(null);
-    const account = table.items.find((u) => u.userId === accountId) ?? null;
     const currentUser = useAuth()?.user;
     const isSelf = (u: UserRow) => u.userId === currentUser?.userId;
 
@@ -92,22 +57,6 @@ export default function UserManagement() {
         setDeletingUser(null);
     };
 
-    const runAccountAction = (action: AccountAction) => {
-        if (!account) return;
-        table.run(
-            async () => {
-                const res = await ensureOk(await fetch(`/api/admin/users/${account.userId}/actions`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action }),
-                }), 'Action failed');
-                return (await res.json()) as { message: string };
-            },
-            (result) => result.message,
-            'Account action failed',
-        );
-    };
-
     const columns: Column<UserRow>[] = [
         {
             key: 'username',
@@ -119,9 +68,9 @@ export default function UserManagement() {
                         // Unoptimized: the optimizer fetches without the cookies /api/blob/file needs
                         <Image src={blobReadUrl(u.avatar)} alt="" className={styles.avatar} width={32} height={32} unoptimized />
                     )}
-                    {u.hasProfile
-                        ? <Text fontWeight="medium">{u.username}</Text>
-                        : <Text variation="secondary">No profile</Text>}
+                    <Link href={userPage(u)} className={styles.rowLink}>
+                        {u.hasProfile ? u.username : <span className={styles.muted}>No profile</span>}
+                    </Link>
                 </Flex>
             ),
         },
@@ -159,9 +108,9 @@ export default function UserManagement() {
             width: '10rem',
             render: (u) => (
                 <Flex $gap="0.5rem">
-                    <button onClick={() => setAccountId(u.userId)} className={`${styles.actionButton} ${styles.edit}`} title="Account details and help">
+                    <Link href={userPage(u)} className={`${styles.actionButton} ${styles.edit}`} title="Everything they own, and account help">
                         <FaUserCog />
-                    </button>
+                    </Link>
                     <button onClick={() => setEditingUser(u)} className={`${styles.actionButton} ${styles.edit}`} title="Edit user">
                         <FaEdit />
                     </button>
@@ -194,72 +143,6 @@ export default function UserManagement() {
                 <Text fontSize="sm" variation="secondary">Total: {plural(table.items.length, 'user')}</Text>
                 <Text fontSize="sm" variation="secondary">Unverified: {whole.format(unverified)}</Text>
             </div>
-
-            <AdminModal
-                isOpen={!!account}
-                onClose={() => setAccountId(null)}
-                title={account ? `Account: ${account.username || account.email}` : 'Account'}
-                cancelText="Close"
-                loading={table.saving}
-            >
-                {account && (
-                    <Flex $direction="column" $gap="1.5rem">
-                        <dl className={styles.factList}>
-                            <dt>Email</dt>
-                            <dd>{account.email}</dd>
-                            <dt>Email status</dt>
-                            <dd>{account.emailVerified ? 'Verified' : 'Not verified yet'}</dd>
-                            <dt>Joined</dt>
-                            <dd>{dateLabel.format(new Date(account.createdAt))} ({daysAgo(account.createdAt)})</dd>
-                            <dt>Owns</dt>
-                            <dd>{plural(account.games, 'game')} · {plural(account.saves, 'save')} · {plural(account.pokemon, 'Ranch Pokémon', 'Ranch Pokémon')}</dd>
-                            <dt>User ID</dt>
-                            <dd className={styles.mono}>{account.userId}</dd>
-                        </dl>
-
-                        <section aria-labelledby="limits-title">
-                            <h4 id="limits-title" className={styles.subheading}>Rate limits</h4>
-                            {account.limits.length === 0 ? (
-                                <Text fontSize="sm" variation="secondary">None open for this email.</Text>
-                            ) : (
-                                <ul className={styles.limitList}>
-                                    {account.limits.map((l) => (
-                                        <li key={l.action}>
-                                            <span>{ACTION_NAMES[l.action] ?? l.action}</span>
-                                            <span className={styles.numeric}>{l.count} of {l.max}</span>
-                                            <span>
-                                                {l.blocked && <span className={`${styles.statusBadge} ${styles.statusBadgeWarning}`}>Blocked</span>}
-                                                {' '}resets {minutesUntil(l.resetsAt)}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </section>
-
-                        <section aria-labelledby="help-title">
-                            <h4 id="help-title" className={styles.subheading}>Help them in</h4>
-                            <div className={styles.accountActions}>
-                                <button type="button" className={styles.modalCancelButton} disabled={table.saving || account.emailVerified} onClick={() => runAccountAction('resendVerification')}>
-                                    Resend verification code
-                                </button>
-                                <button type="button" className={styles.modalCancelButton} disabled={table.saving || account.emailVerified} onClick={() => runAccountAction('verifyEmail')}>
-                                    Mark email verified
-                                </button>
-                                <button type="button" className={styles.modalCancelButton} disabled={table.saving} onClick={() => runAccountAction('sendPasswordReset')}>
-                                    Send password reset
-                                </button>
-                                <button type="button" className={styles.modalCancelButton} disabled={table.saving || account.limits.length === 0} onClick={() => runAccountAction('clearRateLimits')}>
-                                    Clear rate limits
-                                </button>
-                            </div>
-                            <Text fontSize="sm" variation="secondary" className={styles.actionsHint}>
-                                Emails go to {account.email}. Admin actions don&apos;t count toward their limits.
-                            </Text>
-                        </section>
-                    </Flex>
-                )}
-            </AdminModal>
 
             <AdminModal
                 isOpen={!!editingUser}

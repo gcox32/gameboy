@@ -3,14 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useToast } from '@/components/ui';
 
-/** Both functions should be stable (module-level or useCallback): a new `load` reloads the table. */
-interface Options<T> {
-    /** Fetches the rows. Throw to show an error. */
-    load: () => Promise<T[]>;
-    /** The text of a row that the search box matches against */
-    searchText: (item: T) => (string | null | undefined)[];
-}
-
 /** Throws the API's own error message for a failed response, or `fallback` if it has none. */
 export async function ensureOk(res: Response, fallback: string): Promise<Response> {
     if (res.ok) return res;
@@ -26,21 +18,21 @@ export async function fetchUsernames(): Promise<Record<string, string>> {
 }
 
 /**
- * State shared by the admin tables: loading rows, searching them, and running changes. Changes
- * set `saving`, not `loading`, so the table stays in place behind an open modal.
+ * Loading something for an admin panel, and running changes to it. Changes set `saving`, not
+ * `loading`, so what's shown stays in place behind an open modal. `load` should be stable
+ * (module-level or useCallback): a new one loads again.
  */
-export function useAdminTable<T>({ load, searchText }: Options<T>) {
-    const [items, setItems] = useState<T[]>([]);
+export function useAdminData<T>(load: () => Promise<T>, initial: T) {
+    const [data, setData] = useState<T>(initial);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
     const { showToast } = useToast();
 
     const reload = useCallback(async () => {
         try {
             setError(null);
-            setItems(await load());
+            setData(await load());
         } catch (err) {
             setError((err as Error).message);
             console.error(err);
@@ -51,24 +43,23 @@ export function useAdminTable<T>({ load, searchText }: Options<T>) {
 
     useEffect(() => { reload(); }, [reload]);
 
-    const rows = useMemo(() => {
-        const term = searchTerm.trim().toLowerCase();
-        if (!term) return items;
-        return items.filter((item) => searchText(item).some((s) => s?.toLowerCase().includes(term)));
-    }, [items, searchTerm, searchText]);
-
     /**
-     * Runs a change, then reloads. Shows `success` as a toast (given the action's result, it can
-     * use the server's own message), or the error in the table's alert. Resolves to whether it
-     * worked, so a modal can stay open on failure.
+     * Runs a change, then reloads unless told not to. Shows `success` as a toast (given the
+     * action's result, it can use the server's own message), or the error in the panel's alert.
+     * Resolves to whether it worked, so a modal can stay open on failure.
      */
-    const run = useCallback(async <R,>(action: () => Promise<R>, success: string | ((result: R) => string), failure: string): Promise<boolean> => {
+    const run = useCallback(async <R,>(
+        action: () => Promise<R>,
+        success: string | ((result: R) => string),
+        failure: string,
+        { reload: reloadAfter = true }: { reload?: boolean } = {},
+    ): Promise<boolean> => {
         setSaving(true);
         setError(null);
         try {
             const result = await action();
             showToast(typeof success === 'function' ? success(result) : success, 'success');
-            await reload();
+            if (reloadAfter) await reload();
             return true;
         } catch (err) {
             setError(`${failure}: ${(err as Error).message}`);
@@ -79,5 +70,29 @@ export function useAdminTable<T>({ load, searchText }: Options<T>) {
         }
     }, [reload, showToast]);
 
-    return { items, rows, loading, saving, error, setError, searchTerm, setSearchTerm, reload, run };
+    return { data, loading, saving, error, setError, reload, run };
+}
+
+/** Both functions should be stable (module-level or useCallback). */
+interface TableOptions<T> {
+    /** Fetches the rows. Throw to show an error. */
+    load: () => Promise<T[]>;
+    /** The text of a row that the search box matches against */
+    searchText: (item: T) => (string | null | undefined)[];
+}
+
+const NO_ROWS: never[] = [];
+
+/** An admin table: its rows, loaded and searchable, and changes to them. */
+export function useAdminTable<T>({ load, searchText }: TableOptions<T>) {
+    const { data: items, ...rest } = useAdminData<T[]>(load, NO_ROWS);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const rows = useMemo(() => {
+        const term = searchTerm.trim().toLowerCase();
+        if (!term) return items;
+        return items.filter((item) => searchText(item).some((s) => s?.toLowerCase().includes(term)));
+    }, [items, searchTerm, searchText]);
+
+    return { items, rows, searchTerm, setSearchTerm, ...rest };
 }
