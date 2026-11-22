@@ -6,6 +6,7 @@ import { SaveSlot, SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { GameModel } from '@/types';
 import CartridgePickerModal from '@/components/modals/CartridgePicker';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
+import { useImportSav } from '@/hooks/useImportSav';
 import ConnectModal from './ConnectModal';
 import { LabEntry, MonitorScreen } from '../stage';
 import { PARTY_PAGE, type LabSave } from './useLabSave';
@@ -126,6 +127,7 @@ export function useSaveScreen(lab: LabSave, { cursorKey, onPick, onCursor }: Sav
 
 export function LabSavePickers({ lab, games }: { lab: LabSave; games: GameModel[] }) {
     const { gamePickerOpen, setGamePickerOpen, savePickerOpen, setSavePickerOpen } = lab;
+    const importSav = useImportSav();
 
     return (
         <>
@@ -141,6 +143,8 @@ export function LabSavePickers({ lab, games }: { lab: LabSave; games: GameModel[
                 onClose={() => setSavePickerOpen(false)}
                 saveStates={lab.saveStates}
                 onConfirm={(save) => { lab.setSelectedSave(save); setSavePickerOpen(false); }}
+                // A cartridge's save comes straight into the Lab, like choosing it
+                onImport={async (file) => { lab.setSelectedSave(await importSav(file)); setSavePickerOpen(false); }}
             />
         </>
     );

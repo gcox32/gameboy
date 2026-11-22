@@ -171,6 +171,27 @@
     gap: 0.5rem;
 }
 
+/* ── Import ───────────────────────────────────────── */
+
+.importBar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1.75rem 1.25rem;
+    border-top: 1px solid var(--line);
+}
+
+.importBar button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.importInput {
+    display: none;
+}
+
 @media (max-width: 600px) {
     .saveRow {
         flex-wrap: wrap;
@@ -180,5 +201,10 @@
     .saveButton {
         flex-basis: 100%;
         padding-left: 0;
+    }
+
+    .importBar {
+        flex-wrap: wrap;
+        padding: 1rem;
     }
 }

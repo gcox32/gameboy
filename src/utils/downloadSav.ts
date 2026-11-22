@@ -40,7 +40,7 @@ export function cartridgeRamSize(header: Uint8Array): number | null {
 }
 
 /** Reads the start of the game's ROM, just far enough to cover the header */
-async function fetchRomHeader(gameId: string): Promise<Uint8Array> {
+export async function fetchRomHeader(gameId: string): Promise<Uint8Array> {
     const gameRes = await fetch(`/api/games/${encodeURIComponent(gameId)}`);
     if (!gameRes.ok) throw new Error(`Could not load game (${gameRes.status})`);
     const game = (await gameRes.json()) as { filePath?: string; updatedAt?: string };

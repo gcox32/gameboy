@@ -1318,18 +1318,18 @@ class GameBoyCore {
 			}
 			//Switched RAM Used
 			var saveStateArray = this.saveStateArray;
+			this.MBCRam = this.getTypedArray(this.numRAMBanks * 0x2000, 0, "uint8");
 			if (saveStateArray.length > 0) {
-				//Flash the SRAM into memory:
-				for (let i = 0; i < saveStateArray.length; i++) {
+				//Flash the SRAM into memory. Sized by the mapper rather than the save, so a save
+				//smaller than that (a cartridge's real RAM size) leaves the rest zeroed:
+				const length = Math.min(saveStateArray.length, this.MBCRam.length);
+				for (let i = 0; i < length; i++) {
 					this.MBCRam[i] = saveStateArray[i];
 				}
 				this.MBCRAMBanksEnabled = true;
 				// this.cMBC3 = false;
 				this.fromSaveState = true;
 				// this.currMBCRAMBankPosition = -0xA000;
-			}
-			else {
-				this.MBCRam = this.getTypedArray(this.numRAMBanks * 0x2000, 0, "uint8");
 			}
 		}
 		console.log("Actual bytes of MBC RAM allocated: " + (this.numRAMBanks * 0x2000), 0);

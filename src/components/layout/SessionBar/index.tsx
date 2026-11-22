@@ -23,6 +23,7 @@ import { useCurrentGame } from '@/contexts/CurrentGameContext';
 import { useEmulator } from '@/contexts/EmulatorContext';
 import { useGames } from '@/contexts/GamesContext';
 import { getNextSpeed, useSettings } from '@/contexts/SettingsContext';
+import { useImportSav } from '@/hooks/useImportSav';
 import { GameModel, SaveStateModel } from '@/types';
 import styles from './styles.module.css';
 
@@ -69,6 +70,7 @@ function BarButton({ label, onClick, isActive, disabled, className, children }: 
 
 /** The game's controls: choosing and starting one, then everything that acts on it while it runs */
 export default function SessionBar() {
+    const importSav = useImportSav();
     const {
         activeROM,
         activeState,
@@ -168,7 +170,7 @@ export default function SessionBar() {
                 <BarButton
                     label="Load State"
                     onClick={() => setIsLoadStateOpen(true)}
-                    disabled={!isRomLoaded || userSaveStates.length === 0}
+                    disabled={!isRomLoaded}
                 >
                     <FolderOpen size={ICON_SIZE} />
                 </BarButton>
@@ -219,6 +221,7 @@ export default function SessionBar() {
                 onConfirm={handleLoadSaveState}
                 onDelete={onDeleteSaveState}
                 activeSaveId={activeState?.id}
+                onImport={importSav}
             />
         </>
     );

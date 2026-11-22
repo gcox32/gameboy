@@ -13,10 +13,12 @@ import { useGame } from '@/contexts/GameContext';
 import { useGames } from '@/contexts/GamesContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { getNextSpeed, useSettings } from '@/contexts/SettingsContext';
+import { useImportSav } from '@/hooks/useImportSav';
 import styles from './styles.module.css';
 import { SaveStateModel } from '@/types';
 
 export default function MobileControls() {
+    const importSav = useImportSav();
     const currentUser = useAuth()?.user;
     const { stopGame } = useGame();
     const {
@@ -204,7 +206,7 @@ export default function MobileControls() {
                             <button onClick={() => runAndCloseDrawer(handleSaveAs)} disabled={!isEmulatorPlaying} className={styles.button}>
                                 Save As
                             </button>
-                            <button onClick={() => setShowLoadModal(true)} disabled={!isRomLoaded || userSaveStates.length === 0} className={styles.button}>
+                            <button onClick={() => setShowLoadModal(true)} disabled={!isRomLoaded} className={styles.button}>
                                 Load
                             </button>
                         </div>
@@ -219,6 +221,7 @@ export default function MobileControls() {
                 onConfirm={handleLoadSaveState}
                 onDelete={onDeleteSaveState}
                 activeSaveId={activeSaveState?.id}
+                onImport={importSav}
             />
 
             <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
