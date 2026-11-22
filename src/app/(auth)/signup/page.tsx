@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { authedRoute } from '@/../config';
+import PasswordInput from '@/components/auth/PasswordInput';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
+
+const FORM_ID = 'signup-form';
+const MIN_PASSWORD = 8;
 
 export default function SignUp() {
     const [email, setEmail] = useState('');
@@ -16,12 +19,6 @@ export default function SignUp() {
     const [submitting, setSubmitting] = useState(false);
     const router = useRouter();
     const auth = useAuth();
-
-    useEffect(() => {
-        if (auth && !auth.loading && auth.user) {
-            router.push(authedRoute);
-        }
-    }, [auth, router]);
 
     if (auth && !auth.loading && auth.user) return null;
 
@@ -34,12 +31,13 @@ export default function SignUp() {
             return;
         }
 
+        const normalizedEmail = email.trim();
         setSubmitting(true);
         try {
             const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email: normalizedEmail, password }),
             });
 
             const data = await res.json();
@@ -49,7 +47,7 @@ export default function SignUp() {
                 return;
             }
 
-            router.push(`/confirm-signup?email=${encodeURIComponent(email)}`);
+            router.push(`/confirm-signup?email=${encodeURIComponent(normalizedEmail)}`);
         } catch {
             setError('An error occurred. Please try again.');
         } finally {
@@ -61,28 +59,39 @@ export default function SignUp() {
         <div className={styles.container}>
             <h1 className={styles.title}>Sign Up</h1>
 
-            <form onSubmit={handleSignUp} className={styles.form}>
+            <form id={FORM_ID} onSubmit={handleSignUp} className={styles.form}>
                 <input
                     type="email"
+                    name="email"
+                    aria-label="Email"
                     placeholder="Email"
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className={styles.input}
                 />
-                <input
-                    type="password"
+                <PasswordInput
+                    name="password"
+                    aria-label="Password"
+                    aria-describedby="signup-password-hint"
                     placeholder="Password"
+                    autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={MIN_PASSWORD}
                     className={styles.input}
                 />
+                <p id="signup-password-hint" className={styles.fieldHint}>
+                    At least {MIN_PASSWORD} characters.
+                </p>
             </form>
 
             <label className={styles.termsLabel}>
                 <input
                     type="checkbox"
+                    form={FORM_ID}
                     checked={agreeToTerms}
                     onChange={(e) => setAgreeToTerms(e.target.checked)}
                     className={styles.checkbox}
@@ -98,7 +107,8 @@ export default function SignUp() {
             {error && <p className={styles.error} role="alert">{error}</p>}
 
             <button
-                onClick={(e) => handleSignUp(e as unknown as FormEvent)}
+                type="submit"
+                form={FORM_ID}
                 className={`${buttons.retroButton} ${styles.authSubmit}`}
                 disabled={submitting}
             >
@@ -107,7 +117,7 @@ export default function SignUp() {
 
             <p className={styles.signupPrompt}>
                 Already have an account?{' '}
-                <Link href="login" className={styles.signupLink}>Log in</Link>
+                <Link href="/login" className={styles.signupLink}>Log in</Link>
             </p>
         </div>
     );

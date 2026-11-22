@@ -2,15 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { dbConnect } from '@/lib/db';
+import { clientIp, limitAuth, tooManyRequests } from '@/lib/rateLimit';
 import { User, Profile } from '@/models';
 import { sendVerificationEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, password } = await req.json();
+        const body = await req.json();
+        const email = typeof body.email === 'string' ? body.email.trim() : '';
+        const password = typeof body.password === 'string' ? body.password : '';
 
         if (!email || !password) {
             return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
         }
 
         if (password.length < 8) {
@@ -19,9 +26,12 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
+        const limit = await limitAuth('register', { ip: clientIp(req.headers) });
+        if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
         const existing = await User.findOne({ email: email.toLowerCase() });
         if (existing) {
-            return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 409 });
+            return NextResponse.json({ error: 'An account with this email already exists. Log in instead, or reset your password.' }, { status: 409 });
         }
 
         const passwordHash = await bcrypt.hash(password, 12);

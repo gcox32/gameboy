@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/db';
+import { clientIp, limitAuth, tooManyRequests } from '@/lib/rateLimit';
 import { User } from '@/models';
 
 export async function POST(req: NextRequest) {
@@ -11,6 +12,9 @@ export async function POST(req: NextRequest) {
         }
 
         await dbConnect();
+
+        const limit = await limitAuth('verify', { email, ip: clientIp(req.headers) });
+        if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
         const user = await User.findOne({ email: email.toLowerCase() });
 

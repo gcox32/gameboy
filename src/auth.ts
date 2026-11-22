@@ -1,8 +1,19 @@
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { dbConnect } from '@/lib/db';
+import { clientIp, limitAuth } from '@/lib/rateLimit';
 import { User, Profile } from '@/models';
+
+/** Right password, unverified email. The login page reads `code` to offer a new verification code. */
+class UnverifiedEmailError extends CredentialsSignin {
+    code = 'unverified';
+}
+
+/** Too many attempts for this email or IP; the login page reads `code` to say so. */
+class RateLimitedError extends CredentialsSignin {
+    code = 'rate_limited';
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     providers: [
@@ -11,10 +22,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 email: { label: 'Email', type: 'email' },
                 password: { label: 'Password', type: 'password' },
             },
-            async authorize(credentials) {
+            async authorize(credentials, request) {
                 if (!credentials?.email || !credentials?.password) return null;
 
                 await dbConnect();
+
+                const limit = await limitAuth('login', {
+                    email: String(credentials.email),
+                    ip: clientIp(request.headers),
+                });
+                if (!limit.ok) throw new RateLimitedError();
 
                 const user = await User.findOne({
                     email: String(credentials.email).toLowerCase(),
@@ -22,15 +39,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 if (!user) return null;
 
-                if (!user.emailVerified) {
-                    throw new Error('Please verify your email before logging in.');
-                }
-
                 const valid = await bcrypt.compare(
                     String(credentials.password),
                     user.passwordHash
                 );
                 if (!valid) return null;
+
+                // Checked after the password so verification status isn't revealed to someone without it.
+                if (!user.emailVerified) throw new UnverifiedEmailError();
 
                 const profile = await Profile.findOne({ userId: user._id });
 

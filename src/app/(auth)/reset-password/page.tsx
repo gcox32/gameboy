@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense, FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import PasswordInput from '@/components/auth/PasswordInput';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 
@@ -28,11 +29,16 @@ function ResetPasswordComponent() {
         setSubmitting(true);
 
         try {
-            await fetch('/api/auth/forgot-password', {
+            const res = await fetch('/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
             });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setError(data.error ?? 'An error occurred. Please try again.');
+                return;
+            }
             setMessage('If that account exists, a reset link has been sent to your email.');
         } catch {
             setError('An error occurred. Please try again.');
@@ -76,9 +82,11 @@ function ResetPasswordComponent() {
             {token ? (
                 // Token present — user arrived via email link
                 <form onSubmit={handleReset} className={styles.form}>
-                    <input
-                        type="password"
-                        placeholder="New password"
+                    <PasswordInput
+                        name="password"
+                        aria-label="New password"
+                        autoComplete="new-password"
+                        placeholder="New password (at least 8 characters)"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -99,6 +107,9 @@ function ResetPasswordComponent() {
                         <form onSubmit={handleRequest} className={styles.form}>
                             <input
                                 type="email"
+                                name="email"
+                                aria-label="Email"
+                                autoComplete="email"
                                 placeholder="Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}

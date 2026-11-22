@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 
+const FORM_ID = 'confirm-signup-form';
+
 function ConfirmSignUpComponent() {
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
@@ -18,6 +20,7 @@ function ConfirmSignUpComponent() {
     useEffect(() => {
         const emailParam = searchParams.get('email');
         if (emailParam) setEmail(emailParam);
+        if (searchParams.get('sent') === 'true') setMessage('A new code has been sent to your email.');
     }, [searchParams]);
 
     const handleVerify = async (e: FormEvent) => {
@@ -53,11 +56,16 @@ function ConfirmSignUpComponent() {
         setResending(true);
 
         try {
-            await fetch('/api/auth/resend-verification', {
+            const res = await fetch('/api/auth/resend-verification', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
             });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setError(data.error ?? 'Failed to resend. Please try again.');
+                return;
+            }
             setMessage('A new code has been sent to your email.');
         } catch {
             setError('Failed to resend. Please try again.');
@@ -70,12 +78,20 @@ function ConfirmSignUpComponent() {
         <div className={styles.container}>
             <h1 className={styles.title}>Verify Email</h1>
 
-            <form onSubmit={handleVerify} className={styles.form}>
+            <p className={styles.description}>
+                {email ? <>Enter the 6-digit code sent to {email}.</> : 'Enter the 6-digit code from your email.'}
+            </p>
+
+            <form id={FORM_ID} onSubmit={handleVerify} className={styles.form}>
                 <input
                     type="text"
+                    name="code"
+                    aria-label="Verification code"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
                     placeholder="6-digit code"
                     value={code}
-                    onChange={(e) => setCode(e.target.value)}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                     required
                     maxLength={6}
                     className={styles.input}
@@ -87,7 +103,8 @@ function ConfirmSignUpComponent() {
             {message && <p className={styles.statusMessage} role="status">{message}</p>}
 
             <button
-                onClick={(e) => handleVerify(e as unknown as FormEvent)}
+                type="submit"
+                form={FORM_ID}
                 className={`${buttons.retroButton} ${styles.authSubmit}`}
                 disabled={submitting}
             >
@@ -97,10 +114,10 @@ function ConfirmSignUpComponent() {
             <p className={styles.signupPrompt}>
                 Didn&apos;t receive a code?{' '}
                 <button
+                    type="button"
                     onClick={handleResend}
-                    disabled={resending}
-                    className={styles.link}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    disabled={resending || !email}
+                    className={`${styles.link} ${styles.inlineButton}`}
                 >
                     {resending ? 'Sending…' : 'Resend'}
                 </button>
