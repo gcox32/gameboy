@@ -69,3 +69,4 @@ amplifyconfiguration*
 
 # Local staging for CDN uploads (see scripts/stage_gen2_assets.py)
 /assets/
+.env*

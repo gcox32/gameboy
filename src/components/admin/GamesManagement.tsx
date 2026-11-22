@@ -238,7 +238,7 @@ export default function GamesManagement() {
                 onClose={() => setDeletingGame(null)}
                 onConfirm={confirmDeleteGame}
                 title="Delete Game"
-                message="Are you sure you want to delete this game? This action cannot be undone."
+                message="Delete this game and all of its saves and files? This can't be undone."
                 itemName={deletingGame?.title}
                 loading={loading}
             />

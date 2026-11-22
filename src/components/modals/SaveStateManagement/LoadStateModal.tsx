@@ -4,7 +4,6 @@ import { Download, Trash2, Upload } from 'lucide-react';
 import BaseModal from '../BaseModal';
 import CartridgeIcon from '@/components/icons/CartridgeIcon';
 import { Alert } from '@/components/ui';
-import { deleteBlob } from '@/utils/blobUpload';
 import { downloadSav } from '@/utils/downloadSav';
 import { SaveStateModel } from '@/types';
 import paper from '../paper.module.css';
@@ -59,13 +58,9 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete, acti
         try {
             setIsDeleting(true);
             setError(null);
+            // The server deletes the save's file and screenshot along with it
             const res = await fetch(`/api/save-states/${save.id}`, { method: 'DELETE' });
-            // The files go only once the record has, so a failure never leaves a save without its data
             if (!res.ok) throw new Error('Delete failed');
-            await Promise.allSettled([
-                deleteBlob(save.filePath),
-                deleteBlob(save.img ?? ''),
-            ]);
             await onDelete?.();
             setConfirmingDeleteId(null);
         } catch (err) {

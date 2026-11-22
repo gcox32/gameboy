@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Game } from '@/models';
+import { deleteGame } from '@/lib/userFiles';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -68,6 +69,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await game.deleteOne();
-    return NextResponse.json({ success: true });
+    // Also its saves, and the files of both
+    const removed = await deleteGame(game);
+    return NextResponse.json({ success: true, ...removed });
 }

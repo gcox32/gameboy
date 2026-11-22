@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { deleteSave } from '@/lib/userFiles';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { SaveState } from '@/models';
@@ -79,6 +80,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await saveState.deleteOne();
+    // Also its file and screenshot
+    await deleteSave(saveState);
     return NextResponse.json({ success: true });
 }

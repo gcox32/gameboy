@@ -205,7 +205,7 @@ export default function GameManagement({
                 skipConfirmation={skipDeleteConfirmation}
                 toggleSkipConfirmation={() => setSkipDeleteConfirmation(!skipDeleteConfirmation)}
             >
-                {`Are you sure you want to delete "${gameToDelete?.title}"? This action cannot be undone.`}
+                {`Delete "${gameToDelete?.title}" and all of its saves? Download any save you want to keep first. Pokémon at the Ranch stay. This can't be undone.`}
             </ConfirmModal>
         </>,
         // At the top of the shell, so it sits above the nav and stays visible in fullscreen
