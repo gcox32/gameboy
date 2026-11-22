@@ -1,7 +1,7 @@
 import { getPresetByRomTitle, GameMemoryPreset } from '@/data/memoryPresets';
 
 // Game Boy ROM header offsets
-const ROM_HEADER = {
+export const ROM_HEADER = {
     TITLE_START: 0x0134,
     TITLE_END: 0x0143,
     CGB_FLAG: 0x0143,

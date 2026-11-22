@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 import BaseModal from '../BaseModal';
 import CartridgeIcon from '@/components/icons/CartridgeIcon';
 import { Alert } from '@/components/ui';
 import { deleteBlob } from '@/utils/blobUpload';
+import { downloadSav } from '@/utils/downloadSav';
 import { SaveStateModel } from '@/types';
 import paper from '../paper.module.css';
 import styles from './styles.module.css';
@@ -36,6 +37,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete, acti
     const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
     const sortedSaves = useMemo(
         () => [...saveStates].sort((a, b) => getTime(b.updatedAt) - getTime(a.updatedAt)),
@@ -66,6 +68,19 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete, acti
             setError('Failed to delete this save. Please try again.');
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleDownload = async (save: SaveStateModel) => {
+        try {
+            setDownloadingId(save.id ?? null);
+            setError(null);
+            await downloadSav(save);
+        } catch (err) {
+            console.error('Error downloading save file:', err);
+            setError('Failed to download this save. Please try again.');
+        } finally {
+            setDownloadingId(null);
         }
     };
 
@@ -106,6 +121,17 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete, acti
                                 </button>
 
                                 {isActive && <span className={styles.currentTag}>Current</span>}
+
+                                <button
+                                    type="button"
+                                    className={styles.downloadButton}
+                                    title="Download .sav"
+                                    aria-label={`Download ${save.title} as a .sav file`}
+                                    onClick={() => handleDownload(save)}
+                                    disabled={downloadingId === save.id}
+                                >
+                                    <Download size={16} />
+                                </button>
 
                                 {onDelete && !isActive && (
                                     confirmingDeleteId === save.id ? (

@@ -132,7 +132,8 @@
     border-radius: 9999px;
 }
 
-.deleteButton {
+.deleteButton,
+.downloadButton {
     display: flex;
     flex-shrink: 0;
     align-items: center;
@@ -147,14 +148,21 @@
     transition: background-color 0.1s ease, color 0.1s ease;
 }
 
-.deleteButton:hover {
+.deleteButton:hover,
+.downloadButton:hover:not(:disabled) {
     color: var(--ink);
     background: var(--hover);
 }
 
-.deleteButton:focus-visible {
+.deleteButton:focus-visible,
+.downloadButton:focus-visible {
     outline: 2px solid var(--ink-soft);
     outline-offset: -2px;
+}
+
+.downloadButton:disabled {
+    cursor: progress;
+    opacity: 0.5;
 }
 
 .deleteConfirm {
