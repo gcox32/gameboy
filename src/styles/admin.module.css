@@ -46,11 +46,15 @@
 }
 
 /* Data table */
-.tableContainer {
+.tableContainer,
+.tableContainerCompact {
     overflow-x: auto;
     border-radius: 8px;
-    min-height: 400px;
     width: 100%;
+}
+
+.tableContainer {
+    min-height: 400px;
 }
 
 .dataTable {
@@ -417,6 +421,165 @@
     background: rgba(255, 255, 255, 0.3) !important;
 }
 
+/* Overview */
+.overview {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.statGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.statTile,
+.overviewCard {
+    background: rgba(20, 20, 40, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    min-width: 0;
+}
+
+.statTile {
+    padding: 1.25rem 1.5rem;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    color: var(--neutral-500);
+}
+
+.statValue {
+    margin-top: 0.5rem;
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1.1;
+    white-space: nowrap;
+    color: var(--foreground-rgb);
+}
+
+.statDetail {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--neutral-500);
+}
+
+.overviewRow {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 1.5rem;
+}
+
+.overviewCard {
+    padding: 1.5rem;
+    min-height: 8rem;
+}
+
+.cardTitle {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--foreground-rgb);
+}
+
+.cardSubtitle {
+    margin: 0.35rem 0 1.25rem;
+    font-size: 0.875rem;
+    color: var(--neutral-500);
+}
+
+.chartBox {
+    position: relative;
+    height: 240px;
+}
+
+.tableView {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--neutral-500);
+}
+
+.tableView summary {
+    cursor: pointer;
+    width: fit-content;
+}
+
+.tableView table {
+    margin-top: 0.75rem;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+.tableView th,
+.tableView td {
+    padding: 0.35rem 1.5rem 0.35rem 0;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Storage: a name, a bar and a figure per row, bars aligned */
+.meterList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.meterList li {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+}
+
+.meterName {
+    font-size: 0.9rem;
+    color: var(--foreground-rgb);
+}
+
+.meterTrack {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(154, 134, 208, 0.15);
+    overflow: hidden;
+}
+
+.meterFill {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: #9a86d0;
+}
+
+.meterFigure {
+    font-size: 0.8rem;
+    color: var(--neutral-500);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.storeNotes {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.8rem;
+    color: var(--neutral-500);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+@media (max-width: 1100px) {
+    .overviewRow {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     .modalSmall,
     .modalMedium,
@@ -443,5 +606,27 @@
     .quickForm {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .meterList li {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .statGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .statValue {
+        font-size: 1.75rem;
+    }
+
+    /* A short table fits as it is; only the full tables need room to scroll */
+    .tableContainerCompact .dataTable {
+        min-width: 0;
+    }
+
+    .meterTrack {
+        grid-column: 1 / -1;
+        grid-row: 2;
     }
 }

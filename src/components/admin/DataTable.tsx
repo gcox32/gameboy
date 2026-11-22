@@ -20,6 +20,8 @@ interface DataTableProps<T> {
     rowKey: (item: T) => string;
     loading?: boolean;
     emptyMessage?: string;
+    /** Drops the minimum height, for a short table inside a card */
+    compact?: boolean;
 }
 
 const isEmpty = (v: SortValue) => v == null || v === '';
@@ -31,7 +33,7 @@ function compare(a: SortValue, b: SortValue): number {
     return a < b ? -1 : a > b ? 1 : 0;
 }
 
-export default function DataTable<T>({ data, columns, rowKey, loading = false, emptyMessage = 'No data available' }: DataTableProps<T>) {
+export default function DataTable<T>({ data, columns, rowKey, loading = false, emptyMessage = 'No data available', compact = false }: DataTableProps<T>) {
     const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
     const rows = useMemo(() => {
@@ -53,7 +55,7 @@ export default function DataTable<T>({ data, columns, rowKey, loading = false, e
     }));
 
     return (
-        <div className={styles.tableContainer}>
+        <div className={compact ? styles.tableContainerCompact : styles.tableContainer}>
             <table className={styles.dataTable}>
                 <thead>
                     <tr>

@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { FaUsers, FaGamepad, FaBell, FaArrowLeft } from 'react-icons/fa';
+import { FaChartBar, FaUsers, FaGamepad, FaBell, FaArrowLeft } from 'react-icons/fa';
 import {
     AdminSidebar,
     SidebarBrand,
@@ -13,7 +13,7 @@ import {
     NavItemLink,
 } from './AdminLayout';
 
-export type TabType = 'users' | 'games' | 'notifications';
+export type TabType = 'overview' | 'users' | 'games' | 'notifications';
 
 interface NavItemConfig {
     id: TabType;
@@ -27,6 +27,7 @@ interface SidebarNavigationProps {
 }
 
 const navItems: NavItemConfig[] = [
+    { id: 'overview', label: 'Overview', icon: <FaChartBar /> },
     { id: 'users', label: 'Users', icon: <FaUsers /> },
     { id: 'games', label: 'Games', icon: <FaGamepad /> },
     { id: 'notifications', label: 'Notifications', icon: <FaBell /> },

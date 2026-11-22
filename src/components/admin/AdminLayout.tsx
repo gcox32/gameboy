@@ -5,14 +5,18 @@ import Link from 'next/link';
 import { cn } from '@/lib/cn';
 
 /*
- * The admin shell. On phones (below md) the sidebar becomes a bar across the top, its items in a
+ * The admin shell. It's exactly the viewport's height and its content area scrolls inside it:
+ * html and body centre their content vertically, so anything taller than the viewport would
+ * overflow off the top, where it can't be scrolled to.
+ *
+ * On phones (below md) the sidebar becomes a bar across the top, its items in a
  * row, and the content takes the full width; tables scroll sideways inside their panel.
  */
 
 export const AdminDashboard: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
   <div
     data-theme="dark"
-    className={cn('flex max-md:flex-col w-full min-w-0 min-h-screen bg-[#0d1120] text-[var(--foreground-rgb)]', className)}
+    className={cn('flex max-md:flex-col w-full min-w-0 h-dvh overflow-hidden bg-[#0d1120] text-[var(--foreground-rgb)]', className)}
     {...props}
   >
     {children}
@@ -22,7 +26,7 @@ export const AdminDashboard: FC<HTMLAttributes<HTMLDivElement>> = ({ className, 
 export const AdminSidebar: FC<HTMLAttributes<HTMLElement>> = ({ className, children, ...props }) => (
   <aside
     className={cn(
-      'w-[260px] flex-shrink-0 flex flex-col sticky top-0 h-screen z-10',
+      'w-[260px] flex-shrink-0 flex flex-col h-full z-10',
       'max-md:w-full max-md:h-auto max-md:flex-row max-md:items-center',
       'bg-[rgba(13,17,32,0.75)] backdrop-blur-[12px] saturate-[130%]',
       'border-r max-md:border-r-0 max-md:border-b border-[rgba(255,255,255,0.07)] shadow-[4px_0_24px_rgba(0,0,0,0.3)]',
@@ -101,7 +105,7 @@ export const NavItemLink: FC<ComponentProps<typeof Link>> = ({ className, childr
 );
 
 export const AdminMain: FC<HTMLAttributes<HTMLElement>> = ({ className, children, ...props }) => (
-  <main className={cn('flex-1 flex flex-col min-w-0 overflow-hidden', className)} {...props}>
+  <main className={cn('flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden', className)} {...props}>
     {children}
   </main>
 );
@@ -113,7 +117,7 @@ export const AdminHeader: FC<HTMLAttributes<HTMLElement>> = ({ className, childr
 );
 
 export const AdminContent: FC<HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
-  <div className={cn('flex-1 p-8 max-md:p-4 overflow-y-auto overflow-x-hidden w-full', className)} {...props}>
+  <div className={cn('flex-1 min-h-0 p-8 max-md:p-4 overflow-y-auto overflow-x-hidden w-full', className)} {...props}>
     {children}
   </div>
 );

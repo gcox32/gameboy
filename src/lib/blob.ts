@@ -1,4 +1,4 @@
-import { del, get, put } from '@vercel/blob';
+import { del, get, list, put } from '@vercel/blob';
 import { sanitizeEmail } from '@/utils/blobPaths';
 
 /**
@@ -39,7 +39,8 @@ function isBlobUrl(url: URL): boolean {
 }
 
 /** The top-level folders users upload into, and so the only ones they can read or delete. */
-const USER_FOLDERS = new Set(['games', 'saves', 'avatars']);
+export const USER_FOLDER_NAMES = ['games', 'saves', 'avatars'] as const;
+const USER_FOLDERS = new Set<string>(USER_FOLDER_NAMES);
 
 /**
  * Whether a user owns the file at a blob path. User files live at `{folder}/{email or id}/…`,
@@ -104,4 +105,48 @@ export async function deleteBlob(url: string): Promise<void> {
     const auth = privateAuth();
     if (!auth) throw new Error('Private blob store is not configured');
     await del(url, auth);
+}
+
+export interface FolderUsage {
+    folder: string;
+    files: number;
+    bytes: number;
+}
+
+export interface StoreUsage {
+    store: 'private' | 'public';
+    /** Why this store couldn't be listed, if it couldn't */
+    error?: string;
+    folders: FolderUsage[];
+}
+
+/**
+ * How many files the user folders hold, and their total size, in each store. Lists every blob,
+ * a thousand per request, so it's for the admin view, not anything a user waits on.
+ */
+export async function userFolderUsage(): Promise<StoreUsage[]> {
+    const stores: { store: StoreUsage['store']; auth: { token: string } | { storeId: string } | null }[] = [
+        { store: 'private', auth: privateAuth() },
+        { store: 'public', auth: process.env.BLOB_READ_WRITE_TOKEN ? { token: process.env.BLOB_READ_WRITE_TOKEN } : null },
+    ];
+
+    return Promise.all(stores.map(async ({ store, auth }) => {
+        if (!auth) return { store, error: 'Not configured here', folders: [] };
+        try {
+            const folders = await Promise.all(USER_FOLDER_NAMES.map(async (folder) => {
+                let files = 0, bytes = 0, cursor: string | undefined;
+                do {
+                    const page = await list({ ...auth, prefix: `${folder}/`, cursor, limit: 1000 });
+                    files += page.blobs.length;
+                    bytes += page.blobs.reduce((sum, b) => sum + b.size, 0);
+                    cursor = page.hasMore ? page.cursor : undefined;
+                } while (cursor);
+                return { folder, files, bytes };
+            }));
+            return { store, folders };
+        } catch (err) {
+            console.error(`[blob] Couldn't list the ${store} store:`, err);
+            return { store, error: 'Could not be listed', folders: [] };
+        }
+    }));
 }
