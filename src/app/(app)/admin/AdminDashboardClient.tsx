@@ -4,7 +4,7 @@ import { useState } from 'react';
 import UserManagement from '@/components/admin/UserManagement';
 import GamesManagement from '@/components/admin/GamesManagement';
 import NotificationsManagement from '@/components/admin/NotificationsManagement';
-import SidebarNavigation from '@/components/admin/SidebarNavigation';
+import SidebarNavigation, { TabType } from '@/components/admin/SidebarNavigation';
 import {
     AdminDashboard,
     AdminMain,
@@ -12,9 +12,6 @@ import {
     AdminContent,
     ContentPanel
 } from '@/components/admin/AdminLayout';
-import styles from '@/styles/admin.module.css';
-
-type TabType = 'users' | 'games' | 'notifications';
 
 const tabTitles: Record<TabType, string> = {
     users: 'User Management',

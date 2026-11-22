@@ -3,6 +3,8 @@ import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Profile } from '@/models';
 import User from '@/models/User';
+import { deleteUser } from '@/lib/userFiles';
+import { isValidObjectId } from 'mongoose';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -14,6 +16,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     }
 
     const { id } = await params;
+    if (!isValidObjectId(id)) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     await dbConnect();
     const profile = await Profile.findById(id);
 
@@ -24,8 +27,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const user = await User.findById(profile.userId).select('admin');
-    return NextResponse.json({ ...profile.toJSON(), admin: user?.admin ?? false });
+    const user = await User.findById(profile.userId).select('admin email');
+    return NextResponse.json({ ...profile.toJSON(), email: user?.email ?? profile.email, admin: user?.admin ?? false });
 }
 
 // PUT /api/profiles/:id — full update (admin only)
@@ -36,31 +39,39 @@ export async function PUT(req: NextRequest, { params }: Params) {
     }
 
     const { id } = await params;
+    if (!isValidObjectId(id)) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     await dbConnect();
     const profile = await Profile.findById(id);
 
     if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     const body = await req.json();
-    const { username, email, bio, avatar, admin } = body;
+    const { username, bio, avatar, admin } = body;
 
-    if (username !== undefined) profile.username = username;
-    if (email !== undefined) profile.email = email;
+    // Email isn't editable here: it's the login, and the user's files are stored under it
+    if (body.email !== undefined) {
+        return NextResponse.json({ error: "Email can't be changed here" }, { status: 400 });
+    }
+    const isSelf = profile.userId.toString() === session.user.id;
+    if (admin !== undefined && !admin && isSelf) {
+        return NextResponse.json({ error: "You can't remove your own admin role" }, { status: 400 });
+    }
+
+    if (username !== undefined && (typeof username !== 'string' || !username.trim())) {
+        return NextResponse.json({ error: "Username can't be empty" }, { status: 400 });
+    }
+
+    if (username !== undefined) profile.username = username.trim();
     if (bio !== undefined) profile.bio = bio;
     if (avatar !== undefined) profile.avatar = avatar;
 
     await profile.save();
 
-    let resolvedAdmin: boolean | undefined;
-    if (admin !== undefined) {
-        const user = await User.findByIdAndUpdate(profile.userId, { admin }, { new: true }).select('admin');
-        resolvedAdmin = user?.admin ?? false;
-    } else {
-        const user = await User.findById(profile.userId).select('admin');
-        resolvedAdmin = user?.admin ?? false;
-    }
+    const user = admin !== undefined
+        ? await User.findByIdAndUpdate(profile.userId, { admin: !!admin }, { new: true }).select('admin email')
+        : await User.findById(profile.userId).select('admin email');
 
-    return NextResponse.json({ ...profile.toJSON(), admin: resolvedAdmin });
+    return NextResponse.json({ ...profile.toJSON(), email: user?.email ?? profile.email, admin: user?.admin ?? false });
 }
 
 // DELETE /api/profiles/:id — admin only
@@ -71,11 +82,18 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
 
     const { id } = await params;
+    if (!isValidObjectId(id)) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     await dbConnect();
     const profile = await Profile.findById(id);
 
     if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    await profile.deleteOne();
-    return NextResponse.json({ success: true });
+    const userId = profile.userId.toString();
+    if (userId === session.user.id) {
+        return NextResponse.json({ error: "You can't delete your own account here" }, { status: 400 });
+    }
+
+    // Everything they own goes with them, so they can't sign in to an empty account
+    const removed = await deleteUser(userId);
+    return NextResponse.json({ success: true, ...removed });
 }

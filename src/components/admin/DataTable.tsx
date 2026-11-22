@@ -1,76 +1,100 @@
-import { ReactNode } from 'react';
+'use client';
+
+import { ReactNode, useMemo, useState } from 'react';
 import { Text } from '@/components/ui';
 import styles from '@/styles/admin.module.css';
 
-interface Column<T> {
-    key: keyof T | string;
+type SortValue = string | number | boolean | null | undefined;
+
+export interface Column<T> {
+    key: string;
     header: string;
     render?: (item: T) => ReactNode;
-    sortable?: boolean;
+    /** Makes the column sortable, by this value */
+    sortValue?: (item: T) => SortValue;
 }
 
 interface DataTableProps<T> {
     data: T[];
     columns: Column<T>[];
+    rowKey: (item: T) => string;
     loading?: boolean;
     emptyMessage?: string;
-    onSort?: (key: string, direction: 'asc' | 'desc') => void;
-    currentSort?: { key: string; direction: 'asc' | 'desc' } | null;
 }
 
-export default function DataTable<T extends Record<string, any>>({
-    data,
-    columns,
-    loading = false,
-    emptyMessage = "No data available",
-    onSort,
-    currentSort
-}: DataTableProps<T>) {
-    // Always render the table structure to maintain consistent width
+const isEmpty = (v: SortValue) => v == null || v === '';
+
+function compare(a: SortValue, b: SortValue): number {
+    if (isEmpty(a)) return isEmpty(b) ? 0 : 1;
+    if (isEmpty(b)) return -1;
+    if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b, undefined, { sensitivity: 'base' });
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export default function DataTable<T>({ data, columns, rowKey, loading = false, emptyMessage = 'No data available' }: DataTableProps<T>) {
+    const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+
+    const rows = useMemo(() => {
+        if (!sort) return data;
+        const column = columns.find((c) => c.key === sort.key);
+        if (!column?.sortValue) return data;
+        const value = column.sortValue;
+        const sign = sort.direction === 'asc' ? 1 : -1;
+        return [...data].sort((a, b) => {
+            const va = value(a), vb = value(b);
+            // Empties stay last whichever way it's sorted, so they're left out of the flip
+            return isEmpty(va) || isEmpty(vb) ? compare(va, vb) : sign * compare(va, vb);
+        });
+    }, [data, columns, sort]);
+
+    const toggleSort = (key: string) => setSort((prev) => ({
+        key,
+        direction: prev?.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
+
     return (
-        <div className={styles.tableContainer} style={{ minHeight: '500px' }}>
+        <div className={styles.tableContainer}>
             <table className={styles.dataTable}>
                 <thead>
                     <tr>
-                        {columns.map((column) => (
-                            <th
-                                key={String(column.key)}
-                                className={column.sortable ? styles.sortable : ''}
-                                onClick={() => {
-                                    if (column.sortable && onSort) {
-                                        const newDirection = currentSort?.key === column.key && currentSort.direction === 'asc' ? 'desc' : 'asc';
-                                        onSort(String(column.key), newDirection);
-                                    }
-                                }}
-                            >
-                                <div className={styles.headerContent}>
-                                    {column.header}
-                                    {column.sortable && currentSort?.key === column.key && (
-                                        <span className={styles.sortIndicator}>
-                                            {currentSort.direction === 'asc' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </div>
-                            </th>
-                        ))}
+                        {columns.map((column) => {
+                            const active = sort?.key === column.key;
+                            return (
+                                <th
+                                    key={column.key}
+                                    className={column.sortValue ? styles.sortable : undefined}
+                                    onClick={column.sortValue ? () => toggleSort(column.key) : undefined}
+                                    aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}
+                                >
+                                    <div className={styles.headerContent}>
+                                        {column.header}
+                                        {active && (
+                                            <span className={styles.sortIndicator}>{sort.direction === 'asc' ? '↑' : '↓'}</span>
+                                        )}
+                                    </div>
+                                </th>
+                            );
+                        })}
                     </tr>
                 </thead>
                 <tbody>
-                    {loading ? (
-                        <></>
-                    ) : data.length === 0 ? (
+                    {loading || rows.length === 0 ? (
                         <tr>
                             <td colSpan={columns.length} className={styles.emptyState}>
-                                <div className={styles.emptyStateIcon}>📭</div>
-                                <Text>{emptyMessage}</Text>
+                                {loading ? <Text>Loading…</Text> : (
+                                    <>
+                                        <div className={styles.emptyStateIcon}>📭</div>
+                                        <Text>{emptyMessage}</Text>
+                                    </>
+                                )}
                             </td>
                         </tr>
                     ) : (
-                        data.map((item, index) => (
-                            <tr key={index}>
+                        rows.map((item) => (
+                            <tr key={rowKey(item)}>
                                 {columns.map((column) => (
-                                    <td key={String(column.key)}>
-                                        {column.render ? column.render(item) : String(item[column.key])}
+                                    <td key={column.key}>
+                                        {column.render ? column.render(item) : String((item as Record<string, unknown>)[column.key] ?? '')}
                                     </td>
                                 ))}
                             </tr>

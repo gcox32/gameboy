@@ -12,6 +12,8 @@ interface AlertProps {
   hasIcon?: boolean;
   heading?: string;
   children: ReactNode;
+  /** Called on Dismiss. Given, the owner hides the alert, by clearing what it shows, so a later message can show again. */
+  onDismiss?: () => void;
 }
 
 const variantClasses: Record<AlertVariation, string> = {
@@ -21,7 +23,7 @@ const variantClasses: Record<AlertVariation, string> = {
   info: 'bg-[var(--hover-background-color)] text-[var(--foreground-rgb)] border-[var(--border-color)]',
 };
 
-export function Alert({ variation = 'info', children, isDismissible = true, heading, hasIcon = true }: AlertProps) {
+export function Alert({ variation = 'info', children, isDismissible = true, heading, hasIcon = true, onDismiss }: AlertProps) {
   const [isOpen, setIsOpen] = useState(true);
   if (!isOpen) return null;
   return (
@@ -36,7 +38,7 @@ export function Alert({ variation = 'info', children, isDismissible = true, head
       )}
       {children}
       {isDismissible && (
-        <Button variation="link" onClick={() => setIsOpen(false)}>Dismiss</Button>
+        <Button variation="link" onClick={() => (onDismiss ? onDismiss() : setIsOpen(false))}>Dismiss</Button>
       )}
     </div>
   );

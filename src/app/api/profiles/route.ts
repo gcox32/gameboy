@@ -24,10 +24,12 @@ export async function GET(req: NextRequest) {
         await dbConnect();
         const profiles = await Profile.find().sort({ createdAt: -1 });
         const userIds = profiles.map(p => p.userId);
-        const users = await User.find({ _id: { $in: userIds } }).select('admin');
+        const users = await User.find({ _id: { $in: userIds } }).select('admin email');
         const userMap = new Map(users.map(u => [u._id.toString(), u]));
         return NextResponse.json(profiles.map(p => ({
             ...p.toJSON(),
+            // The login email, which Profile.email only mirrors
+            email: userMap.get(p.userId.toString())?.email ?? p.email,
             admin: userMap.get(p.userId.toString())?.admin ?? false,
         })));
     }
@@ -60,11 +62,14 @@ export async function PATCH(req: NextRequest) {
 
     const body = await req.json();
     const { username, bio, avatar } = body;
+    if (username !== undefined && (typeof username !== 'string' || !username.trim())) {
+        return NextResponse.json({ error: "Username can't be empty" }, { status: 400 });
+    }
 
     await dbConnect();
     const profile = await Profile.findOneAndUpdate(
         { userId: session.user.id },
-        { ...(username !== undefined && { username }), ...(bio !== undefined && { bio }), ...(avatar !== undefined && { avatar }) },
+        { ...(username !== undefined && { username: username.trim() }), ...(bio !== undefined && { bio }), ...(avatar !== undefined && { avatar }) },
         { new: true }
     );
 

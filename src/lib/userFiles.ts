@@ -1,4 +1,4 @@
-import { Game, SaveState, User } from '@/models';
+import { Game, Notification, Profile, RanchPen, SaveState, StoredPokemon, User } from '@/models';
 import type { IGame } from '@/models/Game';
 import type { ISaveState } from '@/models/SaveState';
 import { ownsBlobUrl } from './blob';
@@ -56,4 +56,34 @@ export async function deleteGame(game: IGame): Promise<{ saves: number; files: n
         await ownerOf(game.userId),
     );
     return { saves: saves.length, files };
+}
+
+/**
+ * Deletes a user and everything they own: games, saves, Ranch Pokémon and pens, notifications,
+ * their reads of broadcasts, and the files behind all of it. The profile goes last, so if
+ * anything fails partway the user is still listed in the admin view and the delete can be retried.
+ */
+export async function deleteUser(userId: string): Promise<{ games: number; saves: number; pokemon: number; files: number }> {
+    const owner = await ownerOf(userId);
+    const [profile, games, saves] = await Promise.all([
+        Profile.findOne({ userId }).select('avatar').lean(),
+        Game.find({ userId }).select('filePath img').lean(),
+        // By user, not by game, so saves whose game is already gone are caught too
+        SaveState.find({ userId }).select('filePath img').lean(),
+    ]);
+
+    await SaveState.deleteMany({ userId });
+    await Game.deleteMany({ userId });
+    const { deletedCount: pokemon } = await StoredPokemon.deleteMany({ userId });
+    await RanchPen.deleteMany({ userId });
+    await Notification.deleteMany({ userId });
+    await Notification.updateMany({ userId: 'BROADCAST' }, { $pull: { readBy: { userId } } });
+    await User.deleteOne({ _id: userId });
+    await Profile.deleteOne({ userId });
+
+    const files = await deleteOwnedFiles(
+        [profile?.avatar, ...games.flatMap((g) => [g.filePath, g.img]), ...saves.flatMap(saveFiles)],
+        owner,
+    );
+    return { games: games.length, saves: saves.length, pokemon, files };
 }

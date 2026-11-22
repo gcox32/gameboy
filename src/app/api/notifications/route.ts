@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Notification } from '@/models';
+import type { INotification } from '@/models';
 
 // GET /api/notifications           — current user's notifications + BROADCAST ones
 // GET /api/notifications?unread=true — unread only
@@ -18,20 +19,34 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    let filter: Record<string, unknown>;
-
     if (all) {
         if (!session.user.admin) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
-        filter = {};
-    } else {
-        filter = { userId: { $in: [session.user.id, 'BROADCAST'] } };
-        if (unreadOnly) filter.readAt = { $exists: false };
+        const notifications = await Notification.find().sort({ createdAt: -1 });
+        return NextResponse.json(notifications.map(n => {
+            const { readBy, ...rest } = n.toJSON() as unknown as INotification & Record<string, unknown>;
+            return n.userId === 'BROADCAST' ? { ...rest, readCount: readBy?.length ?? 0 } : rest;
+        }));
     }
 
+    const me = session.user.id;
+    const filter = unreadOnly
+        ? { $or: [
+            { userId: me, readAt: { $exists: false } },
+            { userId: 'BROADCAST', 'readBy.userId': { $ne: me } },
+        ] }
+        : { userId: { $in: [me, 'BROADCAST'] } };
+
     const notifications = await Notification.find(filter).sort({ createdAt: -1 });
-    return NextResponse.json(notifications.map(n => n.toJSON()));
+    return NextResponse.json(notifications.map(n => toUserView(n, me)));
+}
+
+/** A notification as one user sees it: a broadcast's readAt is their own, and other readers stay hidden. */
+function toUserView(n: INotification, userId: string) {
+    const { readBy, ...rest } = n.toJSON() as unknown as INotification & Record<string, unknown>;
+    if (n.userId !== 'BROADCAST') return rest;
+    return { ...rest, readAt: readBy?.find(r => r.userId === userId)?.readAt };
 }
 
 // POST /api/notifications — create a notification (admin only)

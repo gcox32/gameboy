@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { FaTrash } from 'react-icons/fa';
 import { Button, Flex, Text, Alert } from '@/components/ui';
-import { getUsernamesForSubs } from '@/utils/usernames';
-import DataTable from './DataTable';
+import buttons from '@/styles/buttons.module.css';
+import DataTable, { Column } from './DataTable';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
+import { useAdminTable, ensureOk, fetchUsernames } from './useAdminTable';
 import styles from '@/styles/admin.module.css';
-import { FaTrash } from 'react-icons/fa';
-import buttons from '@/styles/buttons.module.css';
 
 interface Notification {
     id: string;
@@ -18,244 +18,191 @@ interface Notification {
     title: string;
     body: string;
     readAt?: string;
+    /** Broadcasts only: how many users have read it */
+    readCount?: number;
     createdAt?: string;
 }
 
+type NotificationRow = Notification & { recipientName: string; senderName: string };
+
+const isBroadcast = (n: Notification) => n.userId === 'BROADCAST';
+const shortId = (id?: string) => (id ? `${id.substring(0, 8)}…` : '');
+
+async function loadNotifications(): Promise<NotificationRow[]> {
+    const [res, names] = await Promise.all([
+        fetch('/api/notifications?all=true').then((r) => ensureOk(r, 'Failed to load notifications')),
+        fetchUsernames(),
+    ]);
+    const data: Notification[] = await res.json();
+    return data.map((n) => ({
+        ...n,
+        recipientName: isBroadcast(n) ? 'All Users' : names[n.userId] ?? shortId(n.userId),
+        senderName: names[n.sender] ?? n.sender,
+    }));
+}
+
+const searchText = (n: NotificationRow) => [n.title, n.body, n.type, n.recipientName, n.senderName];
+
+const typeBadge: Record<string, string | undefined> = {
+    SYSTEM: styles.statusBadgeActive,
+    FRIEND_REQUEST: styles.statusBadgeInfo,
+};
+
+const EMPTY_DRAFT = { title: '', body: '' };
+
 export default function NotificationsManagement() {
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [deletingNotification, setDeletingNotification] = useState<Notification | null>(null);
-    const [showQuickNotification, setShowQuickNotification] = useState(false);
-    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
-    const [usernameBySub, setUsernameBySub] = useState<Record<string, string>>({});
-    const [quickNotificationData, setQuickNotificationData] = useState({
-        title: '',
-        body: '',
-        type: 'SYSTEM',
-    });
+    const table = useAdminTable({ load: loadNotifications, searchText });
+    const [deleting, setDeleting] = useState<NotificationRow | null>(null);
+    const [showQuick, setShowQuick] = useState(false);
+    const [draft, setDraft] = useState(EMPTY_DRAFT);
+    const canSend = !!draft.title.trim() && !!draft.body.trim();
 
-    const loadNotifications = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const res = await fetch('/api/notifications?all=true');
-            if (!res.ok) throw new Error('Failed to load notifications');
-            const data: Notification[] = await res.json();
-            setNotifications(data);
-
-            const owners = data.map((n) => n.userId).filter(id => id && id !== 'BROADCAST');
-            if (owners.length > 0) {
-                const mapping = await getUsernamesForSubs(owners);
-                setUsernameBySub((prev) => ({ ...prev, ...mapping }));
-            }
-        } catch (err) {
-            setError('Failed to load notifications. Please try again.');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => { loadNotifications(); }, [loadNotifications]);
-
-    const handleSort = (key: string, direction: 'asc' | 'desc') => setSortConfig({ key, direction });
-
-    const filteredNotifications = notifications.filter(n =>
-        n.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        n.body?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        n.type?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const sortedNotifications = [...filteredNotifications].sort((a, b) => {
-        if (!sortConfig) return 0;
-        const aVal = a[sortConfig.key as keyof Notification] ?? '';
-        const bVal = b[sortConfig.key as keyof Notification] ?? '';
-        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    const handleCreateNotification = async () => {
-        if (!quickNotificationData.title.trim() || !quickNotificationData.body.trim()) {
-            setError('Please fill in both title and body');
-            return;
-        }
-        try {
-            setLoading(true);
-            const res = await fetch('/api/notifications', {
+    const sendBroadcast = async () => {
+        if (!canSend) return;
+        const ok = await table.run(
+            async () => ensureOk(await fetch('/api/notifications', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: 'BROADCAST',
-                    sender: 'SYSTEM',
-                    type: quickNotificationData.type,
-                    title: quickNotificationData.title,
-                    body: quickNotificationData.body,
-                }),
-            });
-            if (!res.ok) throw new Error('Create failed');
-            setQuickNotificationData({ title: '', body: '', type: 'SYSTEM' });
-            setShowQuickNotification(false);
-            loadNotifications();
-        } catch (err) {
-            setError('Failed to create notification. Please try again.');
-            console.error(err);
-        } finally {
-            setLoading(false);
+                body: JSON.stringify({ userId: 'BROADCAST', sender: 'SYSTEM', type: 'SYSTEM', title: draft.title.trim(), body: draft.body.trim() }),
+            }), 'Send failed'),
+            'Sent to all users',
+            'Failed to send notification',
+        );
+        if (ok) {
+            setDraft(EMPTY_DRAFT);
+            setShowQuick(false);
         }
     };
 
-    const confirmDeleteNotification = async () => {
-        if (!deletingNotification) return;
-        try {
-            setLoading(true);
-            await fetch(`/api/notifications/${deletingNotification.id}`, { method: 'DELETE' });
-            setDeletingNotification(null);
-            await loadNotifications();
-        } catch (err) {
-            setError('Failed to delete notification. Please try again.');
-            console.error(err);
-            setLoading(false);
-        }
+    const deleteNotification = async () => {
+        if (!deleting) return;
+        const { id } = deleting;
+        await table.run(
+            async () => ensureOk(await fetch(`/api/notifications/${id}`, { method: 'DELETE' }), 'Delete failed'),
+            'Deleted notification',
+            'Failed to delete notification',
+        );
+        setDeleting(null);
     };
 
-    const getTypeColor = (type: string) => {
-        switch (type.toUpperCase()) {
-            case 'SYSTEM': return styles.statusBadgeActive;
-            case 'FRIEND_REQUEST': return styles.statusBadgeInfo;
-            default: return styles.statusBadgeInactive;
-        }
-    };
-
-    const columns = [
+    const columns: Column<NotificationRow>[] = [
         {
             key: 'title',
             header: 'Title',
-            sortable: true,
-            render: (n: Notification) => (
+            sortValue: (n) => n.title,
+            render: (n) => (
                 <Flex $direction="column">
                     <Text fontWeight="medium">{n.title}</Text>
-                    <span className={`${styles.statusBadge} ${getTypeColor(n.type)}`}>{n.type}</span>
+                    <span className={`${styles.statusBadge} ${typeBadge[n.type] ?? styles.statusBadgeInactive}`}>{n.type}</span>
                 </Flex>
-            )
+            ),
         },
         {
             key: 'body',
             header: 'Message',
-            sortable: false,
-            render: (n: Notification) => (
-                <Text fontSize="sm">{n.body?.length > 100 ? `${n.body.substring(0, 100)}...` : n.body}</Text>
-            )
+            render: (n) => <Text fontSize="sm">{n.body}</Text>,
         },
         {
-            key: 'userId',
+            key: 'recipient',
             header: 'Recipient',
-            sortable: true,
-            render: (n: Notification) => (
-                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                    {n.userId === 'BROADCAST' ? 'All Users' : (usernameBySub[n.userId] || `${n.userId?.substring(0, 8) ?? ''}...`)}
-                </Text>
-            )
+            sortValue: (n) => n.recipientName,
+            render: (n) => <Text fontSize="sm" className={styles.mono}>{n.recipientName}</Text>,
         },
         {
             key: 'sender',
             header: 'Sender',
-            sortable: true,
-            render: (n: Notification) => (
-                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                    {usernameBySub[n.sender] || n.sender}
-                </Text>
-            )
+            sortValue: (n) => n.senderName,
+            render: (n) => <Text fontSize="sm" className={styles.mono}>{n.senderName}</Text>,
         },
         {
-            key: 'readAt',
+            key: 'status',
             header: 'Status',
-            sortable: true,
-            render: (n: Notification) => (
+            // Broadcasts by how many have read them, after direct ones (read before unread)
+            sortValue: (n) => (isBroadcast(n) ? 2 + (n.readCount ?? 0) : n.readAt ? 1 : 0),
+            render: (n) => isBroadcast(n) ? (
+                <span className={`${styles.statusBadge} ${styles.statusBadgeInfo}`}>Read by {n.readCount ?? 0}</span>
+            ) : (
                 <span className={`${styles.statusBadge} ${n.readAt ? styles.statusBadgeActive : styles.statusBadgeInactive}`}>
                     {n.readAt ? 'Read' : 'Unread'}
                 </span>
-            )
+            ),
         },
         {
             key: 'actions',
             header: 'Actions',
-            sortable: false,
-            render: (n: Notification) => (
-                <button onClick={() => setDeletingNotification(n)} className={`${styles.actionButton} destructive`} title="Delete">
+            render: (n) => (
+                <button onClick={() => setDeleting(n)} className={`${styles.actionButton} ${styles.destructive}`} title="Delete">
                     <FaTrash />
                 </button>
-            )
-        }
+            ),
+        },
     ];
 
     return (
         <div className={styles.managementContainer}>
-            <Flex $justifyContent="space-between" $alignItems="center" className={styles.tableToolbar}>
-                <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Search notifications..." />
-                <div className={buttons.buttonGroup} style={{ width: 'auto', alignItems: 'flex-end' }}>
-                    <button className={buttons.retroButton} onClick={() => setShowQuickNotification(true)}>
-                        Quick Notification
-                    </button>
-                </div>
-            </Flex>
+            <div className={styles.tableToolbar}>
+                <SearchInput value={table.searchTerm} onChange={table.setSearchTerm} placeholder="Search notifications..." />
+                <button className={buttons.retroButton} onClick={() => setShowQuick(true)} disabled={showQuick}>
+                    Quick Notification
+                </button>
+            </div>
 
-            {showQuickNotification && (
+            {showQuick && (
                 <div className={styles.quickNotification}>
                     <h3>Create App Notification</h3>
-                    <Text fontSize="sm" variation="light" style={{ opacity: 0.9, marginBottom: '1rem' }}>
-                        Send a notification to all users
-                    </Text>
+                    <Text fontSize="sm" variation="light" className={styles.quickHint}>Send a notification to all users</Text>
                     <div className={styles.quickForm}>
                         <div className={styles.formGroup}>
                             <input
                                 type="text"
+                                aria-label="Notification title"
                                 placeholder="Notification title..."
-                                value={quickNotificationData.title}
-                                onChange={(e) => setQuickNotificationData({ ...quickNotificationData, title: e.target.value })}
-                                className={styles.formInput}
-                                style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
+                                value={draft.title}
+                                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+                                className={`${styles.formInput} ${styles.quickInput}`}
                             />
                         </div>
                         <div className={styles.formGroup}>
                             <textarea
+                                aria-label="Notification message"
                                 placeholder="Notification message..."
-                                value={quickNotificationData.body}
-                                onChange={(e) => setQuickNotificationData({ ...quickNotificationData, body: e.target.value })}
-                                className={styles.formInput}
+                                value={draft.body}
+                                onChange={(e) => setDraft({ ...draft, body: e.target.value })}
+                                className={`${styles.formInput} ${styles.quickInput}`}
                                 rows={2}
-                                style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
                             />
                         </div>
                         <Flex $gap="0.5rem" className={styles.formActions}>
-                            <Button variation="secondary" size="small" onClick={() => setShowQuickNotification(false)} className={styles.cancelButton}>Cancel</Button>
-                            <Button variation="primary" size="small" onClick={handleCreateNotification} disabled={loading} className={styles.sendButton}>
-                                {loading ? 'Sending...' : 'Send to All'}
+                            <Button variation="secondary" size="small" onClick={() => setShowQuick(false)} className={styles.cancelButton}>Cancel</Button>
+                            <Button variation="primary" size="small" onClick={sendBroadcast} disabled={!canSend || table.saving} className={styles.sendButton}>
+                                {table.saving ? 'Sending...' : 'Send to All'}
                             </Button>
                         </Flex>
                     </div>
                 </div>
             )}
 
-            {error && <Alert variation="error" isDismissible>{error}</Alert>}
+            {table.error && <Alert variation="error" onDismiss={() => table.setError(null)}>{table.error}</Alert>}
 
-            <DataTable data={sortedNotifications} columns={columns} loading={loading} emptyMessage="No notifications found" onSort={handleSort} currentSort={sortConfig} />
+            <DataTable data={table.rows} columns={columns} rowKey={(n) => n.id} loading={table.loading} emptyMessage="No notifications found" />
 
             <div className={styles.tableFooter}>
-                <Text fontSize="sm" variation="secondary">Total: {notifications.length} notifications</Text>
-                <Text fontSize="sm" variation="secondary">Unread: {notifications.filter(n => !n.readAt).length}</Text>
+                <Text fontSize="sm" variation="secondary">Total: {table.items.length} notifications</Text>
+                <Text fontSize="sm" variation="secondary">
+                    Unread (direct): {table.items.filter((n) => !isBroadcast(n) && !n.readAt).length}
+                </Text>
             </div>
 
             <ConfirmDeleteModal
-                isOpen={!!deletingNotification}
-                onClose={() => setDeletingNotification(null)}
-                onConfirm={confirmDeleteNotification}
+                isOpen={!!deleting}
+                onClose={() => setDeleting(null)}
+                onConfirm={deleteNotification}
                 title="Delete Notification"
-                message="Are you sure you want to delete this notification?"
-                itemName={deletingNotification?.title}
-                loading={loading}
+                message={deleting && isBroadcast(deleting)
+                    ? 'Delete this broadcast? It disappears for every user.'
+                    : 'Are you sure you want to delete this notification?'}
+                itemName={deleting?.title}
+                loading={table.saving}
             />
         </div>
     );

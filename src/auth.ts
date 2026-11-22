@@ -61,10 +61,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ],
 
     callbacks: {
-        jwt({ token, user }) {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.admin = (user as { admin?: boolean }).admin ?? false;
+                return token;
+            }
+            if (!token.id) return token;
+
+            // The token outlives changes to the account, so check it on every use: an admin role
+            // removed in the admin view is gone on the next request, and a deleted account is signed out.
+            try {
+                await dbConnect();
+                const current = await User.findById(token.id).select('admin').lean();
+                if (!current) return null;
+                token.admin = current.admin ?? false;
+            } catch (err) {
+                console.error('[auth] Could not refresh the session from the database:', err);
+                token.admin = false; // fail closed
             }
             return token;
         },

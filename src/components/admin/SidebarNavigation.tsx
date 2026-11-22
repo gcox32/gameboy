@@ -2,7 +2,6 @@
 
 import { ReactNode } from 'react';
 import { FaUsers, FaGamepad, FaBell, FaArrowLeft } from 'react-icons/fa';
-import Link from 'next/link';
 import {
     AdminSidebar,
     SidebarBrand,
@@ -11,16 +10,15 @@ import {
     NavSection,
     NavSectionTitle,
     NavItem,
-    NavItemBadge
+    NavItemLink,
 } from './AdminLayout';
 
-type TabType = 'users' | 'games' | 'notifications';
+export type TabType = 'users' | 'games' | 'notifications';
 
 interface NavItemConfig {
     id: TabType;
     label: string;
     icon: ReactNode;
-    count?: number | null;
 }
 
 interface SidebarNavigationProps {
@@ -53,18 +51,15 @@ export default function SidebarNavigation({ activeTab, onTabChange }: SidebarNav
                         >
                             {item.icon}
                             {item.label}
-                            {item.count != null && item.count > 0 && (
-                                <NavItemBadge>{item.count}</NavItemBadge>
-                            )}
                         </NavItem>
                     ))}
                 </NavSection>
             </SidebarNav>
             <SidebarFooter>
-                <Link href="/play" className="relative flex items-center gap-3 w-full px-3 py-3 rounded-lg cursor-pointer text-sm text-left transition-all duration-150 bg-transparent text-[rgba(255,255,255,0.45)] font-medium hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.85)]">
+                <NavItemLink href="/play">
                     <FaArrowLeft />
                     Back to Game
-                </Link>
+                </NavItemLink>
             </SidebarFooter>
         </AdminSidebar>
     );

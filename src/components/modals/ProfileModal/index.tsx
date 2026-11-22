@@ -149,6 +149,8 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
                             height={248}
                             sizes="248px"
                             className={styles.photo}
+                            // The optimizer fetches without the user's cookies, which /api/blob/file needs
+                            unoptimized
                         />
                         {isEditing && (
                             <div className={styles.photoActions}>

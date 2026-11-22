@@ -9,7 +9,10 @@ export interface INotification extends Document {
     type: NotificationType;
     title: string;
     body?: string;
+    /** Direct notifications only. A broadcast is read per user, in readBy. */
     readAt?: Date;
+    /** Broadcasts only: who has read it, and when */
+    readBy?: { userId: string; readAt: Date }[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -22,6 +25,10 @@ const NotificationSchema = new Schema<INotification>(
         title: { type: String, required: true },
         body: { type: String },
         readAt: { type: Date },
+        readBy: {
+            type: [new Schema({ userId: { type: String, required: true }, readAt: { type: Date, required: true } }, { _id: false })],
+            default: undefined,
+        },
     },
     { timestamps: true, toJSON: { virtuals: true } }
 );

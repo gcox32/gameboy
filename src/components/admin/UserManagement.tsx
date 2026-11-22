@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { blobReadUrl } from '@/utils/blobUpload';
 import { Flex, Text, Alert } from '@/components/ui';
-import DataTable from './DataTable';
+import { useAuth } from '@/contexts/AuthContext';
+import DataTable, { Column } from './DataTable';
 import AdminModal from './AdminModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
+import { useAdminTable, ensureOk } from './useAdminTable';
 import styles from '@/styles/admin.module.css';
-import { FaEdit, FaTrash } from 'react-icons/fa';
-import Image from 'next/image';
-import buttons from '@/styles/buttons.module.css';
 
 interface Profile {
     id: string;
@@ -22,220 +23,157 @@ interface Profile {
     admin: boolean;
 }
 
+async function loadUsers(): Promise<Profile[]> {
+    const res = await ensureOk(await fetch('/api/profiles?all=true'), 'Failed to load users');
+    return res.json();
+}
+
+const searchText = (u: Profile) => [u.username, u.email];
+
 export default function UserManagement() {
-    const [users, setUsers] = useState<Profile[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
+    const table = useAdminTable({ load: loadUsers, searchText });
     const [editingUser, setEditingUser] = useState<Profile | null>(null);
-    const [showCreateModal, setShowCreateModal] = useState(false);
     const [deletingUser, setDeletingUser] = useState<Profile | null>(null);
-    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+    const currentUser = useAuth()?.user;
+    const isSelf = (u: Profile) => u.userId === currentUser?.userId;
 
-    const loadUsers = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const res = await fetch('/api/profiles?all=true');
-            if (!res.ok) throw new Error('Failed to load users');
-            setUsers(await res.json());
-        } catch (err) {
-            setError('Failed to load users. Please try again.');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => { loadUsers(); }, [loadUsers]);
-
-    const handleSort = (key: string, direction: 'asc' | 'desc') => {
-        setSortConfig({ key, direction });
-    };
-
-    const filteredUsers = users.filter(user =>
-        user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const sortedUsers = [...filteredUsers].sort((a, b) => {
-        if (!sortConfig) return 0;
-        const aVal = a[sortConfig.key as keyof Profile] ?? '';
-        const bVal = b[sortConfig.key as keyof Profile] ?? '';
-        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    const handleSaveUser = async () => {
+    const saveUser = async () => {
         if (!editingUser) return;
-        try {
-            setLoading(true);
-            const res = await fetch(`/api/profiles/${editingUser.id}`, {
+        const { id, username, bio, admin } = editingUser;
+        const ok = await table.run(
+            async () => ensureOk(await fetch(`/api/profiles/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: editingUser.username,
-                    email: editingUser.email,
-                    bio: editingUser.bio,
-                    admin: editingUser.admin,
-                }),
-            });
-            if (!res.ok) throw new Error('Update failed');
-            setEditingUser(null);
-            loadUsers();
-        } catch (err) {
-            setError('Failed to update user. Please try again.');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+                body: JSON.stringify({ username, bio, admin }),
+            }), 'Update failed'),
+            `Saved ${username}`,
+            'Failed to update user',
+        );
+        if (ok) setEditingUser(null);
     };
 
-    const confirmDeleteUser = async () => {
+    const deleteUser = async () => {
         if (!deletingUser) return;
-        try {
-            setLoading(true);
-            await fetch(`/api/profiles/${deletingUser.id}`, { method: 'DELETE' });
-            setDeletingUser(null);
-            await loadUsers();
-        } catch (err) {
-            setError('Failed to delete user. Please try again.');
-            console.error(err);
-            setLoading(false);
-        }
+        const { id, username } = deletingUser;
+        await table.run(
+            async () => ensureOk(await fetch(`/api/profiles/${id}`, { method: 'DELETE' }), 'Delete failed'),
+            `Deleted ${username}`,
+            'Failed to delete user',
+        );
+        setDeletingUser(null);
     };
 
-    const columns = [
+    const columns: Column<Profile>[] = [
         {
             key: 'username',
             header: 'Username',
-            sortable: true,
-            render: (user: Profile) => (
+            sortValue: (u) => u.username,
+            render: (u) => (
                 <Flex $alignItems="center" $gap="0.75rem">
-                    {user.avatar && (
-                        <Image
-                            src={blobReadUrl(user.avatar)}
-                            alt={user.username}
-                            className={styles.avatar}
-                            width={32}
-                            height={32}
-                        />
+                    {u.avatar && (
+                        // Unoptimized: the optimizer fetches without the cookies /api/blob/file needs
+                        <Image src={blobReadUrl(u.avatar)} alt={u.username} className={styles.avatar} width={32} height={32} unoptimized />
                     )}
-                    <Text fontWeight="medium">{user.username}</Text>
+                    <Text fontWeight="medium">{u.username}</Text>
                 </Flex>
-            )
+            ),
         },
-        { key: 'email', header: 'Email', sortable: true },
+        { key: 'email', header: 'Email', sortValue: (u) => u.email },
         {
             key: 'admin',
             header: 'Role',
-            sortable: true,
-            render: (user: Profile) => (
-                <span className={`${styles.statusBadge} ${user.admin ? styles.statusBadgeActive : styles.statusBadgeInactive}`}>
-                    {user.admin ? 'Admin' : 'User'}
+            sortValue: (u) => (u.admin ? 0 : 1),
+            render: (u) => (
+                <span className={`${styles.statusBadge} ${u.admin ? styles.statusBadgeActive : styles.statusBadgeInactive}`}>
+                    {u.admin ? 'Admin' : 'User'}
                 </span>
-            )
+            ),
         },
         {
             key: 'userId',
             header: 'User ID',
-            sortable: false,
-            render: (user: Profile) => (
-                <Text fontSize="sm" style={{ fontFamily: 'monospace' }}>
-                    {user.userId ?? ''}
-                </Text>
-            )
+            render: (u) => <Text fontSize="sm" className={styles.mono}>{u.userId}</Text>,
         },
         {
             key: 'actions',
             header: 'Actions',
-            sortable: false,
-            render: (user: Profile) => (
+            render: (u) => (
                 <Flex $gap="0.5rem">
-                    <button onClick={() => setEditingUser(user)} className={`${styles.actionButton} edit`} title="Edit user">
+                    <button onClick={() => setEditingUser(u)} className={`${styles.actionButton} ${styles.edit}`} title="Edit user">
                         <FaEdit />
                     </button>
-                    <button onClick={() => setDeletingUser(user)} className={`${styles.actionButton} destructive`} title="Delete user">
+                    <button
+                        onClick={() => setDeletingUser(u)}
+                        className={`${styles.actionButton} ${styles.destructive}`}
+                        disabled={isSelf(u)}
+                        title={isSelf(u) ? "You can't delete your own account here" : 'Delete user'}
+                    >
                         <FaTrash />
                     </button>
                 </Flex>
-            )
-        }
+            ),
+        },
     ];
 
     return (
         <div className={styles.managementContainer}>
-            <Flex $justifyContent="space-between" $alignItems="center" className={styles.tableToolbar}>
-                <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Search users..." />
-                <div className={buttons.buttonGroup} style={{ width: 'auto', alignItems: 'flex-end' }}>
-                    <button className={buttons.retroButton} onClick={() => setShowCreateModal(true)}>
-                        Create User
-                    </button>
-                </div>
-            </Flex>
+            <div className={styles.tableToolbar}>
+                <SearchInput value={table.searchTerm} onChange={table.setSearchTerm} placeholder="Search users..." />
+            </div>
 
-            {error && <Alert variation="error" isDismissible>{error}</Alert>}
+            {table.error && <Alert variation="error" onDismiss={() => table.setError(null)}>{table.error}</Alert>}
 
-            <DataTable
-                data={sortedUsers}
-                columns={columns}
-                loading={loading}
-                emptyMessage="No users found"
-                onSort={handleSort}
-                currentSort={sortConfig}
-            />
+            <DataTable data={table.rows} columns={columns} rowKey={(u) => u.id} loading={table.loading} emptyMessage="No users found" />
 
             <div className={styles.tableFooter}>
-                <Text fontSize="sm" variation="secondary">Total: {users.length} users</Text>
+                <Text fontSize="sm" variation="secondary">Total: {table.items.length} users</Text>
             </div>
 
             <AdminModal
                 isOpen={!!editingUser}
                 onClose={() => setEditingUser(null)}
                 title={`Edit User: ${editingUser?.username}`}
-                onSave={handleSaveUser}
-                loading={loading}
+                onSave={saveUser}
+                loading={table.saving}
             >
                 {editingUser && (
                     <Flex $direction="column" $gap="1rem">
                         <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Username</label>
-                            <input type="text" value={editingUser.username} onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })} className={styles.formInput} />
+                            <label htmlFor="user-username" className={styles.formLabel}>Username</label>
+                            <input id="user-username" type="text" value={editingUser.username} onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })} className={styles.formInput} />
                         </div>
                         <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Email</label>
-                            <input type="email" value={editingUser.email} onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })} className={styles.formInput} />
+                            <label htmlFor="user-email" className={styles.formLabel}>Email</label>
+                            <input id="user-email" type="email" value={editingUser.email} disabled className={styles.formInput} title="The login email, which the user's files are stored under" />
                         </div>
                         <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Bio</label>
-                            <textarea value={editingUser.bio || ''} onChange={(e) => setEditingUser({ ...editingUser, bio: e.target.value })} className={styles.formInput} rows={3} />
+                            <label htmlFor="user-bio" className={styles.formLabel}>Bio</label>
+                            <textarea id="user-bio" value={editingUser.bio || ''} onChange={(e) => setEditingUser({ ...editingUser, bio: e.target.value })} className={styles.formInput} rows={3} />
                         </div>
                         <div className={styles.checkboxGroup}>
-                            <input type="checkbox" id="admin" checked={editingUser.admin} onChange={(e) => setEditingUser({ ...editingUser, admin: e.target.checked })} className={styles.checkbox} />
-                            <label htmlFor="admin" className={styles.formLabel}>Administrator</label>
+                            <input
+                                type="checkbox"
+                                id="user-admin"
+                                checked={editingUser.admin}
+                                disabled={isSelf(editingUser)}
+                                title={isSelf(editingUser) ? "You can't remove your own admin role" : undefined}
+                                onChange={(e) => setEditingUser({ ...editingUser, admin: e.target.checked })}
+                                className={styles.checkbox}
+                            />
+                            <label htmlFor="user-admin" className={styles.formLabel}>Administrator</label>
                         </div>
                     </Flex>
                 )}
             </AdminModal>
 
-            <AdminModal
-                isOpen={showCreateModal}
-                onClose={() => setShowCreateModal(false)}
-                title="Create New User"
-                onSave={() => setShowCreateModal(false)}
-            >
-                <Text>User creation is not yet implemented.</Text>
-            </AdminModal>
-
             <ConfirmDeleteModal
                 isOpen={!!deletingUser}
                 onClose={() => setDeletingUser(null)}
-                onConfirm={confirmDeleteUser}
+                onConfirm={deleteUser}
                 title="Delete User"
-                message="Are you sure you want to delete this user? This action cannot be undone."
+                message="Delete this user and everything they own: games, saves, Ranch Pokémon and files? This can't be undone."
                 itemName={deletingUser?.username}
-                loading={loading}
+                loading={table.saving}
             />
         </div>
     );

@@ -1,23 +1,14 @@
-/* Loading state */
-.loadingContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-size: 1.2rem;
-    color: var(--neutral-500);
-}
-
-/* Management container - consistent layout for all admin sections */
+/* Layout shared by every admin section */
 .managementContainer {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-/* Table toolbar - search left, action button right */
+/* Search on the left, an action on the right */
 .tableToolbar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 0.5rem;
@@ -25,7 +16,6 @@
     margin-bottom: 1rem;
 }
 
-/* Table footer - totals on the left */
 .tableFooter {
     display: flex;
     justify-content: space-between;
@@ -33,24 +23,6 @@
     padding: 1rem 0.5rem;
     margin-top: auto;
     border-top: 1px solid var(--border-color);
-}
-
-/* Admin Components */
-.adminHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.adminActions {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 1rem;
 }
 
 .searchInput {
@@ -69,18 +41,22 @@
     box-shadow: 0 0 0 2px rgba(123, 104, 166, 0.25);
 }
 
-/* Data Table */
+.mono {
+    font-family: monospace;
+}
+
+/* Data table */
+.tableContainer {
+    overflow-x: auto;
+    border-radius: 8px;
+    min-height: 400px;
+    width: 100%;
+}
+
 .dataTable {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-}
-
-.dataTable td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 0; /* Required for text-overflow to work with table-layout: fixed */
 }
 
 .dataTable th,
@@ -88,6 +64,13 @@
     padding: 1rem 1.25rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
+}
+
+.dataTable td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 0; /* Required for text-overflow to work with table-layout: fixed */
 }
 
 .dataTable th {
@@ -103,17 +86,32 @@
     transition: background-color 0.15s ease;
 }
 
-.dataTable tbody tr:hover {
-    background-color: var(--hover-background-color);
-}
-
-/* Zebra striping for table rows */
 .dataTable tbody tr:nth-child(odd) {
     background-color: rgba(0, 0, 0, 0.015);
 }
 
-.dataTable tbody tr:nth-child(even) {
-    background-color: transparent;
+.dataTable tbody tr:hover {
+    background-color: var(--hover-background-color);
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable:hover {
+    background-color: var(--hover-background-color);
+}
+
+.headerContent {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sortIndicator {
+    font-size: 0.75rem;
+    opacity: 0.7;
 }
 
 .emptyState {
@@ -128,16 +126,23 @@
     opacity: 0.5;
 }
 
-.loadingSpinner {
-    text-align: center;
-    padding: 4rem 2rem;
-    min-height: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border-color);
 }
 
-/* Action buttons with borders and better hover */
+.gameImage {
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+/* Row actions */
 .actionButton {
     padding: 0.5rem;
     border: 1px solid var(--border-color);
@@ -170,10 +175,78 @@
     color: rgb(220, 38, 38);
 }
 
+.actionButton:disabled,
+.actionButton:disabled:hover {
+    opacity: 0.35;
+    cursor: not-allowed;
+    color: var(--neutral-500);
+    background: var(--background-color);
+    border-color: var(--border-color);
+}
+
+/* Status badges, with a dot */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.statusBadge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.statusBadgeActive {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: rgb(22, 163, 74);
+}
+
+.statusBadgeActive::before {
+    background-color: rgb(34, 197, 94);
+}
+
+.statusBadgeInactive {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: rgb(107, 114, 128);
+}
+
+.statusBadgeInactive::before {
+    background-color: rgb(156, 163, 175);
+}
+
+.statusBadgeInfo {
+    background-color: rgba(123, 104, 166, 0.15);
+    color: #a090cc;
+}
+
+.statusBadgeInfo::before {
+    background-color: #7b68a6;
+}
+
+/* Modals and forms */
 .modal {
     max-width: 90vw;
     max-height: 90vh;
     overflow-y: auto;
+}
+
+.modalSmall {
+    width: 400px;
+}
+
+.modalMedium {
+    width: 600px;
+}
+
+.modalLarge {
+    width: 800px;
 }
 
 .form {
@@ -242,199 +315,6 @@
     accent-color: var(--button-primary-bg);
 }
 
-/* Status badges with dot indicator */
-.statusBadge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: capitalize;
-}
-
-.statusBadge::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.statusBadge.active,
-.statusBadgeActive {
-    background-color: rgba(34, 197, 94, 0.1);
-    color: rgb(22, 163, 74);
-}
-
-.statusBadge.active::before,
-.statusBadgeActive::before {
-    background-color: rgb(34, 197, 94);
-}
-
-.statusBadge.inactive,
-.statusBadgeInactive {
-    background-color: rgba(156, 163, 175, 0.1);
-    color: rgb(107, 114, 128);
-}
-
-.statusBadge.inactive::before,
-.statusBadgeInactive::before {
-    background-color: rgb(156, 163, 175);
-}
-
-.statusBadge.pending {
-    background-color: rgba(251, 191, 36, 0.1);
-    color: rgb(217, 119, 6);
-}
-
-.statusBadge.pending::before {
-    background-color: rgb(251, 191, 36);
-}
-
-.statusBadge.error {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: rgb(220, 38, 38);
-}
-
-.statusBadge.error::before {
-    background-color: rgb(239, 68, 68);
-}
-
-.avatar {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--border-color);
-}
-
-.gameImage {
-    width: 3rem;
-    height: 3rem;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-}
-
-.gameCard {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    transition: all 0.2s ease;
-}
-
-.gameCard:hover {
-    border-color: var(--button-primary-bg);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.pageButton {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color);
-    background: var(--background-color);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    color: var(--foreground-rgb);
-}
-
-.pageButton:hover {
-    background-color: var(--hover-background-color);
-    border-color: var(--neutral-500);
-}
-
-.pageButton.active {
-    background-color: var(--button-primary-bg);
-    color: white;
-    border-color: var(--button-primary-bg);
-}
-
-.quickNotification {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-}
-
-.quickNotification h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.25rem;
-}
-
-.quickForm {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-end;
-}
-
-.quickForm .formGroup {
-    flex: 1;
-}
-
-.quickForm .formActions {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-}
-
-/* Table styles */
-.tableContainer {
-    overflow-x: auto;
-    border-radius: 8px;
-    min-height: 400px;
-    width: 100%;
-}
-
-.sortable {
-    cursor: pointer;
-    user-select: none;
-}
-
-.sortable:hover {
-    background-color: var(--hover-background-color);
-}
-
-.headerContent {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.sortIndicator {
-    font-size: 0.75rem;
-    opacity: 0.7;
-}
-
-/* Modal sizes */
-.modalSmall {
-    width: 400px;
-}
-
-.modalMedium {
-    width: 600px;
-}
-
-.modalLarge {
-    width: 800px;
-}
-
-/* Modal buttons */
 .modalCancelButton,
 .modalDeleteButton {
     padding: 0.625rem 1.25rem;
@@ -472,7 +352,71 @@
     cursor: not-allowed;
 }
 
-/* Responsive */
+/* Quick notification */
+.quickNotification {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.quickNotification h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+}
+
+.quickHint {
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.quickForm {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.quickForm .formGroup {
+    flex: 1;
+}
+
+.quickForm .formActions {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.quickInput {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.quickInput::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.sendButton {
+    background: white !important;
+    color: #667eea !important;
+}
+
+.sendButton:hover:not(:disabled) {
+    background: #f0f0f0 !important;
+    color: #5a67d8 !important;
+}
+
+.cancelButton {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.cancelButton:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
 @media (max-width: 768px) {
     .modalSmall,
     .modalMedium,
@@ -485,40 +429,19 @@
         grid-template-columns: 1fr;
     }
 
-    .adminActions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
+    /* Takes the row, and wraps any toolbar button below once there isn't room for both */
     .searchInput {
-        min-width: auto;
-        width: 100%;
+        min-width: 0;
+        flex: 1 1 12rem;
     }
 
-    .adminHeader {
+    /* Columns keep a readable width; the panel scrolls sideways instead */
+    .dataTable {
+        min-width: 720px;
+    }
+
+    .quickForm {
         flex-direction: column;
-        gap: 1rem;
         align-items: stretch;
     }
-}
-
-/* Custom button styles for notifications */
-.sendButton {
-    background: white !important;
-    color: #667eea !important;
-}
-
-.sendButton:hover:not(:disabled) {
-    background: #f0f0f0 !important;
-    color: #5a67d8 !important;
-}
-
-.cancelButton {
-    background: rgba(255,255,255,0.2) !important;
-    color: white !important;
-    border: 1px solid rgba(255,255,255,0.3) !important;
-}
-
-.cancelButton:hover:not(:disabled) {
-    background: rgba(255,255,255,0.3) !important;
 }

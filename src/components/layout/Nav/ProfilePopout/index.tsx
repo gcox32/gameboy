@@ -48,6 +48,8 @@ const ProfilePopout = ({
                         width={40}
                         height={40}
                         className={styles.avatar}
+                        // The optimizer fetches without the user's cookies, which /api/blob/file needs
+                        unoptimized
                     />
                 ) : (
                     <div className={styles.avatarPlaceholder}>
