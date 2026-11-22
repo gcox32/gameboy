@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { blobReadUrl } from '@/utils/blobUpload';
 import { Flex, Text, Alert } from '@/components/ui';
 import DataTable from './DataTable';
 import AdminModal from './AdminModal';
@@ -117,7 +118,7 @@ export default function GamesManagement() {
             render: (game: GameModel) => (
                 <Flex $alignItems="center" $gap="0.75rem">
                     {game.img && (
-                        <Image src={game.img} alt={game.title} className={styles.gameImage} width={32} height={32} />
+                        <Image src={blobReadUrl(game.img)} alt={game.title} className={styles.gameImage} width={32} height={32} unoptimized />
                     )}
                     <Flex $direction="column">
                         <Text fontWeight="medium">{game.title}</Text>

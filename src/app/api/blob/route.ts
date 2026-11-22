@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { del } from '@vercel/blob';
 import { auth } from '@/auth';
-import { sanitizeEmail } from '@/utils/blobPaths';
+import { deleteBlob, ownsBlobUrl } from '@/lib/blob';
 
 // DELETE /api/blob?url=<blobUrl>
 export async function DELETE(req: NextRequest) {
@@ -10,19 +9,15 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const url = searchParams.get('url');
-
+    const url = req.nextUrl.searchParams.get('url');
     if (!url) {
         return NextResponse.json({ error: 'url is required' }, { status: 400 });
     }
 
-    const emailSlug = session.user.email ? sanitizeEmail(session.user.email) : null;
-    const ownedByUser = url.includes(session.user.id) || (emailSlug && url.includes(emailSlug));
-    if (!ownedByUser && !session.user.admin) {
+    if (!ownsBlobUrl(url, session.user) && !session.user.admin) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await del(url);
+    await deleteBlob(url);
     return NextResponse.json({ success: true });
 }

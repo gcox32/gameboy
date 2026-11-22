@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { blobReadUrl } from '@/utils/blobUpload';
 import { Flex, Text, Alert } from '@/components/ui';
 import DataTable from './DataTable';
 import AdminModal from './AdminModal';
@@ -114,7 +115,7 @@ export default function UserManagement() {
                 <Flex $alignItems="center" $gap="0.75rem">
                     {user.avatar && (
                         <Image
-                            src={user.avatar}
+                            src={blobReadUrl(user.avatar)}
                             alt={user.username}
                             className={styles.avatar}
                             width={32}

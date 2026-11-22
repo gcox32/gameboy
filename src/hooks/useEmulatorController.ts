@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { blobReadUrl } from '@/utils/blobUpload';
 import { loadInGameFile } from '@/utils/saveLoad';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useGame } from '@/contexts/GameContext';
@@ -384,8 +385,7 @@ export function useEmulatorController() {
     /** Resolves to whether the save loaded, so the caller knows to close its modal */
     const loadSaveState = async (selectedSaveState: SaveStateModel) => {
         try {
-            // filePath is a Vercel Blob permanent URL — fetch directly
-            const response = await fetch(selectedSaveState.filePath, { cache: 'no-store' });
+            const response = await fetch(blobReadUrl(selectedSaveState.filePath), { cache: 'no-store' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

@@ -1,4 +1,5 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { blobReadUrl, withVersion } from '@/utils/blobUpload';
 import { Download, Trash2, Upload } from 'lucide-react';
 import BaseModal from '../BaseModal';
 import CartridgeIcon from '@/components/icons/CartridgeIcon';
@@ -129,7 +130,7 @@ function LoadStateModal({ isOpen, onClose, saveStates, onConfirm, onDelete, acti
                                         {save.img ? (
                                             // Saves overwrite their screenshot at the same URL, so the version shows the latest
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={`${save.img}?v=${encodeURIComponent(save.updatedAt ?? '')}`} alt="" />
+                                            <img src={withVersion(blobReadUrl(save.img), save.updatedAt)} alt="" />
                                         ) : (
                                             <CartridgeIcon size={24} />
                                         )}

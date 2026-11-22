@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SaveContents, readSaveContents, validateGen1Save } from '@/utils/pokemon/gen1Save';
 import { useCurrentGame } from '@/contexts/CurrentGameContext';
+import { blobReadUrl } from '@/utils/blobUpload';
 
 /** The monitor page for the party. Boxes are pages 0–11. */
 export const PARTY_PAGE = -1;
@@ -57,7 +58,7 @@ export function useLabSave() {
         (async () => {
             setLoadingSave(true);
             try {
-                const res = await fetch(filePath, { cache: 'no-store' });
+                const res = await fetch(blobReadUrl(filePath), { cache: 'no-store' });
                 if (cancelled) return;
                 if (!res.ok) {
                     fail(`Could not load save file (${res.status}). Check the file URL.`);

@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
+import { blobReadUrl } from '@/utils/blobUpload';
 import { createPortal } from 'react-dom';
 import BaseModal from '@/components/modals/BaseModal';
 import { getAppShell } from '@/lib/appShell';
@@ -97,7 +98,7 @@ export function CartridgeShelf({
                                                     style={game.img ? undefined : { background: gradient }}
                                                 >
                                                     {game.img
-                                                        ? <img src={game.img} alt={game.title} className={styles.coverImg} />
+                                                        ? <img src={blobReadUrl(game.img)} alt={game.title} className={styles.coverImg} />
                                                         : <span className={styles.coverInitial}>{game.title[0]}</span>
                                                     }
                                                     {isConfirmed && <div className={styles.checkBadge}>✓</div>}

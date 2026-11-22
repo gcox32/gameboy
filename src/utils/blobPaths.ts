@@ -23,7 +23,9 @@ export function isUserSaveUrl(value: unknown, user: { id: string; email?: string
     } catch {
         return false;
     }
-    if (url.protocol !== 'https:' || !url.hostname.endsWith('.public.blob.vercel-storage.com')) return false;
+    const ourStore = url.hostname.endsWith('.public.blob.vercel-storage.com')
+        || url.hostname.endsWith('.private.blob.vercel-storage.com');
+    if (url.protocol !== 'https:' || !ourStore) return false;
     const inEmailFolder = !!user.email && url.pathname.startsWith(`/saves/${sanitizeEmail(user.email)}/`);
     return inEmailFolder || url.pathname.includes(user.id);
 }

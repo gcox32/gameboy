@@ -1,4 +1,5 @@
 import { ROM_HEADER } from '@/utils/romDetection';
+import { blobReadUrl } from '@/utils/blobUpload';
 
 /**
  * Turns a stored save (a JSON blob holding the cartridge's battery-backed RAM as
@@ -7,7 +8,7 @@ import { ROM_HEADER } from '@/utils/romDetection';
  * like FlashGBX.
  */
 export async function fetchSavBytes(filePath: string): Promise<Uint8Array<ArrayBuffer>> {
-    const res = await fetch(filePath, { cache: 'no-store' });
+    const res = await fetch(blobReadUrl(filePath), { cache: 'no-store' });
     if (!res.ok) throw new Error(`Could not load save file (${res.status})`);
     const json = (await res.json()) as { MBCRam?: unknown };
     if (!Array.isArray(json.MBCRam) || json.MBCRam.length === 0) {
@@ -47,7 +48,7 @@ export async function fetchRomHeader(gameId: string): Promise<Uint8Array> {
     if (!game.filePath) throw new Error('Game has no ROM file');
 
     // Same versioned URL the emulator loads, since ROMs are overwritten in place
-    const url = new URL(game.filePath, window.location.href);
+    const url = new URL(blobReadUrl(game.filePath), window.location.href);
     if (game.updatedAt) url.searchParams.set('v', game.updatedAt);
 
     // A server ignoring the range sends the whole ROM, which still has the header

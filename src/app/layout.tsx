@@ -9,7 +9,6 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { GameProvider } from '../contexts/GameContext';
 import { ProfileProvider } from '@/contexts/ProfileContext';
-import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -58,7 +57,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </SettingsProvider>
           </ProfileProvider>
         </AuthProvider>
-        <GoogleAnalytics />
       </body>
     </html>
   );

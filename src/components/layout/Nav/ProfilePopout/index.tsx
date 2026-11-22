@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { blobReadUrl } from '@/utils/blobUpload';
 import Image from 'next/image';
 import styles from './styles.module.css';
 import { FaCog, FaSignOutAlt, FaUser, FaUserShield } from 'react-icons/fa';
@@ -41,7 +42,7 @@ const ProfilePopout = ({
             >
                 {userProfile && avatarUrl ? (
                     <Image
-                        src={avatarUrl}
+                        src={blobReadUrl(avatarUrl)}
                         alt={userProfile.username}
                         title={userProfile.username}
                         width={40}

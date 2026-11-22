@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
 import { auth } from '@/auth';
-import { sanitizeEmail } from '@/utils/blobPaths';
+import { ownsBlobPath, putUserFile } from '@/lib/blob';
 
 // POST /api/blob/upload
 // FormData: { file: File, path: string, unique?: 'true' }
@@ -20,17 +19,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'file and path are required' }, { status: 400 });
     }
 
-    const emailSlug = session.user.email ? sanitizeEmail(session.user.email) : null;
-    const ownedByUser = path.includes(session.user.id) || (emailSlug && path.includes(emailSlug));
-    if (!ownedByUser && !session.user.admin) {
+    if (!ownsBlobPath(path, session.user) && !session.user.admin) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const blob = await put(path, file, {
-        access: 'public',
+    const url = await putUserFile(path, file, {
         contentType: file.type || 'application/octet-stream',
         ...(formData.get('unique') === 'true' ? { addRandomSuffix: true } : { allowOverwrite: true }),
     });
 
-    return NextResponse.json({ url: blob.url });
+    return NextResponse.json({ url });
 }

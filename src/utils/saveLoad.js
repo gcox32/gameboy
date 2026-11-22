@@ -1,3 +1,4 @@
+import { blobReadUrl } from '@/utils/blobUpload';
 
 export async function fetchUserSaveStates(userId, gameId) {
     try {
@@ -16,10 +17,10 @@ export async function loadInGameFile(filePath, version) {
     // ROMs are overwritten in-place in Vercel Blob (same URL), and blobs are served
     // with a long-lived, immutable Cache-Control. Append a version token (the game's
     // updatedAt) so a replaced ROM produces a distinct browser/CDN cache key.
-    let url = filePath;
+    let url = blobReadUrl(filePath);
     if (version !== undefined && version !== null && version !== '') {
         const token = encodeURIComponent(String(version));
-        url += (filePath.includes('?') ? '&' : '?') + `v=${token}`;
+        url += (url.includes('?') ? '&' : '?') + `v=${token}`;
     }
     return fetch(url);
 }

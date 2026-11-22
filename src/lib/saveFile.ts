@@ -1,4 +1,4 @@
-import { del, put } from '@vercel/blob';
+import { deleteBlob, putUserFile, readBlob } from '@/lib/blob';
 import { SaveState } from '@/models';
 import type { ISaveState } from '@/models/SaveState';
 import type { IGame } from '@/models/Game';
@@ -6,7 +6,12 @@ import { validateGen1Save } from '@/utils/pokemon/gen1Save';
 import { saveBlobPath } from '@/utils/blobPaths';
 
 // An object so tests can replace blob storage
-export const blobStore = { put, del };
+export const blobStore = {
+    put: (pathname: string, body: Buffer, options: { addRandomSuffix?: boolean }) =>
+        putUserFile(pathname, body, options).then((url) => ({ url })),
+    del: deleteBlob,
+    read: readBlob,
+};
 
 export type LoadedSave =
     | { sram: Uint8Array; error?: undefined; status?: undefined }
@@ -25,7 +30,7 @@ export async function loadGen1Save(saveState: ISaveState, game: IGame | null): P
         return { error: "This save has no file yet. Save from the game's menu, then save it here.", status: 422 };
     }
 
-    const res = await fetch(saveState.filePath, { cache: 'no-store' });
+    const res = await blobStore.read(saveState.filePath);
     if (!res.ok) return { error: 'Failed to fetch save file', status: 502 };
 
     let json: { MBCRam?: unknown };
@@ -57,7 +62,7 @@ export interface SaveOwner {
 export async function uploadSave(saveState: ISaveState, sram: Uint8Array, owner: SaveOwner): Promise<string> {
     const blobPath = saveBlobPath(owner.identity, owner.gameTitle, saveState.title ?? 'save', String(saveState._id));
     const body = Buffer.from(JSON.stringify({ MBCRam: Array.from(sram) }));
-    const blob = await blobStore.put(blobPath, body, { access: 'public', addRandomSuffix: true });
+    const blob = await blobStore.put(blobPath, body, { addRandomSuffix: true });
     return blob.url;
 }
 

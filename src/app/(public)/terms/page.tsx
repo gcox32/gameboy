@@ -1,61 +1,102 @@
+import Link from 'next/link';
+import clsx from 'clsx';
 import styles from '../styles.module.css';
 
-export default function TermsAndConditions() {
+const SUPPORT = 'support@grantcox.net';
+
+export default function TermsOfService() {
     return (
-        <div className={`${styles.container} ${styles.staticPage}`}>
-            <header>
+        <div className={clsx(styles.container, styles.aboutPage)}>
+            <header className={styles.header}>
                 <h1 className={styles.title}>Terms of Service</h1>
-                <p className={styles.lastUpdated}>Last updated: November 2024</p>
+                <p className={styles.lede}>
+                    The ground rules for using JS GBC. By creating an account or using the site, you agree to them.
+                    Last updated November 2026.
+                </p>
             </header>
 
-            <section>
-                <p className={styles.paragraph}>
-                    Welcome to JS GBC. By accessing or using our website, you agree to be bound by these Terms of Service.
-                </p>
-            </section>
-
-            <section>
-                <h2 className={styles.sectionTitle}>Account Terms</h2>
-                <p className={styles.paragraph}>
-                    To access certain features of JS GBC, you may need to create an account. You agree to:
-                </p>
-                <ul>
-                    <li>Provide accurate and complete information</li>
-                    <li>Maintain the security of your account credentials</li>
-                    <li>Accept responsibility for all activities under your account</li>
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>Your account</h2>
+                <ul className={styles.paperList}>
+                    <li>You must be 13 or older to create an account.</li>
+                    <li>Use an email address you can receive mail at, and keep your password to yourself.</li>
+                    <li>You&apos;re responsible for what happens under your account.</li>
                 </ul>
             </section>
 
-            <section>
-                <h2 className={styles.sectionTitle}>Acceptable Use</h2>
-                <p className={styles.paragraph}>
-                    When using JS GBC, you agree not to:
-                </p>
-                <ul>
-                    <li>Violate any applicable laws or regulations</li>
-                    <li>Infringe upon intellectual property rights</li>
-                    <li>Attempt to breach or circumvent site security</li>
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>Your games</h2>
+                <dl className={styles.facts}>
+                    <dt>Bring your own</dt>
+                    <dd>
+                        JS GBC doesn&apos;t provide or sell games. Only upload ROMs and saves you have the right to use,
+                        such as copies you made from cartridges you own.
+                    </dd>
+
+                    <dt>Kept private</dt>
+                    <dd>
+                        Files you upload are stored privately for your account. They aren&apos;t shared, listed or
+                        made available to anyone else.
+                    </dd>
+
+                    <dt>Copyright</dt>
+                    <dd>
+                        We may remove files and close accounts that infringe someone&apos;s rights. To report
+                        infringement, email <a href={`mailto:${SUPPORT}`} className={styles.paperLink}>{SUPPORT}</a>.
+                    </dd>
+                </dl>
+            </section>
+
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>Fair use of the site</h2>
+                <p className={styles.paperText}>When using JS GBC, don&apos;t:</p>
+                <ul className={styles.paperList}>
+                    <li>Break the law, or use the site to infringe anyone&apos;s rights.</li>
+                    <li>Try to get into other people&apos;s accounts or files, or get around the site&apos;s security.</li>
+                    <li>Overload the site, or use bots or scripts against it.</li>
                 </ul>
             </section>
 
-            <section>
-                <h2 className={styles.sectionTitle}>Game Content</h2>
-                <p className={styles.paragraph}>
-                    Users are responsible for providing their own game files. JS GBC does not provide or host game ROMs.
-                </p>
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>The service</h2>
+                <dl className={styles.facts}>
+                    <dt>Provided as is</dt>
+                    <dd>
+                        JS GBC is a free hobby project, offered without warranties. It may have bugs, be unavailable at
+                        times, or change. Download your saves as <code>.sav</code> files if you want your own backups.
+                    </dd>
+
+                    <dt>Changes and closure</dt>
+                    <dd>
+                        We may change or discontinue the site. We&apos;ll try to give notice first, so you can download
+                        your saves.
+                    </dd>
+
+                    <dt>Liability</dt>
+                    <dd>
+                        To the extent the law allows, we aren&apos;t liable for lost data, lost progress or other
+                        damages from using the site.
+                    </dd>
+
+                    <dt>Ending your account</dt>
+                    <dd>
+                        You can ask us to delete your account at any time; see the{' '}
+                        <Link href="/privacy-policy" className={styles.paperLink}>Privacy Policy</Link>. We may suspend
+                        or close accounts that break these terms.
+                    </dd>
+                </dl>
             </section>
 
-            <section>
-                <h2 className={styles.sectionTitle}>Modifications to Service</h2>
+            <section className={styles.legal}>
+                <h2 className={styles.sectionTitle}>Trademarks and contact</h2>
+                <ul className={styles.featureList}>
+                    <li>Game Boy and Game Boy Color are trademarks of Nintendo Co., Ltd.</li>
+                    <li>Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK inc.</li>
+                    <li>JS GBC is not affiliated with or endorsed by any of them.</li>
+                </ul>
                 <p className={styles.paragraph}>
-                    We reserve the right to modify or discontinue JS GBC at any time, with or without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuance of the service.
-                </p>
-            </section>
-
-            <section>
-                <h2 className={styles.sectionTitle}>Contact</h2>
-                <p className={styles.paragraph}>
-                    If you have any questions about these Terms of Service, please contact us at <a href="mailto:support@grantcox.net">support@grantcox.net</a>.
+                    If these terms change, the date at the top changes with them. Questions go to{' '}
+                    <a href={`mailto:${SUPPORT}`}>{SUPPORT}</a>.
                 </p>
             </section>
         </div>

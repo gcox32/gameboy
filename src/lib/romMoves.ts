@@ -1,3 +1,4 @@
+import { readBlob } from '@/lib/blob';
 import type { IGame } from '@/models/Game';
 import type { MoveDetails } from '@/types/pokemon';
 import { getMoveDetails } from '@/utils/pokemon/moves';
@@ -17,7 +18,7 @@ export async function loadRom(game: IGame | null): Promise<Uint8Array | null> {
         // ROMs are replaced in place, so the version keeps a cached old one from answering
         const url = new URL(game.filePath);
         if (game.updatedAt) url.searchParams.set('v', game.updatedAt.toISOString());
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await readBlob(url.toString());
         if (!res.ok) return null;
         return new Uint8Array(await res.arrayBuffer());
     } catch (err) {

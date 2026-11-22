@@ -7,7 +7,7 @@ import {
     TextAreaField,
     Alert
 } from '@/components/ui';
-import { uploadBlob, deleteBlob } from '@/utils/blobUpload';
+import { blobReadUrl, uploadBlob, deleteBlob } from '@/utils/blobUpload';
 import { defaultAvatarUrl } from '@/lib/assets';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
@@ -143,7 +143,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
                 <div className={styles.card}>
                     <div className={styles.photoPanel}>
                         <Image
-                            src={imagePreview || defaultAvatar}
+                            src={blobReadUrl(imagePreview) || defaultAvatar}
                             alt={userProfile.username}
                             width={248}
                             height={248}

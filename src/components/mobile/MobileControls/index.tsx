@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, ChangeEvent } from 'react';
+import { blobReadUrl } from '@/utils/blobUpload';
 import { signOut } from 'next-auth/react';
 import { Loader } from '@/components/ui';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
@@ -115,7 +116,7 @@ export default function MobileControls() {
                         <div className={styles.userInfo}>
                             {avatarUrl ? (
                                 /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={avatarUrl} alt="Avatar" className={styles.avatar} />
+                                <img src={blobReadUrl(avatarUrl)} alt="Avatar" className={styles.avatar} />
                             ) : (
                                 <div className={styles.avatarPlaceholder}>
                                     {userProfile?.username?.[0] || currentUser?.userId?.[0] || '?'}

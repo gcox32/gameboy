@@ -1,100 +1,85 @@
-"use client";
-
-import { Heading, Paragraph } from '@/components/ui';
+import clsx from 'clsx';
+import styles from '../styles.module.css';
 
 export default function HowItWorks() {
     return (
-        <div className="max-w-[1200px] mx-auto p-8 w-full h-screen overflow-scroll">
-            <Heading as="h1">How It Works</Heading>
+        <div className={clsx(styles.container, styles.aboutPage)}>
+            <header className={styles.header}>
+                <h1 className={styles.title}>How It Works</h1>
+                <p className={styles.lede}>
+                    JS GBC plays any Game Boy (<code>.gb</code>) or Game Boy Color (<code>.gbc</code>) game. Red, Blue,
+                    Green and Yellow, and ROM hacks built on them, get extra Pokémon features on top.
+                </p>
+            </header>
 
-            <section className="mb-8">
-                <Heading as="h2">Overview</Heading>
-                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
-                    <Paragraph>
-                        This GameBoy emulator is designed to work with any GameBoy (.gb) or GameBoy Color (.gbc) ROM files.
-                        While it supports all standard GameBoy games, it includes special features specifically optimized for first-generation Pokémon games (Red, Blue, Green, and Yellow),
-                        and by extension, ROM hacks based on these games.
-                    </Paragraph>
-                    <Paragraph>
-                        Special Pokémon features include:
-                    </Paragraph>
-                    <ul className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>Active party monitoring</li>
-                        <li>Gym badge tracking</li>
-                        <li>Location-based dynamic backgrounds</li>
-                        <li>Advanced save state management</li>
-                    </ul>
-                </div>
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>Adding a game</h2>
+                <ol className={styles.steps}>
+                    <li>Click <strong>Import Game</strong> in your library.</li>
+                    <li>Upload your <code>.gb</code> or <code>.gbc</code> ROM file.</li>
+                    <li>Choose a preset cover or upload your own.</li>
+                    <li>Fill in the game&apos;s details.</li>
+                </ol>
             </section>
 
-            <section className="mb-8">
-                <Heading as="h2">Getting Started</Heading>
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>Saving your progress</h2>
+                <dl className={styles.facts}>
+                    <dt>Save in the game first</dt>
+                    <dd>
+                        <strong>Save</strong> and <strong>Save As</strong> keep a copy of the game&apos;s own save file
+                        in your account. They don&apos;t capture the moment you press them, so save in the game as you
+                        would on a real Game Boy, then press Save.
+                    </dd>
 
-                <Heading as="h3">1. Importing Games</Heading>
-                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
-                    <Paragraph>
-                        To import a game:
-                    </Paragraph>
-                    <ol className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>{`Click the "Import Game" button in your library`}</li>
-                        <li>{`Upload your .gb or .gbc ROM file`}</li>
-                        <li>{`Select a preset cover image or upload your own`}</li>
-                        <li>{`Fill in the game details`}</li>
-                    </ol>
-                </div>
+                    <dt>Save or Save As</dt>
+                    <dd>
+                        Save updates the file you&apos;re playing. Save As stores a new one, with a title and an
+                        optional description, so you can keep more than one.
+                    </dd>
 
-                <Heading as="h3">2. Memory Watcher Configuration</Heading>
-                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
-                    <Paragraph>
-                        {`Memory watchers power features like the party view and badge case. For most Gen 1 Pokémon games, including many ROM hacks, the addresses are detected automatically from the ROM, so there's nothing to configure.`}
-                    </Paragraph>
-                    <Paragraph>
-                        {`For games that can't be detected, you can set the Active Party and Gym Badges addresses under Memory Watchers when editing the game:`}
-                    </Paragraph>
-                    <ul className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>{`Use the memory scanner, or enter the addresses by hand`}</li>
-                        <li>{`Different ROM versions may require different memory addresses. Consider `}<a href="https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)" target="_blank">bulbapedia</a>{` as a reference.`}</li>
-                    </ul>
-                </div>
-
-                <Heading as="h3">3. Save States</Heading>
-                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
-                    <Paragraph>
-                        The emulator supports two types of saves:
-                    </Paragraph>
-                    <ul className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>In-game saves (just like on a real GameBoy)</li>
-                        <li>Save states (save at any point in the game)</li>
-                    </ul>
-                    <Paragraph>
-                        To create a save state:
-                    </Paragraph>
-                    <Paragraph>
-                        {`Critically, it is important to understand that the Save and Save As features save a copy of your save data. 
-                        This means whatever you save in the game will be saved to the cloud. Do not treat the Save or Save As features as in-game saves.`}
-                    </Paragraph>
-                    <ol className="mb-4 pl-8 [&_li]:mb-1">
-                        <li>{`Save within the state of the game.`}</li>
-                        <li>{`Click "Save" or "Save As"`}</li>
-                        <li>{`Add a description (optional)`}</li>
-                        <li>{`Your save state will be stored in the cloud`}</li>
-                    </ol>
-                </div>
+                    <dt>Loading and .sav files</dt>
+                    <dd>
+                        <strong>Load State</strong> lists your saves for the game. From there you can download any of
+                        them as a <code>.sav</code>, or import a <code>.sav</code> from a cartridge or another emulator.
+                    </dd>
+                </dl>
             </section>
 
-            <section className="mb-8">
-                <Heading as="h2">Advanced Features</Heading>
-                <div className="bg-white rounded border p-6 mb-4 shadow-sm">
-                    <Heading as="h4">Dynamic Backgrounds</Heading>
-                    <Paragraph>
-                        In Generation 1 Pokémon games, the background will automatically change based on your in-game location when enabled in settings. The location is read from the game itself, so there is nothing to configure.
-                    </Paragraph>
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>Pokémon features</h2>
+                <dl className={styles.facts}>
+                    <dt>Memory watchers</dt>
+                    <dd>
+                        The party view and badge case read the game&apos;s memory as you play. For most Gen 1 games,
+                        including many ROM hacks, the addresses are found automatically, so there&apos;s nothing to set
+                        up. If a game isn&apos;t detected, set the Active Party and Gym Badges addresses under{' '}
+                        <strong>Memory Watchers</strong> when editing the game, with the memory scanner or by hand.{' '}
+                        <a
+                            href="https://bulbapedia.bulbagarden.net/wiki/Save_data_structure_(Generation_I)"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.paperLink}
+                        >
+                            Bulbapedia
+                        </a>{' '}
+                        is a good reference, since different ROM versions can use different addresses.
+                    </dd>
 
-                    <Heading as="h4">Performance Settings</Heading>
-                    <Paragraph>
-                        Adjust emulation speed and sound settings in the control panel. Mobile users can also adjust zoom levels for better visibility.
-                    </Paragraph>
-                </div>
+                    <dt>Dynamic backgrounds</dt>
+                    <dd>
+                        Turn this on under Background in Settings, and the background changes to match where you are
+                        in the game. The location is read from the game itself.
+                    </dd>
+                </dl>
+            </section>
+
+            <section className={styles.paperCard}>
+                <h2 className={styles.paperTitle}>While you play</h2>
+                <p className={styles.paperText}>
+                    The session bar beside the game pauses and resumes, changes the game speed, mutes sound and saves. Remap
+                    your keyboard controls in Settings. On a phone, the game shows touch controls instead.
+                </p>
             </section>
         </div>
     );

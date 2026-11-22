@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { blobReadUrl } from '@/utils/blobUpload';
 import { ImageIcon, Loader } from 'lucide-react';
 import Image from 'next/image';
 import styles from './styles.module.css';
@@ -97,7 +98,7 @@ export function ImageUpload({
         >
           {imagePreview ? (
             <div className={styles.preview}>
-              <Image src={imagePreview} alt="Preview" width={220} height={220} />
+              <Image src={blobReadUrl(imagePreview)} alt="Preview" width={220} height={220} unoptimized />
               <div className={styles.overlay}>
                 <span>Click to replace image</span>
               </div>
