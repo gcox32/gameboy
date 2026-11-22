@@ -1,4 +1,6 @@
 import { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import { getAppShell } from '@/lib/appShell';
 import BaseModal from '@/components/modals/BaseModal';
 import { Button, Heading, Flex } from '@/components/ui';
 import styles from '@/styles/admin.module.css';
@@ -47,7 +49,10 @@ export default function AdminModal({
         large: styles.modalLarge
     }[size];
 
-    return (
+    if (!isOpen) return null;
+
+    // Out of the admin panel, whose backdrop blur would otherwise contain and clip a fixed modal
+    return createPortal(
         <BaseModal isOpen={isOpen} onClose={onClose} className={`${styles.modal} ${modalSizeClass}`}>
             <Flex $direction="column" $gap="1.5rem" $padding="2rem">
                 <Heading as="h3">{title}</Heading>
@@ -75,6 +80,7 @@ export default function AdminModal({
                     )}
                 </Flex>
             </Flex>
-        </BaseModal>
+        </BaseModal>,
+        getAppShell() ?? document.body,
     );
 }

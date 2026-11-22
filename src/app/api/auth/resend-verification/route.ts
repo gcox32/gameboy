@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { dbConnect } from '@/lib/db';
 import { clientIp, limitAuth, tooManyRequests } from '@/lib/rateLimit';
 import { User } from '@/models';
-import { sendVerificationEmail } from '@/lib/email';
+import { sendVerificationCode } from '@/lib/accounts';
 
 export async function POST(req: NextRequest) {
     try {
@@ -25,12 +24,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: 'If that account exists, a new code has been sent.' }, { status: 200 });
         }
 
-        const verificationToken = crypto.randomInt(100000, 999999).toString();
-        const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-        await User.updateOne({ _id: user._id }, { verificationToken, verificationTokenExpiry });
-
-        await sendVerificationEmail(email, verificationToken);
+        // A failed send is logged, not reported, so the response can't reveal the account exists
+        await sendVerificationCode(user).catch((err) => console.error('[resend-verification] send failed', err));
 
         return NextResponse.json({ message: 'If that account exists, a new code has been sent.' }, { status: 200 });
     } catch (err) {

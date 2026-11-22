@@ -12,6 +12,8 @@ export interface Column<T> {
     render?: (item: T) => ReactNode;
     /** Makes the column sortable, by this value */
     sortValue?: (item: T) => SortValue;
+    /** A fixed width, e.g. '6rem'; columns without one share the rest */
+    width?: string;
 }
 
 interface DataTableProps<T> {
@@ -65,6 +67,7 @@ export default function DataTable<T>({ data, columns, rowKey, loading = false, e
                                 <th
                                     key={column.key}
                                     className={column.sortValue ? styles.sortable : undefined}
+                                    style={column.width ? { width: column.width } : undefined}
                                     onClick={column.sortValue ? () => toggleSort(column.key) : undefined}
                                     aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}
                                 >

@@ -20,9 +20,9 @@ export async function ensureOk(res: Response, fallback: string): Promise<Respons
 
 /** Every user's username by user id, in one request. Users since deleted are simply absent. */
 export async function fetchUsernames(): Promise<Record<string, string>> {
-    const res = await ensureOk(await fetch('/api/profiles?all=true'), 'Failed to load usernames');
-    const profiles: { userId: string; username: string }[] = await res.json();
-    return Object.fromEntries(profiles.map((p) => [String(p.userId), p.username]));
+    const res = await ensureOk(await fetch('/api/admin/users'), 'Failed to load usernames');
+    const users: { userId: string; username: string }[] = await res.json();
+    return Object.fromEntries(users.filter((u) => u.username).map((u) => [u.userId, u.username]));
 }
 
 /**
@@ -58,15 +58,16 @@ export function useAdminTable<T>({ load, searchText }: Options<T>) {
     }, [items, searchTerm, searchText]);
 
     /**
-     * Runs a change, then reloads. Shows `success` as a toast, or the error in the table's alert.
-     * Resolves to whether it worked, so a modal can stay open on failure.
+     * Runs a change, then reloads. Shows `success` as a toast (given the action's result, it can
+     * use the server's own message), or the error in the table's alert. Resolves to whether it
+     * worked, so a modal can stay open on failure.
      */
-    const run = useCallback(async (action: () => Promise<unknown>, success: string, failure: string): Promise<boolean> => {
+    const run = useCallback(async <R,>(action: () => Promise<R>, success: string | ((result: R) => string), failure: string): Promise<boolean> => {
         setSaving(true);
         setError(null);
         try {
-            await action();
-            showToast(success, 'success');
+            const result = await action();
+            showToast(typeof success === 'function' ? success(result) : success, 'success');
             await reload();
             return true;
         } catch (err) {

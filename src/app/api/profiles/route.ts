@@ -6,7 +6,6 @@ import User from '@/models/User';
 
 // GET /api/profiles           — current user's profile
 // GET /api/profiles?userId=X  — look up by userId (admin or own)
-// GET /api/profiles?all=true  — list all profiles (admin only)
 export async function GET(req: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
@@ -14,25 +13,7 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const all = searchParams.get('all') === 'true';
     const userId = searchParams.get('userId');
-
-    if (all) {
-        if (!session.user.admin) {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-        }
-        await dbConnect();
-        const profiles = await Profile.find().sort({ createdAt: -1 });
-        const userIds = profiles.map(p => p.userId);
-        const users = await User.find({ _id: { $in: userIds } }).select('admin email');
-        const userMap = new Map(users.map(u => [u._id.toString(), u]));
-        return NextResponse.json(profiles.map(p => ({
-            ...p.toJSON(),
-            // The login email, which Profile.email only mirrors
-            email: userMap.get(p.userId.toString())?.email ?? p.email,
-            admin: userMap.get(p.userId.toString())?.admin ?? false,
-        })));
-    }
 
     if (userId && userId !== session.user.id && !session.user.admin) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

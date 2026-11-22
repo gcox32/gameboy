@@ -5,6 +5,7 @@ import Chart from 'chart.js/auto';
 import { Alert, Text } from '@/components/ui';
 import DataTable, { Column } from './DataTable';
 import { ensureOk } from './useAdminTable';
+import { compact, whole, dateLabel, formatBytes, daysAgo, plural } from './format';
 import styles from '@/styles/admin.module.css';
 
 interface Stats {
@@ -31,25 +32,7 @@ const BAR_HOVER = '#b4a5dd';
 const GRID = 'rgba(255, 255, 255, 0.07)';
 const MUTED_TEXT = 'rgba(255, 255, 255, 0.5)';
 
-const compact = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
-const whole = new Intl.NumberFormat();
 const weekLabel = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
-const dateLabel = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
-
-function formatBytes(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`;
-    const units = ['KB', 'MB', 'GB', 'TB'];
-    let value = bytes / 1024, i = 0;
-    while (value >= 1024 && i < units.length - 1) { value /= 1024; i++; }
-    return `${value < 10 ? value.toFixed(1) : Math.round(value)} ${units[i]}`;
-}
-
-function daysAgo(iso: string): string {
-    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
-    return days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
-}
-
-const plural = (n: number, one: string, many = `${one}s`) => `${whole.format(n)} ${n === 1 ? one : many}`;
 
 function StatTile({ label, value, detail }: { label: string; value: string; detail?: string | null }) {
     return (

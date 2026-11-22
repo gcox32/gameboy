@@ -53,7 +53,8 @@ export async function POST(req: NextRequest) {
             email: email.toLowerCase(),
         });
 
-        await sendVerificationEmail(email, verificationToken);
+        // The account exists either way; if the email fails they can ask for a new code from login
+        await sendVerificationEmail(email, verificationToken).catch((err) => console.error('[register] send failed', err));
 
         return NextResponse.json({ message: 'Account created. Check your email for a verification code.' }, { status: 201 });
     } catch (err) {

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { dbConnect } from '@/lib/db';
 import { clientIp, limitAuth, tooManyRequests } from '@/lib/rateLimit';
 import { User } from '@/models';
-import { sendPasswordResetEmail } from '@/lib/email';
+import { sendPasswordReset } from '@/lib/accounts';
 
 export async function POST(req: NextRequest) {
     try {
@@ -25,12 +24,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: 'If that account exists, a reset link has been sent.' }, { status: 200 });
         }
 
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-        await User.updateOne({ _id: user._id }, { resetToken, resetTokenExpiry });
-
-        await sendPasswordResetEmail(email, resetToken);
+        // A failed send is logged, not reported, so the response can't reveal the account exists
+        await sendPasswordReset(user).catch((err) => console.error('[forgot-password] send failed', err));
 
         return NextResponse.json({ message: 'If that account exists, a reset link has been sent.' }, { status: 200 });
     } catch (err) {
