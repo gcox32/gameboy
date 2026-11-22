@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Notification } from '@/models';
+import { actingForOthers, recordAudit } from '@/lib/audit';
 import { isValidObjectId } from 'mongoose';
 
 type Params = { params: Promise<{ id: string }> };
@@ -61,5 +62,12 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
 
     await notification.deleteOne();
+    if (actingForOthers(session, notification.userId)) {
+        const broadcast = notification.userId === 'BROADCAST';
+        await recordAudit(session, {
+            action: 'notification.delete', targetId: id, targetLabel: notification.title,
+            ...(broadcast ? { details: { to: 'everyone' } } : { targetUserId: notification.userId }),
+        });
+    }
     return NextResponse.json({ success: true });
 }

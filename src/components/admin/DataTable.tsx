@@ -5,6 +5,8 @@ import { Text } from '@/components/ui';
 import styles from '@/styles/admin.module.css';
 
 type SortValue = string | number | boolean | null | undefined;
+export type SortDirection = 'asc' | 'desc';
+export interface TableSort { key: string; direction: SortDirection }
 
 export interface Column<T> {
     key: string;
@@ -12,8 +14,14 @@ export interface Column<T> {
     render?: (item: T) => ReactNode;
     /** Makes the column sortable, by this value */
     sortValue?: (item: T) => SortValue;
+    /** Server-sorted tables: the column can be sorted, by the server, under its key */
+    sortable?: boolean;
+    /** Which way a first click sorts; dates and counts read best biggest first */
+    firstDirection?: SortDirection;
     /** A fixed width, e.g. '6rem'; columns without one share the rest */
     width?: string;
+    /** Wraps onto more lines instead of cutting the text off, for sentences */
+    wrap?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -24,6 +32,9 @@ interface DataTableProps<T> {
     emptyMessage?: string;
     /** Drops the minimum height, for a short table inside a card */
     compact?: boolean;
+    /** Sorting done elsewhere (on the server): the current sort, and what to call when it changes. Rows are shown in the order given. */
+    sort?: TableSort;
+    onSortChange?: (sort: TableSort) => void;
 }
 
 const isEmpty = (v: SortValue) => v == null || v === '';
@@ -43,11 +54,16 @@ function compare(a: SortValue, b: SortValue): number {
     return a < b ? -1 : a > b ? 1 : 0;
 }
 
-export default function DataTable<T>({ data, columns, rowKey, loading = false, emptyMessage = 'No data available', compact = false }: DataTableProps<T>) {
-    const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+export default function DataTable<T>({
+    data, columns, rowKey, loading = false, emptyMessage = 'No data available', compact = false, sort: outerSort, onSortChange,
+}: DataTableProps<T>) {
+    const [localSort, setLocalSort] = useState<TableSort | null>(null);
+    const controlled = !!onSortChange;
+    const sort = controlled ? outerSort ?? null : localSort;
+    const canSort = (c: Column<T>) => (controlled ? !!c.sortable : !!c.sortValue);
 
     const rows = useMemo(() => {
-        if (!sort) return data;
+        if (controlled || !sort) return data;
         const column = columns.find((c) => c.key === sort.key);
         if (!column?.sortValue) return data;
         const value = column.sortValue;
@@ -57,12 +73,15 @@ export default function DataTable<T>({ data, columns, rowKey, loading = false, e
             // Empties stay last whichever way it's sorted, so they're left out of the flip
             return isEmpty(va) || isEmpty(vb) ? compare(va, vb) : sign * compare(va, vb);
         });
-    }, [data, columns, sort]);
+    }, [data, columns, sort, controlled]);
 
-    const toggleSort = (key: string) => setSort((prev) => ({
-        key,
-        direction: prev?.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-    }));
+    const toggleSort = (column: Column<T>) => {
+        const direction: SortDirection = sort?.key === column.key
+            ? (sort.direction === 'asc' ? 'desc' : 'asc')
+            : column.firstDirection ?? 'asc';
+        const next = { key: column.key, direction };
+        if (controlled) onSortChange(next); else setLocalSort(next);
+    };
 
     return (
         <div className={compact ? styles.tableContainerCompact : styles.tableContainer}>
@@ -74,9 +93,9 @@ export default function DataTable<T>({ data, columns, rowKey, loading = false, e
                             return (
                                 <th
                                     key={column.key}
-                                    className={column.sortValue ? styles.sortable : undefined}
+                                    className={canSort(column) ? styles.sortable : undefined}
                                     style={column.width ? { width: column.width } : undefined}
-                                    onClick={column.sortValue ? () => toggleSort(column.key) : undefined}
+                                    onClick={canSort(column) ? () => toggleSort(column) : undefined}
                                     aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}
                                 >
                                     <div className={styles.headerContent}>
@@ -94,19 +113,14 @@ export default function DataTable<T>({ data, columns, rowKey, loading = false, e
                     {loading || rows.length === 0 ? (
                         <tr>
                             <td colSpan={columns.length} className={styles.emptyState}>
-                                {loading ? <Text>Loading…</Text> : (
-                                    <>
-                                        <div className={styles.emptyStateIcon}>📭</div>
-                                        <Text>{emptyMessage}</Text>
-                                    </>
-                                )}
+                                <Text>{loading ? 'Loading…' : emptyMessage}</Text>
                             </td>
                         </tr>
                     ) : (
                         rows.map((item) => (
                             <tr key={rowKey(item)}>
                                 {columns.map((column) => (
-                                    <td key={column.key}>
+                                    <td key={column.key} className={column.wrap ? styles.wrapCell : undefined}>
                                         {column.render ? column.render(item) : String((item as Record<string, unknown>)[column.key] ?? '')}
                                     </td>
                                 ))}

@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
-import { Button, Flex, Text, Alert } from '@/components/ui';
+import { Flex, Text, Alert } from '@/components/ui';
 import buttons from '@/styles/buttons.module.css';
 import DataTable, { Column } from './DataTable';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
-import { useAdminTable, ensureOk, fetchUsernames } from './useAdminTable';
+import NotificationComposer, { type NotificationPayload } from './NotificationComposer';
+import { dateLabel, shortUntil } from './format';
+import { useAdminTable, ensureOk } from './useAdminTable';
 import styles from '@/styles/admin.module.css';
 
 interface Notification {
@@ -20,6 +22,7 @@ interface Notification {
     readAt?: string;
     /** Broadcasts only: how many users have read it */
     readCount?: number;
+    expiresAt?: string;
     createdAt?: string;
 }
 
@@ -29,15 +32,13 @@ const isBroadcast = (n: Notification) => n.userId === 'BROADCAST';
 const shortId = (id?: string) => (id ? `${id.substring(0, 8)}…` : '');
 
 async function loadNotifications(): Promise<NotificationRow[]> {
-    const [res, names] = await Promise.all([
-        fetch('/api/notifications?all=true').then((r) => ensureOk(r, 'Failed to load notifications')),
-        fetchUsernames(),
-    ]);
-    const data: Notification[] = await res.json();
+    const res = await ensureOk(await fetch('/api/notifications?all=true'), 'Failed to load notifications');
+    // Names come with each notification; an account since deleted has none
+    const data: (Notification & { recipientName?: string; senderName?: string })[] = await res.json();
     return data.map((n) => ({
         ...n,
-        recipientName: isBroadcast(n) ? 'All Users' : names[n.userId] ?? shortId(n.userId),
-        senderName: names[n.sender] ?? n.sender,
+        recipientName: isBroadcast(n) ? 'All Users' : n.recipientName ?? shortId(n.userId),
+        senderName: n.senderName ?? n.sender,
     }));
 }
 
@@ -48,30 +49,23 @@ const typeBadge: Record<string, string | undefined> = {
     FRIEND_REQUEST: styles.statusBadgeInfo,
 };
 
-const EMPTY_DRAFT = { title: '', body: '' };
-
 export default function NotificationsManagement() {
     const table = useAdminTable({ load: loadNotifications, searchText });
     const [deleting, setDeleting] = useState<NotificationRow | null>(null);
-    const [showQuick, setShowQuick] = useState(false);
-    const [draft, setDraft] = useState(EMPTY_DRAFT);
-    const canSend = !!draft.title.trim() && !!draft.body.trim();
+    const [composing, setComposing] = useState(false);
 
-    const sendBroadcast = async () => {
-        if (!canSend) return;
+    const send = async (payload: NotificationPayload) => {
         const ok = await table.run(
             async () => ensureOk(await fetch('/api/notifications', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: 'BROADCAST', sender: 'SYSTEM', type: 'SYSTEM', title: draft.title.trim(), body: draft.body.trim() }),
+                body: JSON.stringify(payload),
             }), 'Send failed'),
-            'Sent to all users',
+            payload.userId === 'BROADCAST' ? 'Sent to everyone' : 'Sent',
             'Failed to send notification',
         );
-        if (ok) {
-            setDraft(EMPTY_DRAFT);
-            setShowQuick(false);
-        }
+        if (ok) setComposing(false);
+        return ok;
     };
 
     const deleteNotification = async () => {
@@ -128,6 +122,15 @@ export default function NotificationsManagement() {
             ),
         },
         {
+            key: 'expires',
+            header: 'Expires',
+            width: '10rem',
+            sortValue: (n) => n.expiresAt,
+            render: (n) => n.expiresAt
+                ? <span title={dateLabel.format(new Date(n.expiresAt))}>{shortUntil(n.expiresAt)}</span>
+                : <span className={styles.muted}>Never</span>,
+        },
+        {
             key: 'actions',
             header: 'Actions',
             render: (n) => (
@@ -142,44 +145,13 @@ export default function NotificationsManagement() {
         <div className={styles.managementContainer}>
             <div className={styles.tableToolbar}>
                 <SearchInput value={table.searchTerm} onChange={table.setSearchTerm} placeholder="Search notifications..." />
-                <button className={buttons.retroButton} onClick={() => setShowQuick(true)} disabled={showQuick}>
-                    Quick Notification
+                <button className={buttons.retroButton} onClick={() => setComposing(true)} disabled={composing}>
+                    New Notification
                 </button>
             </div>
 
-            {showQuick && (
-                <div className={styles.quickNotification}>
-                    <h3>Create App Notification</h3>
-                    <Text fontSize="sm" variation="light" className={styles.quickHint}>Send a notification to all users</Text>
-                    <div className={styles.quickForm}>
-                        <div className={styles.formGroup}>
-                            <input
-                                type="text"
-                                aria-label="Notification title"
-                                placeholder="Notification title..."
-                                value={draft.title}
-                                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-                                className={`${styles.formInput} ${styles.quickInput}`}
-                            />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <textarea
-                                aria-label="Notification message"
-                                placeholder="Notification message..."
-                                value={draft.body}
-                                onChange={(e) => setDraft({ ...draft, body: e.target.value })}
-                                className={`${styles.formInput} ${styles.quickInput}`}
-                                rows={2}
-                            />
-                        </div>
-                        <Flex $gap="0.5rem" className={styles.formActions}>
-                            <Button variation="secondary" size="small" onClick={() => setShowQuick(false)} className={styles.cancelButton}>Cancel</Button>
-                            <Button variation="primary" size="small" onClick={sendBroadcast} disabled={!canSend || table.saving} className={styles.sendButton}>
-                                {table.saving ? 'Sending...' : 'Send to All'}
-                            </Button>
-                        </Flex>
-                    </div>
-                </div>
+            {composing && (
+                <NotificationComposer saving={table.saving} onSend={send} onCancel={() => setComposing(false)} />
             )}
 
             {table.error && <Alert variation="error" onDismiss={() => table.setError(null)}>{table.error}</Alert>}

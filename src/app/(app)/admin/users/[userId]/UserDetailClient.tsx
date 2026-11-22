@@ -15,8 +15,10 @@ import { AdminDashboard, AdminMain, AdminHeader, AdminContent } from '@/componen
 import AccountPanel, { isLimited, postAccountAction, type AccountAction, type UserRow } from '@/components/admin/AccountPanel';
 import DataTable, { Column } from '@/components/admin/DataTable';
 import ConfirmDeleteModal from '@/components/admin/ConfirmDeleteModal';
+import AuditLog from '@/components/admin/AuditLog';
+import NotificationComposer, { type NotificationPayload } from '@/components/admin/NotificationComposer';
 import { useAdminData, ensureOk } from '@/components/admin/useAdminTable';
-import { dateLabel, plural, shortAgo } from '@/components/admin/format';
+import { dateLabel, plural, shortAgo, shortUntil } from '@/components/admin/format';
 import styles from '@/styles/admin.module.css';
 
 interface Detail {
@@ -28,7 +30,7 @@ interface Detail {
         id: string; speciesIndex: number; speciesName: string; nickname: string; level: number; generation: number;
         otName: string; penName?: string; sourceGameTitle?: string; transferring: boolean; extractedAt: string;
     }[];
-    notifications: { id: string; type: string; title: string; readAt?: string; createdAt: string }[];
+    notifications: { id: string; type: string; title: string; readAt?: string; expiresAt?: string; createdAt: string }[];
 }
 
 type GameRow = Detail['games'][number];
@@ -66,6 +68,7 @@ export default function UserDetailClient({ userId }: { userId: string }) {
     const { bySpecies, byDexNo, spriteStyle } = usePokemonSprites();
     const currentUser = useAuth()?.user;
     const [pending, setPending] = useState<PendingDelete | null>(null);
+    const [composing, setComposing] = useState(false);
 
     const load = useCallback(async (): Promise<Detail | null> => {
         const res = await fetch(`/api/admin/users/${userId}`);
@@ -216,7 +219,27 @@ export default function UserDetailClient({ userId }: { userId: string }) {
             ),
         },
         { key: 'sent', header: 'Sent', width: '10rem', sortValue: (n) => n.createdAt, render: (n) => when(n.createdAt) },
+        {
+            key: 'expires', header: 'Expires', width: '10rem', sortValue: (n) => n.expiresAt,
+            render: (n) => n.expiresAt
+                ? <span title={dateLabel.format(new Date(n.expiresAt))}>{shortUntil(n.expiresAt)}</span>
+                : <span className={styles.muted}>Never</span>,
+        },
     ];
+
+    const sendNotification = async (payload: NotificationPayload) => {
+        const ok = await run(
+            async () => ensureOk(await fetch('/api/notifications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }), 'Send failed'),
+            `Sent to ${name}`,
+            'Failed to send notification',
+        );
+        if (ok) setComposing(false);
+        return ok;
+    };
 
     return (
         <AdminDashboard>
@@ -271,10 +294,29 @@ export default function UserDetailClient({ userId }: { userId: string }) {
                                 </Card>
 
                                 <Card id="notifications-title" title="Notifications" subtitle="Sent to them directly. Broadcasts are on the Notifications tab.">
+                                    {composing ? (
+                                        <NotificationComposer
+                                            recipient={{ userId, label: `${name} (${detail.account.email})` }}
+                                            saving={saving}
+                                            onSend={sendNotification}
+                                            onCancel={() => setComposing(false)}
+                                        />
+                                    ) : (
+                                        <div className={styles.scanBar}>
+                                            <button type="button" className={styles.modalCancelButton} onClick={() => setComposing(true)} disabled={saving}>
+                                                Send them a notification
+                                            </button>
+                                        </div>
+                                    )}
                                     <DataTable data={detail.notifications} columns={notificationColumns} rowKey={(n) => n.id} emptyMessage="None sent to them" compact />
                                 </Card>
 
-                                <Card id="delete-title" title="Delete account" subtitle="Removes the account and everything above, with all their files.">
+                                <Card id="activity-title" title="Admin activity" subtitle="What admins have done to this account and its games, saves and notifications.">
+                                    {/* detail is a new object after each reload, so an action here shows up straight away */}
+                                    <AuditLog userId={userId} pageSize={20} refreshKey={detail} />
+                                </Card>
+
+                                <Card id="delete-title" title="Delete account" subtitle="Removes the account, its games, saves, Ranch and notifications, with all their files. Its admin activity is kept.">
                                     <button
                                         type="button"
                                         className={styles.modalDeleteButton}

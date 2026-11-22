@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/requireAdmin';
 import { dbConnect } from '@/lib/db';
+import { notExpired } from '@/lib/notifications';
 import { Game, Notification, RanchPen, SaveState, StoredPokemon, User } from '@/models';
 
 const WEEKS = 12;
@@ -36,8 +37,8 @@ export async function GET() {
         SaveState.countDocuments(),
         StoredPokemon.countDocuments(),
         RanchPen.countDocuments(),
-        Notification.countDocuments({ userId: 'BROADCAST' }),
-        Notification.countDocuments({ userId: { $ne: 'BROADCAST' } }),
+        Notification.countDocuments({ userId: 'BROADCAST', ...notExpired(now) }),
+        Notification.countDocuments({ userId: { $ne: 'BROADCAST' }, ...notExpired(now) }),
         User.find({ createdAt: { $gte: firstWeek } }).select('createdAt').lean(),
         User.find({ emailVerified: { $ne: true } }).select('email createdAt').sort({ createdAt: -1 }).limit(25).lean(),
     ]);

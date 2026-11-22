@@ -6,7 +6,9 @@ import UserManagement from '@/components/admin/UserManagement';
 import GamesManagement from '@/components/admin/GamesManagement';
 import NotificationsManagement from '@/components/admin/NotificationsManagement';
 import StorageTab from '@/components/admin/StorageTab';
-import SidebarNavigation, { TabType } from '@/components/admin/SidebarNavigation';
+import AuditLog from '@/components/admin/AuditLog';
+import SidebarNavigation from '@/components/admin/SidebarNavigation';
+import type { TabType } from '@/components/admin/tabs';
 import {
     AdminDashboard,
     AdminMain,
@@ -21,6 +23,7 @@ const tabTitles: Record<TabType, string> = {
     games: 'Games Management',
     notifications: 'Notifications',
     storage: 'Storage',
+    activity: 'Admin Activity',
 };
 
 export default function AdminDashboardClient({ initialTab }: { initialTab: TabType }) {
@@ -47,6 +50,7 @@ export default function AdminDashboardClient({ initialTab }: { initialTab: TabTy
                         {activeTab === 'users' && <UserManagement />}
                         {activeTab === 'games' && <GamesManagement />}
                         {activeTab === 'notifications' && <NotificationsManagement />}
+                        {activeTab === 'activity' && <AuditLog />}
                     </ContentPanel>
                     )}
                 </AdminContent>

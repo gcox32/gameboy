@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/requireAdmin';
 import { dbConnect } from '@/lib/db';
 import { deleteUser } from '@/lib/userFiles';
 import { loadAccountDetail } from '@/lib/adminUsers';
+import { recordAudit } from '@/lib/audit';
 import { Profile, User } from '@/models';
 
 type Params = { params: Promise<{ userId: string }> };
@@ -48,6 +49,13 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const user = await User.findById(userId).select('email admin');
     if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+    // Before and after of each field that actually changes, for the log
+    const profile = await Profile.findOne({ userId }).select('username bio').lean();
+    const changes: Record<string, { from: unknown; to: unknown }> = {};
+    if (username !== undefined && username.trim() !== profile?.username) changes.username = { from: profile?.username ?? null, to: username.trim() };
+    if (bio !== undefined && bio !== (profile?.bio ?? '')) changes.bio = { from: profile?.bio ?? '', to: bio };
+    if (admin !== undefined && !!admin !== !!user.admin) changes.admin = { from: !!user.admin, to: !!admin };
+
     if (username !== undefined || bio !== undefined) {
         // Creates the profile if the account somehow has none
         await Profile.updateOne(
@@ -62,6 +70,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (admin !== undefined) {
         user.admin = !!admin;
         await user.save();
+    }
+    if (Object.keys(changes).length) {
+        await recordAudit(session, { action: 'user.update', targetUserId: userId, targetEmail: user.email, details: changes });
     }
     return NextResponse.json({ success: true });
 }
@@ -78,8 +89,10 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
 
     await dbConnect();
-    if (!(await User.exists({ _id: userId }))) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    const user = await User.findById(userId).select('email').lean();
+    if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     const removed = await deleteUser(userId);
+    await recordAudit(session, { action: 'user.delete', targetUserId: userId, targetEmail: user.email, details: removed });
     return NextResponse.json({ success: true, ...removed });
 }

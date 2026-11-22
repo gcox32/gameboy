@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { blobReadUrl } from '@/utils/blobUpload';
 import { Flex, Text, Alert } from '@/components/ui';
@@ -11,25 +12,36 @@ import DataTable, { Column } from './DataTable';
 import AdminModal from './AdminModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
-import { useAdminTable, ensureOk, fetchUsernames } from './useAdminTable';
+import Pager from './Pager';
+import { usePagedTable, ensureOk } from './useAdminTable';
+import { dateLabel, shortAgo, whole } from './format';
 import styles from '@/styles/admin.module.css';
 
-type GameRow = GameModel & { ownerName?: string };
+/** A game as /api/admin/games sends it: with its owner and how many saves it has */
+type GameRow = Pick<GameModel, 'id' | 'userId' | 'title' | 'filePath' | 'img' | 'metadata'> & {
+    createdAt: string;
+    saves: number;
+    ownerEmail?: string;
+    ownerName?: string;
+};
 
-async function loadGames(): Promise<GameRow[]> {
-    const [res, names] = await Promise.all([
-        fetch('/api/games?all=true').then((r) => ensureOk(r, 'Failed to load games')),
-        fetchUsernames(),
-    ]);
-    const games: GameModel[] = await res.json();
-    return games.map((g) => ({ ...g, ownerName: names[g.userId] }));
-}
+const GENERATIONS = [
+    { value: '', label: 'All generations' },
+    { value: '1', label: 'Gen 1' },
+    { value: '2', label: 'Gen 2' },
+    { value: 'none', label: 'Not set' },
+];
 
-const searchText = (g: GameRow) => [g.title, g.metadata?.series, g.ownerName];
 const shortId = (id?: string) => (id ? `${id.substring(0, 8)}…` : '');
+const ownerLabel = (g: GameRow) => g.ownerName || g.ownerEmail || shortId(g.userId);
 
 export default function GamesManagement() {
-    const table = useAdminTable({ load: loadGames, searchText });
+    const table = usePagedTable<GameRow>({
+        endpoint: '/api/admin/games',
+        filterParam: 'generation',
+        defaultSort: { key: 'added', direction: 'desc' },
+        failure: 'Failed to load games',
+    });
     const [editingGame, setEditingGame] = useState<GameRow | null>(null);
     const [deletingGame, setDeletingGame] = useState<GameRow | null>(null);
     // An admin's own games can be among those changed here
@@ -72,7 +84,7 @@ export default function GamesManagement() {
         {
             key: 'title',
             header: 'Game',
-            sortValue: (g) => g.title,
+            sortable: true,
             render: (g) => (
                 <Flex $alignItems="center" $gap="0.75rem">
                     {g.img && (
@@ -88,13 +100,15 @@ export default function GamesManagement() {
         {
             key: 'owner',
             header: 'Owner',
-            sortValue: (g) => g.ownerName ?? g.userId,
-            render: (g) => <Text fontSize="sm" className={styles.mono}>{g.ownerName || shortId(g.userId)}</Text>,
+            sortable: true,
+            render: (g) => (
+                <Link href={`/admin/users/${g.userId}`} className={styles.rowLink} title={g.ownerEmail}>{ownerLabel(g)}</Link>
+            ),
         },
         {
-            key: 'details',
+            key: 'generation',
             header: 'Details',
-            sortValue: (g) => g.metadata?.generation,
+            sortable: true,
             render: (g) => (
                 <Flex $direction="column" $gap="0.25rem">
                     {g.metadata?.generation && <Text fontSize="sm">Gen {g.metadata.generation}</Text>}
@@ -104,13 +118,23 @@ export default function GamesManagement() {
             ),
         },
         {
-            key: 'file',
-            header: 'File',
-            render: (g) => <Text fontSize="sm" className={styles.mono}>{g.filePath.split('/').pop()}</Text>,
+            key: 'saves',
+            header: 'Saves',
+            width: '6rem',
+            render: (g) => <span className={styles.numeric}>{whole.format(g.saves)}</span>,
+        },
+        {
+            key: 'added',
+            header: 'Added',
+            width: '10rem',
+            sortable: true,
+            firstDirection: 'desc',
+            render: (g) => <span title={dateLabel.format(new Date(g.createdAt))}>{shortAgo(g.createdAt)}</span>,
         },
         {
             key: 'actions',
             header: 'Actions',
+            width: '9rem',
             render: (g) => (
                 <Flex $gap="0.5rem">
                     <button onClick={() => setEditingGame(g)} className={`${styles.actionButton} ${styles.edit}`} title="Edit game"><FaEdit /></button>
@@ -123,16 +147,34 @@ export default function GamesManagement() {
     return (
         <div className={styles.managementContainer}>
             <div className={styles.tableToolbar}>
-                <SearchInput value={table.searchTerm} onChange={table.setSearchTerm} placeholder="Search games..." />
+                <div className={styles.toolbarFilters}>
+                    <SearchInput value={table.searchTerm} onChange={table.setSearchTerm} placeholder="Search games..." />
+                    <select aria-label="Generation" value={table.filter} onChange={(e) => table.setFilter(e.target.value)} className={styles.searchInput}>
+                        {GENERATIONS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+                    </select>
+                </div>
             </div>
 
             {table.error && <Alert variation="error" onDismiss={() => table.setError(null)}>{table.error}</Alert>}
 
-            <DataTable data={table.rows} columns={columns} rowKey={(g) => g.id} loading={table.loading} emptyMessage="No games found" />
+            <DataTable
+                data={table.rows}
+                columns={columns}
+                rowKey={(g) => g.id}
+                loading={table.loading}
+                emptyMessage={table.searchTerm.trim() || table.filter ? 'No games match' : 'No games yet'}
+                sort={table.sort}
+                onSortChange={table.setSort}
+            />
 
-            <div className={styles.tableFooter}>
-                <Text fontSize="sm" variation="secondary">Total: {table.items.length} games</Text>
-            </div>
+            <Pager
+                page={table.page}
+                pageSize={table.pageSize}
+                total={table.total}
+                noun="game"
+                busy={table.fetching || table.searchPending}
+                onPage={table.setPage}
+            />
 
             <AdminModal
                 isOpen={!!editingGame}
@@ -170,7 +212,7 @@ export default function GamesManagement() {
                             </div>
                             <div className={styles.formGroup}>
                                 <label htmlFor="game-owner" className={styles.formLabel}>Owner</label>
-                                <input id="game-owner" type="text" value={editingGame.ownerName ? `${editingGame.ownerName} (${editingGame.userId})` : editingGame.userId} disabled className={styles.formInput} />
+                                <input id="game-owner" type="text" value={editingGame.ownerEmail ? `${ownerLabel(editingGame)} (${editingGame.ownerEmail})` : editingGame.userId} disabled className={styles.formInput} />
                             </div>
                         </div>
                         <div className={styles.formGroup}>

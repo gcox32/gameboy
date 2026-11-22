@@ -124,12 +124,6 @@
     color: var(--neutral-500);
 }
 
-.emptyStateIcon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
 .avatar {
     width: 2.5rem;
     height: 2.5rem;
@@ -505,69 +499,80 @@
     cursor: not-allowed;
 }
 
-/* Quick notification */
-.quickNotification {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.modalPrimaryButton {
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: #7b68a6;
     color: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
+    border: 1px solid #7b68a6;
 }
 
-.quickNotification h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.25rem;
+.modalPrimaryButton:hover:not(:disabled) {
+    background: #6a5894;
+    border-color: #6a5894;
 }
 
-.quickHint {
-    opacity: 0.9;
-    margin-bottom: 1rem;
+.modalPrimaryButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.quickForm {
+/* Notification composer */
+.composer {
     display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: rgba(20, 20, 40, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+}
+
+.composerFields {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.composerChoice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 0.6rem 0;
+    font-size: 0.875rem;
+}
+
+.composerChoice label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.composerActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
     gap: 1rem;
-    align-items: flex-end;
 }
 
-.quickForm .formGroup {
-    flex: 1;
+.composerButtons {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
 }
 
-.quickForm .formActions {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-}
-
-.quickInput {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.quickInput::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.sendButton {
-    background: white !important;
-    color: #667eea !important;
-}
-
-.sendButton:hover:not(:disabled) {
-    background: #f0f0f0 !important;
-    color: #5a67d8 !important;
-}
-
-.cancelButton {
-    background: rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-}
-
-.cancelButton:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.3) !important;
+@media (max-width: 768px) {
+    .composerFields {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* Overview */
@@ -760,11 +765,6 @@
         min-width: var(--table-min-width, 720px);
     }
 
-    .quickForm {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
     .meterList li {
         grid-template-columns: minmax(0, 1fr) auto;
     }
@@ -782,4 +782,58 @@
         grid-column: 1 / -1;
         grid-row: 2;
     }
+}
+
+/* Activity log */
+.filterLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.loadMore {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.25rem;
+    text-align: center;
+}
+
+.dataTable td.wrapCell {
+    white-space: normal;
+    overflow-wrap: break-word;
+    text-overflow: clip;
+    line-height: 1.5;
+}
+
+/* Inputs fill their column rather than keeping their natural width, which overflows a phone */
+.composer .formInput {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Pages of a server-paged table */
+.pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0.5rem;
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+}
+
+.pagerButtons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.toolbarFilters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
 }

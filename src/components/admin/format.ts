@@ -33,3 +33,12 @@ export function minutesUntil(iso: string | Date): string {
 }
 
 export const plural = (n: number, one: string, many = `${one}s`) => `${whole.format(n)} ${n === 1 ? one : many}`;
+
+/** "in 40m", "in 5h", "in 3d", for a time after now; "expired" once it's passed */
+export function shortUntil(iso: string | Date): string {
+    const minutes = Math.ceil((new Date(iso).getTime() - Date.now()) / 60_000);
+    if (minutes <= 0) return 'expired';
+    if (minutes < 60) return `in ${minutes}m`;
+    if (minutes < 48 * 60) return `in ${Math.round(minutes / 60)}h`;
+    return `in ${Math.round(minutes / (24 * 60))}d`;
+}

@@ -15,3 +15,5 @@ export type { INotification, NotificationType } from './Notification';
 export type { IStoredPokemon } from './StoredPokemon';
 export type { IRanchPen } from './RanchPen';
 export type { IRateLimit } from './RateLimit';
+export { default as AuditEntry, AUDIT_ACTIONS } from './AuditEntry';
+export type { IAuditEntry, AuditAction } from './AuditEntry';

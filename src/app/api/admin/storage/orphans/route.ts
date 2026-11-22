@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/requireAdmin';
 import { dbConnect } from '@/lib/db';
 import { deleteOrphans, findOrphans } from '@/lib/orphans';
+import { recordAudit } from '@/lib/audit';
 
 // GET /api/admin/storage/orphans — files no record points to, and records whose file is gone.
 // Lists every file in both stores, so it can take a while.
@@ -31,6 +32,17 @@ export async function POST(req: NextRequest) {
 
     await dbConnect();
     const result = await deleteOrphans(urls);
-    console.info(`[admin] ${session.user.id} deleted ${result.deleted.length} orphaned files, skipped ${result.skipped.length}`);
+    if (result.deleted.length) {
+        await recordAudit(session, {
+            action: 'storage.deleteOrphans',
+            details: {
+                files: result.deleted.length,
+                bytes: result.deleted.reduce((sum, d) => sum + d.size, 0),
+                skipped: result.skipped.length,
+                // Paths, not URLs: enough to say which, and the files are gone
+                paths: result.deleted.map((d) => new URL(d.url).pathname.slice(1)),
+            },
+        });
+    }
     return NextResponse.json(result);
 }

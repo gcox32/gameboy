@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { Game, Notification, Profile, RanchPen, SaveState, StoredPokemon, User } from '@/models';
+import { notExpired } from './notifications';
 import { emailLimits, type EmailLimit } from './accounts';
+import { clampPage, containsText, TEXT_COLLATION, type Page, type PageQuery } from './paging';
 
 /*
  * What the admin view shows about accounts: one row per account for the Users table, and
@@ -68,6 +70,68 @@ export async function loadAccounts(userIds?: string[]): Promise<AccountRow[]> {
     });
 }
 
+export const ACCOUNT_SORTS = ['joined', 'email', 'username', 'games', 'saves', 'pokemon'] as const;
+export type AccountSort = (typeof ACCOUNT_SORTS)[number];
+export const ACCOUNT_FILTERS = ['admin', 'unverified', 'limited'] as const;
+export type AccountFilter = (typeof ACCOUNT_FILTERS)[number];
+
+const COUNTED: Partial<Record<AccountSort, Owned>> = { games: Game, saves: SaveState, pokemon: StoredPokemon };
+
+/**
+ * One page of account rows, searched by email or username, sorted and filtered on the server.
+ * Finds the page's ids first, then builds just those rows.
+ */
+export async function pageAccounts(query: PageQuery<AccountSort>, filter?: AccountFilter): Promise<Page<AccountRow>> {
+    const { q, sort, dir, pageSize } = query;
+    const match: Record<string, unknown> = {};
+    if (filter === 'admin') match.admin = true;
+    if (filter === 'unverified') match.emailVerified = { $ne: true };
+    if (filter === 'limited') {
+        const blocked = [...(await emailLimits())].filter(([, l]) => l.some((x) => x.blocked)).map(([email]) => email);
+        match.email = { $in: blocked };
+    }
+
+    // The username lives on the profile, so it's joined in only when searching or sorting by it
+    const needsUsername = !!q || sort === 'username';
+    const counted = COUNTED[sort];
+    const pipeline: mongoose.PipelineStage[] = [
+        { $match: match },
+        ...(needsUsername ? [
+            { $lookup: { from: Profile.collection.name, localField: '_id', foreignField: 'userId', as: 'profile', pipeline: [{ $project: { username: 1 } }] } },
+            { $addFields: { username: { $ifNull: [{ $first: '$profile.username' }, ''] } } },
+        ] as mongoose.PipelineStage[] : []),
+        ...(q ? [{ $match: { $or: [{ email: containsText(q) }, { username: containsText(q) }] } }] : []),
+        ...(counted ? [
+            { $lookup: { from: counted.collection.name, localField: '_id', foreignField: 'userId', as: 'counted', pipeline: [{ $count: 'n' }] } },
+            { $addFields: { sortCount: { $ifNull: [{ $first: '$counted.n' }, 0] } } },
+        ] as mongoose.PipelineStage[] : []),
+    ];
+    const field = counted ? 'sortCount' : sort === 'joined' ? 'createdAt' : sort;
+
+    const run = (page: number) => User.aggregate<{ total: { n: number }[]; ids: { _id: mongoose.Types.ObjectId }[] }>([
+        ...pipeline,
+        {
+            $facet: {
+                total: [{ $count: 'n' }],
+                ids: [{ $sort: { [field]: dir, _id: dir } }, { $skip: (page - 1) * pageSize }, { $limit: pageSize }, { $project: { _id: 1 } }],
+            },
+        },
+    ]).collation(TEXT_COLLATION);
+
+    let page = query.page;
+    let [result] = await run(page);
+    const total = result.total[0]?.n ?? 0;
+    // Past the end, e.g. after deleting the last row of the last page: send the last page instead
+    if (page !== clampPage(page, pageSize, total)) {
+        page = clampPage(page, pageSize, total);
+        [result] = await run(page);
+    }
+
+    const ids = result.ids.map((r) => String(r._id));
+    const byId = new Map((ids.length ? await loadAccounts(ids) : []).map((r) => [r.userId, r]));
+    return { rows: ids.map((id) => byId.get(id)).filter((r): r is AccountRow => !!r), total, page, pageSize };
+}
+
 export interface AccountDetail {
     account: AccountRow;
     games: { id: string; title: string; generation?: number; img?: string; createdAt: Date; saves: number }[];
@@ -77,7 +141,7 @@ export interface AccountDetail {
         id: string; speciesIndex: number; speciesName: string; nickname: string; level: number; generation: number;
         otName: string; penName?: string; sourceGameTitle?: string; transferring: boolean; extractedAt: Date;
     }[];
-    notifications: { id: string; type: string; title: string; readAt?: Date; createdAt: Date }[];
+    notifications: { id: string; type: string; title: string; readAt?: Date; expiresAt?: Date; createdAt: Date }[];
 }
 
 /** Everything one account owns, or null if there's no such account. */
@@ -92,7 +156,7 @@ export async function loadAccountDetail(userId: string): Promise<AccountDetail |
         StoredPokemon.find({ userId })
             .select('speciesIndex speciesName nickname level generation otName penId sourceGameId status extractedAt')
             .sort({ extractedAt: -1 }).lean(),
-        Notification.find({ userId }).select('type title readAt createdAt').sort({ createdAt: -1 }).lean(),
+        Notification.find({ userId, ...notExpired() }).select('type title readAt expiresAt createdAt').sort({ createdAt: -1 }).lean(),
     ]);
 
     const gameTitle = new Map(games.map((g) => [String(g._id), g.title]));
@@ -123,7 +187,7 @@ export async function loadAccountDetail(userId: string): Promise<AccountDetail |
             extractedAt: p.extractedAt,
         })),
         notifications: notifications.map((n) => ({
-            id: String(n._id), type: n.type, title: n.title, readAt: n.readAt, createdAt: n.createdAt,
+            id: String(n._id), type: n.type, title: n.title, readAt: n.readAt, expiresAt: n.expiresAt, createdAt: n.createdAt,
         })),
     };
 }

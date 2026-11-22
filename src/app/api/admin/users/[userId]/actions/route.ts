@@ -3,6 +3,7 @@ import { isValidObjectId } from 'mongoose';
 import { requireAdmin } from '@/lib/requireAdmin';
 import { dbConnect } from '@/lib/db';
 import { clearEmailLimits, markEmailVerified, sendPasswordReset, sendVerificationCode } from '@/lib/accounts';
+import { recordAudit } from '@/lib/audit';
 import { User } from '@/models';
 
 type Params = { params: Promise<{ userId: string }> };
@@ -13,7 +14,7 @@ type Action = (typeof ACTIONS)[number];
 // POST /api/admin/users/:userId/actions { action } — account help for a user.
 // Not rate limited: an admin is often doing this because the user hit their own limit.
 export async function POST(req: NextRequest, { params }: Params) {
-    const { denied } = await requireAdmin();
+    const { session, denied } = await requireAdmin();
     if (denied) return denied;
 
     const { userId } = await params;
@@ -28,21 +29,28 @@ export async function POST(req: NextRequest, { params }: Params) {
     const user = await User.findById(userId).select('email emailVerified');
     if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+    const log = (details?: Record<string, unknown>) =>
+        recordAudit(session, { action: `user.${action}`, targetUserId: userId, targetEmail: user.email, details });
+
     try {
         switch (action) {
             case 'resendVerification':
                 if (user.emailVerified) return NextResponse.json({ error: 'Their email is already verified' }, { status: 409 });
                 await sendVerificationCode(user);
+                await log();
                 return NextResponse.json({ message: `Sent a new code to ${user.email}` });
             case 'verifyEmail':
                 if (user.emailVerified) return NextResponse.json({ error: 'Their email is already verified' }, { status: 409 });
                 await markEmailVerified(user._id);
+                await log();
                 return NextResponse.json({ message: `Verified ${user.email}` });
             case 'sendPasswordReset':
                 await sendPasswordReset(user);
+                await log();
                 return NextResponse.json({ message: `Sent a reset link to ${user.email}` });
             case 'clearRateLimits': {
                 const cleared = await clearEmailLimits(user.email);
+                if (cleared) await log({ cleared });
                 return NextResponse.json({ message: cleared ? `Cleared ${cleared} limit${cleared === 1 ? '' : 's'}` : 'No limits to clear' });
             }
         }

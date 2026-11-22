@@ -11,21 +11,28 @@ import DataTable, { Column } from './DataTable';
 import AdminModal from './AdminModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import SearchInput from './SearchInput';
-import { useAdminTable, ensureOk } from './useAdminTable';
+import Pager from './Pager';
+import { usePagedTable, ensureOk } from './useAdminTable';
 import { dateLabel, plural, shortAgo, whole } from './format';
 import { isLimited, type UserRow } from './AccountPanel';
 import styles from '@/styles/admin.module.css';
 
-async function loadUsers(): Promise<UserRow[]> {
-    const res = await ensureOk(await fetch('/api/admin/users'), 'Failed to load users');
-    return res.json();
-}
+const FILTERS = [
+    { value: '', label: 'All accounts' },
+    { value: 'admin', label: 'Admins' },
+    { value: 'unverified', label: 'Unverified' },
+    { value: 'limited', label: 'Rate limited' },
+];
 
-const searchText = (u: UserRow) => [u.username, u.email];
 const userPage = (u: UserRow) => `/admin/users/${u.userId}`;
 
 export default function UserManagement() {
-    const table = useAdminTable({ load: loadUsers, searchText });
+    const table = usePagedTable<UserRow>({
+        endpoint: '/api/admin/users',
+        filterParam: 'filter',
+        defaultSort: { key: 'joined', direction: 'desc' },
+        failure: 'Failed to load users',
+    });
     const [editingUser, setEditingUser] = useState<UserRow | null>(null);
     const [deletingUser, setDeletingUser] = useState<UserRow | null>(null);
     const currentUser = useAuth()?.user;
@@ -61,7 +68,7 @@ export default function UserManagement() {
         {
             key: 'username',
             header: 'Username',
-            sortValue: (u) => u.username,
+            sortable: true,
             render: (u) => (
                 <Flex $alignItems="center" $gap="0.75rem">
                     {u.avatar && (
@@ -74,13 +81,11 @@ export default function UserManagement() {
                 </Flex>
             ),
         },
-        { key: 'email', header: 'Email', sortValue: (u) => u.email, render: (u) => <span title={u.email}>{u.email}</span> },
+        { key: 'email', header: 'Email', sortable: true, render: (u) => <span title={u.email}>{u.email}</span> },
         {
             key: 'status',
             header: 'Status',
             width: '13rem',
-            // Admins first, then accounts needing attention
-            sortValue: (u) => (u.admin ? 0 : isLimited(u) ? 1 : !u.emailVerified ? 2 : 3),
             render: (u) => (
                 // Only what's worth noticing; an ordinary verified user shows a dash
                 u.admin || !u.emailVerified || isLimited(u) ? (
@@ -96,12 +101,13 @@ export default function UserManagement() {
             key: 'joined',
             header: 'Joined',
             width: '11.5rem',
-            sortValue: (u) => u.createdAt,
+            sortable: true,
+            firstDirection: 'desc',
             render: (u) => <span title={dateLabel.format(new Date(u.createdAt))}>{shortAgo(u.createdAt)}</span>,
         },
-        { key: 'games', header: 'Games', width: '6rem', sortValue: (u) => u.games, render: (u) => <span className={styles.numeric}>{whole.format(u.games)}</span> },
-        { key: 'saves', header: 'Saves', width: '6rem', sortValue: (u) => u.saves, render: (u) => <span className={styles.numeric}>{whole.format(u.saves)}</span> },
-        { key: 'pokemon', header: 'Pokémon', width: '7rem', sortValue: (u) => u.pokemon, render: (u) => <span className={styles.numeric}>{whole.format(u.pokemon)}</span> },
+        { key: 'games', header: 'Games', width: '6rem', sortable: true, firstDirection: 'desc', render: (u) => <span className={styles.numeric}>{whole.format(u.games)}</span> },
+        { key: 'saves', header: 'Saves', width: '6rem', sortable: true, firstDirection: 'desc', render: (u) => <span className={styles.numeric}>{whole.format(u.saves)}</span> },
+        { key: 'pokemon', header: 'Pokémon', width: '7rem', sortable: true, firstDirection: 'desc', render: (u) => <span className={styles.numeric}>{whole.format(u.pokemon)}</span> },
         {
             key: 'actions',
             header: 'Actions',
@@ -127,22 +133,37 @@ export default function UserManagement() {
         },
     ];
 
-    const unverified = table.items.filter((u) => !u.emailVerified).length;
-
     return (
         <div className={styles.managementContainer}>
             <div className={styles.tableToolbar}>
-                <SearchInput value={table.searchTerm} onChange={table.setSearchTerm} placeholder="Search users..." />
+                <div className={styles.toolbarFilters}>
+                    <SearchInput value={table.searchTerm} onChange={table.setSearchTerm} placeholder="Search accounts..." />
+                    <select aria-label="Show" value={table.filter} onChange={(e) => table.setFilter(e.target.value)} className={styles.searchInput}>
+                        {FILTERS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
+                    </select>
+                </div>
             </div>
 
             {table.error && <Alert variation="error" onDismiss={() => table.setError(null)}>{table.error}</Alert>}
 
-            <DataTable data={table.rows} columns={columns} rowKey={(u) => u.userId} loading={table.loading} emptyMessage="No users found" />
+            <DataTable
+                data={table.rows}
+                columns={columns}
+                rowKey={(u) => u.userId}
+                loading={table.loading}
+                emptyMessage={table.searchTerm.trim() || table.filter ? 'No accounts match' : 'No users yet'}
+                sort={table.sort}
+                onSortChange={table.setSort}
+            />
 
-            <div className={styles.tableFooter}>
-                <Text fontSize="sm" variation="secondary">Total: {plural(table.items.length, 'user')}</Text>
-                <Text fontSize="sm" variation="secondary">Unverified: {whole.format(unverified)}</Text>
-            </div>
+            <Pager
+                page={table.page}
+                pageSize={table.pageSize}
+                total={table.total}
+                noun="account"
+                busy={table.fetching || table.searchPending}
+                onPage={table.setPage}
+            />
 
             <AdminModal
                 isOpen={!!editingUser}

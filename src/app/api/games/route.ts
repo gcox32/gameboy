@@ -3,22 +3,15 @@ import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Game } from '@/models';
 
-export async function GET(req: NextRequest) {
+// GET /api/games — the signed-in user's games. Admins page through everyone's at /api/admin/games.
+export async function GET() {
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const all = searchParams.get('all') === 'true';
-
-    if (all && !session.user.admin) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     await dbConnect();
-    const filter = all ? {} : { userId: session.user.id };
-    const games = await Game.find(filter).sort({ createdAt: -1 });
+    const games = await Game.find({ userId: session.user.id }).sort({ createdAt: -1 });
     return NextResponse.json(games.map(g => g.toJSON()));
 }
 

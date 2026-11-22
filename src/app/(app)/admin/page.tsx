@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { isTab } from '@/components/admin/SidebarNavigation';
+import { isTab } from '@/components/admin/tabs';
 import AdminDashboardClient from './AdminDashboardClient';
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string | string[] }> }) {

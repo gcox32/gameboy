@@ -14,12 +14,14 @@ export default function SearchInput({
     placeholder = "Search...",
     className
 }: SearchInputProps) {
+    // The placeholder doubles as the label, since there's no visible one
     return (
         <input
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
+            aria-label={placeholder.replace(/\.+$/, '').replace('…', '')}
             className={`${styles.searchInput} ${className || ''}`}
         />
     );

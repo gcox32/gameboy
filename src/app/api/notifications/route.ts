@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { dbConnect } from '@/lib/db';
 import { Notification } from '@/models';
+import { recordAudit } from '@/lib/audit';
+import { accountNames, BROADCAST, notExpired, validateDraft } from '@/lib/notifications';
 import type { INotification } from '@/models';
 
 // GET /api/notifications           — current user's notifications + BROADCAST ones
@@ -23,10 +25,12 @@ export async function GET(req: NextRequest) {
         if (!session.user.admin) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
-        const notifications = await Notification.find().sort({ createdAt: -1 });
+        const notifications = await Notification.find(notExpired()).sort({ createdAt: -1 });
+        const names = await accountNames(notifications.flatMap(n => [n.userId, n.sender]));
         return NextResponse.json(notifications.map(n => {
             const { readBy, ...rest } = n.toJSON() as unknown as INotification & Record<string, unknown>;
-            return n.userId === 'BROADCAST' ? { ...rest, readCount: readBy?.length ?? 0 } : rest;
+            const named = { ...rest, recipientName: names.get(n.userId), senderName: names.get(n.sender) };
+            return n.userId === 'BROADCAST' ? { ...named, readCount: readBy?.length ?? 0 } : named;
         }));
     }
 
@@ -38,7 +42,7 @@ export async function GET(req: NextRequest) {
         ] }
         : { userId: { $in: [me, 'BROADCAST'] } };
 
-    const notifications = await Notification.find(filter).sort({ createdAt: -1 });
+    const notifications = await Notification.find({ $and: [filter, notExpired()] }).sort({ createdAt: -1 });
     return NextResponse.json(notifications.map(n => toUserView(n, me)));
 }
 
@@ -49,22 +53,29 @@ function toUserView(n: INotification, userId: string) {
     return { ...rest, readAt: readBy?.find(r => r.userId === userId)?.readAt };
 }
 
-// POST /api/notifications — create a notification (admin only)
-// Use userId: 'BROADCAST' to send to all users
+// POST /api/notifications { userId, type, title, body?, expiresAt? } — send a notification (admin only).
+// userId is an account's id, or 'BROADCAST' for everyone. Without expiresAt it stays until deleted.
 export async function POST(req: NextRequest) {
     const session = await auth();
     if (!session?.user?.admin) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { userId, sender, type, title, body: notifBody } = body;
-
-    if (!userId || !sender || !type || !title) {
-        return NextResponse.json({ error: 'userId, sender, type and title are required' }, { status: 400 });
-    }
+    const input = await req.json().catch(() => null);
+    if (!input || typeof input !== 'object') return NextResponse.json({ error: 'Expected a JSON body' }, { status: 400 });
 
     await dbConnect();
-    const notification = await Notification.create({ userId, sender, type, title, body: notifBody });
+    const checked = await validateDraft(input);
+    if (checked.error !== undefined) return NextResponse.json({ error: checked.error }, { status: checked.status });
+    const { draft, recipientEmail } = checked;
+
+    const notification = await Notification.create({ ...draft, sender: 'SYSTEM' });
+    const expires = draft.expiresAt && { expiresAt: draft.expiresAt.toISOString() };
+    await recordAudit(session, {
+        action: 'notification.send', targetId: String(notification._id), targetLabel: draft.title,
+        ...(draft.userId === BROADCAST
+            ? { details: { to: 'everyone', type: draft.type, ...expires } }
+            : { targetUserId: draft.userId, targetEmail: recipientEmail, details: { type: draft.type, ...expires } }),
+    });
     return NextResponse.json(notification.toJSON(), { status: 201 });
 }
