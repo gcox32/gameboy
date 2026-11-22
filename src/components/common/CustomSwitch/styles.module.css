@@ -11,12 +11,13 @@
     flex-shrink: 0;
     width: 44px;
     height: 24px;
-    background-color: var(--neutral-200);
+    /* A surface can set --switch-off-bg when the default reads as "on" against it */
+    background-color: var(--switch-off-bg, var(--neutral-200));
     border-radius: 12px;
     padding: 2px;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 300ms ease;
 }
 
 .switch.checked {
@@ -31,9 +32,21 @@
     height: 20px;
     background-color: var(--button-primary-text);
     border-radius: 50%;
-    transition: transform 0.2s;
+    transition: transform 300ms ease;
 }
 
 .switch.checked .thumb {
     transform: translateX(20px);
+}
+
+.switch:focus-visible {
+    outline: 2px solid var(--button-primary-bg);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .switch,
+    .thumb {
+        transition: none;
+    }
 }

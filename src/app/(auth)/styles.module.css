@@ -144,13 +144,11 @@
     flex-shrink: 0;
 }
 
-.checkboxLabel {
-    display: flex;
-    align-items: center;
+.rememberSwitch {
+    --switch-off-bg: rgba(255, 255, 255, 0.18);
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.55);
     margin-bottom: 0.5rem;
-    gap: 0.5rem;
 }
 
 .checkbox {

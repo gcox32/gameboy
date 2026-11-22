@@ -22,6 +22,9 @@ const NAV_LINKS = [
     { href: '/ranch', label: 'Ranch' },
 ];
 
+// Shown only to admins. The API checks again, so hiding it is a convenience, not the protection.
+const ADMIN_LINK = { href: '/admin', label: 'Admin' };
+
 const Nav = () => {
     const pathname = usePathname();
     const router = useRouter();
@@ -102,7 +105,7 @@ const Nav = () => {
         <>
             <nav className={styles.navContainer}>
                 <div className={styles.primary}>
-                    {user && NAV_LINKS.map(({ href, label }) => (
+                    {user && [...NAV_LINKS, ...(user.admin ? [ADMIN_LINK] : [])].map(({ href, label }) => (
                         <Link
                             key={href}
                             href={href}

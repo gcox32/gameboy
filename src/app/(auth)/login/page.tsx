@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { authedRoute } from '@/../config';
 import PasswordInput from '@/components/auth/PasswordInput';
+import CustomSwitch from '@/components/common/CustomSwitch';
 import styles from '../styles.module.css';
 import buttons from '@/styles/buttons.module.css';
 
@@ -139,15 +140,12 @@ function LoginComponent() {
                     required
                     className={styles.input}
                 />
-                <label className={styles.checkboxLabel}>
-                    <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className={styles.checkbox}
-                    />
-                    Remember Me
-                </label>
+                <CustomSwitch
+                    label="Remember Me"
+                    isChecked={rememberMe}
+                    onChange={() => setRememberMe((on) => !on)}
+                    className={styles.rememberSwitch}
+                />
             </form>
 
             {error && <p className={styles.error} role="alert">{error}</p>}
