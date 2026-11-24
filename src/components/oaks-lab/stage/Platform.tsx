@@ -6,6 +6,9 @@ import clsx from 'clsx';
 import { usePokemonSprites } from '@/hooks/usePokemonSprites';
 import { usePokemonSizes } from '@/hooks/usePokemonSizes';
 import { displayHeightM } from '@/utils/pokemon/size';
+import { dexDict } from '@/utils/pokemon/dicts';
+import { modelUrl } from '@/lib/assets';
+import { PlatformModel } from './PlatformModel';
 import type { LabEntry } from './types';
 import styles from '../lab.module.css';
 
@@ -33,24 +36,41 @@ export function Platform({ entry }: PlatformProps) {
     const size = entry && ready ? sizeOf(entry.speciesIndex) : null;
     const { bySpecies, spriteStyle } = usePokemonSprites();
     const sprite = entry && ready ? bySpecies(entry.speciesIndex) : '';
+    const dexNo = entry ? dexDict[entry.speciesIndex]?.pokedexNo : undefined;
+    // A Pokémon with a 3D model turns on the pad; the rest show their sprite
+    const model = ready && dexNo && dexNo !== 'NULL' ? modelUrl(dexNo, 'stadium') : null;
+    const scale = spriteScale(size?.height ?? null);
+
+    const spriteImage = entry && sprite && (
+        <Image
+            // A new Pokémon remounts, so it materializes
+            key={entry.key}
+            src={sprite}
+            alt={entry.nickname}
+            width={128}
+            height={128}
+            className={styles.platformSprite}
+            style={{ ...spriteStyle, '--mon-scale': scale } as CSSProperties}
+            unoptimized
+        />
+    );
 
     return (
         <div className={clsx(styles.platform, entry && styles.platformActive)}>
             <div className={styles.platformScene}>
                 <div className={styles.beam} aria-hidden />
                 <div className={styles.platformMon}>
-                    {entry && sprite && (
-                        <Image
+                    {entry && model ? (
+                        <PlatformModel
                             // A new Pokémon remounts, so it materializes
                             key={entry.key}
-                            src={sprite}
+                            src={model}
                             alt={entry.nickname}
-                            width={128}
-                            height={128}
-                            className={styles.platformSprite}
-                            style={{ ...spriteStyle, '--mon-scale': spriteScale(size?.height ?? null) } as CSSProperties}
-                            unoptimized
+                            scale={scale}
+                            fallback={spriteImage}
                         />
+                    ) : (
+                        spriteImage
                     )}
                 </div>
                 <div className={styles.pad} aria-hidden>

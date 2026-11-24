@@ -77,6 +77,7 @@
 - [ ] Custom control mapping (keyboard + gamepad)
 - [ ] Speed control improvements
 - [ ] Game-specific settings persistence (speed, palette per ROM)
+- [ ] Stadium 3D models on the Lab platform for all 151, then all 251 (Donphan done) — see [STADIUM_MODELS.md](STADIUM_MODELS.md)
 
 ---
 

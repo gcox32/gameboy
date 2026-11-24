@@ -3,7 +3,8 @@
 // the repo root mirrors it file for file; scripts/upload-assets.mjs publishes it.
 //
 //   app/        backgrounds/, cover-art/, avatars/
-//   pokemon/    sprites/<set>/[shiny/]NNN.gif, art/<set>/NNN.png, cries/NNN.wav (NNN = National Dex)
+//   pokemon/    sprites/<set>/[shiny/]NNN.gif, art/<set>/NNN.png, cries/NNN.wav (NNN = National Dex),
+//               models/<set>/NNN.glb (scripts/convert-model.mjs makes them)
 //   regions/    <region>/badges/, figures/, locations/[routes/]
 //   maps/       town-map-gen<N>.png
 //
@@ -32,6 +33,26 @@ export type ArtSet = 'sugimori-rb' | 'sugimori-rg' | 'sugimori-frlg' | 'official
 
 export const artUrl = (dexNo: number | string, set: ArtSet) =>
     assetUrl(`pokemon/art/${set}/${padDex(dexNo)}.png`);
+
+/** 3D model sets: Pokémon Stadium's models, built from the ROM by scripts/stadium2/build-model.mjs */
+export type ModelSet = 'stadium';
+
+/**
+ * The models each set has, by Dex number, with the version of the file that's uploaded (the
+ * first 8 hex digits of its SHA-1, which build-model.mjs prints). Blob serves assets with a
+ * 30-day cache and a rebuild overwrites the same path, so the version goes in the URL: without
+ * it, anyone who's seen a model keeps the old one. Update it with every rebuild you upload.
+ * A listed model that isn't uploaded yet falls back to the sprite.
+ */
+const MODEL_VERSIONS: Record<ModelSet, Readonly<Record<string, string>>> = {
+    stadium: { '232': 'cd3f47db' },
+};
+
+/** The .glb for a Dex number, or null when the set has no model for it */
+export function modelUrl(dexNo: number | string, set: ModelSet): string | null {
+    const version = MODEL_VERSIONS[set][padDex(dexNo)];
+    return version ? assetUrl(`pokemon/models/${set}/${padDex(dexNo)}.glb?v=${version}`) : null;
+}
 
 export const cryUrl = (dexNo: number | string) => assetUrl(`pokemon/cries/${padDex(dexNo)}.wav`);
 

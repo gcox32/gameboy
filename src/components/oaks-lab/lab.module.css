@@ -452,6 +452,27 @@
     animation: materialize var(--ui-ms, 300ms) linear;
 }
 
+/*
+ * A 3D model on the pad (see PlatformModel). The canvas is wider than it is tall so a long
+ * Pokémon's turn has room, and sits as low as the sprites so it stands on the pad's face.
+ */
+.platformModel {
+    display: block;
+    height: calc(var(--mon-scale, 0.65) * 100cqi);
+    width: 100cqi;
+    /* model-viewer centres the model in its canvas; this sets it down onto the pad like the sprites */
+    translate: 0 14%;
+    opacity: 0;
+    pointer-events: none;
+    --poster-color: transparent;
+    --progress-bar-color: transparent;
+}
+
+.platformModelLoaded {
+    opacity: 1;
+    animation: materialize var(--ui-ms, 300ms) linear;
+}
+
 .pad {
     position: relative;
     z-index: 1;
