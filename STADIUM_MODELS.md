@@ -12,6 +12,14 @@ Related docs: [OAKS_LAB.md](OAKS_LAB.md) (the Lab itself), [GEN2_SUPPORT.md](GEN
 
 **Live:** Donphan turns on the pad and plays its idle loop, including its blink, and stands at about its sprite's height. Any Pokémon without a model shows its sprite, as before.
 
+**Model board:** while the Pokémon on the pad has a model, a board slides out under the pad (`ModelBoard.tsx`).
+- Five unprinted keys: Idle, Entrance, Attack, Faint, Special.
+  - Special plays the species' own clip, so for Donphan it's Rollout.
+  - Faint holds until another key is pressed; every other clip returns to idle.
+  - A clip that carries the Pokémon off the pad (Rollout) fades out as it goes, then materializes back.
+- A readout shows the clip playing and the turntable speed.
+- A speed knob turns the turntable: centre stops it, either side turns it either way.
+
 | Piece | What it does | File |
 |---|---|---|
 | Platform | Shows the model if the Pokémon has one, otherwise the sprite | `src/components/oaks-lab/stage/Platform.tsx` |
@@ -48,7 +56,8 @@ Worth knowing before touching the builder. Each point below fixed a visible bug 
 
   Every vertex belongs to exactly one bone at full weight. Rotations are the game's binary angles (32768 = π), applied in the game's order (Rz·Ry·Rx for column vectors).
 - **Animations.** Each clip stores one value per frame at 30 Hz, so every frame becomes a keyframe. Quaternions are kept sign-continuous so the interpolation takes the short way round.
-  - Only `idle` is written by default (Donphan: 128 KB; 585 KB with `--all-clips`).
+  - The Lab's clips are kept: idle, attack, entrance, faint, and any species clip named in `SPECIES_CLIPS` (Donphan's Rollout). Donphan: 561 KB; `--all-clips` keeps every slot.
+  - Stadium 2 doesn't name its clip slots. Watching Donphan's gives 0 idle, 1 attack, 2 entrance (a rear-up), 3 faint: Stadium 1's order with the last two swapped. StadiumBattleFX assumes Stadium 1's order, so it calls slot 2 the faint. Check this on other species before trusting it.
 - **Hidden parts.** Some models carry parts that the clips keep at scale 0 (Donphan's curled-up Rollout ball is always in the mesh). So:
   - a channel is written whenever any frame differs from the node's standing value, even if it never changes;
   - nodes stand in idle's first frame, not the rest pose.
@@ -130,7 +139,7 @@ Waits on the Lab handling Gen 2 Pokémon at all. The Lab reads Gen 1 saves and l
 ### Phase 5 — Extras (each optional)
 
 - [ ] **Shinies**: the ROM has a shiny palette or dedicated shiny textures per species (`rareVariation`, `applyDedicatedRareTextures`). Build `NNN-shiny.glb` and show it when the stored Pokémon is shiny
-- [ ] **Entrance clip**: play `entrance` once when a Pokémon arrives on the pad, then settle into `idle`. It's in the ROM; ship it with `--all-clips` or a two-clip build
+- [ ] **Entrance on arrival**: play `entrance` once when a Pokémon arrives on the pad, then settle into `idle`. The clip already ships for the board
 - [ ] **Lighting**: closer to Stadium's look (a key light from the front-left, less ambient wash) than model-viewer's neutral environment
 - [ ] **Interaction**: drag to turn the model. Check against the Lab's static-hardware rule first (controls never appear, move or change with state; only screens change). The pad is a screen, so it may be fine
 
@@ -142,7 +151,7 @@ Waits on the Lab handling Gen 2 Pokémon at all. The Lab reads Gen 1 saves and l
 - **The ROM never leaves this machine.** It lives in `assets/_inbox/` (gitignored, and skipped by the uploader). Only the derived `.glb` files are uploaded.
 - **The pipeline stays out of git for now**, like the other asset scripts. Open question below.
 - **Sprites are the fallback, always.** A species with no approved model, or a model that fails to load, shows its sprite. A partial rollout is fine.
-- **Idle only by default.** Other clips cost about 4× the file size, and the Lab only plays idle.
+- **Only the clips the board plays.** Each clip is a key per bone per frame, so unknown slots are left out until someone has watched them and named them.
 
 ## Open questions
 

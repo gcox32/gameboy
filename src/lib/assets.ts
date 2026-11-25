@@ -4,7 +4,7 @@
 //
 //   app/        backgrounds/, cover-art/, avatars/
 //   pokemon/    sprites/<set>/[shiny/]NNN.gif, art/<set>/NNN.png, cries/NNN.wav (NNN = National Dex),
-//               models/<set>/NNN.glb (scripts/convert-model.mjs makes them)
+//               models/<set>/NNN.glb (scripts/stadium2/build-model.mjs makes them)
 //   regions/    <region>/badges/, figures/, locations/[routes/]
 //   maps/       town-map-gen<N>.png
 //
@@ -45,7 +45,7 @@ export type ModelSet = 'stadium';
  * A listed model that isn't uploaded yet falls back to the sprite.
  */
 const MODEL_VERSIONS: Record<ModelSet, Readonly<Record<string, string>>> = {
-    stadium: { '232': 'cd3f47db' },
+    stadium: { '232': '508c59fe' },
 };
 
 /** The .glb for a Dex number, or null when the set has no model for it */
