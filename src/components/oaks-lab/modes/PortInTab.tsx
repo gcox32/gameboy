@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpFromLine, Plug } from 'lucide-react';
 import { RanchPokemon } from '@/components/ranch/types';
 import ConnectModal from '../save/ConnectModal';
-import { DeckKey, DeckPill, LabDeck, LabEntry, LabResult, SlideSwitch, press, useFeedStage } from '../stage';
+import { CursorMove, DeckKey, DeckPill, LabDeck, LabEntry, LabResult, SlideSwitch, press, useFeedStage } from '../stage';
 import { BoxesNotReadyNote } from '../save/LabSave';
 import type { LabSave } from '../save/useLabSave';
 import styles from '../lab.module.css';
@@ -179,9 +179,10 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
     );
 
     const entries = (ranch ?? []).map(ranchEntry);
-    const select = (e: LabEntry) => {
+    const select = (e: LabEntry, move: CursorMove) => {
         setSelectedId(e.key);
-        setResult(null);
+        // The monitor starting the cursor off, as after a send, leaves the result showing
+        if (move === 'arrows') setResult(null);
     };
 
     // The Ranch on the monitor, and the chosen Pokémon on the pad. Take has nothing to show from a save.
@@ -192,10 +193,6 @@ export default function PortInTab({ lab }: { lab: LabSave }) {
                 meta: ranch ? `${ranch.length}` : undefined,
                 entries,
                 cursorKey: selectedId,
-                onPick: e => {
-                    setSelectedId(prev => prev === e.key ? '' : e.key);
-                    setResult(null);
-                },
                 onCursor: select,
                 loading: ranch === null,
                 emptyText: 'No Pokémon at the Ranch.',

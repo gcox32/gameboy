@@ -6,7 +6,7 @@ import type { RanchPokemon } from '@/components/ranch/types';
 import { SlotPokemon } from '@/utils/pokemon/gen1Save';
 import { StoredIVs, decodeIVs } from '@/utils/pokemon/stats';
 import IvEditor, { EditablePokemon } from './IvEditor';
-import { LabResult, MonitorSource, useFeedStage } from '../stage';
+import { CursorMove, LabResult, MonitorSource, useFeedStage } from '../stage';
 import { slotEntry, slotKey, useSaveScreen } from '../save/LabSave';
 import { ranchEntry, ranchKey, ranchScreen } from '../ranch/ranchScreen';
 import { useLabRanch } from '../ranch/useLabRanch';
@@ -56,9 +56,10 @@ export default function EditTab({ lab, ranchId, source, shownSource }: EditTabPr
         : null;
     const editing: EditablePokemon | null = editingSlot ?? (editingMon && editableFromRanch(editingMon));
 
-    const select = (key: string) => {
+    const select = (key: string, move: CursorMove) => {
         setEditingKey(key);
-        setResult(null);
+        // The monitor starting the cursor off leaves the last save's result showing
+        if (move === 'arrows') setResult(null);
     };
 
     // A new source means choosing again from what it shows
@@ -137,16 +138,15 @@ export default function EditTab({ lab, ranchId, source, shownSource }: EditTabPr
     // Both sources on the monitor, and whoever's being edited on the pad
     const saveScreen = useSaveScreen(lab, {
         cursorKey: editingKey,
-        onPick: sl => select(slotKey(sl)),
-        onCursor: sl => select(slotKey(sl)),
+        onCursor: (sl, move) => select(slotKey(sl), move),
     });
     useFeedStage({
         screens: {
             save: saveScreen.screen,
             ranch: ranchScreen(ranch, {
                 cursorKey: editingKey,
-                onPick: p => select(ranchKey(p.id)),
-                onCursor: p => select(ranchKey(p.id)),
+                // Sent here with a Pokémon: keep it chosen while its pen comes up, before the monitor's default can take over
+                onCursor: (p, move) => { if (!(move === 'default' && penToShow)) select(ranchKey(p.id), move); },
             }),
         },
         platform: editingSlot ? slotEntry(editingSlot) : editingMon ? ranchEntry(editingMon) : null,

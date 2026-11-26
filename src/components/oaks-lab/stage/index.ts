@@ -4,7 +4,7 @@ export { ModelMonitor } from './ModelMonitor';
 export { FedModelMonitor, FedMonitor, FedPlatform, StageFeedProvider, useFeed, useFeedStage, useFeedStore } from './feed';
 export type { FeedStore, StageFeed } from './feed';
 export { Monitor } from './Monitor';
-export type { MonitorScreen, MonitorSource } from './Monitor';
+export type { CursorMove, MonitorScreen, MonitorSource } from './Monitor';
 export { SlideSwitch } from './SlideSwitch';
 export { LabDeck, DeckAck, DeckBusy, DeckKey, DeckPill, DeckResult } from './Deck';
 export { press } from './press';

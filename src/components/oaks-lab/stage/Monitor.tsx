@@ -1,6 +1,6 @@
 'use client';
 
-import { KeyboardEvent, ReactNode } from 'react';
+import { KeyboardEvent, ReactNode, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -18,6 +18,12 @@ const SOURCES: { id: MonitorSource; label: string }[] = [
     { id: 'ranch', label: 'Ranch' },
 ];
 
+/**
+ * How the cursor got where it is: the arrows moved it, or the monitor started it on the first
+ * Pokémon because nothing on the screen was selected. Only a move by the arrows is the user's doing.
+ */
+export type CursorMove = 'arrows' | 'default';
+
 /** What's on the screen. Everything else about the monitor is hardware and never changes. */
 export interface MonitorScreen {
     /** Screen heading, such as "Party" or "Box 3" */
@@ -25,12 +31,13 @@ export interface MonitorScreen {
     /** Shown at the right of the heading, such as "4/6" */
     meta?: string;
     entries: LabEntry[];
-    /** The selected Pokémon, which the arrows move */
+    /**
+     * The selected Pokémon, which the arrows move. The screen itself never reacts to clicks, so
+     * when nothing on it is selected the monitor selects the first Pokémon for the arrows to start from.
+     */
     cursorKey: string;
-    /** A click or Enter on a Pokémon */
-    onPick: (entry: LabEntry) => void;
-    /** The arrows moved to a Pokémon */
-    onCursor: (entry: LabEntry) => void;
+    /** The arrows moved to a Pokémon, or the monitor put the cursor on the first one */
+    onCursor: (entry: LabEntry, move: CursorMove) => void;
     /** Moves between pages, such as the party and each box. Left out, the rocker does nothing. */
     pages?: { label: string; onPrev: () => void; onNext: () => void; inactive?: boolean };
     /** Replaces the grid, for setup screens and errors */
@@ -56,12 +63,21 @@ interface MonitorProps extends MonitorScreen {
 }
 
 export function Monitor({
-    title, meta, entries, cursorKey, onPick, onCursor,
+    title, meta, entries, cursorKey, onCursor,
     pages, screen, onAnyButton, loading = false, emptyText = 'Empty', footnote, pageMap, source, onSourceChange,
 }: MonitorProps) {
     const { bySpecies, spriteStyle } = usePokemonSprites();
     const index = entries.findIndex(e => e.key === cursorKey);
     const canStep = !loading && !screen && entries.length > 0;
+
+    // Nothing selected on what's showing: start the cursor on the first Pokémon. onCursor is new
+    // every render, so it's read through a ref rather than re-running this on each one.
+    const onCursorRef = useRef(onCursor);
+    onCursorRef.current = onCursor;
+    const firstEntry = entries[0];
+    useEffect(() => {
+        if (canStep && index < 0 && firstEntry) onCursorRef.current(firstEntry, 'default');
+    }, [canStep, index, firstEntry]);
 
     // Only while the prompt is actually on screen, not under the snow
     const anyButton = loading ? undefined : onAnyButton;
@@ -70,14 +86,13 @@ export function Monitor({
 
     const step = (by: number) => {
         if (!canStep) return;
-        const from = index < 0 ? (by > 0 ? -1 : 0) : index;
-        onCursor(entries[(from + by + entries.length) % entries.length]);
+        const from = index < 0 ? 0 : index;
+        onCursor(entries[(from + by + entries.length) % entries.length], 'arrows');
     };
 
     const handleKey = (e: KeyboardEvent) => {
         if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
         else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-        else if (e.key === 'Enter' && index >= 0) { e.preventDefault(); onPick(entries[index]); }
     };
 
     return (
@@ -115,7 +130,6 @@ export function Monitor({
                                         role="option"
                                         aria-selected={atCursor}
                                         className={clsx(styles.tile, atCursor && styles.tileCursor)}
-                                        onClick={() => onPick(e)}
                                     >
                                         {sprite && (
                                             <Image

@@ -75,7 +75,6 @@ const NO_SIGNAL: MonitorScreen = {
     title: 'Oak’s Lab',
     entries: [],
     cursorKey: '',
-    onPick: () => {},
     onCursor: () => {},
     loading: true,
 };

@@ -76,14 +76,10 @@ export default function ExtractTab({ lab }: { lab: LabSave }) {
     // The save on the monitor, and the chosen Pokémon on the pad
     const saveScreen = useSaveScreen(lab, {
         cursorKey: selectedKey,
-        // A second click puts it back
-        onPick: s => {
-            setSelectedKey(prev => prev === slotKey(s) ? '' : slotKey(s));
-            setResult(null);
-        },
-        onCursor: s => {
+        onCursor: (s, move) => {
             setSelectedKey(slotKey(s));
-            setResult(null);
+            // The monitor starting the cursor off, as after a send, leaves the result showing
+            if (move === 'arrows') setResult(null);
         },
     });
     useFeedStage({ screens: { save: saveScreen.screen }, platform: chosen ? slotEntry(chosen) : null });

@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 import type { RanchPokemon } from '@/components/ranch/types';
-import { LabEntry, MonitorScreen } from '../stage';
+import { CursorMove, LabEntry, MonitorScreen } from '../stage';
 import type { LabRanch } from './useLabRanch';
 import styles from '../lab.module.css';
 
@@ -30,17 +30,16 @@ function PenMap({ ranch }: { ranch: LabRanch }) {
 
 interface RanchScreenHandlers {
     cursorKey: string;
-    onPick: (p: RanchPokemon) => void;
-    onCursor: (p: RanchPokemon) => void;
+    onCursor: (p: RanchPokemon, move: CursorMove) => void;
 }
 
 /** The Ranch, a pen at a time, as the monitor's screen shows it */
-export function ranchScreen(ranch: LabRanch, { cursorKey, onPick, onCursor }: RanchScreenHandlers): MonitorScreen {
+export function ranchScreen(ranch: LabRanch, { cursorKey, onCursor }: RanchScreenHandlers): MonitorScreen {
     const { pen, penSlots, capacity } = ranch;
     const byKey = new Map(penSlots.map(p => [ranchKey(p.id), p]));
-    const fromEntry = (handler: (p: RanchPokemon) => void) => (e: LabEntry) => {
+    const fromEntry = (handler: (p: RanchPokemon, move: CursorMove) => void) => (e: LabEntry, move: CursorMove) => {
         const p = byKey.get(e.key);
-        if (p) handler(p);
+        if (p) handler(p, move);
     };
 
     const message = ranch.error ? <p>{ranch.error}</p> : null;
@@ -51,7 +50,6 @@ export function ranchScreen(ranch: LabRanch, { cursorKey, onPick, onCursor }: Ra
         meta: message || ranch.loading ? undefined : `${penSlots.length}/${capacity}`,
         entries: penSlots.map(ranchEntry),
         cursorKey,
-        onPick: fromEntry(onPick),
         onCursor: fromEntry(onCursor),
         pages: {
             label,

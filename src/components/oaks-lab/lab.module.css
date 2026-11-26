@@ -938,13 +938,7 @@
     border: 1px solid var(--phosphor-faint);
     border-radius: 8px;
     background: rgba(168, 240, 218, 0.03);
-    cursor: pointer;
     user-select: none;
-}
-
-.tile:hover {
-    border-color: rgba(168, 240, 218, 0.45);
-    background: rgba(168, 240, 218, 0.08);
 }
 
 .tileCursor {

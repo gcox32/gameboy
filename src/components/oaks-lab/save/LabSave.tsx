@@ -8,7 +8,7 @@ import CartridgePickerModal from '@/components/modals/CartridgePicker';
 import LoadStateModal from '@/components/modals/SaveStateManagement/LoadStateModal';
 import { useImportSav } from '@/hooks/useImportSav';
 import ConnectModal from './ConnectModal';
-import { LabEntry, MonitorScreen } from '../stage';
+import { CursorMove, LabEntry, MonitorScreen } from '../stage';
 import { PARTY_PAGE, type LabSave } from './useLabSave';
 import styles from '../lab.module.css';
 
@@ -52,23 +52,22 @@ function PageMap({ page, boxAvailable }: { page: number; boxAvailable: boolean[]
 
 interface SaveScreenHandlers {
     cursorKey: string;
-    onPick: (slot: SlotPokemon) => void;
-    onCursor: (slot: SlotPokemon) => void;
+    onCursor: (slot: SlotPokemon, move: CursorMove) => void;
 }
 
 /**
  * The chosen save's party and boxes, one page at a time, as the monitor's screen shows them.
  * Comes with the Connect modal its setup screen opens, which the caller renders.
  */
-export function useSaveScreen(lab: LabSave, { cursorKey, onPick, onCursor }: SaveScreenHandlers) {
+export function useSaveScreen(lab: LabSave, { cursorKey, onCursor }: SaveScreenHandlers) {
     const { selectedGame, selectedSave, currentSave, contents, page } = lab;
     const [connectModalOpen, setConnectModalOpen] = useState(false);
 
     const slots = lab.pageSlots;
     const bySlotKey = new Map(slots.map(s => [slotKey(s), s]));
-    const fromEntry = (handler: (s: SlotPokemon) => void) => (e: LabEntry) => {
+    const fromEntry = (handler: (s: SlotPokemon, move: CursorMove) => void) => (e: LabEntry, move: CursorMove) => {
         const slot = bySlotKey.get(e.key);
-        if (slot) handler(slot);
+        if (slot) handler(slot, move);
     };
 
     let message: ReactNode = null;
@@ -97,7 +96,6 @@ export function useSaveScreen(lab: LabSave, { cursorKey, onPick, onCursor }: Sav
         meta: message || loading ? undefined : `${slots.length}/${capacity}`,
         entries: slots.map(slotEntry),
         cursorKey,
-        onPick: fromEntry(onPick),
         onCursor: fromEntry(onCursor),
         pages: { label, onPrev: () => lab.stepPage(-1), onNext: () => lab.stepPage(1), inactive: !contents },
         screen: message,
