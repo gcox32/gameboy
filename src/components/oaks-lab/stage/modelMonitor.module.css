@@ -61,6 +61,17 @@
     padding: 0 0.25rem;
 }
 
+/* The pause key: one key in its own recess, beside the knob it hands the model to */
+.pauseKey {
+    flex: none;
+    grid-template-columns: 3rem;
+}
+
+.pauseKey button {
+    display: grid;
+    place-items: center;
+}
+
 /* Bigger keys than the old board's, sized to the casing */
 .keys {
     padding: 0.65rem 0.9rem;

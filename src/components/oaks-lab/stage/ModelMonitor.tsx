@@ -1,6 +1,6 @@
 'use client';
 
-import { CSSProperties, KeyboardEvent, PointerEvent, ReactNode, Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { CSSProperties, KeyboardEvent, PointerEvent, ReactNode, Ref, useEffect, useId, useImperativeHandle, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import { X } from 'lucide-react';
@@ -59,19 +59,32 @@ function angleToSpeed(angle: number): number {
 /** Knob degrees per pixel dragged: the whole sweep in about 180px */
 const DRAG_RATE = 1.5;
 
+/** While paused, how far the model turns per degree of knob: the whole sweep is one full turn */
+const TURN_PER_KNOB = 360 / (2 * SWEEP);
+
 /**
  * Turns the platform: middle stops it, right turns it one way and left the other, faster the
  * further it goes. Dragged in a straight line (right or up turns it clockwise), as knobs on a
  * screen are, rather than round its rim; the wheel and arrow keys nudge it.
+ *
+ * It's one knob with one position, paused or not: while the turntable's paused, turning it also
+ * turns the model by hand (onTurn, in knob degrees), and the turntable runs at wherever it's left.
  */
-function TurntableKnob({ speed, onChange, ref: outer }: {
+function TurntableKnob({ speed, paused, onChange, onTurn, ref: outer }: {
     speed: number;
+    paused: boolean;
     onChange: (speed: number) => void;
+    onTurn: (knobDegrees: number) => void;
     ref?: Ref<HTMLDivElement>;
 }) {
     // While turning: where the pointer was, and where the knob is (fractional, before detents)
     const drag = useRef<{ x: number; y: number; knob: number } | null>(null);
-    const set = (next: number) => { if (next !== speed) onChange(next); };
+    const set = (next: number) => {
+        if (next === speed) return;
+        onChange(next);
+        // Keys and the wheel step between speeds, so they turn the model by the step's angle
+        if (!drag.current) onTurn(speedToAngle(next) - speedToAngle(speed));
+    };
 
     const grab = (e: PointerEvent<HTMLDivElement>) => {
         if (e.button !== 0) return;
@@ -84,6 +97,8 @@ function TurntableKnob({ speed, onChange, ref: outer }: {
         if (!drag.current) return;
         const by = (e.clientX - drag.current.x - (e.clientY - drag.current.y)) * DRAG_RATE;
         const knob = Math.max(-SWEEP, Math.min(SWEEP, drag.current.knob + by));
+        // The model follows the hand smoothly, not the detents the speed clicks between
+        if (knob !== drag.current.knob) onTurn(knob - drag.current.knob);
         drag.current = { x: e.clientX, y: e.clientY, knob };
         set(angleToSpeed(knob));
     };
@@ -136,7 +151,7 @@ function TurntableKnob({ speed, onChange, ref: outer }: {
                 aria-valuemin={-MAX_SPEED}
                 aria-valuemax={MAX_SPEED}
                 aria-valuenow={speed}
-                aria-valuetext={speed === 0 ? 'Stopped' : `${Math.abs(speed)} degrees a second, ${speed > 0 ? 'clockwise' : 'anticlockwise'}`}
+                aria-valuetext={`${speed === 0 ? 'Stopped' : `${Math.abs(speed)} degrees a second, ${speed > 0 ? 'clockwise' : 'anticlockwise'}`}${paused ? ' (paused: turning it turns the model)' : ''}`}
                 title="Turntable"
                 onPointerDown={grab}
                 onPointerMove={turn}
@@ -151,6 +166,35 @@ function TurntableKnob({ speed, onChange, ref: outer }: {
                 </span>
             </div>
         </div>
+    );
+}
+
+/** The pause key's two bars */
+const PAUSE_BARS = [3, 8].map(x => ({ x, y: 2, width: 3, height: 10, rx: 0.8 }));
+
+/**
+ * A pause symbol cut into a key's plastic rather than printed on it: a lit lip just below each
+ * groove, then the groove itself, its top wall in shadow and its floor lighter towards the bottom,
+ * as the room's light from above would leave it.
+ */
+function EtchedPause() {
+    const groove = useId();
+    return (
+        <svg width={14} height={14} viewBox="0 0 14 14" aria-hidden>
+            <defs>
+                <linearGradient id={groove} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor="#5a4826" stopOpacity={0.75} />
+                    <stop offset="0.3" stopColor="#7a6740" stopOpacity={0.5} />
+                    <stop offset="1" stopColor="#9a8960" stopOpacity={0.3} />
+                </linearGradient>
+            </defs>
+            <g fill="#fff" fillOpacity={0.9}>
+                {PAUSE_BARS.map(b => <rect key={b.x} {...b} y={b.y + 0.6} />)}
+            </g>
+            {/* The groove's floor over the lip, so only the lip's bottom edge shows */}
+            <g fill="#e9e1c9">{PAUSE_BARS.map(b => <rect key={b.x} {...b} />)}</g>
+            <g fill={`url(#${groove})`}>{PAUSE_BARS.map(b => <rect key={b.x} {...b} />)}</g>
+        </svg>
     );
 }
 
@@ -191,6 +235,8 @@ export function ModelMonitor({ open, onClose, entry }: ModelMonitorProps) {
 
     // The knob stays where it's put, whoever comes and goes and however often the monitor's raised
     const [speed, setSpeed] = useState(START_SPEED);
+    // Holds the model where it is, so the knob turns it by hand. Stays latched like the knob.
+    const [paused, setPaused] = useState(false);
     const controls = useRef<ModelControls>(null);
     const [loaded, setLoaded] = useState<Loaded | null>(null);
     const current = loaded && entry && loaded.key === entry.key ? loaded : null;
@@ -268,11 +314,9 @@ export function ModelMonitor({ open, onClose, entry }: ModelMonitorProps) {
                             <PlatformModel
                                 // A new Pokémon remounts, so it materializes
                                 key={entry.key}
-                                view="screen"
                                 src={model}
                                 alt={entry.nickname}
-                                speed={speed}
-                                fallback={null}
+                                speed={paused ? 0 : speed}
                                 controls={controls}
                                 onClips={c => report(entry.key, { clips: c })}
                                 onClip={p => report(entry.key, { playing: p })}
@@ -288,7 +332,7 @@ export function ModelMonitor({ open, onClose, entry }: ModelMonitorProps) {
                             {!showing ? '' : loading ? 'Loading' : playing && playing !== IDLE_CLIP ? `▶ ${playing}` : IDLE_CLIP}
                         </span>
                         <span className={own.readoutSpeed}>
-                            {speed === 0 ? 'Stop' : `${speed > 0 ? '↻' : '↺'} ${Math.abs(speed)}°/s`}
+                            {paused ? 'Paused' : speed === 0 ? 'Stop' : `${speed > 0 ? '↻' : '↺'} ${Math.abs(speed)}°/s`}
                         </span>
                     </div>
 
@@ -316,7 +360,29 @@ export function ModelMonitor({ open, onClose, entry }: ModelMonitorProps) {
                             );
                         })}
                     </div>
-                    <TurntableKnob ref={knobRef} speed={speed} onChange={setSpeed} />
+                    {/* Latches down while paused, with its lamp lit */}
+                    <div className={clsx(styles.modelKeys, own.keys, own.pauseKey)}>
+                        <div className={styles.modelKeyCell}>
+                            <i className={clsx(styles.lamp, paused ? styles.lamp_on : styles.lamp_off)} aria-hidden />
+                            <button
+                                type="button"
+                                className={styles.padKey}
+                                aria-pressed={paused}
+                                aria-label="Pause rotation"
+                                title="Pause rotation"
+                                {...press(false, () => setPaused(p => !p))}
+                            >
+                                <EtchedPause />
+                            </button>
+                        </div>
+                    </div>
+                    <TurntableKnob
+                        ref={knobRef}
+                        speed={speed}
+                        paused={paused}
+                        onChange={setSpeed}
+                        onTurn={by => { if (paused) controls.current?.turn(by * TURN_PER_KNOB); }}
+                    />
                 </div>
             </section>
         </div>,

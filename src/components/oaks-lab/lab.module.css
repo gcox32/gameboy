@@ -515,38 +515,6 @@
     animation: materialize var(--ui-ms, 300ms) linear;
 }
 
-/*
- * A 3D model on the pad (see PlatformModel). Its box is the sprite's (the Pokémon's height, the
- * scene's width) so it stands on the pad's face like one, but the canvas is --room times that,
- * spilling out evenly round it, so a rearing attack or a swinging tusk isn't cut off at the box's
- * edge. PlatformModel pulls the camera back by the same factor to keep the Pokémon its size.
- */
-.platformModel {
-    --room: 1.8;
-    display: block;
-    height: calc(var(--room) * var(--mon-scale, 0.65) * 100cqi);
-    width: calc(var(--room) * 100cqi);
-    margin:
-        calc((1 - var(--room)) / 2 * var(--mon-scale, 0.65) * 100cqi)
-        calc((1 - var(--room)) / 2 * 100cqi);
-    /* model-viewer centres the model in its canvas; this sets it down onto the pad like the sprites */
-    translate: 0 calc(14% / var(--room));
-    /* Whatever reaches the canvas's edge (Rollout heading off) fades out there rather than being cut */
-    mask:
-        linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
-        linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
-    mask-composite: intersect;
-    opacity: 0;
-    pointer-events: none;
-    --poster-color: transparent;
-    --progress-bar-color: transparent;
-}
-
-.platformModelLoaded {
-    opacity: 1;
-    animation: materialize var(--ui-ms, 300ms) linear;
-}
-
 .pad {
     position: relative;
     z-index: 1;
@@ -658,9 +626,10 @@
     --progress-bar-color: transparent;
 }
 
-/* After .screenModel, which would otherwise keep it hidden */
-.screenModel.platformModelLoaded {
+/* Shown once it's loaded, so it materializes whole rather than popping in */
+.screenModel.modelLoaded {
     opacity: 1;
+    animation: materialize var(--ui-ms, 300ms) linear;
 }
 
 /* The clip keys, in the same recess as the box keypad */
@@ -1467,7 +1436,7 @@
     .platformActive .padGlow,
     .stagePanel,
     .leaving .stagePanel,
-    .platformModelLoaded,
+    .modelLoaded,
     .tuning .static,
     .staticOn,
     .blink,

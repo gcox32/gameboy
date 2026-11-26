@@ -1,6 +1,6 @@
 'use client';
 
-import { CSSProperties, DetailedHTMLProps, HTMLAttributes, ReactNode, Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { DetailedHTMLProps, HTMLAttributes, Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import clsx from 'clsx';
 import styles from '../lab.module.css';
 
@@ -39,6 +39,9 @@ interface ModelViewerElement extends HTMLElement {
     /** The current clip's length, in seconds */
     duration: number;
     play(options?: { repetitions?: number }): void;
+    /** How far the turntable has turned, in radians */
+    readonly turntableRotation: number;
+    resetTurntableRotation(theta?: number): void;
 }
 
 /*
@@ -67,26 +70,19 @@ const LEAVES_PAD = new Set(['rollout']);
 const HOLDS = new Set(['faint']);
 const LEAVING_SHARE = 0.25;
 
-/** What the model monitor can ask of the model on the pad */
+/** What the model monitor's keys and knob can ask of the model on its screen */
 export interface ModelControls {
     /** Plays a clip once, then goes back to idle (a faint stays down). Idle itself loops. */
     play(clip: string): void;
+    /** Turns the model on its turntable by this many degrees, clockwise as the knob turns */
+    turn(degrees: number): void;
 }
 
 interface PlatformModelProps {
     src: string;
     alt: string;
-    /**
-     * 'pad' stands it on the platform at its sprite's height. 'screen' fills the model monitor's
-     * screen with it, framed whole.
-     */
-    view?: 'pad' | 'screen';
-    /** The Pokémon's height on the pad, as a share of the scene's width (see spriteScale in Platform). Pad only. */
-    scale?: number;
     /** How fast the turntable turns, in degrees a second; negative turns it the other way */
     speed: number;
-    /** Shown instead if the model can't load, so the pad is never left empty */
-    fallback: ReactNode;
     controls?: Ref<ModelControls>;
     /** The model's clips, once it's loaded */
     onClips?: (clips: string[]) => void;
@@ -95,8 +91,12 @@ interface PlatformModelProps {
     onFail?: () => void;
 }
 
-/** A Pokémon's 3D model turning on the pad and playing its idle loop, the way Stadium's Lab shows them */
-export function PlatformModel({ src, alt, view = 'pad', scale = 0.65, speed, fallback, controls, onClips, onClip, onFail }: PlatformModelProps) {
+/**
+ * A Pokémon's 3D model on the model monitor's screen, framed whole, turning on its turntable and
+ * playing its idle loop, the way Stadium's Lab shows them. If it can't load it shows nothing and
+ * reports it (onFail), and the monitor says so.
+ */
+export function PlatformModel({ src, alt, speed, controls, onClips, onClip, onFail }: PlatformModelProps) {
     const ref = useRef<ModelViewerElement>(null);
     /** The fetched model as a blob: URL, once both it and the element are ready */
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
@@ -168,6 +168,10 @@ export function PlatformModel({ src, alt, view = 'pad', scale = 0.65, speed, fal
             const el = ref.current;
             if (el && state === 'loaded' && el.availableAnimations.includes(clip)) start(el, clip);
         },
+        turn(degrees) {
+            const el = ref.current;
+            if (el && state === 'loaded') el.resetTurntableRotation(el.turntableRotation + degrees * Math.PI / 180);
+        },
     }), [state]);
 
     useEffect(() => {
@@ -202,8 +206,7 @@ export function PlatformModel({ src, alt, view = 'pad', scale = 0.65, speed, fal
         };
     }, [blobUrl]);
 
-    if (state === 'failed') return <>{fallback}</>;
-    if (!blobUrl) return null;
+    if (state === 'failed' || !blobUrl) return null;
 
     return (
         <model-viewer
@@ -211,11 +214,7 @@ export function PlatformModel({ src, alt, view = 'pad', scale = 0.65, speed, fal
             src={blobUrl}
             alt={alt}
             // Held back until it's loaded, so it materializes whole rather than popping in
-            className={clsx(
-                view === 'pad' ? styles.platformModel : styles.screenModel,
-                state === 'loaded' && styles.platformModelLoaded,
-            )}
-            style={view === 'pad' ? { '--mon-scale': scale } as CSSProperties : undefined}
+            className={clsx(styles.screenModel, state === 'loaded' && styles.modelLoaded)}
             // Its idle loop from the ROM (see scripts/stadium2/build-model.mjs), turning as it plays
             autoplay
             animation-name={IDLE_CLIP}
@@ -223,12 +222,9 @@ export function PlatformModel({ src, alt, view = 'pad', scale = 0.65, speed, fal
             auto-rotate-delay={0}
             // The model monitor's knob sets this; the model keeps whatever angle it had reached
             rotation-per-second={`${speed}deg`}
-            // Looking down at it a little, as from across the room. On the pad, the radius is a
-            // share of model-viewer's framing distance, which fits the whole bounding sphere and so
-            // leaves the Pokémon smaller than its sprite: 70% brings it to about the sprite's
-            // height, times the canvas's spare room (--room in .platformModel, 1.8). On the
-            // monitor's screen it's framed whole, with a little room for a rearing attack.
-            camera-orbit={view === 'pad' ? '0deg 78deg 126%' : '0deg 78deg 95%'}
+            // Looking down at it a little, as from across the room, framed whole with a little
+            // room for a rearing attack
+            camera-orbit="0deg 78deg 95%"
             min-camera-orbit="auto auto 0%"
             max-camera-orbit="auto auto 1000%"
             field-of-view="22deg"
