@@ -33,12 +33,6 @@
     --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.22 0 0 0 0 0.12 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     /* A slotted screw in the casing's plastic */
     --screw: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cdefs%3E%3CradialGradient id='g' cx='40%25' cy='35%25' r='70%25'%3E%3Cstop offset='0' stop-color='%23fbf8ee'/%3E%3Cstop offset='.6' stop-color='%23cfc6aa'/%3E%3Cstop offset='1' stop-color='%23968a68'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='10' cy='10.6' r='9' fill='%23a3966f' opacity='.55'/%3E%3Ccircle cx='10' cy='10' r='8' fill='url(%23g)' stroke='%238a7d5a' stroke-width='.8'/%3E%3Cpath d='M5.5 12.6 14.5 7.4' stroke='%235d5237' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M6 13.4 15 8.2' stroke='%23fffbea' stroke-width='.6' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E");
-    /* The well a key sits in: a lip of casing, its shadowed edge above and lit edge below */
-    --key-well:
-        0 0 0 4px #c8bb95,
-        0 0 0 5px rgba(70, 50, 20, 0.4),
-        0 -2px 0 5px rgba(70, 50, 20, 0.22),
-        0 2px 0 5px rgba(255, 255, 255, 0.65);
     /* A glass lamp's collar */
     --lamp-collar: 0 0 0 2px #d5cbad, 0 0 0 3px rgba(70, 50, 20, 0.35);
 }
@@ -312,7 +306,7 @@
     flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 1.25rem 1rem;
+    gap: 1.25rem 1.5rem;
     padding: 0 0.25rem;
 }
 
@@ -320,7 +314,8 @@
 .deckKeys {
     display: flex;
     align-items: flex-end;
-    gap: 0.75rem;
+    /* Wide enough that neighbouring keys' wells don't touch */
+    gap: 1.5rem;
 }
 
 /* The deck's main action: chunky magenta plastic, like a Game Boy's A button */
@@ -348,6 +343,22 @@
     transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
+/*
+ * The well a key sits in: a lip of casing, its shadowed edge above and lit edge below. It's part of
+ * the casing, so it holds still while the key travels: each key sets --press to how far it moves
+ * when pressed, and the well's offsets take that back out. Declared on the keys themselves so
+ * --press resolves per key.
+ */
+.deckKey,
+.pill {
+    --press: 0px;
+    --key-well:
+        0 calc(0px - var(--press)) 0 4px #c8bb95,
+        0 calc(0px - var(--press)) 0 5px rgba(70, 50, 20, 0.4),
+        0 calc(-2px - var(--press)) 0 5px rgba(70, 50, 20, 0.22),
+        0 calc(2px - var(--press)) 0 5px rgba(255, 255, 255, 0.65);
+}
+
 /* A second action beside the main one. Only the first key in a row pushes right. */
 .deckKey + .deckKey {
     margin-left: 0;
@@ -366,18 +377,23 @@
 }
 
 /* Every key presses, whether or not it has anything to do */
+/* The pressed shadows pair one for one with the resting ones (the drop shadow fades rather than
+   vanishing), or the browser can't animate between them and snaps the well midway through */
 .deckKey:active {
-    transform: translateY(4px);
+    --press: 2px;
+    transform: translateY(var(--press));
     box-shadow:
         var(--key-well),
-        0 2px 0 0 #5c1234,
+        0 4px 0 0 #5c1234,
+        0 2px 2px rgba(0, 0, 0, 0),
         inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .deckKeyAlt:active {
     box-shadow:
         var(--key-well),
-        0 2px 0 0 #1c3655,
+        0 4px 0 0 #1c3655,
+        0 2px 2px rgba(0, 0, 0, 0),
         inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -1214,7 +1230,8 @@
 }
 
 .pill:active {
-    transform: translateY(2px);
+    --press: 2px;
+    transform: translateY(var(--press));
     box-shadow:
         var(--key-well),
         0 2px 0 0 #4a4f54,
