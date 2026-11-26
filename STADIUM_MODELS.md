@@ -12,17 +12,20 @@ Related docs: [OAKS_LAB.md](OAKS_LAB.md) (the Lab itself), [GEN2_SUPPORT.md](GEN
 
 **Live:** Donphan turns on the pad and plays its idle loop, including its blink, and stands at about its sprite's height. Any Pokémon without a model shows its sprite, as before.
 
-**Model board:** while the Pokémon on the pad has a model, a board slides out under the pad (`ModelBoard.tsx`).
-- Five unprinted keys: Idle, Entrance, Attack, Faint, Special.
+**Model monitor:** a model button on the console (lamp lit while the Pokémon on the pad has a model) lowers a big hanging monitor over the room (`ModelMonitor.tsx`), the way the connect monitor drops. It comes down whatever's on the pad; with nothing there, or no model, its screen says so.
+- The screen shows the pad's Pokémon as its model, framed whole, with a readout of the clip playing and the turntable speed.
+- Five unprinted keys with lamps: Idle, Entrance, Attack, Faint, Special.
   - Special plays the species' own clip, so for Donphan it's Rollout.
   - Faint holds until another key is pressed; every other clip returns to idle.
-  - A clip that carries the Pokémon off the pad (Rollout) fades out as it goes, then materializes back.
-- A readout shows the clip playing and the turntable speed.
-- A speed knob turns the turntable: centre stops it, either side turns it either way.
+  - A clip that carries the Pokémon off (Rollout) fades out as it goes, then materializes back.
+- A speed knob turns the model on the screen: centre stops it, either side turns it either way. It keeps its setting between visits.
+- The pad itself keeps playing idle and turning at a fixed speed.
+- Escape, the close button or a click outside lifts it back out.
 
 | Piece | What it does | File |
 |---|---|---|
 | Platform | Shows the model if the Pokémon has one, otherwise the sprite | `src/components/oaks-lab/stage/Platform.tsx` |
+| ModelMonitor | The pull-down monitor with the clip keys and speed knob | `src/components/oaks-lab/stage/ModelMonitor.tsx` |
 | PlatformModel | Fetches the `.glb` itself, then hands it to `<model-viewer>` with autoplay `idle` and auto-rotate. Falls back to the sprite if the fetch fails | `src/components/oaks-lab/stage/PlatformModel.tsx` |
 | Model list | Which Dex numbers have a model, and the version of each uploaded file | `MODEL_VERSIONS` in `src/lib/assets.ts` |
 | Extractor | LuaJIT driver around StadiumBattleFX's Stadium 2 reader. Dumps bones, primitives, textures, materials, clips and texture streams as JSON | `scripts/stadium2/extract-model.lua` |

@@ -1,10 +1,10 @@
 'use client';
 
-import { CSSProperties, useEffect, useState } from 'react';
+import { CSSProperties, useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import clsx from 'clsx';
-import { FolderOpen } from 'lucide-react';
+import { Box, FolderOpen } from 'lucide-react';
 import CartridgeIcon from '@/components/icons/CartridgeIcon';
 import { useGames } from '@/contexts/GamesContext';
 import NowPlaying from '@/components/layout/NowPlaying';
@@ -12,7 +12,11 @@ import ExtractTab from './modes/ExtractTab';
 import PortInTab from './modes/PortInTab';
 import EditTab from './modes/EditTab';
 import { LabSavePickers } from './save/LabSave';
-import { FedMonitor, FedPlatform, MonitorSource, SlideSwitch, StageFeedProvider, UI_MS, press, useFeedStore } from './stage';
+import {
+    FedModelMonitor, FedMonitor, FedPlatform, MonitorSource, SlideSwitch, StageFeedProvider, UI_MS,
+    entryModel, press, useFeed, useFeedStore,
+} from './stage';
+import type { FeedStore } from './stage';
 import { useLabSave, type LabSave } from './save/useLabSave';
 import styles from './lab.module.css';
 
@@ -35,8 +39,19 @@ function saveLed(lab: LabSave): 'off' | 'warn' | 'ready' {
     return 'ready';
 }
 
-/** The bottom console: game and save buttons, and the mode switch */
-function LabConsole({ lab, mode, setMode }: { lab: LabSave; mode: Mode; setMode: (m: Mode) => void }) {
+interface LabConsoleProps {
+    lab: LabSave;
+    mode: Mode;
+    setMode: (m: Mode) => void;
+    /** For the Pokémon on the pad, whose model the model button's lamp is lit for */
+    feed: FeedStore;
+    onModel: () => void;
+}
+
+/** The bottom console: game, save and model buttons, and the mode switch */
+function LabConsole({ lab, mode, setMode, feed, onModel }: LabConsoleProps) {
+    // Safe here: the console isn't above the modes, so their writes to the feed don't loop back to them
+    const onPad = useFeed(feed).platform;
     return (
         <footer className={styles.console}>
             <div className={styles.consoleSlots}>
@@ -61,6 +76,19 @@ function LabConsole({ lab, mode, setMode }: { lab: LabSave; mode: Mode; setMode:
                         title="Choose save file"
                     >
                         <FolderOpen size={18} aria-hidden />
+                    </button>
+                </div>
+                <div className={styles.control}>
+                    {/* Lit while the Pokémon on the pad has a 3D model. The monitor comes down either way. */}
+                    <i className={clsx(styles.led, entryModel(onPad) ? styles.led_ready : styles.led_off)} aria-hidden />
+                    <button
+                        type="button"
+                        className={styles.pill}
+                        onClick={onModel}
+                        aria-label="Model monitor"
+                        title="Model monitor"
+                    >
+                        <Box size={18} aria-hidden />
                     </button>
                 </div>
             </div>
@@ -125,6 +153,8 @@ export default function OaksLab() {
     // Shared by every mode, and with Play and the Ranch
     const lab = useLabSave();
     const feed = useFeedStore();
+    const [modelOpen, setModelOpen] = useState(false);
+    const closeModel = useCallback(() => setModelOpen(false), []);
 
     return (
         <div className={styles.page} style={{ '--ui-ms': `${UI_MS}ms` } as CSSProperties}>
@@ -168,7 +198,8 @@ export default function OaksLab() {
                 </StageFeedProvider>
             </div>
 
-            <LabConsole lab={lab} mode={mode} setMode={switchMode} />
+            <LabConsole lab={lab} mode={mode} setMode={switchMode} feed={feed} onModel={() => setModelOpen(true)} />
+            <FedModelMonitor store={feed} open={modelOpen} onClose={closeModel} />
             <LabSavePickers lab={lab} games={games} />
         </div>
     );

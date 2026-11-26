@@ -1,6 +1,6 @@
 'use client';
 
-import { CSSProperties, useRef, useState } from 'react';
+import { CSSProperties } from 'react';
 import Image from 'next/image';
 import clsx from 'clsx';
 import { usePokemonSprites } from '@/hooks/usePokemonSprites';
@@ -8,8 +8,7 @@ import { usePokemonSizes } from '@/hooks/usePokemonSizes';
 import { displayHeightM } from '@/utils/pokemon/size';
 import { dexDict } from '@/utils/pokemon/dicts';
 import { modelUrl } from '@/lib/assets';
-import { ModelControls, PlatformModel } from './PlatformModel';
-import { ModelBoard } from './ModelBoard';
+import { PlatformModel } from './PlatformModel';
 import type { LabEntry } from './types';
 import styles from '../lab.module.css';
 
@@ -21,8 +20,14 @@ const SCALE_PER_M = 0.65;
 /** Keeps the very smallest from vanishing */
 const SCALE_MIN = 0.1;
 
-/** The turntable's speed until the knob's turned, in degrees a second */
-const START_SPEED = 24;
+/** How fast the pad turns, in degrees a second. The model monitor has its own knob for its view. */
+const PAD_SPEED = 24;
+
+/** The 3D model for a Pokémon, or null when it only has its sprite */
+export function entryModel(entry: LabEntry | null): string | null {
+    const dexNo = entry ? dexDict[entry.speciesIndex]?.pokedexNo : undefined;
+    return dexNo && dexNo !== 'NULL' ? modelUrl(dexNo, 'stadium') : null;
+}
 
 function spriteScale(heightDm: number | null): number {
     return Math.max(SCALE_MIN, SCALE_PER_M * displayHeightM(heightDm));
@@ -40,19 +45,9 @@ export function Platform({ entry }: PlatformProps) {
     const size = entry && ready ? sizeOf(entry.speciesIndex) : null;
     const { bySpecies, spriteStyle } = usePokemonSprites();
     const sprite = entry && ready ? bySpecies(entry.speciesIndex) : '';
-    const dexNo = entry ? dexDict[entry.speciesIndex]?.pokedexNo : undefined;
     // A Pokémon with a 3D model turns on the pad; the rest show their sprite
-    const model = ready && dexNo && dexNo !== 'NULL' ? modelUrl(dexNo, 'stadium') : null;
+    const model = ready ? entryModel(entry) : null;
     const scale = spriteScale(size?.height ?? null);
-
-    // The model board. Its knob stays where it's put, whoever comes and goes on the pad.
-    const [speed, setSpeed] = useState(START_SPEED);
-    const controls = useRef<ModelControls>(null);
-    // What the model on the pad reported, kept against its key so a new Pokémon starts blank
-    const [loaded, setLoaded] = useState<{ key: string; clips: string[]; playing: string | null; failed: boolean } | null>(null);
-    const current = loaded && entry && loaded.key === entry.key ? loaded : null;
-    const report = (key: string, change: Partial<NonNullable<typeof loaded>>) =>
-        setLoaded(prev => ({ ...(prev?.key === key ? prev : { key, clips: [], playing: null, failed: false }), ...change }));
 
     const spriteImage = entry && sprite && (
         <Image
@@ -80,12 +75,8 @@ export function Platform({ entry }: PlatformProps) {
                             src={model}
                             alt={entry.nickname}
                             scale={scale}
-                            speed={speed}
+                            speed={PAD_SPEED}
                             fallback={spriteImage}
-                            controls={controls}
-                            onClips={clips => report(entry.key, { clips })}
-                            onClip={playing => report(entry.key, { playing })}
-                            onFail={() => report(entry.key, { failed: true })}
                         />
                     ) : (
                         spriteImage
@@ -97,15 +88,6 @@ export function Platform({ entry }: PlatformProps) {
                     <div className={styles.padGlow} />
                 </div>
             </div>
-            {/* Slides out while the Pokémon on the pad is a 3D model */}
-            <ModelBoard
-                shown={!!(entry && model) && !current?.failed}
-                clips={current?.clips ?? []}
-                playing={current?.playing ?? null}
-                onPlay={clip => controls.current?.play(clip)}
-                speed={speed}
-                onSpeedChange={setSpeed}
-            />
         </div>
     );
 }

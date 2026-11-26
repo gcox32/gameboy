@@ -3,6 +3,7 @@
 import { ReactNode, createContext, useContext, useLayoutEffect, useState, useSyncExternalStore } from 'react';
 import { Monitor, MonitorScreen, MonitorSource } from './Monitor';
 import { Platform } from './Platform';
+import { ModelMonitor } from './ModelMonitor';
 import type { LabEntry } from './types';
 
 /*
@@ -39,7 +40,7 @@ function createFeedStore() {
     };
 }
 
-type FeedStore = ReturnType<typeof createFeedStore>;
+export type FeedStore = ReturnType<typeof createFeedStore>;
 
 const FeedContext = createContext<FeedStore | null>(null);
 
@@ -61,7 +62,11 @@ export function useFeedStage(feed: StageFeed) {
     useLayoutEffect(() => () => store.set(EMPTY), [store]);
 }
 
-function useFeed(store: FeedStore) {
+/**
+ * Subscribes to the feed. Only for components that aren't above the modes: a mode writes after
+ * every render, so an ancestor that re-renders on each write re-renders the mode, which writes again.
+ */
+export function useFeed(store: FeedStore) {
     return useSyncExternalStore(store.subscribe, store.get, store.get);
 }
 
@@ -77,6 +82,11 @@ const NO_SIGNAL: MonitorScreen = {
 
 export function FedPlatform({ store }: { store: FeedStore }) {
     return <Platform entry={useFeed(store).platform} />;
+}
+
+/** The model monitor, showing whoever's on the pad */
+export function FedModelMonitor({ store, open, onClose }: { store: FeedStore; open: boolean; onClose: () => void }) {
+    return <ModelMonitor open={open} onClose={onClose} entry={useFeed(store).platform} />;
 }
 
 interface FedMonitorProps {

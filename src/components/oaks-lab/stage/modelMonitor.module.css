@@ -1,0 +1,87 @@
+/*
+ * The model monitor: the connect monitor's hanging casing and drop (save/connectModal.module.css),
+ * made big, with a screen for the model and its keys and knob underneath.
+ */
+
+.shell {
+    width: min(56rem, 100%);
+}
+
+/* Beats the connect monitor's .shell .screen, which sizes to its content */
+.shell .screen {
+    flex: none;
+    height: clamp(20rem, 62vh, 40rem);
+    min-height: 0;
+    gap: 0.6rem;
+}
+
+/* Where the model stands: the rest of the screen under the heading */
+.view {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.message {
+    position: absolute;
+    inset: 0;
+}
+
+/* What's playing, and how the turntable's set, along the bottom of the screen */
+.readout {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 1.4em;
+    padding-top: 0.5rem;
+    border-top: 1px dashed rgba(168, 240, 218, 0.3);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 6px rgba(78, 205, 196, 0.7);
+}
+
+.readoutClip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.readoutSpeed {
+    flex-shrink: 0;
+    color: var(--phosphor-dim);
+    letter-spacing: 1px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0 0.25rem;
+}
+
+/* Bigger keys than the old board's, sized to the casing */
+.keys {
+    padding: 0.65rem 0.9rem;
+    gap: 0.9rem;
+}
+
+.keys button {
+    height: 2.75rem;
+}
+
+@media (max-width: 600px) {
+    .shell .screen {
+        height: clamp(16rem, 50vh, 24rem);
+    }
+
+    .controls {
+        gap: 0.9rem;
+    }
+
+    .keys {
+        gap: 0.45rem;
+        padding: 0.5rem;
+    }
+}

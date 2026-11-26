@@ -571,84 +571,27 @@
     50% { opacity: 1; }
 }
 
-/* ─── Model board ────────────────────────────────────────────────────────── */
+/* ─── Model monitor hardware ─────────────────────────────────────────────── */
 
 /*
- * The plate under the pad for a 3D model's clips and the turntable (see ModelBoard). It slides
- * out from under the pad when a model is on it, and back when one isn't: its height opens with
- * it, so nothing below jumps. The pad above never moves.
+ * The keys and knob on the model monitor (see ModelMonitor), which hangs over the room on its
+ * cables; its casing and drop are in stage/modelMonitor.module.css. The model on its screen:
  */
-.modelBoardSlot {
-    display: grid;
-    grid-template-rows: 0fr;
-    width: min(100%, 24rem);
-    transition: grid-template-rows var(--ui-ms, 300ms) ease-in-out;
-}
-
-.modelBoardShown {
-    grid-template-rows: 1fr;
-}
-
-/* The board itself, inside the slot that opens for it */
-.modelBoard {
-    min-height: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding: 0.8rem 1rem 1rem;
-    border-radius: 16px;
-    background: linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 55%, var(--casing-lo) 100%);
-    color: var(--casing-ink);
-    box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.7),
-        inset 0 -4px 0 rgba(70, 50, 20, 0.12),
-        0 0 0 1px rgba(70, 50, 20, 0.35);
+.screenModel {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
     opacity: 0;
-    translate: 0 -40%;
-    transition: opacity var(--ui-ms, 300ms) ease-in-out, translate var(--ui-ms, 300ms) ease-in-out;
+    pointer-events: none;
+    --poster-color: transparent;
+    --progress-bar-color: transparent;
 }
 
-.modelBoardShown .modelBoard {
+/* After .screenModel, which would otherwise keep it hidden */
+.screenModel.platformModelLoaded {
     opacity: 1;
-    translate: 0 0;
-}
-
-/* A one-line screen: what's playing, and how the turntable's set */
-.modelReadout {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.4rem 0.7rem;
-    border: 4px solid #2b3430;
-    border-radius: 8px;
-    background: radial-gradient(ellipse at 50% 40%, var(--screen-lit) 0%, var(--screen) 70%, var(--screen-deep) 100%);
-    color: var(--phosphor);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-shadow: 0 0 6px rgba(78, 205, 196, 0.7);
-    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(70, 50, 20, 0.4);
-}
-
-.modelReadoutClip {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.modelReadoutSpeed {
-    flex-shrink: 0;
-    color: var(--phosphor-dim);
-    letter-spacing: 1px;
-}
-
-.modelBoardControls {
-    display: flex;
-    align-items: flex-end;
-    gap: 1rem;
 }
 
 /* The clip keys, in the same recess as the box keypad */

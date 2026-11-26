@@ -41,6 +41,19 @@ interface ModelViewerElement extends HTMLElement {
     play(options?: { repetitions?: number }): void;
 }
 
+/*
+ * Lit's warnings, which only its dev build gives (next dev resolves its "development" export).
+ * Neither is ours: "dev-mode" says that build is on, and model-viewer's own updated() schedules
+ * a second update whenever it syncs the camera limits ("change-in-update"). Lit skips any warning
+ * whose code is already in this set, so filling it before the element loads keeps the console clear.
+ */
+function loadModelViewer() {
+    const g = globalThis as { litIssuedWarnings?: Set<string> };
+    g.litIssuedWarnings ??= new Set();
+    g.litIssuedWarnings.add('dev-mode').add('change-in-update');
+    return import('@google/model-viewer');
+}
+
 /** The loop a model stands in, and goes back to after any other clip (see build-model.mjs) */
 export const IDLE_CLIP = 'idle';
 
@@ -54,7 +67,7 @@ const LEAVES_PAD = new Set(['rollout']);
 const HOLDS = new Set(['faint']);
 const LEAVING_SHARE = 0.25;
 
-/** What the model board can ask of the model on the pad */
+/** What the model monitor can ask of the model on the pad */
 export interface ModelControls {
     /** Plays a clip once, then goes back to idle (a faint stays down). Idle itself loops. */
     play(clip: string): void;
@@ -63,8 +76,13 @@ export interface ModelControls {
 interface PlatformModelProps {
     src: string;
     alt: string;
-    /** The Pokémon's height on the pad, as a share of the scene's width (see spriteScale in Platform) */
-    scale: number;
+    /**
+     * 'pad' stands it on the platform at its sprite's height. 'screen' fills the model monitor's
+     * screen with it, framed whole.
+     */
+    view?: 'pad' | 'screen';
+    /** The Pokémon's height on the pad, as a share of the scene's width (see spriteScale in Platform). Pad only. */
+    scale?: number;
     /** How fast the turntable turns, in degrees a second; negative turns it the other way */
     speed: number;
     /** Shown instead if the model can't load, so the pad is never left empty */
@@ -78,7 +96,7 @@ interface PlatformModelProps {
 }
 
 /** A Pokémon's 3D model turning on the pad and playing its idle loop, the way Stadium's Lab shows them */
-export function PlatformModel({ src, alt, scale, speed, fallback, controls, onClips, onClip, onFail }: PlatformModelProps) {
+export function PlatformModel({ src, alt, view = 'pad', scale = 0.65, speed, fallback, controls, onClips, onClip, onFail }: PlatformModelProps) {
     const ref = useRef<ModelViewerElement>(null);
     /** The fetched model as a blob: URL, once both it and the element are ready */
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
@@ -100,7 +118,7 @@ export function PlatformModel({ src, alt, scale, speed, fallback, controls, onCl
                 if (!res.ok) throw new Error(`${res.status} for ${src}`);
                 return res.blob();
             }),
-            import('@google/model-viewer'),
+            loadModelViewer(),
         ])
             .then(([blob]) => {
                 url = URL.createObjectURL(blob);
@@ -193,20 +211,24 @@ export function PlatformModel({ src, alt, scale, speed, fallback, controls, onCl
             src={blobUrl}
             alt={alt}
             // Held back until it's loaded, so it materializes whole rather than popping in
-            className={clsx(styles.platformModel, state === 'loaded' && styles.platformModelLoaded)}
-            style={{ '--mon-scale': scale } as CSSProperties}
+            className={clsx(
+                view === 'pad' ? styles.platformModel : styles.screenModel,
+                state === 'loaded' && styles.platformModelLoaded,
+            )}
+            style={view === 'pad' ? { '--mon-scale': scale } as CSSProperties : undefined}
             // Its idle loop from the ROM (see scripts/stadium2/build-model.mjs), turning as it plays
             autoplay
             animation-name={IDLE_CLIP}
             auto-rotate
             auto-rotate-delay={0}
-            // The board's knob sets this; the model keeps whatever angle it had reached
+            // The model monitor's knob sets this; the model keeps whatever angle it had reached
             rotation-per-second={`${speed}deg`}
-            // Looking down at it a little, as from across the room. The radius is a share of
-            // model-viewer's framing distance, which fits the whole bounding sphere and so leaves
-            // the Pokémon smaller than its sprite: 70% brings it to about the sprite's height,
-            // times the canvas's spare room (--room in .platformModel, 1.8)
-            camera-orbit="0deg 78deg 126%"
+            // Looking down at it a little, as from across the room. On the pad, the radius is a
+            // share of model-viewer's framing distance, which fits the whole bounding sphere and so
+            // leaves the Pokémon smaller than its sprite: 70% brings it to about the sprite's
+            // height, times the canvas's spare room (--room in .platformModel, 1.8). On the
+            // monitor's screen it's framed whole, with a little room for a rearing attack.
+            camera-orbit={view === 'pad' ? '0deg 78deg 126%' : '0deg 78deg 95%'}
             min-camera-orbit="auto auto 0%"
             max-camera-orbit="auto auto 1000%"
             field-of-view="22deg"
