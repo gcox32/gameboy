@@ -29,6 +29,18 @@
     --metal-hi: #5b6670;
     --metal: #3a434b;
     --metal-lo: #1f252a;
+    /* The molded plastic's fine grain, over every casing and rubber key */
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.22 0 0 0 0 0.12 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* A slotted screw in the casing's plastic */
+    --screw: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cdefs%3E%3CradialGradient id='g' cx='40%25' cy='35%25' r='70%25'%3E%3Cstop offset='0' stop-color='%23fbf8ee'/%3E%3Cstop offset='.6' stop-color='%23cfc6aa'/%3E%3Cstop offset='1' stop-color='%23968a68'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='10' cy='10.6' r='9' fill='%23a3966f' opacity='.55'/%3E%3Ccircle cx='10' cy='10' r='8' fill='url(%23g)' stroke='%238a7d5a' stroke-width='.8'/%3E%3Cpath d='M5.5 12.6 14.5 7.4' stroke='%235d5237' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M6 13.4 15 8.2' stroke='%23fffbea' stroke-width='.6' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E");
+    /* The well a key sits in: a lip of casing, its shadowed edge above and lit edge below */
+    --key-well:
+        0 0 0 4px #c8bb95,
+        0 0 0 5px rgba(70, 50, 20, 0.4),
+        0 -2px 0 5px rgba(70, 50, 20, 0.22),
+        0 2px 0 5px rgba(255, 255, 255, 0.65);
+    /* A glass lamp's collar */
+    --lamp-collar: 0 0 0 2px #d5cbad, 0 0 0 3px rgba(70, 50, 20, 0.35);
 }
 
 .page {
@@ -135,14 +147,43 @@
     flex-direction: column;
     gap: 0.9rem;
     padding: 0.9rem 1.1rem 1.25rem;
-    border-radius: 22px;
-    background: linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 55%, var(--casing-lo) 100%);
     color: var(--casing-ink);
+}
+
+/*
+ * The deck's and monitor's casing: molded plastic with a parting seam just in from the edge,
+ * and its side showing under it as a stack of darkening one-pixel shadows
+ */
+.deck,
+.monitor {
+    position: relative;
+    border-radius: 28px;
+    background:
+        var(--grain),
+        radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.55), transparent 60%),
+        linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 55%, var(--casing-lo) 100%);
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.7),
-        inset 0 -5px 0 rgba(70, 50, 20, 0.12),
-        0 0 0 1px rgba(70, 50, 20, 0.35),
-        0 24px 48px rgba(0, 0, 0, 0.5);
+        inset 0 0 0 6px rgba(120, 95, 50, 0.16),
+        inset 0 0 0 7px rgba(255, 255, 255, 0.5),
+        inset 0 3px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -6px 0 rgba(70, 50, 20, 0.14),
+        0 1px 0 #c9bd98, 0 2px 0 #c2b590, 0 3px 0 #bcae88, 0 4px 0 #b5a780,
+        0 5px 0 #ae9f78, 0 6px 0 #a79870, 0 7px 0 #9d8e67,
+        0 0 0 1px rgba(70, 50, 20, 0.45),
+        0 10px 8px rgba(0, 0, 0, 0.35),
+        0 34px 60px rgba(0, 0, 0, 0.55);
+}
+
+/* Screws in the casing's top corners */
+.deck::before,
+.monitor::before {
+    content: '';
+    position: absolute;
+    inset: 11px 13px;
+    pointer-events: none;
+    background:
+        var(--screw) left top / 15px no-repeat,
+        var(--screw) right top / 15px no-repeat;
 }
 
 .deckScreen {
@@ -155,7 +196,7 @@
     overflow-y: auto;
     font-size: 0.85rem;
     line-height: 1.6;
-    text-shadow: 0 0 6px rgba(78, 205, 196, 0.45);
+    text-shadow: 0 0 4px rgba(168, 240, 218, 0.55), 0 0 12px rgba(78, 205, 196, 0.45);
 }
 
 .deckBody p {
@@ -291,15 +332,19 @@
     margin-left: auto;
     padding: 0;
     border: none;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #d2689a 0%, #b03a6e 45%, #8e1f52 100%);
+    border-radius: 14px;
+    /* Glossy plastic: a highlight where the light hits the dome, a glow back up from below */
+    background:
+        radial-gradient(ellipse 70% 45% at 50% 12%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%),
+        radial-gradient(ellipse 90% 60% at 50% 110%, rgba(255, 170, 210, 0.35), transparent 70%),
+        linear-gradient(180deg, #d86ea0 0%, #b03a6e 45%, #8a1c4f 100%);
     color: #fff;
     cursor: pointer;
     box-shadow:
-        0 0 0 3px var(--casing-lo),
-        0 0 0 4px rgba(70, 50, 20, 0.25),
-        0 5px 0 3px #5c1234,
-        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        var(--key-well),
+        0 6px 0 0 #5c1234,
+        0 8px 6px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
     transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
@@ -309,29 +354,30 @@
 }
 
 .deckKeyAlt {
-    background: linear-gradient(180deg, #8fb0d4 0%, #4f7fae 45%, #2d5682 100%);
+    background:
+        radial-gradient(ellipse 70% 45% at 50% 12%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%),
+        radial-gradient(ellipse 90% 60% at 50% 110%, rgba(180, 215, 255, 0.35), transparent 70%),
+        linear-gradient(180deg, #96b6d9 0%, #4f7fae 45%, #2b5280 100%);
     box-shadow:
-        0 0 0 3px var(--casing-lo),
-        0 0 0 4px rgba(70, 50, 20, 0.25),
-        0 5px 0 3px #1c3655,
-        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        var(--key-well),
+        0 6px 0 0 #1c3655,
+        0 8px 6px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 /* Every key presses, whether or not it has anything to do */
 .deckKey:active {
     transform: translateY(4px);
     box-shadow:
-        0 0 0 3px var(--casing-lo),
-        0 0 0 4px rgba(70, 50, 20, 0.25),
-        0 1px 0 3px #5c1234,
+        var(--key-well),
+        0 2px 0 0 #5c1234,
         inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .deckKeyAlt:active {
     box-shadow:
-        0 0 0 3px var(--casing-lo),
-        0 0 0 4px rgba(70, 50, 20, 0.25),
-        0 1px 0 3px #1c3655,
+        var(--key-well),
+        0 2px 0 0 #1c3655,
         inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -496,28 +542,35 @@
     position: absolute;
     inset: 22% 0 0;
     border-radius: 50%;
-    background: linear-gradient(180deg, #7d8c92 0%, #46535a 55%, #2c363b 100%);
-    box-shadow: 0 22px 36px rgba(0, 0, 0, 0.6);
+    /* Turned aluminium, lit from the front */
+    background:
+        radial-gradient(ellipse 55% 35% at 50% 18%, rgba(255, 255, 255, 0.18), transparent 70%),
+        linear-gradient(90deg, #2b3438 0%, #6f7e84 22%, #95a4a9 42%, #5a6a70 60%, #2f393d 100%);
+    box-shadow: 0 4px 0 #1b2225, 0 24px 40px rgba(0, 0, 0, 0.65);
 }
 
 .padTop {
     position: absolute;
     inset: 0 0 22%;
     border-radius: 50%;
-    background: radial-gradient(ellipse at 50% 35%, #eef4f4 0%, #c3cfd2 40%, #94a3a8 72%, #6f7f86 100%);
+    /* Lathe rings over a brushed sheen that catches the light in four places */
+    background:
+        repeating-radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.06) 0 1px, rgba(0, 0, 0, 0.05) 1px 3px),
+        conic-gradient(from 20deg at 50% 50%, #e8eef0, #9aa8ad, #f4f8f9, #8b999e, #e8eef0, #9aa8ad, #f4f8f9, #8b999e, #e8eef0);
     box-shadow:
-        inset 0 -4px 8px rgba(0, 0, 0, 0.3),
-        inset 0 2px 2px rgba(255, 255, 255, 0.7);
+        inset 0 -5px 8px rgba(0, 0, 0, 0.35),
+        inset 0 2px 2px rgba(255, 255, 255, 0.85),
+        0 0 0 1px rgba(30, 40, 45, 0.5);
 }
 
-/* The inner ring on the pad's face */
+/* The emitter ring on the pad's face */
 .padTop::after {
     content: '';
     position: absolute;
-    inset: 12% 10%;
+    inset: 11% 9%;
     border-radius: 50%;
-    border: 2px solid rgba(58, 67, 75, 0.35);
-    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2);
+    border: 3px solid rgba(78, 205, 196, 0.55);
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3), 0 0 10px rgba(78, 205, 196, 0.6), inset 0 0 8px rgba(78, 205, 196, 0.5);
 }
 
 .padGlow {
@@ -723,38 +776,41 @@
     flex-direction: column;
     gap: 0.9rem;
     padding: 0.9rem 1.25rem 1.25rem;
-    border-radius: 22px;
-    background: linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 55%, var(--casing-lo) 100%);
     color: var(--casing-ink);
-    box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.7),
-        inset 0 -5px 0 rgba(70, 50, 20, 0.12),
-        0 0 0 1px rgba(70, 50, 20, 0.35),
-        0 24px 48px rgba(0, 0, 0, 0.5);
 }
 
+/* Inset to clear the screws in the casing's corners */
 .monitorTop {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0.25rem;
+    padding: 0 2.4rem;
 }
 
+/* A glass dome in a collar of casing */
 .monitorLed {
-    width: 8px;
-    height: 8px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    background: var(--glow);
-    box-shadow: 0 0 6px var(--glow);
+    background: radial-gradient(circle at 35% 30%, #fff 0 1px, #b7fff2 2px, var(--glow) 3.5px, #1f8a82 6px);
+    box-shadow:
+        0 0 0 2px #d8ceb0,
+        0 0 0 3px rgba(70, 50, 20, 0.45),
+        0 -1px 0 3px rgba(70, 50, 20, 0.2),
+        0 0 10px 2px rgba(78, 205, 196, 0.7);
 }
 
+/* The speaker grille: holes punched through the casing */
 .monitorVents {
-    width: 4.5rem;
-    height: 6px;
-    border-radius: 2px;
-    background: repeating-linear-gradient(90deg, rgba(70, 50, 20, 0.35) 0 2px, transparent 2px 6px);
+    width: 6.5rem;
+    height: 12px;
+    border-radius: 6px;
+    background: radial-gradient(circle at 50% 40%, #3a2e18 0 1.3px, rgba(58, 46, 24, 0.5) 1.6px, transparent 2px) 0 0 / 6px 6px;
+    box-shadow: inset 0 1px 1px rgba(70, 50, 20, 0.15), 0 1px 0 rgba(255, 255, 255, 0.6);
+    opacity: 0.85;
 }
 
+/* The tube behind a charcoal bezel, lit from above, set into a recess in the casing */
 .screen {
     position: relative;
     flex: 1;
@@ -763,24 +819,34 @@
     min-height: 26rem;
     padding: 0.9rem 1rem;
     overflow: hidden;
-    border: 6px solid #2b3430;
-    border-radius: 14px;
-    background: radial-gradient(ellipse at 50% 40%, var(--screen-lit) 0%, var(--screen) 60%, var(--screen-deep) 100%);
+    border: 10px solid #262c2b;
+    border-top-color: #1c2120;
+    border-bottom-color: #343b39;
+    border-radius: 20px;
+    background: radial-gradient(ellipse 85% 75% at 50% 45%, var(--screen-lit) 0%, var(--screen) 55%, #061413 100%);
     color: var(--phosphor);
     box-shadow:
-        inset 0 0 40px rgba(0, 0, 0, 0.6),
-        0 0 0 2px rgba(70, 50, 20, 0.4);
+        inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+        inset 0 0 50px rgba(0, 0, 0, 0.7),
+        inset 0 0 120px rgba(0, 0, 0, 0.35),
+        0 0 0 2px #cdbf99,
+        0 0 0 3px rgba(70, 50, 20, 0.45),
+        0 -2px 0 3px rgba(70, 50, 20, 0.25),
+        0 2px 0 3px rgba(255, 255, 255, 0.75);
 }
 
-/* Scanlines and a little glare */
+/* The curved glass: a glare where it bulges, darkening to the edges, and scanlines */
 .screen::after {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
+    border-radius: 10px;
     background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 35%),
-        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
+        radial-gradient(ellipse 70% 40% at 28% 4%, rgba(255, 255, 255, 0.16), transparent 70%),
+        linear-gradient(160deg, rgba(255, 255, 255, 0.07) 0%, transparent 30%, transparent 75%, rgba(255, 255, 255, 0.03) 100%),
+        radial-gradient(ellipse 110% 100% at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.5) 100%),
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
 }
 
 /*
@@ -822,7 +888,7 @@
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    text-shadow: 0 0 6px rgba(78, 205, 196, 0.7);
+    text-shadow: 0 0 4px rgba(168, 240, 218, 0.55), 0 0 12px rgba(78, 205, 196, 0.45);
 }
 
 .screenBody {
@@ -875,6 +941,7 @@
     width: 56px;
     height: 56px;
     object-fit: contain;
+    filter: drop-shadow(0 0 3px rgba(78, 205, 196, 0.35));
 }
 
 .tileName {
@@ -884,6 +951,7 @@
     white-space: nowrap;
     font-size: 0.7rem;
     font-weight: 700;
+    text-shadow: 0 0 4px rgba(168, 240, 218, 0.55), 0 0 12px rgba(78, 205, 196, 0.45);
 }
 
 .tileLevel {
@@ -903,7 +971,7 @@
     text-align: center;
     font-size: 0.95rem;
     line-height: 1.5;
-    text-shadow: 0 0 6px rgba(78, 205, 196, 0.5);
+    text-shadow: 0 0 4px rgba(168, 240, 218, 0.55), 0 0 12px rgba(78, 205, 196, 0.45);
 }
 
 .screenMessage p {
@@ -1000,10 +1068,10 @@
     align-items: center;
     /* Apart, so the pair reads as two separate presses */
     gap: 1.5rem;
-    padding: 3px;
+    padding: 4px;
     border-radius: 9999px;
-    background: var(--casing-lo);
-    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.6);
+    background: linear-gradient(180deg, #bfb28c, var(--casing-lo));
+    box-shadow: inset 0 3px 5px rgba(60, 40, 10, 0.35), 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .rockerBtn,
@@ -1012,7 +1080,10 @@
     place-items: center;
     padding: 0;
     border: none;
-    background: linear-gradient(180deg, var(--metal-hi), var(--metal));
+    /* Machined faces: fine rings turned into the metal */
+    background:
+        repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0 1px, rgba(0, 0, 0, 0.05) 1px 2px),
+        linear-gradient(180deg, #6c7882 0%, var(--metal) 60%, #2c343a 100%);
     color: #eef2f2;
     cursor: pointer;
     transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
@@ -1022,7 +1093,7 @@
     width: 2.6rem;
     height: 2.6rem;
     border-radius: 50%;
-    box-shadow: 0 2px 0 var(--metal-lo);
+    box-shadow: 0 3px 0 var(--metal-lo), 0 4px 5px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .dpad {
@@ -1033,7 +1104,7 @@
 .dpadBtn {
     width: 3.25rem;
     height: 2.8rem;
-    box-shadow: 0 3px 0 var(--metal-lo), 0 4px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 0 var(--metal-lo), 0 6px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .dpadBtn:first-child { border-radius: 10px 0 0 10px; }
@@ -1075,12 +1146,28 @@
     padding: 1.25rem 2.25rem 1.5rem;
     border: 1px solid rgba(70, 50, 20, 0.35);
     border-bottom: none;
-    border-radius: 18px 18px 0 0;
-    background: linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 60%, var(--casing-lo) 100%);
+    border-radius: 24px 24px 0 0;
+    background:
+        var(--grain),
+        linear-gradient(180deg, var(--casing-hi) 0%, var(--casing) 60%, var(--casing-lo) 100%);
     color: var(--casing-ink);
     box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.7),
-        0 -10px 30px rgba(0, 0, 0, 0.45);
+        inset 0 3px 0 rgba(255, 255, 255, 0.8),
+        inset 0 7px 0 -1px rgba(120, 95, 50, 0.12),
+        0 -1px 0 #f9f5e8,
+        0 -14px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Screws in the console's top corners, like the deck's and monitor's */
+.console::before {
+    content: '';
+    position: absolute;
+    inset: 12px 12px auto;
+    height: calc(100% - 12px);
+    pointer-events: none;
+    background:
+        var(--screw) left top / 15px no-repeat,
+        var(--screw) right top / 15px no-repeat;
 }
 
 /* A button with its lamp, if any, below it. No printed names: you learn what they do. */
@@ -1108,14 +1195,17 @@
     padding: 0;
     border: none;
     border-radius: 9999px;
-    background: linear-gradient(180deg, #8f949a 0%, #6b7076 100%);
+    background:
+        var(--grain),
+        radial-gradient(ellipse 80% 60% at 50% 20%, rgba(255, 255, 255, 0.28), transparent 70%),
+        linear-gradient(180deg, #979ca2 0%, #6b7076 100%);
     color: #e9ecee;
     cursor: pointer;
     box-shadow:
-        0 0 0 3px var(--casing-lo),
-        0 0 0 4px rgba(70, 50, 20, 0.25),
-        0 3px 0 3px #4d5257,
-        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        var(--key-well),
+        0 4px 0 0 #4a4f54,
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -2px 2px rgba(0, 0, 0, 0.15);
     transition: transform var(--ui-ms, 300ms) ease, box-shadow var(--ui-ms, 300ms) ease;
 }
 
@@ -1126,35 +1216,45 @@
 .pill:active {
     transform: translateY(2px);
     box-shadow:
-        0 0 0 3px var(--casing-lo),
-        0 0 0 4px rgba(70, 50, 20, 0.25),
-        0 1px 0 3px #4d5257,
+        var(--key-well),
+        0 2px 0 0 #4a4f54,
         inset 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
+/* Glass domes in collars of casing */
 .lamp {
     display: inline-block;
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--lamp-collar);
 }
 
-.lamp_off { background: #8a8270; }
-.lamp_on { background: var(--glow); box-shadow: 0 0 6px var(--glow); }
+.lamp_off { background: radial-gradient(circle at 35% 30%, #d9d1bc 0 1px, #9a917c 2.5px, #6d6553 5px); }
+.lamp_on {
+    background: radial-gradient(circle at 35% 30%, #fff 0 1px, #b7fff2 2px, var(--glow) 3.5px, #1f8a82 5px);
+    box-shadow: var(--lamp-collar), 0 0 10px 2px rgba(78, 205, 196, 0.75);
+}
 
 /* The save's light: a bar rather than a dot, in its own colours, so it isn't read as a fourth mode */
 .led {
     display: block;
-    width: 16px;
-    height: 7px;
-    border-radius: 2px;
-    background: #8a8270;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
+    width: 20px;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #b0a78f, #7a725f);
+    box-shadow: var(--lamp-collar), inset 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-.led_warn { background: #f0b43c; box-shadow: 0 0 6px #f0b43c; }
-.led_ready { background: #6fd96a; box-shadow: 0 0 6px #6fd96a; }
+.led_warn {
+    background: linear-gradient(180deg, #fff1c8 0%, #f6c35c 35%, #c4861c 100%);
+    box-shadow: var(--lamp-collar), 0 0 10px 2px rgba(240, 180, 60, 0.7);
+}
+
+.led_ready {
+    background: linear-gradient(180deg, #e2ffd9 0%, #8fe889 35%, #3fa83a 100%);
+    box-shadow: var(--lamp-collar), 0 0 10px 2px rgba(111, 217, 106, 0.7);
+}
 
 /* ─── Mode switch ── */
 
@@ -1174,26 +1274,31 @@
     position: relative;
     padding: 5px;
     border-radius: 11px;
-    background: linear-gradient(180deg, #2a2f33, #3a4045);
+    /* A slot cut through the casing, with a lip round it */
+    background: linear-gradient(180deg, #141719, #262b2f 60%, #30363a);
     box-shadow:
-        inset 0 2px 5px rgba(0, 0, 0, 0.7),
-        0 1px 0 rgba(255, 255, 255, 0.7);
+        inset 0 4px 7px rgba(0, 0, 0, 0.85),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+        0 0 0 2px #c8bb95,
+        0 -1px 0 2px rgba(70, 50, 20, 0.35),
+        0 1px 0 2px rgba(255, 255, 255, 0.7);
 }
 
-/* Ridged grey thumb */
+/* Knurled metal thumb */
 .thumb {
     position: relative;
     z-index: 1;
     display: block;
     width: calc(100% / var(--stops, 3));
     height: 100%;
-    border-radius: 7px;
+    border-radius: 6px;
     background:
-        repeating-linear-gradient(90deg, transparent 0 5px, rgba(0, 0, 0, 0.22) 5px 6px, rgba(255, 255, 255, 0.25) 6px 7px, transparent 7px 8px) center / 50% 60% no-repeat,
-        linear-gradient(180deg, #b9bdc1 0%, #8f949a 55%, #6f7479 100%);
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0 1px, rgba(255, 255, 255, 0.35) 1px 2px, transparent 2px 4px) center / 70% 78% no-repeat,
+        linear-gradient(180deg, #d6dade 0%, #a5aaaf 45%, #7b8086 100%);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.5),
-        0 2px 3px rgba(0, 0, 0, 0.5);
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+        0 3px 4px rgba(0, 0, 0, 0.6);
     /* Slides and stops, with no bounce */
     transition: transform var(--ui-ms, 300ms) ease-in-out;
 }
